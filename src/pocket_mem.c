@@ -1,0 +1,65 @@
+#include "pocket_internals.h"
+
+void pk_pool_expand(Pocket lisp) {
+    PKPool *pool = pk_malloc(lisp, sizeof(PKPool));
+    pool->next = lisp->pool;
+    for (size_t i = 0; i < (PK_POOL_MAX - 1); ++i) {
+        PKAtom *a = &pool->e[i];
+        PKAtom *b = &pool->e[i + 1];
+        a->free = (PKAtomFree) {
+            .tag.ty = PKAtomTy_Free,
+            .tag.marked = false,
+            .next = (PKAtomFree *)b,
+        };
+    }
+    PKAtomFree *free = (PKAtomFree *)&pool->e[PK_POOL_MAX - 1];
+    *free = (PKAtomFree) {
+        .tag.ty = PKAtomTy_Free,
+        .tag.marked = false,
+        .next = lisp->free,
+    };
+    lisp->free = free;
+    lisp->pool = pool;
+}
+
+PKAtom *pk_atom_alloc(Pocket lisp) {
+    if (lisp->free == NULL) {
+        pk_pool_expand(lisp);
+    }
+    PKAtomFree *result = lisp->free;
+    lisp->free = result->next;
+    return (PKAtom *)result;
+}
+
+size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity) {
+    if (old_capacity == 0) {
+        return init_capacity;
+    } else {
+        return old_capacity * 2;
+    }
+}
+
+void *pk_malloc(Pocket lisp, size_t size) {
+    void *result = (lisp->alloc)(lisp->user_closure, NULL, 0, size);
+    if (result == NULL) {
+        pk_error(lisp);
+    }
+    return result;
+}
+
+void *pk_realloc(Pocket lisp, void *ptr, size_t old_size, size_t new_size) {
+    void *result = (lisp->alloc)(lisp->user_closure, ptr, old_size, new_size);
+    if ((new_size > 0) && (result == NULL)) {
+        pk_error(lisp);
+    }
+    return result;
+}
+
+void pk_free(Pocket lisp, void *ptr, size_t size) {
+    (void)(lisp->alloc)(lisp->user_closure, ptr, size, 0);
+}
+
+void pk_error(Pocket lisp) {
+    (void)lisp;
+    exit(69);
+}
