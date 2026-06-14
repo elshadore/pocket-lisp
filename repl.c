@@ -27,6 +27,9 @@ int main(void) {
     if (lisp == NULL) {
         return EXIT_FAILURE;
     }
+    pk_push_int(lisp, 69);
+    pk_push_int(lisp, 420);
+    pk_stack_dump(lisp);
     pk_deinit(lisp);
     stb_leakcheck_dumpmem();
     return EXIT_SUCCESS;

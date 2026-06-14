@@ -18,7 +18,7 @@ void pk_writer_deinit(PKWriter *w) {
     *w = pk_writer_init(w->lisp);
 }
 
-void pk_writer_grow(PKWriter *w, size_t needed) {
+void pk_writer_expand(PKWriter *w, size_t needed) {
     size_t new_count = w->count + needed;
     if (new_count > w->capacity) {
         size_t new_capacity = pk_grow_capacity(w->capacity, PK_WRITER_INIT_CAPACITY);
@@ -31,7 +31,7 @@ void pk_writer_grow(PKWriter *w, size_t needed) {
 }
 
 void pk_writer_char(PKWriter *w, char c) {
-    pk_writer_grow(w, 1);
+    pk_writer_expand(w, 1);
     w->c[w->count++] = c;
 }
 
@@ -39,39 +39,18 @@ void pk_writer_cstr(PKWriter *w, char *cstr) {
     pk_writer_string(w, pk_string_from_cstr(cstr));
 }
 
-void pk_writer_string(PKWriter *w, PKString s) {
-    if (s.length == 0) {
+void pk_writer_string(PKWriter *w, PKString string) {
+    if (string.length == 0) {
         return;
     }
-    pk_writer_grow(w, s.length);
-    memcpy(w->c + w->count, s.c, s.length);
-    w->count += s.length;
+    pk_writer_expand(w, string.length);
+    memcpy(w->c + w->count, string.c, string.length);
+    w->count += string.length;
 }
 
-void pk_writer_int(PKWriter *w, int v) {
-    char buf[32];
-    int n = snprintf(buf, sizeof(buf), "%d", v);
-    pk_writer_string(w, pk_string_new(buf, (size_t)n));
-}
-
-void pk_writer_float(PKWriter *w, float v) {
-    char buf[64];
-    int n = snprintf(buf, sizeof(buf), "%g", v);
-    pk_writer_string(w, pk_string_new(buf, (size_t)n));
-}
-
-PKString pk_writer_get(PKWriter *w) {
-    return (PKString){ .c = w->c, .length = w->count };
-}
-
-void pk_writer_reset(PKWriter *w) {
-    w->count = 0;
-}
-
-
-void pk_writer_string_escaped(PKWriter *w, PKString s) {
-    for (size_t i = 0; i < s.length; ++i) {
-        char c = s.c[i];
+void pk_writer_string_escaped(PKWriter *w, PKString string) {
+    for (size_t i = 0; i < string.length; ++i) {
+        char c = string.c[i];
         switch (c) {
             case '"': {
                 pk_writer_string(w, pkstr("\\\""));
@@ -101,6 +80,50 @@ void pk_writer_string_escaped(PKWriter *w, PKString s) {
     }
 }
 
+void PK_PRINTF(2, 3) pk_writer_printf(PKWriter *w, const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    size_t length = vsnprintf(NULL, 0, fmt, ap);
+    va_end(ap);
+    if (length == 0) {
+        return;
+    }
+    pk_writer_expand(w, length + 1);
+    va_start(ap, fmt);
+    (void)vsnprintf(w->c + w->count, (length + 1), fmt, ap);
+    w->count += length;
+    va_end(ap);
+}
+
+void pk_writer_int(PKWriter *w, int integer) {
+    
+    char buf[32];
+    int n = snprintf(buf, sizeof(buf), "%d", integer);
+    pk_writer_string(w, pk_string_new(buf, (size_t)n));
+}
+
+void pk_writer_float(PKWriter *w, float floater) {
+    char buf[64];
+    int n = snprintf(buf, sizeof(buf), "%f", floater);
+    pk_writer_string(w, pk_string_new(buf, (size_t)n));
+}
+
+void pk_writer_newline(PKWriter *w) {
+    pk_writer_char(w, '\n');
+}
+
+PKString pk_writer_get(PKWriter *w) {
+    return (PKString){ .c = w->c, .length = w->count };
+}
+
+void pk_writer_reset(PKWriter *w) {
+    w->count = 0;
+}
+
+void pk_writer_print(PKWriter *w) {
+    fprintf(stderr, "%.*s", (int)w->count, w->c);
+}
+
 void pk_writer_atom(PKWriter *w, PKAtom *atom) {
     switch (atom->tag.ty) {
         case PKAtomTy_Nil: {
@@ -108,7 +131,7 @@ void pk_writer_atom(PKWriter *w, PKAtom *atom) {
             break;
         }
         case PKAtomTy_Number: {
-            if (atom->number.ty == PKNumber_Int) {
+            if (atom->number.ty == PKNumberTy_Int) {
                 pk_writer_int(w, atom->number.as.i);
             } else {
                 pk_writer_float(w, atom->number.as.f);

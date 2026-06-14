@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <setjmp.h>
+#include <stdarg.h>
 #include <limits.h>
 
 typedef struct PocketLispMachine_ *Pocket;
@@ -18,6 +19,8 @@ typedef struct PKString_ {
     char *c;
     size_t length;
 } PKString;
+
+#define PK_PRINTF(fmt_, args_) __attribute__ ((format (printf, fmt_, args_)))
 
 #define pkstr(text_) (PKString){.c = text_, .length = ((sizeof(text_) / sizeof(char)) - 1)}
 #define PK_STRING_EMPTY (PKString){0}
@@ -54,7 +57,7 @@ void pk_fget(Pocket lisp, int symbol);
 void pk_funbind(Pocket lisp, int symbol);
 
 // void pk_getf(Pocket lisp, int object, int accessor);
-// void pk_setf_getf(Pocket lisp, int object, int accessor, int value);
+// void pk_getf_setf(Pocket lisp, int object, int accessor, int value);
 
 void pk_push_t(Pocket lisp);
 void pk_push_nil(Pocket lisp);
@@ -64,6 +67,7 @@ void pk_push_float(Pocket lisp, float floater);
 void pk_push_string(Pocket lisp, PKString string);
 void pk_push_cstr(Pocket lisp, char *cstr);
 void pk_push_nstr(Pocket lisp, char *string, size_t length);
+void PK_PRINTF(2, 3) pk_push_printf(Pocket lsip, const char *fmt, ...);
 void pk_push_symbol(Pocket lisp, PKString symbol);
 void pk_push_csym(Pocket lisp, char *cstr);
 void pk_push_nsym(Pocket lisp, char *symbol, size_t length);
@@ -98,5 +102,7 @@ PKString pk_to_string(Pocket lisp, int stack_pointer);
 
 Pocket pk_init(void *user_closure, PKAllocFn alloc);
 void pk_deinit(Pocket lisp);
+
+void pk_stack_dump(Pocket lisp);
 
 #endif

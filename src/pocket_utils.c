@@ -18,3 +18,17 @@ bool pk_string_eq(PKString a, PKString b) {
     if (a.length != b.length) return false;
     return memcmp(a.c, b.c, a.length) == 0;
 }
+
+void pk_stack_dump(Pocket lisp) {
+    int top = pk_get_top(lisp);
+    PKWriter w = pk_writer_init(lisp);
+    pk_writer_printf(&w, "*~STACK-DUMP~*\n");
+    for (int i = top; i > 0; i--) {
+        int rel = pk_sp_relative(lisp, i);
+        pk_writer_printf(&w, "[%d/%d] => ", rel, i);
+        pk_writer_atom(&w, pk_stack_get(lisp, i));
+        pk_writer_newline(&w);
+    }
+    pk_writer_print(&w);
+    pk_writer_deinit(&w);
+}

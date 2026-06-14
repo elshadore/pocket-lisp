@@ -26,8 +26,8 @@ struct PKAtomFree_ {
 };
 
 typedef enum PKNumberTy_ {
-    PKNumber_Int = 0,
-    PKNumber_Float,
+    PKNumberTy_Int = 0,
+    PKNumberTy_Float,
 } PKNumberTy;
 
 typedef struct PKAtomNumber_ {
@@ -106,6 +106,11 @@ PKAtomSymbol *pk_make_atom_symbol(Pocket lisp, PKString id);
 PKAtomCons *pk_make_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);
 PKAtom *pk_make_atom_nil(Pocket lisp);
 
+PKAtomNumber *pk_atom_cast_number(Pocket lisp, PKAtom *atom);
+PKAtomString *pk_atom_cast_string(Pocket lisp, PKAtom *atom);
+PKAtomSymbol *pk_atom_cast_symbol(Pocket lisp, PKAtom *atom);
+PKAtomCons   *pk_atom_cast_cons(Pocket lisp, PKAtom *atom);
+
 PKString pk_string_dupe(Pocket lisp, PKString string);
 void pk_string_free(Pocket lisp, PKString string);
 PKString pk_string_from_cstr(char *cstr);
@@ -120,17 +125,34 @@ PKAtom *pk_stack_get(Pocket lisp, int stack_pointer);
 
 void pk_error(Pocket lisp);
 
+PKAtomNumber *pk_number_add(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
+PKAtomNumber *pk_number_sub(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
+PKAtomNumber *pk_number_mul(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
+PKAtomNumber *pk_number_div(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
+PKAtomNumber *pk_number_mod(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
+
+bool pk_number_lt(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
+bool pk_number_lte(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
+bool pk_number_gt(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
+bool pk_number_gte(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
+bool pk_number_eq(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
+
+int pk_number_to_int(PKAtomNumber *num);
+float pk_number_to_float(PKAtomNumber *num);
+
 PKWriter pk_writer_init(Pocket lisp);
 void pk_writer_deinit(PKWriter *w);
 void pk_writer_char(PKWriter *w, char c);
 void pk_writer_cstr(PKWriter *w, char *cstr);
-void pk_writer_string(PKWriter *w, PKString s);
-void pk_writer_int(PKWriter *w, int v);
-void pk_writer_float(PKWriter *w, float v);
-void pk_writer_string_escaped(PKWriter *w, PKString s);
+void pk_writer_string(PKWriter *w, PKString string);
+void pk_writer_string_escaped(PKWriter *w, PKString string);
+void PK_PRINTF(2, 3) pk_writer_printf(PKWriter *w, const char *fmt, ...);
+void pk_writer_newline(PKWriter *w);
+void pk_writer_int(PKWriter *w, int integer);
+void pk_writer_float(PKWriter *w, float floater);
 void pk_writer_atom(PKWriter *w, PKAtom *atom);
 PKString pk_writer_get(PKWriter *w);
 void pk_writer_reset(PKWriter *w);
-
+void pk_writer_print(PKWriter *w);
 
 #endif

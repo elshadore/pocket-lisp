@@ -88,3 +88,71 @@ void pk_push_csym(Pocket lisp, char *cstr) {
 void pk_push_nsym(Pocket lisp, char *sym, size_t length) {
     pk_push_symbol(lisp, pk_string_new(sym, length));
 }
+
+void pk_add(Pocket lisp, int lhs, int rhs) {
+    PKAtom *a = pk_stack_get(lisp, lhs);
+    PKAtom *b = pk_stack_get(lisp, rhs);
+    PKAtomNumber *n = pk_number_add(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
+    pk_push(lisp, (PKAtom *)n);
+}
+
+void pk_sub(Pocket lisp, int lhs, int rhs) {
+    PKAtom *a = pk_stack_get(lisp, lhs);
+    PKAtom *b = pk_stack_get(lisp, rhs);
+    PKAtomNumber *n = pk_number_sub(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
+    pk_push(lisp, (PKAtom *)n);
+}
+
+void pk_mul(Pocket lisp, int lhs, int rhs) {
+    PKAtom *a = pk_stack_get(lisp, lhs);
+    PKAtom *b = pk_stack_get(lisp, rhs);
+    PKAtomNumber *n = pk_number_mul(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
+    pk_push(lisp, (PKAtom *)n);
+}
+
+void pk_div(Pocket lisp, int lhs, int rhs) {
+    PKAtom *a = pk_stack_get(lisp, lhs);
+    PKAtom *b = pk_stack_get(lisp, rhs);
+    PKAtomNumber *n = pk_number_div(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
+    pk_push(lisp, (PKAtom *)n);
+}
+
+bool pk_gt(Pocket lisp, int lhs, int rhs) {
+    PKAtom *a = pk_stack_get(lisp, lhs);
+    PKAtom *b = pk_stack_get(lisp, rhs);
+    return pk_number_gt(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
+}
+
+bool pk_gte(Pocket lisp, int lhs, int rhs) {
+    PKAtom *a = pk_stack_get(lisp, lhs);
+    PKAtom *b = pk_stack_get(lisp, rhs);
+    return pk_number_gte(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
+}
+
+bool pk_lt(Pocket lisp, int lhs, int rhs) {
+    PKAtom *a = pk_stack_get(lisp, lhs);
+    PKAtom *b = pk_stack_get(lisp, rhs);
+    return pk_number_lt(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
+}
+
+bool pk_lte(Pocket lisp, int lhs, int rhs) {
+    PKAtom *a = pk_stack_get(lisp, lhs);
+    PKAtom *b = pk_stack_get(lisp, rhs);
+    return pk_number_lte(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
+}
+
+int pk_to_int(Pocket lisp, int stack_pointer) {
+    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
+    return pk_number_to_int(pk_atom_cast_number(lisp, atom));
+}
+
+float pk_to_float(Pocket lisp, int stack_pointer) {
+    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
+    return pk_number_to_float(pk_atom_cast_number(lisp, atom));
+}
+
+PKString pk_to_string(Pocket lisp, int stack_pointer) {
+    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
+    PKAtomString *s = pk_atom_cast_string(lisp, atom);
+    return s->lit;
+}

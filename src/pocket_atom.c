@@ -5,7 +5,7 @@ PKAtomNumber *pk_make_atom_int(Pocket lisp, int value) {
     *atom = (PKAtomNumber) {
         .tag.ty = PKAtomTy_Number,
         .tag.marked = false,
-        .ty = PKNumber_Int,
+        .ty = PKNumberTy_Int,
         .as.i = value,
     };
     return atom;
@@ -16,7 +16,7 @@ PKAtomNumber *pk_make_atom_float(Pocket lisp, float value) {
     *atom = (PKAtomNumber) {
         .tag.ty = PKAtomTy_Number,
         .tag.marked = false,
-        .ty = PKNumber_Float,
+        .ty = PKNumberTy_Float,
         .as.f = value,
     };
     return atom;
@@ -57,4 +57,24 @@ PKAtom *pk_make_atom_nil(Pocket lisp) {
     PKAtom *atom = pk_atom_alloc(lisp);
     atom->tag = (PKAtomTag){ .ty = PKAtomTy_Nil, .marked = false };
     return atom;
+}
+
+PKAtomNumber *pk_atom_cast_number(Pocket lisp, PKAtom *atom) {
+    if (atom->tag.ty != PKAtomTy_Number) pk_error(lisp);
+    return (PKAtomNumber *)atom;
+}
+
+PKAtomString *pk_atom_cast_string(Pocket lisp, PKAtom *atom) {
+    if (atom->tag.ty != PKAtomTy_String) pk_error(lisp);
+    return (PKAtomString *)atom;
+}
+
+PKAtomSymbol *pk_atom_cast_symbol(Pocket lisp, PKAtom *atom) {
+    if (atom->tag.ty != PKAtomTy_Symbol) pk_error(lisp);
+    return (PKAtomSymbol *)atom;
+}
+
+PKAtomCons *pk_atom_cast_cons(Pocket lisp, PKAtom *atom) {
+    if (atom->tag.ty != PKAtomTy_Cons) pk_error(lisp);
+    return (PKAtomCons *)atom;
 }
