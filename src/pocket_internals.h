@@ -64,6 +64,15 @@ union PKAtom_ {
     PKAtomCons cons;
 };
 
+typedef struct PKWriter_ {
+    Pocket lisp;
+    char *c;
+    size_t count;
+    size_t capacity;
+} PKWriter;
+
+#define PK_WRITER_INIT_CAPACITY (256)
+
 typedef struct PKStack_ {
     PKAtom **e;
     size_t count;
@@ -95,14 +104,33 @@ PKAtomNumber *pk_make_atom_float(Pocket lisp, float value);
 PKAtomString *pk_make_atom_string(Pocket lisp, PKString string);
 PKAtomSymbol *pk_make_atom_symbol(Pocket lisp, PKString id);
 PKAtomCons *pk_make_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);
+PKAtom *pk_make_atom_nil(Pocket lisp);
 
 PKString pk_string_dupe(Pocket lisp, PKString string);
 void pk_string_free(Pocket lisp, PKString string);
+PKString pk_string_from_cstr(char *cstr);
+bool pk_string_eq(PKString a, PKString b);
 
 void *pk_malloc(Pocket lisp, size_t size);
 void *pk_realloc(Pocket lisp, void *ptr, size_t old_size, size_t new_size);
 void pk_free(Pocket lisp, void *ptr, size_t size);
 
+void pk_push(Pocket lisp, PKAtom *atom);
+PKAtom *pk_stack_get(Pocket lisp, int stack_pointer);
+
 void pk_error(Pocket lisp);
+
+PKWriter pk_writer_init(Pocket lisp);
+void pk_writer_deinit(PKWriter *w);
+void pk_writer_char(PKWriter *w, char c);
+void pk_writer_cstr(PKWriter *w, char *cstr);
+void pk_writer_string(PKWriter *w, PKString s);
+void pk_writer_int(PKWriter *w, int v);
+void pk_writer_float(PKWriter *w, float v);
+void pk_writer_string_escaped(PKWriter *w, PKString s);
+void pk_writer_atom(PKWriter *w, PKAtom *atom);
+PKString pk_writer_get(PKWriter *w);
+void pk_writer_reset(PKWriter *w);
+
 
 #endif

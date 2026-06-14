@@ -52,3 +52,9 @@ PKAtomCons *pk_make_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr) {
     };
     return atom;
 }
+
+PKAtom *pk_make_atom_nil(Pocket lisp) {
+    PKAtom *atom = pk_atom_alloc(lisp);
+    atom->tag = (PKAtomTag){ .ty = PKAtomTy_Nil, .marked = false };
+    return atom;
+}

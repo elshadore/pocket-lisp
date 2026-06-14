@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <setjmp.h>
+#include <limits.h>
 
 typedef struct PocketLispMachine_ *Pocket;
 
@@ -17,6 +18,10 @@ typedef struct PKString_ {
     char *c;
     size_t length;
 } PKString;
+
+#define pkstr(text_) (PKString){.c = text_, .length = ((sizeof(text_) / sizeof(char)) - 1)}
+#define PK_STRING_EMPTY (PKString){0}
+#define pk_string_new(c_, length_) (PKString){.c = c_, .length = length_}
 
 typedef enum PKType_ {
     PKType_Unknown = 0,
@@ -40,16 +45,16 @@ void pk_set_top(Pocket lisp, int new_top);
 int pk_sp_absolute(Pocket lisp, int stack_pointer);
 int pk_sp_relative(Pocket lisp, int stack_pointer);
 
-void pk_set(Pocket lisp);
-void pk_get(Pocket lisp);
-void pk_unbind(Pocket lisp);
+void pk_set(Pocket lisp, int symbol, int value);
+void pk_get(Pocket lisp, int symbol);
+void pk_unbind(Pocket lisp, int symbol);
 
-void pk_fset(Pocket lisp);
-void pk_fget(Pocket lisp);
-void pk_funbind(Pocket lisp);
+void pk_fset(Pocket lisp, int symbol, int value);
+void pk_fget(Pocket lisp, int symbol);
+void pk_funbind(Pocket lisp, int symbol);
 
-void pk_setf(Pocket lisp);
-void pk_getf(Pocket lisp);
+// void pk_getf(Pocket lisp, int object, int accessor);
+// void pk_setf_getf(Pocket lisp, int object, int accessor, int value);
 
 void pk_push_t(Pocket lisp);
 void pk_push_nil(Pocket lisp);
@@ -64,28 +69,28 @@ void pk_push_csym(Pocket lisp, char *cstr);
 void pk_push_nsym(Pocket lisp, char *symbol, size_t length);
 void pk_push_cons(Pocket lisp, int car, int cdr);
 
-void pk_set_car(Pocket lisp);
-void pk_set_cdr(Pocket lisp);
-void pk_car(Pocket lisp);
-void pk_cdr(Pocket lisp);
+void pk_set_car(Pocket lisp, int cons, int new_car);
+void pk_set_cdr(Pocket lisp, int cons, int new_car);
+void pk_car(Pocket lisp, int cons);
+void pk_cdr(Pocket lisp, int cons);
 
-void pk_read(Pocket lisp);
+void pk_read(Pocket lisp, int stack_pointer);
 void pk_read_cstr(Pocket lisp, char *cstr);
 void pk_read_nstr(Pocket lisp, char *string, size_t length);
 
-void pk_eval(Pocket lisp);
-void pk_apply(Pocket lisp);
+void pk_eval(Pocket lisp, int stack_pointer);
+void pk_apply(Pocket lisp, int stack_pointer);
 void pk_funcall(Pocket lisp, int args);
 
-void pk_add(Pocket lisp);
-void pk_sub(Pocket lisp);
-void pk_div(Pocket lisp);
-void pk_mul(Pocket lisp);
+void pk_add(Pocket lisp, int lhs, int rhs);
+void pk_sub(Pocket lisp, int lhs, int rhs);
+void pk_div(Pocket lisp, int lhs, int rhs);
+void pk_mul(Pocket lisp, int lhs, int rhs);
 
-void pk_gt(Pocket lisp);
-void pk_gte(Pocket lisp);
-void pk_lt(Pocket lisp);
-void pk_lte(Pocket lisp);
+bool pk_gt(Pocket lisp, int lhs, int rhs);
+bool pk_gte(Pocket lisp, int lhs, int rhs);
+bool pk_lt(Pocket lisp, int lhs, int rhs);
+bool pk_lte(Pocket lisp, int lhs, int rhs);
 
 int pk_to_int(Pocket lisp, int stack_pointer);
 float pk_to_float(Pocket lisp, int stack_pointer);

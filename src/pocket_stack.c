@@ -1,5 +1,46 @@
 #include "pocket_internals.h"
 
+int pk_get_top(Pocket lisp) {
+    return (int)lisp->stack.count;
+}
+
+int pk_sp_absolute(Pocket lisp, int stack_pointer) {
+    int top = pk_get_top(lisp);
+    if (stack_pointer >= 0) {
+        return stack_pointer;
+    } else {
+        return top - (-stack_pointer - 1);
+    }
+}
+
+int pk_sp_relative(Pocket lisp, int stack_pointer) {
+    int top = pk_get_top(lisp);
+    if (stack_pointer <= 0) {
+        return stack_pointer;
+    } else {
+        return -(top - (stack_pointer - 1));
+    }
+}
+
+size_t pk_sp_index(Pocket lisp, int stack_pointer) {
+    int top = pk_get_top(lisp);
+    if (top <= 0) {
+        pk_error(lisp);
+    }
+
+    size_t absolute = (size_t)pk_sp_absolute(lisp, stack_pointer);
+    if (absolute <= 0) {
+        pk_error(lisp);
+    }
+
+    size_t index = absolute - 1;
+    if (index > lisp->stack.count) {
+        pk_error(lisp);
+    }
+
+    return index;
+}
+
 void pk_push(Pocket lisp, PKAtom *atom) {
     PKStack *stack = &lisp->stack;
     if (stack->count >= stack->capacity) {
@@ -8,7 +49,15 @@ void pk_push(Pocket lisp, PKAtom *atom) {
         stack->capacity = new_capacity;
         stack->e = new_e;
     }
-    stack->e[stack->count++] = atom;
+    
+    size_t index = stack->count;
+    stack->e[index] = atom;
+    size_t grow = stack->count + 1;
+    
+    if (grow > INT_MAX) {
+        pk_error(lisp);
+    }
+    stack->count = grow;
 }
 
 void pk_pop(Pocket lisp) {
@@ -16,4 +65,8 @@ void pk_pop(Pocket lisp) {
         pk_error(lisp);
     }
     lisp->stack.count -= 1;
+}
+
+PKAtom *pk_stack_get(Pocket lisp, int stack_pointer) {
+    return lisp->stack.e[pk_sp_index(lisp, stack_pointer)];
 }

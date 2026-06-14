@@ -40,3 +40,51 @@ void pk_deinit(Pocket lisp) {
 
     pk_free(lisp, lisp, sizeof(struct PocketLispMachine_));
 }
+
+void pk_push_nil(Pocket lisp) {
+    pk_push(lisp, pk_make_atom_nil(lisp));
+}
+
+void pk_push_t(Pocket lisp) {
+    pk_push(lisp, (PKAtom *)pk_make_atom_symbol(lisp, pkstr("t")));
+}
+
+void pk_push_cond(Pocket lisp, bool cond) {
+    if (cond) {
+        pk_push_t(lisp);
+    } else {
+        pk_push_nil(lisp);
+    }
+}
+
+void pk_push_int(Pocket lisp, int integer) {
+    pk_push(lisp, (PKAtom *)pk_make_atom_int(lisp, integer));
+}
+
+void pk_push_float(Pocket lisp, float floater) {
+    pk_push(lisp, (PKAtom *)pk_make_atom_float(lisp, floater));
+}
+
+void pk_push_string(Pocket lisp, PKString string) {
+    pk_push(lisp, (PKAtom *)pk_make_atom_string(lisp, string));
+}
+
+void pk_push_cstr(Pocket lisp, char *cstr) {
+    pk_push_string(lisp, pk_string_from_cstr(cstr));
+}
+
+void pk_push_nstr(Pocket lisp, char *str, size_t length) {
+    pk_push_string(lisp, pk_string_new(str, length));
+}
+
+void pk_push_symbol(Pocket lisp, PKString symbol) {
+    pk_push(lisp, (PKAtom *)pk_make_atom_symbol(lisp, symbol));
+}
+
+void pk_push_csym(Pocket lisp, char *cstr) {
+    pk_push_symbol(lisp, pk_string_from_cstr(cstr));
+}
+
+void pk_push_nsym(Pocket lisp, char *sym, size_t length) {
+    pk_push_symbol(lisp, pk_string_new(sym, length));
+}

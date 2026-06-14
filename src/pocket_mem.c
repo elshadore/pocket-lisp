@@ -89,13 +89,3 @@ void pk_error(Pocket lisp) {
     (void)lisp;
     exit(69);
 }
-
-PKString pk_string_dupe(Pocket lisp, PKString string) {
-    char *copy = pk_malloc(lisp, string.length);
-    memcpy(copy, string.c, string.length);
-    return (PKString){ .c = copy, .length = string.length };
-}
-
-void pk_string_free(Pocket lisp, PKString string) {
-    pk_free(lisp, string.c, string.length);
-}
