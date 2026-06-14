@@ -73,6 +73,13 @@ typedef struct PKWriter_ {
 
 #define PK_WRITER_INIT_CAPACITY (256)
 
+typedef struct PKReader_ {
+    Pocket lisp;
+    PKString src;
+    char c;
+    size_t curr;
+} PKReader;
+
 typedef struct PKStack_ {
     PKAtom **e;
     size_t count;
@@ -87,15 +94,23 @@ struct PKPool_ {
     PKPool *next;
 };
 
+typedef struct PKCache_ {
+    PKAtom *nil;
+    PKAtomSymbol *t;
+} PKCache;
+
 struct PocketLispMachine_ {
+    PKCache cache;
     PKStack stack;
     PKPool *pool;
     PKAtomFree *free;
     void *user_closure;
     PKAllocFn alloc;
+    PKPrintFn print;
 };
 
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);
+void pk_print(Pocket lisp, char *c, size_t length);
 
 PKAtom *pk_atom_alloc(Pocket lisp);
 void pk_atom_free(Pocket lisp, PKAtom *atom);
@@ -109,7 +124,7 @@ PKAtom *pk_make_atom_nil(Pocket lisp);
 PKAtomNumber *pk_atom_cast_number(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_cast_string(Pocket lisp, PKAtom *atom);
 PKAtomSymbol *pk_atom_cast_symbol(Pocket lisp, PKAtom *atom);
-PKAtomCons   *pk_atom_cast_cons(Pocket lisp, PKAtom *atom);
+PKAtomCons *pk_atom_cast_cons(Pocket lisp, PKAtom *atom);
 
 PKString pk_string_dupe(Pocket lisp, PKString string);
 void pk_string_free(Pocket lisp, PKString string);
@@ -154,5 +169,16 @@ void pk_writer_atom(PKWriter *w, PKAtom *atom);
 PKString pk_writer_get(PKWriter *w);
 void pk_writer_reset(PKWriter *w);
 void pk_writer_print(PKWriter *w);
+
+uint8_t pk_char_to_digit(char c);
+char pk_char_from_digit(uint8_t integer);
+char pk_char_from_hex(uint8_t byte);
+bool pk_char_is_digit(char c);
+bool pk_char_is_whitespace(char c);
+bool pk_char_is_alphabet(char c);
+bool pk_char_is_symbol(char c);
+
+PKAtom *pk_read_atom(PKReader *r);
+PKAtomCons *pk_read_from_string(Pocket lisp, PKString string);
 
 #endif

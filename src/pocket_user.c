@@ -1,6 +1,6 @@
 #include "pocket_internals.h"
 
-Pocket pk_init(void *user_closure, PKAllocFn alloc) {
+Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print) {
     Pocket lisp = (alloc)(user_closure, NULL, 0, sizeof(struct PocketLispMachine_));
     if (lisp == NULL) {
         return NULL;
@@ -11,6 +11,7 @@ Pocket pk_init(void *user_closure, PKAllocFn alloc) {
         .stack = (PKStack){0},
         .free = NULL,
         .pool = NULL,
+        .print = print,
     };
 
     return lisp;
@@ -155,4 +156,24 @@ PKString pk_to_string(Pocket lisp, int stack_pointer) {
     PKAtom *atom = pk_stack_get(lisp, stack_pointer);
     PKAtomString *s = pk_atom_cast_string(lisp, atom);
     return s->lit;
+}
+
+void pk_read(Pocket lisp, int stack_pointer) {
+    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
+    PKAtomString *s = pk_atom_cast_string(lisp, atom);
+    pk_read_string(lisp, s->lit);
+}
+
+void pk_read_cstr(Pocket lisp, char *cstr) {
+    PKString string = pk_string_from_cstr(cstr);
+    pk_read_string(lisp, string);
+}
+
+void pk_read_nstr(Pocket lisp, char *string, size_t length) {
+    pk_read_string(lisp, pk_string_new(string, length));
+}
+
+void pk_read_string(Pocket lisp, PKString string) {
+    PKAtomCons *result = pk_read_from_string(lisp, string);
+    pk_push(lisp, (PKAtom *)result);
 }

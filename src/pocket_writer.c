@@ -121,7 +121,7 @@ void pk_writer_reset(PKWriter *w) {
 }
 
 void pk_writer_print(PKWriter *w) {
-    fprintf(stderr, "%.*s", (int)w->count, w->c);
+    pk_print(w->lisp, w->c, w->count);
 }
 
 void pk_writer_atom(PKWriter *w, PKAtom *atom) {

@@ -1,0 +1,5 @@
+* The Great TODO List [0/4]
+** TODO Add recursive check to printing
+** TODO Full numerical tower
+** TODO Metaobject system
+** TODO Reading
