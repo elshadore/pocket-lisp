@@ -1,5 +1,10 @@
-* The Great TODO List [0/4]
+* The Great TODO List [1/6]
 ** TODO Add recursive check to printing
 ** TODO Full numerical tower
 ** TODO Metaobject system
-** TODO Reading
+** DONE Reading
+CLOSED: [2026-06-14 Sun 19:43]
+** TODO Memory Leak with String Parsing if Error with Writer
+We need to implement the error system and unwind protect
+** TODO Throwing, Catching, Errors, and Unwind Protect
+

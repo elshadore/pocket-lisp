@@ -163,14 +163,14 @@ void pk_writer_atom(PKWriter *w, PKAtom *atom) {
 }
 
 void pk_writer_cons_loop(PKWriter *w, PKAtom *atom) {
-    PKAtom *rest = atom->cons.cdr;
-    while (rest != NULL && rest->tag.ty == PKAtomTy_Cons) {
+    PKAtom *cdr = atom->cons.cdr;
+    while (cdr->tag.ty == PKAtomTy_Cons) {
         pk_writer_cstr(w, " ");
-        pk_writer_atom(w, rest->cons.car);
-        rest = rest->cons.cdr;
+        pk_writer_atom(w, cdr->cons.car);
+        cdr = cdr->cons.cdr;
     }
-    if (rest != NULL && rest->tag.ty != PKAtomTy_Nil) {
+    if (cdr->tag.ty != PKAtomTy_Nil) {
         pk_writer_cstr(w, " . ");
-        pk_writer_atom(w, rest);
+        pk_writer_atom(w, cdr);
     }
 }

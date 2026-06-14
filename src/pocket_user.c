@@ -12,7 +12,11 @@ Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print) {
         .free = NULL,
         .pool = NULL,
         .print = print,
+        .cache = (PKCache){0},
     };
+    
+    lisp->cache.nil = pk_make_atom_nil(lisp);
+    lisp->cache.t = pk_make_atom_symbol(lisp, pkstr("t"));
 
     return lisp;
 }
@@ -43,11 +47,11 @@ void pk_deinit(Pocket lisp) {
 }
 
 void pk_push_nil(Pocket lisp) {
-    pk_push(lisp, pk_make_atom_nil(lisp));
+    pk_push(lisp, lisp->cache.nil);
 }
 
 void pk_push_t(Pocket lisp) {
-    pk_push(lisp, (PKAtom *)pk_make_atom_symbol(lisp, pkstr("t")));
+    pk_push(lisp, (PKAtom *)lisp->cache.t);
 }
 
 void pk_push_cond(Pocket lisp, bool cond) {
