@@ -89,6 +89,16 @@ struct PocketLispMachine_ {
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);
 
 PKAtom *pk_atom_alloc(Pocket lisp);
+void pk_atom_free(Pocket lisp, PKAtom *atom);
+PKAtomNumber *pk_make_atom_int(Pocket lisp, int value);
+PKAtomNumber *pk_make_atom_float(Pocket lisp, float value);
+PKAtomString *pk_make_atom_string(Pocket lisp, PKString string);
+PKAtomSymbol *pk_make_atom_symbol(Pocket lisp, PKString id);
+PKAtomCons *pk_make_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);
+
+PKString pk_string_dupe(Pocket lisp, PKString string);
+void pk_string_free(Pocket lisp, PKString string);
+
 void *pk_malloc(Pocket lisp, size_t size);
 void *pk_realloc(Pocket lisp, void *ptr, size_t old_size, size_t new_size);
 void pk_free(Pocket lisp, void *ptr, size_t size);

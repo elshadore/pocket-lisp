@@ -31,6 +31,32 @@ PKAtom *pk_atom_alloc(Pocket lisp) {
     return (PKAtom *)result;
 }
 
+void pk_atom_free(Pocket lisp, PKAtom *atom) {
+    switch (atom->tag.ty) {
+        case PKAtomTy_Free: {
+            return;
+        }
+        case PKAtomTy_String: {
+            pk_string_free(lisp, atom->string.lit);
+            break;
+        }
+        case PKAtomTy_Symbol: {
+            pk_string_free(lisp, atom->symbol.id);
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+    PKAtomFree *free = (PKAtomFree *)atom;
+    *free = (PKAtomFree) {
+        .tag.ty = PKAtomTy_Free,
+        .tag.marked = false,
+        .next = lisp->free,
+    };
+    lisp->free = free;
+}
+
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity) {
     if (old_capacity == 0) {
         return init_capacity;
@@ -62,4 +88,14 @@ void pk_free(Pocket lisp, void *ptr, size_t size) {
 void pk_error(Pocket lisp) {
     (void)lisp;
     exit(69);
+}
+
+PKString pk_string_dupe(Pocket lisp, PKString string) {
+    char *copy = pk_malloc(lisp, string.length);
+    memcpy(copy, string.c, string.length);
+    return (PKString){ .c = copy, .length = string.length };
+}
+
+void pk_string_free(Pocket lisp, PKString string) {
+    pk_free(lisp, string.c, string.length);
 }

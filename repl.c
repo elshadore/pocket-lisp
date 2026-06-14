@@ -1,3 +1,6 @@
+#define STB_LEAKCHECK_IMPLEMENTATION
+#include "./lib/stb_leakcheck.h"
+
 #include "./src/pocket.h"
 
 void *repl_alloc(void *user_closure, void *ptr, size_t old_size, size_t new_size) {
@@ -25,5 +28,6 @@ int main(void) {
         return EXIT_FAILURE;
     }
     pk_deinit(lisp);
+    stb_leakcheck_dumpmem();
     return EXIT_SUCCESS;
 }
