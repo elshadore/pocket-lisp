@@ -91,12 +91,12 @@ typedef struct PKStack_ {
     size_t capacity;
 } PKStack;
 
+#define PK_FRAMES_INIT_CAPACITY (64)
+
 typedef struct PKFrame_ {
     size_t stack_offset;
     size_t arity;
 } PKFrame;
-
-#define PK_FRAMES_INIT_CAPACITY (64)
 
 typedef struct PKFrames_ {
     PKFrame *e;
@@ -109,6 +109,21 @@ typedef struct PKIntern_ {
     size_t count;
     size_t capacity;
 } PKIntern;
+
+#define PK_ENV_INIT_CAPACITY (64)
+
+typedef struct PKEnvSlot_ PKEnvSlot;
+struct PKEnvSlot_ {
+    PKAtomSymbol *key;
+    PKAtom *value;
+    PKEnvSlot *chain;
+};
+
+typedef struct PKEnv_ {
+    PKEnvSlot **e;
+    size_t count;
+    size_t capacity;
+} PKEnv;
 
 #define PK_POOL_MAX (1024)
 
@@ -131,6 +146,8 @@ struct PocketLispMachine_ {
     PKStack stack;
     PKFrames frames;
     PKFrame current_frame;
+    PKEnv vars;
+    PKEnv funs;
     PKIntern intern;
     PKAtomFree *free;
     PKPool *pool;
@@ -217,5 +234,20 @@ void pk_frame_push(Pocket lisp, size_t arity);
 void pk_frame_pop(Pocket lisp);
 
 size_t pk_hash_djb2(char *c, size_t length);
+size_t pk_hash_pointer(void *ptr);
+
+void pk_env_grow(Pocket lisp, PKEnv *env);
+PKAtom *pk_env_put(Pocket lisp, PKEnv *env, PKAtomSymbol *key, PKAtom *value);
+PKAtom *pk_env_query(Pocket lisp, PKEnv *env, PKAtomSymbol *key);
+PKAtom *pk_env_remove(Pocket lisp, PKEnv *env, PKAtomSymbol *key);
+void pk_env_deinit(Pocket lisp, PKEnv *env);
+
+void pk_env_set(Pocket lisp, PKAtomSymbol *sym, PKAtom *value);
+PKAtom *pk_env_get(Pocket lisp, PKAtomSymbol *sym);
+void pk_env_unbind(Pocket lisp, PKAtomSymbol *sym);
+
+void pk_env_fset(Pocket lisp, PKAtomSymbol *sym, PKAtom *value);
+PKAtom *pk_env_fget(Pocket lisp, PKAtomSymbol *sym);
+void pk_env_funbind(Pocket lisp, PKAtomSymbol *sym);
 
 #endif

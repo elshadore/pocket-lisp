@@ -121,6 +121,38 @@ void pk_swap(Pocket lisp, int a, int b) {
     lisp->stack.e[ib] = tmp;
 }
 
+void pk_set(Pocket lisp, int symbol_sp, int value_sp) {
+    PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, pk_stack_get(lisp, symbol_sp));
+    PKAtom *value = pk_stack_get(lisp, value_sp);
+    pk_env_set(lisp, sym, value);
+}
+
+void pk_get(Pocket lisp, int symbol_sp) {
+    PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, pk_stack_get(lisp, symbol_sp));
+    pk_push(lisp, pk_env_get_var(lisp, sym));
+}
+
+void pk_unbind(Pocket lisp, int symbol_sp) {
+    PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, pk_stack_get(lisp, symbol_sp));
+    pk_env_unbind_var(lisp, sym);
+}
+
+void pk_fset(Pocket lisp, int symbol_sp, int value_sp) {
+    PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, pk_stack_get(lisp, symbol_sp));
+    PKAtom *value = pk_stack_get(lisp, value_sp);
+    pk_env_set_fn(lisp, sym, value);
+}
+
+void pk_fget(Pocket lisp, int symbol_sp) {
+    PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, pk_stack_get(lisp, symbol_sp));
+    pk_push(lisp, pk_env_get_fn(lisp, sym));
+}
+
+void pk_funbind(Pocket lisp, int symbol_sp) {
+    PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, pk_stack_get(lisp, symbol_sp));
+    pk_env_unbind_fn(lisp, sym);
+}
+
 void pk_car(Pocket lisp, int cons) {
     PKAtomCons *c = pk_atom_cast_cons(lisp, pk_stack_get(lisp, cons));
     pk_push(lisp, c->car);

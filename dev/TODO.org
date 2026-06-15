@@ -1,5 +1,7 @@
-* The Great TODO List [1/11]
-** TODO Symbol Interning
+* The Great TODO List [2/11]
+** DONE Symbol Interning
+CLOSED: [2026-06-15 Mon 20:15]
+** TODO Basic GC
 ** TODO Basic Environment
 ** TODO Basic Interpreter
 ** TODO Macros

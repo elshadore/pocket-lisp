@@ -152,3 +152,8 @@ size_t pk_hash_djb2(char *c, size_t length) {
     }
     return hash;
 }
+
+size_t pk_hash_pointer(void *ptr) {
+    uintptr_t p = (uintptr_t)ptr;
+    return (size_t)(p >> 3);
+}
