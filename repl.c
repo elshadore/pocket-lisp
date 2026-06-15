@@ -27,6 +27,7 @@ void repl_print(void *user_env, char *c, size_t length) {
 }
 
 void example(void *user_closure, Pocket lisp) {
+    (void)user_closure;
     pk_push_int(lisp, 67);
     pk_stack_dump(lisp);
 }

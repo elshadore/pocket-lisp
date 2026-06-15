@@ -153,6 +153,8 @@ void *pk_realloc(Pocket lisp, void *ptr, size_t old_size, size_t new_size);
 void pk_free(Pocket lisp, void *ptr, size_t size);
 
 void pk_push(Pocket lisp, PKAtom *atom);
+void pk_stack_expand(Pocket lisp, size_t total);
+size_t pk_sp_index(Pocket lisp, int stack_pointer);
 PKAtom *pk_stack_get(Pocket lisp, int stack_pointer);
 void pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom);
 size_t pk_stack_total(Pocket lisp);

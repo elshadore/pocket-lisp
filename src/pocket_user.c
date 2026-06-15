@@ -98,6 +98,25 @@ void pk_push_nsym(Pocket lisp, char *sym, size_t length) {
     pk_push_symbol(lisp, pk_string_new(sym, length));
 }
 
+void pk_dupe(Pocket lisp, int stack_pointer) {
+    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
+    pk_push(lisp, atom);
+}
+
+void pk_insert(Pocket lisp, int from, int to) {
+    size_t a = pk_sp_index(lisp, from);
+    size_t b = pk_sp_index(lisp, to);
+    lisp->stack.e[b] = lisp->stack.e[a];
+}
+
+void pk_swap(Pocket lisp, int a, int b) {
+    size_t ia = pk_sp_index(lisp, a);
+    size_t ib = pk_sp_index(lisp, b);
+    PKAtom *tmp = lisp->stack.e[ia];
+    lisp->stack.e[ia] = lisp->stack.e[ib];
+    lisp->stack.e[ib] = tmp;
+}
+
 void pk_add(Pocket lisp, int lhs, int rhs) {
     PKAtom *a = pk_stack_get(lisp, lhs);
     PKAtom *b = pk_stack_get(lisp, rhs);
