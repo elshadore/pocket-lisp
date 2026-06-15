@@ -6,8 +6,8 @@
 typedef union PKAtom_ PKAtom;
 
 typedef enum PKAtomTy_ {
-    PKAtomTy_Nil = 0,
-    PKAtomTy_Free,
+    PKAtomTy_Free = 0,
+    PKAtomTy_Nil,
     PKAtomTy_Number,
     PKAtomTy_Symbol,
     PKAtomTy_String,
@@ -80,11 +80,26 @@ typedef struct PKReader_ {
     size_t curr;
 } PKReader;
 
+#define PK_STACK_INIT_CAPACITY (128)
+
 typedef struct PKStack_ {
     PKAtom **e;
     size_t count;
     size_t capacity;
 } PKStack;
+
+typedef struct PKFrame_ {
+    size_t stack_offset;
+    size_t arity;
+} PKFrame;
+
+#define PK_FRAMES_INIT_CAPACITY (64)
+
+typedef struct PKFrames_ {
+    PKFrame *e;
+    size_t count;
+    size_t capacity;
+} PKFrames;
 
 #define PK_POOL_MAX (1024)
 
@@ -102,6 +117,8 @@ typedef struct PKCache_ {
 struct PocketLispMachine_ {
     PKCache cache;
     PKStack stack;
+    PKFrames frames;
+    PKFrame current_frame;
     PKPool *pool;
     PKAtomFree *free;
     void *user_closure;
@@ -137,6 +154,8 @@ void pk_free(Pocket lisp, void *ptr, size_t size);
 
 void pk_push(Pocket lisp, PKAtom *atom);
 PKAtom *pk_stack_get(Pocket lisp, int stack_pointer);
+void pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom);
+size_t pk_stack_total(Pocket lisp);
 
 void pk_error(Pocket lisp);
 
@@ -180,5 +199,8 @@ bool pk_char_is_symbol(char c);
 
 PKAtom *pk_read_atom(PKReader *r);
 PKAtomCons *pk_read_from_string(Pocket lisp, PKString string);
+
+void pk_frame_push(Pocket lisp, size_t arity);
+void pk_frame_pop(Pocket lisp);
 
 #endif

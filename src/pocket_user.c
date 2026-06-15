@@ -29,6 +29,10 @@ void pk_deinit(Pocket lisp) {
     if (lisp->stack.e != NULL) {
         pk_free(lisp, lisp->stack.e, lisp->stack.capacity * sizeof(PKAtom *));
     }
+    
+    if (lisp->frames.e != NULL) {
+        pk_free(lisp, lisp->frames.e, lisp->frames.capacity * sizeof(PKFrame));
+    }
 
     for (PKPool *pool = lisp->pool; pool != NULL; pool = pool->next) {
         for (size_t i = 0; i < PK_POOL_MAX; ++i) {

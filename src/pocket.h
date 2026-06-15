@@ -12,7 +12,7 @@
 
 typedef struct PocketLispMachine_ *Pocket;
 
-typedef void (*PKFn)(void *user_closure, Pocket *lisp);
+typedef void (*PKFn)(void *user_closure, Pocket lisp);
 typedef void *(*PKAllocFn)(void *user_closure, void *ptr, size_t old_size, size_t new_size);
 typedef void (*PKPrintFn)(void *user_closure, char *c, size_t length);
 
@@ -85,8 +85,9 @@ void pk_read_nstr(Pocket lisp, char *string, size_t length);
 void pk_read_string(Pocket lisp, PKString string);
 
 void pk_eval(Pocket lisp, int stack_pointer);
-void pk_apply(Pocket lisp, int stack_pointer);
-void pk_funcall(Pocket lisp, int args);
+void pk_apply(Pocket lisp, int function, int args_lists);
+void pk_funcall(Pocket lisp, int arity);
+void pk_fastcall(void *user_closure, Pocket lisp, PKFn fn, int arity);
 
 void pk_add(Pocket lisp, int lhs, int rhs);
 void pk_sub(Pocket lisp, int lhs, int rhs);
