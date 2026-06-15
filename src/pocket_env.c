@@ -111,7 +111,7 @@ void pk_env_set(Pocket lisp, PKAtomSymbol *sym, PKAtom *value) {
     pk_env_put(lisp, &lisp->vars, sym, value);
 }
 
-PKAtom *pk_env_get_var(Pocket lisp, PKAtomSymbol *sym) {
+PKAtom *pk_env_get(Pocket lisp, PKAtomSymbol *sym) {
     PKAtom *value = pk_env_query(lisp, &lisp->vars, sym);
     if (value == NULL) pk_error(lisp);
     return value;

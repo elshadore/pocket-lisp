@@ -83,6 +83,19 @@ typedef struct PKReader_ {
     size_t curr;
 } PKReader;
 
+#define PK_LET_INIT_CAPACITY (256)
+
+typedef struct PKLet_ {
+    PKAtomSymbol *symbol;
+    PKAtom *value;
+} PKLet;
+
+typedef struct PKLets_ {
+    PKLet *e;
+    size_t count;
+    size_t capacity;
+} PKLets;
+
 #define PK_STACK_INIT_CAPACITY (128)
 
 typedef struct PKStack_ {
@@ -135,7 +148,9 @@ struct PKPool_ {
 
 typedef struct PKCache_ {
     PKAtom *nil;
+    PKAtomSymbol *nilsym;
     PKAtomSymbol *t;
+    PKAtomSymbol *lambda;
 } PKCache;
 
 struct PocketLispMachine_ {
@@ -144,6 +159,7 @@ struct PocketLispMachine_ {
     PKPrintFn print;
     PKCache cache;
     PKStack stack;
+    PKLets lets;
     PKFrames frames;
     PKFrame current_frame;
     PKEnv vars;

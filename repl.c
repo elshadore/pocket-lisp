@@ -29,7 +29,7 @@ void repl_print(void *user_env, char *c, size_t length) {
 void example(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_push_int(lisp, 67);
-    pk_stack_dump(lisp);
+    pk_stack_dump(lisp, "b");
 }
 
 int main(void) {
@@ -38,17 +38,24 @@ int main(void) {
     if (lisp == NULL) {
         return EXIT_FAILURE;
     }
-    pk_push_int(lisp, 69);
-    pk_push_int(lisp, 420);
-    pk_add(lisp, -1, -2);
-    pk_read_cstr(lisp, "(+ 1 2 3 4)");
-    pk_dupe(lisp, -1);
-    pk_stack_dump(lisp);
-    pk_fastcall(NULL, lisp, example, 1);
-    pk_swap(lisp, -1, -2);
+    // pk_push_int(lisp, 69);
+    // pk_push_int(lisp, 420);
+    // pk_add(lisp, -1, -2);
+    // pk_read_cstr(lisp, "(+ 1 2 3 4)");
+    // pk_dupe(lisp, -1);
+    // pk_stack_dump(lisp, "a");
+    // pk_fastcall(NULL, lisp, example, 1);
+    // pk_swap(lisp, -1, -2);
+    // pk_car(lisp, -1);
+    // pk_cdr(lisp, -1);
+    // pk_stack_dump(lisp, "c");
+    // pk_push_symbol(lisp, pkstr("example"));
+    // pk_set(lisp, -1, 1);
+    pk_read_string(lisp, pkstr("(lambda (x) (* x x))"));
     pk_car(lisp, -1);
-    pk_cdr(lisp, -1);
-    pk_stack_dump(lisp);
+    pk_push_symbol(lisp, pkstr("square"));
+    pk_fset(lisp, -1, -2);
+    pk_env_dump(lisp, "wooper");
     pk_deinit(lisp);
     stb_leakcheck_dumpmem();
     return EXIT_SUCCESS;

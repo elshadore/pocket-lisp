@@ -134,8 +134,10 @@ PKAtomSymbol *pk_read_atom_symbol(PKReader *r) {
     if (!pk_char_is_symbol(r->c)) {
         pk_error(r->lisp);
     }
-    if (!pk_reader_inc(r)) {
-        while (pk_char_is_symbol(r->c) && pk_reader_inc(r));
+    if (pk_reader_inc(r)) {
+        while (pk_char_is_symbol(r->c) && pk_reader_inc(r)) {
+            
+        }
     }
     return pk_atom_symbol_interned(r->lisp, pk_string_new(r->src.c + curr, r->curr - curr));
 }

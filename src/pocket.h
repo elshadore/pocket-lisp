@@ -106,6 +106,7 @@ PKString pk_to_string(Pocket lisp, int stack_pointer);
 Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print);
 void pk_deinit(Pocket lisp);
 
-void pk_stack_dump(Pocket lisp);
+void pk_stack_dump(Pocket lisp, const char *tag);
+void pk_env_dump(Pocket lisp, const char *tag);
 
 #endif

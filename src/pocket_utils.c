@@ -23,20 +23,6 @@ void pk_print(Pocket lisp, char *c, size_t length) {
     (lisp->print)(lisp->user_env, c, length);
 }
 
-void pk_stack_dump(Pocket lisp) {
-    int top = pk_get_top(lisp);
-    PKWriter w = pk_writer_init(lisp);
-    pk_writer_printf(&w, "*~STACK-DUMP~*\n");
-    for (int i = top; i > 0; i--) {
-        int rel = pk_sp_relative(lisp, i);
-        pk_writer_printf(&w, "[%d/%d] => ", rel, i);
-        pk_writer_atom(&w, pk_stack_get(lisp, i));
-        pk_writer_newline(&w);
-    }
-    pk_writer_print(&w);
-    pk_writer_deinit(&w);
-}
-
 uint8_t pk_char_to_digit(char c) {
     switch (c) {
         case '0': return 0;
@@ -156,4 +142,45 @@ size_t pk_hash_djb2(char *c, size_t length) {
 size_t pk_hash_pointer(void *ptr) {
     uintptr_t p = (uintptr_t)ptr;
     return (size_t)(p >> 3);
+}
+
+void pk_stack_dump(Pocket lisp, const char *tag) {
+    int top = pk_get_top(lisp);
+    PKWriter w = pk_writer_init(lisp);
+    pk_writer_printf(&w, "*~STACK-DUMP~* (tag = %s)\n", tag);
+    for (int i = top; i > 0; i--) {
+        int rel = pk_sp_relative(lisp, i);
+        pk_writer_printf(&w, "    [%d/%d] => ", rel, i);
+        pk_writer_atom(&w, pk_stack_get(lisp, i));
+        pk_writer_newline(&w);
+    }
+    pk_writer_print(&w);
+    pk_writer_deinit(&w);
+}
+
+void pk_env_dump(Pocket lisp, const char *tag) {
+    PKWriter w = pk_writer_init(lisp);
+    pk_writer_printf(&w, "*~ENVIRONMENT~* (tag = %s)\n", tag);
+    pk_writer_printf(&w, "SECTION: VARS\n");
+    for (size_t i = 0; i < lisp->vars.capacity; i++) {
+        for (PKEnvSlot *slot = lisp->vars.e[i]; slot; slot = slot->chain) {
+            pk_writer_string(&w, pkstr("    ["));
+            pk_writer_atom(&w, (PKAtom *)slot->key);
+            pk_writer_string(&w, pkstr("] => "));
+            pk_writer_atom(&w, slot->value);
+            pk_writer_newline(&w);
+        }
+    }
+    pk_writer_printf(&w, "SECTION: FUNS\n");
+    for (size_t i = 0; i < lisp->funs.capacity; i++) {
+        for (PKEnvSlot *slot = lisp->funs.e[i]; slot; slot = slot->chain) {
+            pk_writer_string(&w, pkstr("    ["));
+            pk_writer_atom(&w, (PKAtom *)slot->key);
+            pk_writer_string(&w, pkstr("] => "));
+            pk_writer_atom(&w, slot->value);
+            pk_writer_newline(&w);
+        }
+    }
+    pk_writer_print(&w);
+    pk_writer_deinit(&w);
 }
