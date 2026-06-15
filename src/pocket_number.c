@@ -8,12 +8,12 @@
                 case PKNumberTy_Int: { \
                     int b = rhs->as.i; \
                     int result = a op_ b; \
-                    return pk_make_atom_int(lisp, result); \
+                    return pk_atom_int(lisp, result); \
                 } \
                 case PKNumberTy_Float: { \
                     float b = rhs->as.f; \
                     float result = (float)a op_ b; \
-                    return pk_make_atom_int(lisp, result); \
+                    return pk_atom_int(lisp, result); \
                 } \
             } \
         } \
@@ -23,12 +23,12 @@
                 case PKNumberTy_Int: { \
                     int b = rhs->as.i; \
                     float result = a op_ (float)b; \
-                    return pk_make_atom_int(lisp, result); \
+                    return pk_atom_int(lisp, result); \
                 } \
                 case PKNumberTy_Float: { \
                     float b = rhs->as.f; \
                     float result = a op_ b; \
-                    return pk_make_atom_int(lisp, result); \
+                    return pk_atom_int(lisp, result); \
                 } \
             } \
         } \
@@ -48,7 +48,7 @@ PKAtomNumber *pk_number_mul(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
 
 PKAtomNumber *pk_number_div(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
     float result =  pk_number_to_float(lhs) / pk_number_to_float(rhs);
-    return pk_make_atom_float(lisp, result);
+    return pk_atom_float(lisp, result);
 }
 
 int pk_number_to_int(PKAtomNumber *num) {
@@ -71,7 +71,7 @@ PKAtomNumber *pk_number_mod(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
     int a = pk_number_to_int(lhs);
     int b = pk_number_to_int(rhs);
     int result = a % b;
-    return pk_make_atom_int(lisp, result);
+    return pk_atom_int(lisp, result);
 }
 
 #define pk_atom_number_logic_template(logic_) \

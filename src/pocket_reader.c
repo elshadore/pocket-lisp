@@ -43,7 +43,7 @@ PKAtomString *pk_read_atom_string(PKReader *r) {
 
     while (pk_reader_inc(r)) {
         if (r->c == '\"') {
-            return pk_make_atom_string(r->lisp, pk_string_new(w.c, w.count));
+            return pk_atom_string(r->lisp, pk_string_new(w.c, w.count));
         } else if (r->c == '\\') {
             if (!pk_reader_inc(r)) {
                 pk_error(r->lisp);
@@ -126,7 +126,7 @@ PKAtomNumber *pk_read_atom_number(PKReader *r) {
     if (negetive) {
         acc = -acc;
     }
-    return pk_make_atom_int(r->lisp, acc);
+    return pk_atom_int(r->lisp, acc);
 }
 
 PKAtomSymbol *pk_read_atom_symbol(PKReader *r) {
@@ -137,7 +137,7 @@ PKAtomSymbol *pk_read_atom_symbol(PKReader *r) {
     if (!pk_reader_inc(r)) {
         while (pk_char_is_symbol(r->c) && pk_reader_inc(r));
     }
-    return pk_make_atom_symbol(r->lisp, pk_string_new(r->src.c + curr, r->curr - curr));
+    return pk_atom_symbol_interned(r->lisp, pk_string_new(r->src.c + curr, r->curr - curr));
 }
 
 PKAtom *pk_read_atom_cons(PKReader *r) {
@@ -187,7 +187,7 @@ PKAtom *pk_read_atom_cons(PKReader *r) {
         }
 
         PKAtom *car = pk_read_atom(r);
-        PKAtomCons *cons = pk_make_atom_cons(r->lisp, car, r->lisp->cache.nil);
+        PKAtomCons *cons = pk_atom_cons(r->lisp, car, r->lisp->cache.nil);
 
         if (first) {
             head = cons;
@@ -255,13 +255,13 @@ PKAtomCons *pk_read_from_string(Pocket lisp, PKString string) {
     (void)pk_reader_trim_whitespace(&r);
     
     PKAtom *atom = pk_read_atom(&r);
-    PKAtomCons *head = pk_make_atom_cons(lisp, atom, lisp->cache.nil);
+    PKAtomCons *head = pk_atom_cons(lisp, atom, lisp->cache.nil);
     PKAtomCons *acc = head;
     
     while (!pk_reader_is_finished(&r)) {
         (void)pk_reader_trim_whitespace(&r);
         PKAtom *atom = pk_read_atom(&r);
-        PKAtomCons *cons = pk_make_atom_cons(lisp, atom, lisp->cache.nil);
+        PKAtomCons *cons = pk_atom_cons(lisp, atom, lisp->cache.nil);
         acc->cdr = (PKAtom *)cons;
         acc = cons;
     }

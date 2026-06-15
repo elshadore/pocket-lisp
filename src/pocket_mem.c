@@ -40,10 +40,6 @@ void pk_atom_free(Pocket lisp, PKAtom *atom) {
             pk_string_free(lisp, atom->string.lit);
             break;
         }
-        case PKAtomTy_Symbol: {
-            pk_string_free(lisp, atom->symbol.id);
-            break;
-        }
         default: {
             break;
         }
@@ -66,7 +62,7 @@ size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity) {
 }
 
 void *pk_malloc(Pocket lisp, size_t size) {
-    void *result = (lisp->alloc)(lisp->user_closure, NULL, 0, size);
+    void *result = (lisp->alloc)(lisp->user_env, NULL, 0, size);
     if (result == NULL) {
         pk_error(lisp);
     }
@@ -74,7 +70,7 @@ void *pk_malloc(Pocket lisp, size_t size) {
 }
 
 void *pk_realloc(Pocket lisp, void *ptr, size_t old_size, size_t new_size) {
-    void *result = (lisp->alloc)(lisp->user_closure, ptr, old_size, new_size);
+    void *result = (lisp->alloc)(lisp->user_env, ptr, old_size, new_size);
     if ((new_size > 0) && (result == NULL)) {
         pk_error(lisp);
     }
@@ -82,7 +78,7 @@ void *pk_realloc(Pocket lisp, void *ptr, size_t old_size, size_t new_size) {
 }
 
 void pk_free(Pocket lisp, void *ptr, size_t size) {
-    (void)(lisp->alloc)(lisp->user_closure, ptr, size, 0);
+    (void)(lisp->alloc)(lisp->user_env, ptr, size, 0);
 }
 
 void pk_error(Pocket lisp) {

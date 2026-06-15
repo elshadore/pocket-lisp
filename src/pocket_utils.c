@@ -20,7 +20,7 @@ bool pk_string_eq(PKString a, PKString b) {
 }
 
 void pk_print(Pocket lisp, char *c, size_t length) {
-    (lisp->print)(lisp->user_closure, c, length);
+    (lisp->print)(lisp->user_env, c, length);
 }
 
 void pk_stack_dump(Pocket lisp) {
@@ -143,4 +143,12 @@ char pk_char_from_hex(uint8_t byte) {
         case 14: return 'E';
         default: return 'F';
     }
+}
+
+size_t pk_hash_djb2(char *c, size_t length) {
+    size_t hash = 5381;
+    for (size_t i = 0; i < length; ++i) {
+        hash = ((hash << 5) + hash) + (size_t)c[i];
+    }
+    return hash;
 }

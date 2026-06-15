@@ -1,4 +1,9 @@
-* The Great TODO List [1/6]
+* The Great TODO List [1/11]
+** TODO Symbol Interning
+** TODO Basic Environment
+** TODO Basic Interpreter
+** TODO Macros
+** TODO Basic REPL
 ** TODO Add recursive check to printing
 ** TODO Full numerical tower
 ** TODO Metaobject system

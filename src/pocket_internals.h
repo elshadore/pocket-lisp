@@ -39,15 +39,18 @@ typedef struct PKAtomNumber_ {
     } as;
 } PKAtomNumber;
 
-typedef struct PKAtomSymbol_ {
-    PKAtomTag tag;
-    PKString id;
-} PKAtomSymbol;
-
 typedef struct PKAtomString_ {
     PKAtomTag tag;
     PKString lit;
+    size_t hash;
 } PKAtomString;
+
+typedef struct PKAtomSymbol_ PKAtomSymbol;
+struct PKAtomSymbol_ {
+    PKAtomTag tag;
+    PKAtomString *id;
+    PKAtomSymbol *chain;
+};
 
 typedef struct PKAtomCons_ {
     PKAtomTag tag;
@@ -101,6 +104,12 @@ typedef struct PKFrames_ {
     size_t capacity;
 } PKFrames;
 
+typedef struct PKIntern_ {
+    PKAtomSymbol **e;
+    size_t count;
+    size_t capacity;
+} PKIntern;
+
 #define PK_POOL_MAX (1024)
 
 typedef struct PKPool_ PKPool;
@@ -115,15 +124,16 @@ typedef struct PKCache_ {
 } PKCache;
 
 struct PocketLispMachine_ {
+    void *user_env;
+    PKAllocFn alloc;
+    PKPrintFn print;
     PKCache cache;
     PKStack stack;
     PKFrames frames;
     PKFrame current_frame;
-    PKPool *pool;
+    PKIntern intern;
     PKAtomFree *free;
-    void *user_closure;
-    PKAllocFn alloc;
-    PKPrintFn print;
+    PKPool *pool;
 };
 
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);
@@ -131,12 +141,13 @@ void pk_print(Pocket lisp, char *c, size_t length);
 
 PKAtom *pk_atom_alloc(Pocket lisp);
 void pk_atom_free(Pocket lisp, PKAtom *atom);
-PKAtomNumber *pk_make_atom_int(Pocket lisp, int value);
-PKAtomNumber *pk_make_atom_float(Pocket lisp, float value);
-PKAtomString *pk_make_atom_string(Pocket lisp, PKString string);
-PKAtomSymbol *pk_make_atom_symbol(Pocket lisp, PKString id);
-PKAtomCons *pk_make_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);
-PKAtom *pk_make_atom_nil(Pocket lisp);
+PKAtomNumber *pk_atom_int(Pocket lisp, int value);
+PKAtomNumber *pk_atom_float(Pocket lisp, float value);
+PKAtomString *pk_atom_string(Pocket lisp, PKString string);
+PKAtomSymbol *pk_atom_symbol_uninterned(Pocket lisp, PKString id);
+PKAtomSymbol *pk_atom_symbol_interned(Pocket lisp, PKString id);
+PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);
+PKAtom *pk_atom_nil(Pocket lisp);
 
 PKAtomNumber *pk_atom_cast_number(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_cast_string(Pocket lisp, PKAtom *atom);
@@ -204,5 +215,7 @@ PKAtomCons *pk_read_from_string(Pocket lisp, PKString string);
 
 void pk_frame_push(Pocket lisp, size_t arity);
 void pk_frame_pop(Pocket lisp);
+
+size_t pk_hash_djb2(char *c, size_t length);
 
 #endif

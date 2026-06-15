@@ -75,7 +75,7 @@ void pk_push_nsym(Pocket lisp, char *symbol, size_t length);
 void pk_push_cons(Pocket lisp, int car, int cdr);
 
 void pk_set_car(Pocket lisp, int cons, int new_car);
-void pk_set_cdr(Pocket lisp, int cons, int new_car);
+void pk_set_cdr(Pocket lisp, int cons, int new_cdr);
 void pk_car(Pocket lisp, int cons);
 void pk_cdr(Pocket lisp, int cons);
 

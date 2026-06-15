@@ -42,8 +42,12 @@ int main(void) {
     pk_push_int(lisp, 420);
     pk_add(lisp, -1, -2);
     pk_read_cstr(lisp, "(+ 1 2 3 4)");
+    pk_dupe(lisp, -1);
     pk_stack_dump(lisp);
     pk_fastcall(NULL, lisp, example, 1);
+    pk_swap(lisp, -1, -2);
+    pk_car(lisp, -1);
+    pk_cdr(lisp, -1);
     pk_stack_dump(lisp);
     pk_deinit(lisp);
     stb_leakcheck_dumpmem();

@@ -139,7 +139,7 @@ void pk_writer_atom(PKWriter *w, PKAtom *atom) {
             break;
         }
         case PKAtomTy_Symbol: {
-            pk_writer_string(w, atom->symbol.id);
+            pk_writer_string(w, atom->symbol.id->lit);
             break;
         }
         case PKAtomTy_String: {

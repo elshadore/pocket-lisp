@@ -6,7 +6,7 @@ Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print) {
         return NULL;
     }
     *lisp = (struct PocketLispMachine_) {
-        .user_closure = user_closure,
+        .user_env = user_closure,
         .alloc = alloc,
         .stack = (PKStack){0},
         .free = NULL,
@@ -15,8 +15,8 @@ Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print) {
         .cache = (PKCache){0},
     };
     
-    lisp->cache.nil = pk_make_atom_nil(lisp);
-    lisp->cache.t = pk_make_atom_symbol(lisp, pkstr("t"));
+    lisp->cache.nil = pk_atom_nil(lisp);
+    lisp->cache.t = pk_atom_symbol_interned(lisp, pkstr("t"));
 
     return lisp;
 }
@@ -32,6 +32,10 @@ void pk_deinit(Pocket lisp) {
     
     if (lisp->frames.e != NULL) {
         pk_free(lisp, lisp->frames.e, lisp->frames.capacity * sizeof(PKFrame));
+    }
+
+    if (lisp->intern.e != NULL) {
+        pk_free(lisp, lisp->intern.e, lisp->intern.capacity * sizeof(PKAtomSymbol *));
     }
 
     for (PKPool *pool = lisp->pool; pool != NULL; pool = pool->next) {
@@ -67,15 +71,15 @@ void pk_push_cond(Pocket lisp, bool cond) {
 }
 
 void pk_push_int(Pocket lisp, int integer) {
-    pk_push(lisp, (PKAtom *)pk_make_atom_int(lisp, integer));
+    pk_push(lisp, (PKAtom *)pk_atom_int(lisp, integer));
 }
 
 void pk_push_float(Pocket lisp, float floater) {
-    pk_push(lisp, (PKAtom *)pk_make_atom_float(lisp, floater));
+    pk_push(lisp, (PKAtom *)pk_atom_float(lisp, floater));
 }
 
 void pk_push_string(Pocket lisp, PKString string) {
-    pk_push(lisp, (PKAtom *)pk_make_atom_string(lisp, string));
+    pk_push(lisp, (PKAtom *)pk_atom_string(lisp, string));
 }
 
 void pk_push_cstr(Pocket lisp, char *cstr) {
@@ -87,7 +91,7 @@ void pk_push_nstr(Pocket lisp, char *str, size_t length) {
 }
 
 void pk_push_symbol(Pocket lisp, PKString symbol) {
-    pk_push(lisp, (PKAtom *)pk_make_atom_symbol(lisp, symbol));
+    pk_push(lisp, (PKAtom *)pk_atom_symbol_interned(lisp, symbol));
 }
 
 void pk_push_csym(Pocket lisp, char *cstr) {
@@ -115,6 +119,26 @@ void pk_swap(Pocket lisp, int a, int b) {
     PKAtom *tmp = lisp->stack.e[ia];
     lisp->stack.e[ia] = lisp->stack.e[ib];
     lisp->stack.e[ib] = tmp;
+}
+
+void pk_car(Pocket lisp, int cons) {
+    PKAtomCons *c = pk_atom_cast_cons(lisp, pk_stack_get(lisp, cons));
+    pk_push(lisp, c->car);
+}
+
+void pk_cdr(Pocket lisp, int cons) {
+    PKAtomCons *c = pk_atom_cast_cons(lisp, pk_stack_get(lisp, cons));
+    pk_push(lisp, c->cdr);
+}
+
+void pk_set_car(Pocket lisp, int cons, int new_car) {
+    PKAtomCons *c = pk_atom_cast_cons(lisp, pk_stack_get(lisp, cons));
+    c->car = pk_stack_get(lisp, new_car);
+}
+
+void pk_set_cdr(Pocket lisp, int cons, int new_cdr) {
+    PKAtomCons *c = pk_atom_cast_cons(lisp, pk_stack_get(lisp, cons));
+    c->cdr = pk_stack_get(lisp, new_cdr);
 }
 
 void pk_add(Pocket lisp, int lhs, int rhs) {
