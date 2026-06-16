@@ -206,6 +206,7 @@ void pk_atom_free(Pocket lisp, PKAtom *atom);
 PKAtomNumber *pk_atom_int(Pocket lisp, int value);
 PKAtomNumber *pk_atom_float(Pocket lisp, float value);
 PKAtomString *pk_atom_string(Pocket lisp, PKString string);
+PKAtomString *pk_atom_string_nomemcpy(Pocket lisp, PKString string);
 PKAtomSymbol *pk_atom_symbol_uninterned(Pocket lisp, PKString id);
 PKAtomSymbol *pk_atom_symbol_interned(Pocket lisp, PKString id);
 PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);
@@ -309,5 +310,7 @@ void pk_load_std(Pocket lisp);
 
 void pk_atom_eval(Pocket lisp, PKAtom *atom);
 void pk_atom_evlist(Pocket lisp, PKAtom *list);
+
+PKString pk_slurp(Pocket lisp, const char *file_path);
 
 #endif

@@ -184,3 +184,21 @@ void pk_env_dump(Pocket lisp, const char *tag) {
     pk_writer_print(&w);
     pk_writer_deinit(&w);
 }
+
+PKString pk_slurp(Pocket lisp, const char *file_path) {
+    FILE *f = fopen(file_path, "rb");
+    if (f == NULL) {
+        pk_error(lisp);
+    }
+    fseek(f, 0, SEEK_END);
+    long length = ftell(f);
+    if (length < 0) {
+        fclose(f);
+        pk_error(lisp);
+    }
+    rewind(f);
+    char *buf = pk_malloc(lisp, (size_t)length);
+    size_t read = fread(buf, 1, (size_t)length, f);
+    fclose(f);
+    return pk_string_new(buf, read);
+}

@@ -23,7 +23,7 @@ void *repl_alloc(void *user_env, void *ptr, size_t old_size, size_t new_size) {
 
 void repl_print(void *user_env, char *c, size_t length) {
     (void)user_env;
-    printf("%.*s", (int)length, c);
+    printf("%.*s\n", (int)length, c);
 }
 
 void example(void *user_closure, Pocket lisp) {

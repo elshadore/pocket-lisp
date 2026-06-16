@@ -23,6 +23,11 @@ PKAtomNumber *pk_atom_float(Pocket lisp, float value) {
 }
 
 PKAtomString *pk_atom_string(Pocket lisp, PKString string) {
+    PKString dupe = pk_string_dupe(lisp, string);
+    return pk_atom_string_nomemcpy(lisp, dupe);
+}
+
+PKAtomString *pk_atom_string_nomemcpy(Pocket lisp, PKString string) {
     PKAtomString *atom = (PKAtomString *)pk_atom_alloc(lisp);
     
     size_t hash = pk_hash_djb2(string.c, string.length);
@@ -30,7 +35,7 @@ PKAtomString *pk_atom_string(Pocket lisp, PKString string) {
     *atom = (PKAtomString) {
         .tag.ty = PKAtomTy_String,
         .tag.marked = false,
-        .lit = pk_string_dupe(lisp, string),
+        .lit = string,
         .hash = hash,
     };
     return atom;

@@ -1,5 +1,13 @@
 #include "pocket_internals.h"
 
+PKAtom *pk_get_result(Pocket lisp) {
+    if (pk_get_top(lisp) > 0) {
+        return lisp->stack.e[lisp->stack.count - 1];
+    } else {
+        return lisp->cache.nil;;
+    }
+}
+
 void pk_fastcall(void *user_closure, Pocket lisp, PKFn fn, int arity) {
     if (arity < 0) {
         pk_error(lisp);
@@ -7,11 +15,7 @@ void pk_fastcall(void *user_closure, Pocket lisp, PKFn fn, int arity) {
     size_t uarity = (size_t)arity;
     pk_frame_push(lisp, uarity);
     (fn)(user_closure, lisp);
-    
-    PKAtom *result = lisp->cache.nil;
-    if (pk_get_top(lisp) > 0) {
-        result = lisp->stack.e[lisp->stack.count - 1];
-    }
+    PKAtom *result = pk_get_result(lisp);
     pk_frame_pop(lisp);
     pk_push(lisp, result);
     
@@ -140,10 +144,7 @@ void pk_eval(Pocket lisp, int stack_pointer) {
     PKAtom *expr = pk_stack_get(lisp, stack_pointer);
     pk_frame_push(lisp, 0);
     pk_atom_eval(lisp, expr);
-    PKAtom *result = lisp->cache.nil;
-    if (pk_get_top(lisp) > 0) {
-        result = lisp->stack.e[lisp->stack.count - 1];
-    }
+    PKAtom *result = pk_get_result(lisp);
     pk_frame_pop(lisp);
     pk_push(lisp, result);
 }
@@ -152,10 +153,7 @@ void pk_evlist(Pocket lisp, int stack_pointer) {
     PKAtom *expr = pk_stack_get(lisp, stack_pointer);
     pk_frame_push(lisp, 0);
     pk_atom_evlist(lisp, expr);
-    PKAtom *result = lisp->cache.nil;
-    if (pk_get_top(lisp) > 0) {
-        result = lisp->stack.e[lisp->stack.count - 1];
-    }
+    PKAtom *result = pk_get_result(lisp);
     pk_frame_pop(lisp);
     pk_push(lisp, result);
 }
