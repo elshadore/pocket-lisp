@@ -95,6 +95,66 @@ void pk_fn_funbind(void *user_closure, Pocket lisp) {
     pk_funbind(lisp, -1);
 }
 
+void pk_fn_gt(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    while (pk_get_top(lisp) >= 2) {
+        if (!pk_gt(lisp, -1, -2)) {
+            pk_push_nil(lisp);
+            return;
+        }
+        pk_pop(lisp);
+    }
+    pk_push_t(lisp);
+}
+
+void pk_fn_gte(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    while (pk_get_top(lisp) >= 2) {
+        if (!pk_gte(lisp, -1, -2)) {
+            pk_push_nil(lisp);
+            return;
+        }
+        pk_pop(lisp);
+    }
+    pk_push_t(lisp);
+}
+
+void pk_fn_lt(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    while (pk_get_top(lisp) >= 2) {
+        if (!pk_lt(lisp, -1, -2)) {
+            pk_push_nil(lisp);
+            return;
+        }
+        pk_pop(lisp);
+    }
+    pk_push_t(lisp);
+}
+
+void pk_fn_lte(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    while (pk_get_top(lisp) >= 2) {
+        if (!pk_lte(lisp, -1, -2)) {
+            pk_push_nil(lisp);
+            return;
+        }
+        pk_pop(lisp);
+    }
+    pk_push_t(lisp);
+}
+
+void pk_fn_eq(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    while (pk_get_top(lisp) >= 2) {
+        if (!pk_eq(lisp, -1, -2)) {
+            pk_push_nil(lisp);
+            return;
+        }
+        pk_pop(lisp);
+    }
+    pk_push_t(lisp);
+}
+
 void pk_load_std(Pocket lisp) {
     PKFuncRecord lib[] = {
         {.sym = pkstr("+"), .fn = pk_fn_add, .args = 2, .mode = PKArity_Variadic},
@@ -112,6 +172,12 @@ void pk_load_std(Pocket lisp) {
         {.sym = pkstr("fset"), .fn = pk_fn_fset, .args = 2, .mode = PKArity_Normal},
         {.sym = pkstr("fget"), .fn = pk_fn_fget, .args = 1, .mode = PKArity_Normal},
         {.sym = pkstr("funbind"), .fn = pk_fn_funbind, .args = 1, .mode = PKArity_Normal},
+        {.sym = pkstr(">"), .fn = pk_fn_gt, .args = 2, .mode = PKArity_Variadic},
+        {.sym = pkstr(">="), .fn = pk_fn_gte, .args = 2, .mode = PKArity_Variadic},
+        {.sym = pkstr("<"), .fn = pk_fn_lt, .args = 2, .mode = PKArity_Variadic},
+        {.sym = pkstr("<="), .fn = pk_fn_lte, .args = 2, .mode = PKArity_Variadic},
+        {.sym = pkstr("="), .fn = pk_fn_eq, .args = 2, .mode = PKArity_Variadic},
+        {.sym = pkstr("eq?"), .fn = pk_fn_eq, .args = 2, .mode = PKArity_Variadic},
     };
     
     size_t count = pk_alen(lib);
