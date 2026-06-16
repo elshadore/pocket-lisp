@@ -57,6 +57,9 @@ void pk_fset(Pocket lisp, int symbol, int value);
 void pk_fget(Pocket lisp, int symbol);
 void pk_funbind(Pocket lisp, int symbol);
 
+void pk_let(Pocket lisp, int symbol, int value);
+void pk_flet(Pocket lisp, int symbol, int value);
+
 // void pk_getf(Pocket lisp, int object, int accessor);
 // void pk_getf_setf(Pocket lisp, int object, int accessor, int value);
 

@@ -163,7 +163,7 @@ void pk_env_dump(Pocket lisp, const char *tag) {
     pk_writer_printf(&w, "*~ENVIRONMENT~* (tag = %s)\n", tag);
     pk_writer_printf(&w, "SECTION: VARS\n");
     for (size_t i = 0; i < lisp->vars.capacity; i++) {
-        for (PKEnvSlot *slot = lisp->vars.e[i]; slot; slot = slot->chain) {
+        for (PKSymTableSlot *slot = lisp->vars.e[i]; slot; slot = slot->chain) {
             pk_writer_string(&w, pkstr("    ["));
             pk_writer_atom(&w, (PKAtom *)slot->key);
             pk_writer_string(&w, pkstr("] => "));
@@ -173,7 +173,7 @@ void pk_env_dump(Pocket lisp, const char *tag) {
     }
     pk_writer_printf(&w, "SECTION: FUNS\n");
     for (size_t i = 0; i < lisp->funs.capacity; i++) {
-        for (PKEnvSlot *slot = lisp->funs.e[i]; slot; slot = slot->chain) {
+        for (PKSymTableSlot *slot = lisp->funs.e[i]; slot; slot = slot->chain) {
             pk_writer_string(&w, pkstr("    ["));
             pk_writer_atom(&w, (PKAtom *)slot->key);
             pk_writer_string(&w, pkstr("] => "));

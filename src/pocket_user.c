@@ -21,8 +21,8 @@ Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print) {
         .lambda = pk_atom_symbol_interned(lisp, pkstr("lambda")),
     };
 
-    pk_env_set(lisp, lisp->cache.t, (PKAtom *)lisp->cache.t);
-    pk_env_set(lisp, lisp->cache.nilsym, lisp->cache.nil);
+    pk_env_set(lisp, PKEnvTy_Var, lisp->cache.t, (PKAtom *)lisp->cache.t);
+    pk_env_set(lisp, PKEnvTy_Var, lisp->cache.nilsym, lisp->cache.nil);
 
     return lisp;
 }
@@ -32,8 +32,8 @@ void pk_deinit(Pocket lisp) {
         return;
     }
 
-    pk_env_deinit(lisp, &lisp->vars);
-    pk_env_deinit(lisp, &lisp->funs);
+    pk_symtable_deinit(lisp, &lisp->vars);
+    pk_symtable_deinit(lisp, &lisp->funs);
 
     if (lisp->stack.e != NULL) {
         pk_free(lisp, lisp->stack.e, lisp->stack.capacity * sizeof(PKAtom *));
@@ -128,38 +128,6 @@ void pk_swap(Pocket lisp, int a, int b) {
     PKAtom *tmp = lisp->stack.e[ia];
     lisp->stack.e[ia] = lisp->stack.e[ib];
     lisp->stack.e[ib] = tmp;
-}
-
-void pk_set(Pocket lisp, int symbol_sp, int value_sp) {
-    PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, pk_stack_get(lisp, symbol_sp));
-    PKAtom *value = pk_stack_get(lisp, value_sp);
-    pk_env_set(lisp, sym, value);
-}
-
-void pk_get(Pocket lisp, int symbol_sp) {
-    PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, pk_stack_get(lisp, symbol_sp));
-    pk_push(lisp, pk_env_get(lisp, sym));
-}
-
-void pk_unbind(Pocket lisp, int symbol_sp) {
-    PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, pk_stack_get(lisp, symbol_sp));
-    pk_env_unbind(lisp, sym);
-}
-
-void pk_fset(Pocket lisp, int symbol_sp, int value_sp) {
-    PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, pk_stack_get(lisp, symbol_sp));
-    PKAtom *value = pk_stack_get(lisp, value_sp);
-    pk_env_fset(lisp, sym, value);
-}
-
-void pk_fget(Pocket lisp, int symbol_sp) {
-    PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, pk_stack_get(lisp, symbol_sp));
-    pk_push(lisp, pk_env_fget(lisp, sym));
-}
-
-void pk_funbind(Pocket lisp, int symbol_sp) {
-    PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, pk_stack_get(lisp, symbol_sp));
-    pk_env_funbind(lisp, sym);
 }
 
 void pk_car(Pocket lisp, int cons) {
