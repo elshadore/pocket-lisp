@@ -1,5 +1,13 @@
 #include "pocket_internals.h"
 
+PKAtom *pk_get_result(Pocket lisp) {
+    if (pk_get_top(lisp) > 0) {
+        return lisp->stack.e[lisp->stack.count - 1];
+    } else {
+        return lisp->cache.nil;;
+    }
+}
+
 int pk_get_top(Pocket lisp) {
     return (int)(pk_stack_total(lisp) - lisp->current_frame.stack_offset);
 }

@@ -3,6 +3,15 @@
 
 #include "pocket.h"
 
+#define pk_cdolist(lisp_, cursor_, list_) \
+    for (PKAtom *_pk_tail_ = (list_), *cursor_ = NULL; \
+         _pk_tail_->tag.ty == PKAtomTy_Nil ? 0 : \
+            (_pk_tail_->tag.ty == PKAtomTy_Cons ? \
+                (cursor_ = ((PKAtomCons *)_pk_tail_)->car, 1) : \
+                (pk_error(lisp_), 0)); \
+         _pk_tail_ = ((PKAtomCons *)_pk_tail_)->cdr)
+
+
 typedef union PKAtom_ PKAtom;
 
 typedef enum PKAtomTy_ {
@@ -219,6 +228,10 @@ PKAtomSymbol *pk_atom_cast_symbol(Pocket lisp, PKAtom *atom);
 PKAtomCons *pk_atom_cast_cons(Pocket lisp, PKAtom *atom);
 PKAtomCFunc *pk_atom_cast_cfunc(Pocket lisp, PKAtom *atom);
 
+bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+bool pk_atom_symbol_eq(Pocket lisp, PKAtomSymbol *lhs, PKAtomSymbol *rhs);
+bool pk_atom_string_eq(Pocket lisp, PKAtomString *lhs, PKAtomString *rhs);
+
 PKString pk_string_dupe(Pocket lisp, PKString string);
 void pk_string_free(Pocket lisp, PKString string);
 PKString pk_string_from_cstr(char *cstr);
@@ -236,14 +249,6 @@ void pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom);
 size_t pk_stack_total(Pocket lisp);
 
 void pk_error(Pocket lisp);
-
-#define pk_cdolist(lisp_, cursor_, list_)                                 \
-    for (PKAtom *_pk_tail_ = (list_), *cursor_ = NULL;                          \
-         _pk_tail_->tag.ty == PKAtomTy_Nil ? 0 :                               \
-            (_pk_tail_->tag.ty == PKAtomTy_Cons ?                               \
-                (cursor_ = ((PKAtomCons *)_pk_tail_)->car, 1) :                \
-                (pk_error(lisp_), 0));                                          \
-         _pk_tail_ = ((PKAtomCons *)_pk_tail_)->cdr)
 
 PKAtomNumber *pk_number_add(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
 PKAtomNumber *pk_number_sub(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
@@ -312,5 +317,6 @@ void pk_atom_eval(Pocket lisp, PKAtom *atom);
 void pk_atom_evlist(Pocket lisp, PKAtom *list);
 
 PKString pk_slurp(Pocket lisp, const char *file_path);
+PKAtom *pk_get_result(Pocket lisp);
 
 #endif

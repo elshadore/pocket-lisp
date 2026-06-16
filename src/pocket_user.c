@@ -208,6 +208,12 @@ bool pk_lte(Pocket lisp, int lhs, int rhs) {
     return pk_number_lte(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
 }
 
+bool pk_eq(Pocket lisp, int lhs, int rhs) {
+    PKAtom *a = pk_stack_get(lisp, lhs);
+    PKAtom *b = pk_stack_get(lisp, rhs);
+    return pk_atom_eq(lisp, a, b);
+}
+
 int pk_to_int(Pocket lisp, int stack_pointer) {
     PKAtom *atom = pk_stack_get(lisp, stack_pointer);
     return pk_number_to_int(pk_atom_cast_number(lisp, atom));

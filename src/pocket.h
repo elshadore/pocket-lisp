@@ -110,6 +110,7 @@ bool pk_gt(Pocket lisp, int lhs, int rhs);
 bool pk_gte(Pocket lisp, int lhs, int rhs);
 bool pk_lt(Pocket lisp, int lhs, int rhs);
 bool pk_lte(Pocket lisp, int lhs, int rhs);
+bool pk_eq(Pocket lisp, int lhs, int rhs);
 
 int pk_to_int(Pocket lisp, int stack_pointer);
 float pk_to_float(Pocket lisp, int stack_pointer);

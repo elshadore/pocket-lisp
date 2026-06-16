@@ -1,13 +1,15 @@
-* The Great TODO List [3/12]
+* The Great TODO List [4/12]
 ** DONE Symbol Interning
 CLOSED: [2026-06-15 Mon 20:15]
-** TODO Basic GC
+** DONE Basic GC
+CLOSED: [2026-06-16 Tue 19:15]
 ** DONE Basic Environment
 CLOSED: [2026-06-16 Tue 13:24]
 ** TODO Basic Interpreter
 ** TODO Macros
 ** TODO Basic REPL
 ** TODO Add recursive check to printing
+** TODO Formatting
 ** TODO Full numerical tower
 ** TODO Metaobject system
 ** DONE Reading

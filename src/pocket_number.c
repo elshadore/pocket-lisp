@@ -1,5 +1,33 @@
 #include "pocket_internals.h"
 
+PKAtomNumber *pk_atom_int(Pocket lisp, int value) {
+    PKAtomNumber *atom = (PKAtomNumber *)pk_atom_alloc(lisp);
+    *atom = (PKAtomNumber) {
+        .tag.ty = PKAtomTy_Number,
+        .tag.marked = false,
+        .ty = PKNumberTy_Int,
+        .as.i = value,
+    };
+    return atom;
+}
+
+PKAtomNumber *pk_atom_float(Pocket lisp, float value) {
+    PKAtomNumber *atom = (PKAtomNumber *)pk_atom_alloc(lisp);
+    *atom = (PKAtomNumber) {
+        .tag.ty = PKAtomTy_Number,
+        .tag.marked = false,
+        .ty = PKNumberTy_Float,
+        .as.f = value,
+    };
+    return atom;
+}
+
+PKAtomNumber *pk_atom_cast_number(Pocket lisp, PKAtom *atom) {
+    if (atom->tag.ty != PKAtomTy_Number) pk_error(lisp);
+    return (PKAtomNumber *)atom;
+}
+
+
 #define pk_atom_number_op_template(op_) \
     switch (lhs->ty) { \
         case PKNumberTy_Int: { \
