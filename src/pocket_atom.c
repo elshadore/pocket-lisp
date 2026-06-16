@@ -89,3 +89,4 @@ PKAtomCFunc *pk_atom_cast_cfunc(Pocket lisp, PKAtom *atom) {
     if (atom->tag.ty != PKAtomTy_CFunc) pk_error(lisp);
     return (PKAtomCFunc *)atom;
 }
+

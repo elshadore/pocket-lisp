@@ -58,7 +58,9 @@ void pk_gc_collect(Pocket lisp) {
     for (size_t i = 0; i < lisp->lets.count; ++i) {
         PKLet let = lisp->lets.e[i];
         pk_gc_mark((PKAtom *)let.symbol);
-        pk_gc_mark((PKAtom *)let.restore);
+        if (let.restore != NULL) {
+            pk_gc_mark((PKAtom *)let.restore);
+        }
     }
 
     // Sweep

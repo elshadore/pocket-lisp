@@ -51,11 +51,24 @@ int main(void) {
     // pk_stack_dump(lisp, "c");
     // pk_push_symbol(lisp, pkstr("example"));
     // pk_set(lisp, -1, 1);
+    // Test 1: eval (+ 1 2 3)
+    printf("--- Test 1: (+ 1 2 3) ---\n");
+    pk_read_cstr(lisp, "(+ 1 2 3)");
+    pk_car(lisp, -1);
+    pk_stack_dump(lisp, "expr");
+    pk_eval(lisp, -1);
+    pk_stack_dump(lisp, "result");
+
+    // Test 2: define and call square lambda
+    printf("--- Test 2: (square 5) ---\n");
     pk_read_string(lisp, pkstr("(lambda (x) (* x x))"));
     pk_car(lisp, -1);
     pk_push_symbol(lisp, pkstr("square"));
     pk_fset(lisp, -1, -2);
-    pk_env_dump(lisp, "wooper");
+    pk_push_int(lisp, 5);
+    pk_push_csym(lisp, "square");
+    pk_funcall(lisp, 1);
+    pk_stack_dump(lisp, "square(5)");
     pk_deinit(lisp);
     stb_leakcheck_dumpmem();
     return EXIT_SUCCESS;

@@ -45,6 +45,10 @@ void pk_deinit(Pocket lisp) {
         pk_free(lisp, lisp->frames.e, lisp->frames.capacity * sizeof(PKFrame));
     }
 
+    if (lisp->lets.e != NULL) {
+        pk_free(lisp, lisp->lets.e, lisp->lets.capacity * sizeof(PKLet));
+    }
+
     if (lisp->intern.e != NULL) {
         pk_free(lisp, lisp->intern.e, lisp->intern.capacity * sizeof(PKAtomSymbol *));
     }

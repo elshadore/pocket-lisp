@@ -236,6 +236,14 @@ size_t pk_stack_total(Pocket lisp);
 
 void pk_error(Pocket lisp);
 
+#define pk_cdolist(lisp_, cursor_, list_)                                 \
+    for (PKAtom *_pk_tail_ = (list_), *cursor_ = NULL;                          \
+         _pk_tail_->tag.ty == PKAtomTy_Nil ? 0 :                               \
+            (_pk_tail_->tag.ty == PKAtomTy_Cons ?                               \
+                (cursor_ = ((PKAtomCons *)_pk_tail_)->car, 1) :                \
+                (pk_error(lisp_), 0));                                          \
+         _pk_tail_ = ((PKAtomCons *)_pk_tail_)->cdr)
+
 PKAtomNumber *pk_number_add(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
 PKAtomNumber *pk_number_sub(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
 PKAtomNumber *pk_number_mul(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
@@ -298,5 +306,8 @@ PKAtom *pk_env_unbind(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym);
 
 void pk_gc_collect(Pocket lisp);
 void pk_load_std(Pocket lisp);
+
+void pk_atom_eval(Pocket lisp, PKAtom *atom);
+void pk_atom_evlist(Pocket lisp, PKAtom *list);
 
 #endif
