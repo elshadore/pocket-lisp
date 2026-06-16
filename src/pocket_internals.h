@@ -12,6 +12,7 @@ typedef enum PKAtomTy_ {
     PKAtomTy_Symbol,
     PKAtomTy_String,
     PKAtomTy_Cons,
+    PKAtomTy_CFunc,
 } PKAtomTy;
 
 typedef enum PKEnvTy_ {
@@ -63,6 +64,26 @@ typedef struct PKAtomCons_ {
     PKAtom *cdr;
 } PKAtomCons;
 
+typedef struct PKFuncArity_ {
+    PKArity mode;
+    int args;
+} PKFuncArity;
+
+typedef struct PKFuncRecord_ {
+    PKString sym;
+    void *user_closure;
+    PKFn fn;
+    int args;
+    PKArity mode;
+} PKFuncRecord;
+
+typedef struct PKAtomCFunc_ {
+    PKAtomTag tag;
+    void *user_closure;
+    PKFn fn;
+    PKFuncArity arity;
+} PKAtomCFunc;
+
 union PKAtom_ {
     PKAtomTag tag;
     PKAtomFree free;
@@ -70,6 +91,7 @@ union PKAtom_ {
     PKAtomSymbol symbol;
     PKAtomString string;
     PKAtomCons cons;
+    PKAtomCFunc cfunc;
 };
 
 typedef struct PKWriter_ {
@@ -187,12 +209,14 @@ PKAtomString *pk_atom_string(Pocket lisp, PKString string);
 PKAtomSymbol *pk_atom_symbol_uninterned(Pocket lisp, PKString id);
 PKAtomSymbol *pk_atom_symbol_interned(Pocket lisp, PKString id);
 PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);
+PKAtomCFunc *pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity);
 PKAtom *pk_atom_nil(Pocket lisp);
 
 PKAtomNumber *pk_atom_cast_number(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_cast_string(Pocket lisp, PKAtom *atom);
 PKAtomSymbol *pk_atom_cast_symbol(Pocket lisp, PKAtom *atom);
 PKAtomCons *pk_atom_cast_cons(Pocket lisp, PKAtom *atom);
+PKAtomCFunc *pk_atom_cast_cfunc(Pocket lisp, PKAtom *atom);
 
 PKString pk_string_dupe(Pocket lisp, PKString string);
 void pk_string_free(Pocket lisp, PKString string);
@@ -241,6 +265,7 @@ void pk_writer_atom(PKWriter *w, PKAtom *atom);
 PKString pk_writer_get(PKWriter *w);
 void pk_writer_reset(PKWriter *w);
 void pk_writer_print(PKWriter *w);
+void pk_writer_address(PKWriter *w, uintptr_t address);
 
 uint8_t pk_char_to_digit(char c);
 char pk_char_from_digit(uint8_t integer);
@@ -270,5 +295,8 @@ void pk_symtable_deinit(Pocket lisp, PKSymTable *st);
 PKAtom *pk_env_set(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value);
 PKAtom *pk_env_get(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym);
 PKAtom *pk_env_unbind(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym);
+
+void pk_gc_collect(Pocket lisp);
+void pk_load_std(Pocket lisp);
 
 #endif

@@ -72,3 +72,20 @@ PKAtomCons *pk_atom_cast_cons(Pocket lisp, PKAtom *atom) {
     if (atom->tag.ty != PKAtomTy_Cons) pk_error(lisp);
     return (PKAtomCons *)atom;
 }
+
+PKAtomCFunc *pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity) {
+    PKAtomCFunc *atom = (PKAtomCFunc *)pk_atom_alloc(lisp);
+    *atom = (PKAtomCFunc) {
+        .tag.ty = PKAtomTy_CFunc,
+        .tag.marked = false,
+        .user_closure = user_closure,
+        .fn = fn,
+        .arity = arity,
+    };
+    return atom;
+}
+
+PKAtomCFunc *pk_atom_cast_cfunc(Pocket lisp, PKAtom *atom) {
+    if (atom->tag.ty != PKAtomTy_CFunc) pk_error(lisp);
+    return (PKAtomCFunc *)atom;
+}

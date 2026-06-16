@@ -13,8 +13,8 @@
 typedef struct PocketLispMachine_ *Pocket;
 
 typedef void (*PKFn)(void *user_closure, Pocket lisp);
-typedef void *(*PKAllocFn)(void *user_closure, void *ptr, size_t old_size, size_t new_size);
-typedef void (*PKPrintFn)(void *user_closure, char *c, size_t length);
+typedef void *(*PKAllocFn)(void *user_env, void *ptr, size_t old_size, size_t new_size);
+typedef void (*PKPrintFn)(void *user_env, char *c, size_t length);
 
 typedef struct PKString_ {
     char *c;
@@ -26,16 +26,23 @@ typedef struct PKString_ {
 #define pkstr(text_) (PKString){.c = text_, .length = ((sizeof(text_) / sizeof(char)) - 1)}
 #define PK_STRING_EMPTY (PKString){0}
 #define pk_string_new(c_, length_) (PKString){.c = c_, .length = length_}
+#define pk_alen(array_) (sizeof(array_) / sizeof(*array_))
 
 typedef enum PKType_ {
     PKType_Unknown = 0,
-    PKType_Nil,
-    PKType_Number,
-    PKType_Symbol,
-    PKType_String,
-    PKType_Cons,
-    PKType_Object,
+    PKType_Nil = 1,
+    PKType_Number = 2,
+    PKType_Symbol = 3,
+    PKType_String = 4,
+    PKType_Cons = 5,
+    PKType_Object = 6,
 } PKType;
+
+typedef enum PKArity_ {
+    PKArity_Normal = 0,
+    PKArity_Optional = 1,
+    PKArity_Variadic = 2,
+} PKArity;
 
 void pk_pop(Pocket lisp);
 void pk_popn(Pocket lisp, int n);
@@ -71,11 +78,12 @@ void pk_push_float(Pocket lisp, float floater);
 void pk_push_string(Pocket lisp, PKString string);
 void pk_push_cstr(Pocket lisp, char *cstr);
 void pk_push_nstr(Pocket lisp, char *string, size_t length);
-void PK_PRINTF(2, 3) pk_push_printf(Pocket lsip, const char *fmt, ...);
+void PK_PRINTF(2, 3) pk_push_printf(Pocket lisp, const char *fmt, ...);
 void pk_push_symbol(Pocket lisp, PKString symbol);
 void pk_push_csym(Pocket lisp, char *cstr);
 void pk_push_nsym(Pocket lisp, char *symbol, size_t length);
 void pk_push_cons(Pocket lisp, int car, int cdr);
+void pk_push_cfunc(Pocket lisp, void *user_closure, PKFn fn, int args, PKArity mode);
 
 void pk_set_car(Pocket lisp, int cons, int new_car);
 void pk_set_cdr(Pocket lisp, int cons, int new_cdr);

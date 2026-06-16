@@ -24,6 +24,8 @@ Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print) {
     pk_env_set(lisp, PKEnvTy_Var, lisp->cache.t, (PKAtom *)lisp->cache.t);
     pk_env_set(lisp, PKEnvTy_Var, lisp->cache.nilsym, lisp->cache.nil);
 
+    pk_load_std(lisp);
+
     return lisp;
 }
 
@@ -216,6 +218,11 @@ PKString pk_to_string(Pocket lisp, int stack_pointer) {
     PKAtom *atom = pk_stack_get(lisp, stack_pointer);
     PKAtomString *s = pk_atom_cast_string(lisp, atom);
     return s->lit;
+}
+
+void pk_push_cfunc(Pocket lisp, void *user_closure, PKFn fn, int args, PKArity mode) {
+    PKFuncArity arity = { .mode = mode, .args = args };
+    pk_push(lisp, (PKAtom *)pk_atom_cfunc(lisp, user_closure, fn, arity));
 }
 
 void pk_read(Pocket lisp, int stack_pointer) {

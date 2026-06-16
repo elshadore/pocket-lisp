@@ -96,7 +96,6 @@ void PK_PRINTF(2, 3) pk_writer_printf(PKWriter *w, const char *fmt, ...) {
 }
 
 void pk_writer_int(PKWriter *w, int integer) {
-    
     char buf[32];
     int n = snprintf(buf, sizeof(buf), "%d", integer);
     pk_writer_string(w, pk_string_new(buf, (size_t)n));
@@ -106,6 +105,14 @@ void pk_writer_float(PKWriter *w, float floater) {
     char buf[64];
     int n = snprintf(buf, sizeof(buf), "%f", floater);
     pk_writer_string(w, pk_string_new(buf, (size_t)n));
+}
+
+void pk_writer_address(PKWriter *w, uintptr_t address) {
+    pk_writer_cstr(w, "0x");
+    for (int i = (int)(sizeof(uintptr_t) * 2) - 1; i >= 0; i--) {
+        uint8_t nibble = (uint8_t)((address >> (i * 4)) & 0xf);
+        pk_writer_char(w, pk_char_from_hex(nibble));
+    }
 }
 
 void pk_writer_newline(PKWriter *w) {
@@ -155,8 +162,14 @@ void pk_writer_atom(PKWriter *w, PKAtom *atom) {
             pk_writer_char(w, ')');
             break;
         }
+        case PKAtomTy_CFunc: {
+            pk_writer_string(w, pkstr("#<cfunc::"));
+            pk_writer_address(w, (uintptr_t)atom);
+            pk_writer_char(w, '>');
+            break;
+        }
         default: {
-            pk_writer_cstr(w, "#<unknown>");
+            pk_writer_string(w, pkstr("#<unknown>"));
             break;
         }
     }
@@ -165,12 +178,12 @@ void pk_writer_atom(PKWriter *w, PKAtom *atom) {
 void pk_writer_cons_loop(PKWriter *w, PKAtom *atom) {
     PKAtom *cdr = atom->cons.cdr;
     while (cdr->tag.ty == PKAtomTy_Cons) {
-        pk_writer_cstr(w, " ");
+        pk_writer_char(w, ' ');
         pk_writer_atom(w, cdr->cons.car);
         cdr = cdr->cons.cdr;
     }
     if (cdr->tag.ty != PKAtomTy_Nil) {
-        pk_writer_cstr(w, " . ");
+        pk_writer_string(w, pkstr(" . "));
         pk_writer_atom(w, cdr);
     }
 }
