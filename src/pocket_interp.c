@@ -29,15 +29,15 @@ void pk_atom_eval(Pocket lisp, PKAtom *atom) {
                 break;
             }
             int argc = 0;
-            pk_cdolist(lisp, arg, form->cdr) {
-                pk_atom_eval(lisp, arg);
-                argc++;
-            }
             PKAtom *fn_form = form->car;
             if (fn_form->tag.ty == PKAtomTy_Symbol) {
                 pk_push(lisp, fn_form);
             } else {
                 pk_atom_eval(lisp, fn_form);
+            }
+            pk_cdolist(lisp, arg, form->cdr) {
+                pk_atom_eval(lisp, arg);
+                argc++;
             }
             pk_funcall(lisp, argc);
             break;

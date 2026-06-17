@@ -37,8 +37,14 @@ void pk_funcall(Pocket lisp, int arity) {
         pk_error(lisp);
     }
 
-    PKAtom *fn = pk_stack_get(lisp, -1);
-    pk_pop(lisp);
+    PKAtom *fn = pk_stack_get(lisp, -(arity + 1));
+    {
+        size_t fn_pos = pk_sp_index(lisp, -(arity + 1));
+        for (size_t i = fn_pos; i < lisp->stack.count - 1; i++) {
+            lisp->stack.e[i] = lisp->stack.e[i + 1];
+        }
+        lisp->stack.count--;
+    }
 
     if (fn->tag.ty == PKAtomTy_Symbol) {
         PKAtomSymbol *sym = (PKAtomSymbol *)fn;

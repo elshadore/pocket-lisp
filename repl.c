@@ -65,8 +65,8 @@ int main(void) {
     pk_car(lisp, -1);
     pk_push_symbol(lisp, pkstr("square"));
     pk_fset(lisp, -1, -2);
-    pk_push_int(lisp, 5);
     pk_push_csym(lisp, "square");
+    pk_push_int(lisp, 5);
     pk_funcall(lisp, 1);
     pk_stack_dump(lisp, "square(5)");
     pk_env_dump(lisp, "environment");
