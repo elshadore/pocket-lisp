@@ -41,8 +41,12 @@ void repl_read_user_input(void *user_closure, Pocket lisp) {
     }
     
     size_t len = strlen(buf);
+    if (len > 0 && buf[len-1] == '\n') {
+        buf[len-1] = '\0';
+        len--;
+    }
     
-    pk_read_nstr(lisp, buf, len);
+    pk_push_nstr(lisp, buf, len);
 }
 
 void repl(Pocket lisp) {
@@ -51,22 +55,19 @@ void repl(Pocket lisp) {
     pk_fset(lisp, -1, -2);
     pk_popn(lisp, 2);
     
-    pk_read_string(lisp, pkstr("(fset 'repl (lambda () (puts \"> \") (print (format (evlist (read (read-user-input))))) (repl))) (repl)"));
+    pk_read_string(lisp, pkstr("(fset 'repl (lambda () (puts \">> \") (print (format (evlist (read (read-user-input))))) (repl)))"));
     pk_evlist(lisp, -1);
-    
     pk_push_symbol(lisp, pkstr("repl"));
-    exit(21);
     pk_funcall(lisp, 0);
 }
 
 int main(void) {
-    printf("henlo word!\n");
+    // printf("henlo word!\n");
     Pocket lisp = pk_init(NULL, repl_alloc, repl_print);
     if (lisp == NULL) {
         return EXIT_FAILURE;
     }
     repl(lisp);
-    pk_env_dump(lisp, "environment");
     pk_deinit(lisp);
     stb_leakcheck_dumpmem();
     return EXIT_SUCCESS;

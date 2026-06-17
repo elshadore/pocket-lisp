@@ -72,15 +72,7 @@ void pk_funcall(Pocket lisp, int arity) {
                 i++;
             }
             
-            PKAtom *body = b->cdr;
-            if (body->tag.ty != PKAtomTy_Cons) {
-                pk_error(lisp);
-            }
-            if (body->cons.cdr != lisp->cache.nil) {
-                pk_error(lisp);
-            }
-
-            pk_atom_evlist(lisp, body);
+            pk_atom_evlist(lisp, b->cdr);
             break;
         }
         default: {

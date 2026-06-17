@@ -1,6 +1,9 @@
 #include "pocket_internals.h"
 
 PKAtomString *pk_atom_string(Pocket lisp, PKString string) {
+    if (string.length == 0) {
+        return lisp->cache.empty_string;
+    }
     PKString dupe = pk_string_dupe(lisp, string);
     return pk_atom_string_nomemcpy(lisp, dupe);
 }

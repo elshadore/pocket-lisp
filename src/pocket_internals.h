@@ -191,6 +191,7 @@ typedef struct PKCache_ {
     PKAtomSymbol *lambda;
     PKAtomSymbol *quote;
     PKAtomSymbol *if_sym;
+    PKAtomString *empty_string;
 } PKCache;
 
 struct PocketLispMachine_ {
@@ -251,7 +252,8 @@ PKAtom *pk_stack_get(Pocket lisp, int stack_pointer);
 void pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom);
 size_t pk_stack_total(Pocket lisp);
 
-void pk_error(Pocket lisp);
+void pk_error_impl(Pocket lisp, const char *file, int line);
+#define pk_error(lisp) pk_error_impl(lisp, __FILE__, __LINE__)
 
 PKAtomNumber *pk_number_add(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
 PKAtomNumber *pk_number_sub(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
@@ -307,6 +309,7 @@ void pk_symtable_grow(Pocket lisp, PKSymTable *st);
 PKAtom *pk_symtable_put(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom *value);
 PKAtom *pk_symtable_get(Pocket lisp, PKSymTable *st, PKAtomSymbol *key);
 PKAtom *pk_symtable_rem(Pocket lisp, PKSymTable *st, PKAtomSymbol *key);
+PKAtom *pk_symtable_alist(Pocket lisp, PKSymTable *st);
 void pk_symtable_deinit(Pocket lisp, PKSymTable *st);
 
 PKAtom *pk_env_set(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value);

@@ -81,7 +81,8 @@ void pk_free(Pocket lisp, void *ptr, size_t size) {
     (void)(lisp->alloc)(lisp->user_env, ptr, size, 0);
 }
 
-void pk_error(Pocket lisp) {
+void pk_error_impl(Pocket lisp, const char *file, int line) {
     (void)lisp;
+    fprintf(stderr, "ERROR: %s:%d\n", file, line);
     exit(69);
 }

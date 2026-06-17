@@ -41,6 +41,9 @@ void pk_gc_collect(Pocket lisp) {
     pk_gc_mark((PKAtom *)lisp->cache.nilsym);
     pk_gc_mark((PKAtom *)lisp->cache.t);
     pk_gc_mark((PKAtom *)lisp->cache.lambda);
+    pk_gc_mark((PKAtom *)lisp->cache.if_sym);
+    pk_gc_mark((PKAtom *)lisp->cache.quote);
+    pk_gc_mark((PKAtom *)lisp->cache.empty_string);
     
     for (size_t i = 0; i < lisp->intern.count; ++i) {
         PKAtomSymbol *symbol = lisp->intern.e[i];

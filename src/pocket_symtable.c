@@ -92,6 +92,17 @@ PKAtom *pk_symtable_rem(Pocket lisp, PKSymTable *st, PKAtomSymbol *key) {
     return NULL;
 }
 
+PKAtom *pk_symtable_alist(Pocket lisp, PKSymTable *st) {
+    PKAtom *alist = lisp->cache.nil;
+    for (size_t i = 0; i < st->capacity; i++) {
+        for (PKSymTableSlot *slot = st->e[i]; slot; slot = slot->chain) {
+            PKAtomCons *pair = pk_atom_cons(lisp, (PKAtom *)slot->key, slot->value);
+            alist = (PKAtom *)pk_atom_cons(lisp, (PKAtom *)pair, alist);
+        }
+    }
+    return alist;
+}
+
 void pk_symtable_deinit(Pocket lisp, PKSymTable *st) {
     for (size_t i = 0; i < st->capacity; i++) {
         PKSymTableSlot *entry = st->e[i];

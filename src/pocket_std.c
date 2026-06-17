@@ -188,6 +188,16 @@ void pk_fn_lte(void *user_closure, Pocket lisp) {
     pk_push_t(lisp);
 }
 
+void pk_fn_list_vars(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push(lisp, pk_symtable_alist(lisp, &lisp->vars));
+}
+
+void pk_fn_list_funs(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push(lisp, pk_symtable_alist(lisp, &lisp->funs));
+}
+
 void pk_fn_eq(void *user_closure, Pocket lisp) {
     (void)user_closure;
     int top = pk_get_top(lisp);
@@ -206,6 +216,8 @@ void pk_load_std(Pocket lisp) {
         {.sym = pkstr("-"), .fn = pk_fn_sub, .args = 2, .mode = PKArity_Variadic},
         {.sym = pkstr("*"), .fn = pk_fn_mul, .args = 2, .mode = PKArity_Variadic},
         {.sym = pkstr("/"), .fn = pk_fn_div, .args = 2, .mode = PKArity_Variadic},
+        {.sym = pkstr("list-vars"), .fn = pk_fn_list_vars, .args = 0, .mode = PKArity_Normal},
+        {.sym = pkstr("list-funs"), .fn = pk_fn_list_funs, .args = 0, .mode = PKArity_Normal},
         {.sym = pkstr("slurp"), .fn = pk_fn_slurp, .args = 1, .mode = PKArity_Normal},
         {.sym = pkstr("read"), .fn = pk_fn_read, .args = 1, .mode = PKArity_Normal},
         {.sym = pkstr("eval"), .fn = pk_fn_eval, .args = 1, .mode = PKArity_Normal},

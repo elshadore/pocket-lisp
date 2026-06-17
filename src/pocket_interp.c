@@ -10,20 +10,20 @@ void pk_atom_evlist(Pocket lisp, PKAtom *list) {
 }
 
 bool pk_atom_eval_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *body, PKAtom *expression) {
-    if (body->tag.ty != PKAtomTy_Cons) {
-        pk_error(lisp);
-    }
-    
-    PKAtomCons *body_cons = (PKAtomCons *)body;
-
     if (symbol == lisp->cache.lambda) {
         pk_push(lisp, expression);
     } else if (symbol == lisp->cache.quote) {
+        if (body->tag.ty != PKAtomTy_Cons) {
+            pk_error(lisp);
+        }
+        PKAtomCons *body_cons = (PKAtomCons *)body;
         if (body_cons->cdr != lisp->cache.nil) {
             pk_error(lisp);
         }
         pk_push(lisp, body_cons->car);
     } else if (symbol == lisp->cache.if_sym) {
+        if (body->tag.ty != PKAtomTy_Cons) pk_error(lisp);
+        PKAtomCons *body_cons = (PKAtomCons *)body;
         PKAtomCons *then_cons;
         PKAtomCons *else_cons;
 

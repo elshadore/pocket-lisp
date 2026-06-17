@@ -257,8 +257,9 @@ PKAtom *pk_read_atom(PKReader *r) {
 
 PKAtomCons *pk_read_from_string(Pocket lisp, PKString string) {
     if (string.length == 0) {
-        pk_error(lisp);
+        return pk_atom_cons(lisp, (PKAtom *)lisp->cache.empty_string, lisp->cache.nil);
     }
+    
     PKReader r = (PKReader) {
         .lisp = lisp,
         .src = string,

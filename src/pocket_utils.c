@@ -1,6 +1,9 @@
 #include "pocket_internals.h"
 
 PKString pk_string_dupe(Pocket lisp, PKString string) {
+    if (string.length == 0) {
+        return PK_STRING_EMPTY;
+    }
     char *copy = pk_malloc(lisp, string.length);
     memcpy(copy, string.c, string.length);
     return (PKString){ .c = copy, .length = string.length };
