@@ -37,31 +37,24 @@ void pk_funcall(Pocket lisp, int arity) {
         pk_error(lisp);
     }
 
-    PKAtom *fn = pk_stack_get(lisp, -(arity + 1));
-    {
-        size_t fn_pos = pk_sp_index(lisp, -(arity + 1));
-        for (size_t i = fn_pos; i < lisp->stack.count - 1; i++) {
-            lisp->stack.e[i] = lisp->stack.e[i + 1];
-        }
-        lisp->stack.count--;
-    }
+    PKAtom *call = pk_stack_get(lisp, -(arity + 1));
 
-    if (fn->tag.ty == PKAtomTy_Symbol) {
-        PKAtomSymbol *sym = (PKAtomSymbol *)fn;
-        fn = (PKAtom *)pk_env_get(lisp, PKEnvTy_Fun, sym);
+    if (call->tag.ty == PKAtomTy_Symbol) {
+        PKAtomSymbol *sym = (PKAtomSymbol *)call;
+        call = (PKAtom *)pk_env_get(lisp, PKEnvTy_Fun, sym);
     }
 
     size_t uarity = (size_t)arity;
     pk_frame_push(lisp, uarity);
 
-    switch (fn->tag.ty) {
+    switch (call->tag.ty) {
         case PKAtomTy_CFunc: {
-            PKAtomCFunc *cfunc = (PKAtomCFunc *)fn;
+            PKAtomCFunc *cfunc = (PKAtomCFunc *)call;
             (cfunc->fn)(cfunc->user_closure, lisp);
             break;
         }
         case PKAtomTy_Cons: {
-            PKAtomCons *a = (PKAtomCons *)fn;
+            PKAtomCons *a = (PKAtomCons *)call;
             if (a->car != (PKAtom *)lisp->cache.lambda) {
                 pk_error(lisp);
             }
@@ -101,7 +94,8 @@ void pk_funcall(Pocket lisp, int arity) {
         result = lisp->stack.e[lisp->stack.count - 1];
     }
     pk_frame_pop(lisp);
-    pk_push(lisp, result);
+    
+    lisp->stack.e[lisp->stack.count - 1] = result;
 
     pk_gc_collect(lisp);
 }

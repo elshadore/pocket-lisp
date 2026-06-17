@@ -19,6 +19,8 @@ Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print) {
         .t = pk_atom_symbol_interned(lisp, pkstr("t")),
         .nilsym = pk_atom_symbol_interned(lisp, pkstr("nil")),
         .lambda = pk_atom_symbol_interned(lisp, pkstr("lambda")),
+        .quote = pk_atom_symbol_interned(lisp, pkstr("quote")),
+        .if_sym = pk_atom_symbol_interned(lisp, pkstr("if")),
     };
 
     pk_env_set(lisp, PKEnvTy_Var, lisp->cache.t, (PKAtom *)lisp->cache.t);
@@ -253,4 +255,13 @@ void pk_read_nstr(Pocket lisp, char *string, size_t length) {
 void pk_read_string(Pocket lisp, PKString string) {
     PKAtomCons *result = pk_read_from_string(lisp, string);
     pk_push(lisp, (PKAtom *)result);
+}
+
+void pk_format(Pocket lisp, int stack_pointer) {
+    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
+    PKWriter w = pk_writer_init(lisp);
+    pk_writer_atom(&w, atom);
+    PKAtomString *string = pk_atom_string(lisp, pk_string_new(w.c, w.count));
+    pk_push(lisp, (PKAtom *)string);
+    pk_writer_deinit(&w);
 }

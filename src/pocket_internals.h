@@ -189,6 +189,8 @@ typedef struct PKCache_ {
     PKAtomSymbol *nilsym;
     PKAtomSymbol *t;
     PKAtomSymbol *lambda;
+    PKAtomSymbol *quote;
+    PKAtomSymbol *if_sym;
 } PKCache;
 
 struct PocketLispMachine_ {
@@ -209,6 +211,7 @@ struct PocketLispMachine_ {
 
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);
 void pk_print(Pocket lisp, char *c, size_t length);
+void pk_puts(Pocket lisp, char *c, size_t length);
 
 PKAtom *pk_atom_alloc(Pocket lisp);
 void pk_atom_free(Pocket lisp, PKAtom *atom);

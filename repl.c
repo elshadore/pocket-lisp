@@ -32,43 +32,40 @@ void example(void *user_closure, Pocket lisp) {
     pk_stack_dump(lisp, "b");
 }
 
+void repl_read_user_input(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    char buf[4096];
+    if (fgets(buf, sizeof(buf), stdin) == NULL) {
+        pk_push_string(lisp, pkstr(""));
+        return;
+    }
+    
+    size_t len = strlen(buf);
+    
+    pk_read_nstr(lisp, buf, len);
+}
+
+void repl(Pocket lisp) {
+    pk_push_cfunc(lisp, NULL, repl_read_user_input, 1, PKArity_Normal);
+    pk_push_symbol(lisp, pkstr("read-user-input"));
+    pk_fset(lisp, -1, -2);
+    pk_popn(lisp, 2);
+    
+    pk_read_string(lisp, pkstr("(fset 'repl (lambda () (puts \"> \") (print (format (evlist (read (read-user-input))))) (repl))) (repl)"));
+    pk_evlist(lisp, -1);
+    
+    pk_push_symbol(lisp, pkstr("repl"));
+    exit(21);
+    pk_funcall(lisp, 0);
+}
+
 int main(void) {
     printf("henlo word!\n");
     Pocket lisp = pk_init(NULL, repl_alloc, repl_print);
     if (lisp == NULL) {
         return EXIT_FAILURE;
     }
-    // pk_push_int(lisp, 69);
-    // pk_push_int(lisp, 420);
-    // pk_add(lisp, -1, -2);
-    // pk_read_cstr(lisp, "(+ 1 2 3 4)");
-    // pk_dupe(lisp, -1);
-    // pk_stack_dump(lisp, "a");
-    // pk_fastcall(NULL, lisp, example, 1);
-    // pk_swap(lisp, -1, -2);
-    // pk_car(lisp, -1);
-    // pk_cdr(lisp, -1);
-    // pk_stack_dump(lisp, "c");
-    // pk_push_symbol(lisp, pkstr("example"));
-    // pk_set(lisp, -1, 1);
-    // Test 1: eval (+ 1 2 3)
-    printf("--- Test 1: (+ 1 2 3) ---\n");
-    pk_read_cstr(lisp, "(+ 1 2 3)");
-    pk_car(lisp, -1);
-    pk_stack_dump(lisp, "expr");
-    pk_eval(lisp, -1);
-    pk_stack_dump(lisp, "result");
-
-    // Test 2: define and call square lambda
-    printf("--- Test 2: (square 5) ---\n");
-    pk_read_string(lisp, pkstr("(lambda (x) (* x x))"));
-    pk_car(lisp, -1);
-    pk_push_symbol(lisp, pkstr("square"));
-    pk_fset(lisp, -1, -2);
-    pk_push_csym(lisp, "square");
-    pk_push_int(lisp, 5);
-    pk_funcall(lisp, 1);
-    pk_stack_dump(lisp, "square(5)");
+    repl(lisp);
     pk_env_dump(lisp, "environment");
     pk_deinit(lisp);
     stb_leakcheck_dumpmem();

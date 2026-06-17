@@ -1,2 +1,7 @@
+(fset 'repl (lambda ()
+      (puts "> ")
+      (print (format (evlist (read (read-user-input)))))
+      (repl)
+))
 
-
+(repl)

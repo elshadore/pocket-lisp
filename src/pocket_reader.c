@@ -43,7 +43,9 @@ PKAtomString *pk_read_atom_string(PKReader *r) {
 
     while (pk_reader_inc(r)) {
         if (r->c == '\"') {
-            return pk_atom_string(r->lisp, pk_string_new(w.c, w.count));
+            PKString string = pk_string_new(w.c, w.count);
+            (void)pk_reader_inc(r);
+            return pk_atom_string(r->lisp, string);
         } else if (r->c == '\\') {
             if (!pk_reader_inc(r)) {
                 pk_error(r->lisp);
@@ -227,6 +229,15 @@ PKAtom *pk_read_atom(PKReader *r) {
         case ')': {
             pk_error(r->lisp);
             break;
+        }
+        case '\'': {
+            if (!pk_reader_inc(r)) {
+                pk_error(r->lisp);
+            }
+            PKAtom *value = pk_read_atom(r);
+            PKAtomCons *b = pk_atom_cons(r->lisp, value, r->lisp->cache.nil);
+            PKAtomCons *a = pk_atom_cons(r->lisp, (PKAtom *)r->lisp->cache.quote, (PKAtom *)b);
+            return (PKAtom *)a;
         }
         case '\"': {
             return (PKAtom *)pk_read_atom_string(r);

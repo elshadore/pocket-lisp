@@ -23,6 +23,11 @@ void pk_print(Pocket lisp, char *c, size_t length) {
     (lisp->print)(lisp->user_env, c, length);
 }
 
+void pk_puts(Pocket lisp, char *c, size_t length) {
+    (void)lisp;
+    fprintf(stderr, "%.*s", (int)length, c);
+}
+
 uint8_t pk_char_to_digit(char c) {
     switch (c) {
         case '0': return 0;

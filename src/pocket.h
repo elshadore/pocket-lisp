@@ -95,6 +95,8 @@ void pk_read_cstr(Pocket lisp, char *cstr);
 void pk_read_nstr(Pocket lisp, char *string, size_t length);
 void pk_read_string(Pocket lisp, PKString string);
 
+void pk_format(Pocket lisp, int stack_pointer);
+
 void pk_eval(Pocket lisp, int stack_pointer);
 void pk_evlist(Pocket lisp, int stack_pointer);
 void pk_apply(Pocket lisp, int function, int args_lists);

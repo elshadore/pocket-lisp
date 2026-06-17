@@ -67,10 +67,21 @@ void pk_fn_evlist(void *user_closure, Pocket lisp) {
     pk_evlist(lisp, 1);
 }
 
+void pk_fn_format(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_format(lisp, 1);
+}
+
 void pk_fn_print(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    PKString string = pk_to_string(lisp, -1);
+    PKString string = pk_to_string(lisp, 1);
     pk_print(lisp, string.c, string.length);
+}
+
+void pk_fn_puts(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKString string = pk_to_string(lisp, 1);
+    pk_puts(lisp, string.c, string.length);
 }
 
 void pk_fn_set(void *user_closure, Pocket lisp) {
@@ -200,6 +211,8 @@ void pk_load_std(Pocket lisp) {
         {.sym = pkstr("eval"), .fn = pk_fn_eval, .args = 1, .mode = PKArity_Normal},
         {.sym = pkstr("evlist"), .fn = pk_fn_evlist, .args = 1, .mode = PKArity_Normal},
         {.sym = pkstr("print"), .fn = pk_fn_print, .args = 1, .mode = PKArity_Normal},
+        {.sym = pkstr("puts"), .fn = pk_fn_puts, .args = 1, .mode = PKArity_Normal},
+        {.sym = pkstr("format"), .fn = pk_fn_format, .args = 1, .mode = PKArity_Normal},
         {.sym = pkstr("set"), .fn = pk_fn_set, .args = 2, .mode = PKArity_Normal},
         {.sym = pkstr("get"), .fn = pk_fn_get, .args = 1, .mode = PKArity_Normal},
         {.sym = pkstr("unbind"), .fn = pk_fn_unbind, .args = 1, .mode = PKArity_Normal},
