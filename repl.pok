@@ -1,7 +1,9 @@
+(fset 'square (lambda (x)
+      (* x x)))
+
 (fset 'repl (lambda ()
-      (puts "> ")
+      (puts ">> ")
       (print (format (evlist (read (read-user-input)))))
-      (repl)
-))
+      (repl)))
 
 (repl)

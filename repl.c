@@ -2,6 +2,7 @@
 #include "./lib/stb_leakcheck.h"
 
 #include "./src/pocket.h"
+#include "repl.h"
 
 void *repl_alloc(void *user_env, void *ptr, size_t old_size, size_t new_size) {
     (void)user_env;
@@ -55,10 +56,8 @@ void repl(Pocket lisp) {
     pk_fset(lisp, -1, -2);
     pk_popn(lisp, 2);
     
-    pk_read_string(lisp, pkstr("(fset 'repl (lambda () (puts \">> \") (print (format (evlist (read (read-user-input))))) (repl)))"));
+    pk_read_string(lisp, pkstr(REPL_SRC));
     pk_evlist(lisp, -1);
-    pk_push_symbol(lisp, pkstr("repl"));
-    pk_funcall(lisp, 0);
 }
 
 int main(void) {
