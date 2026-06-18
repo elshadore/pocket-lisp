@@ -1,20 +1,37 @@
-* The Great TODO List [4/12]
+* The Great TODO List [6/13]
+** DONE Reading
+CLOSED: [2026-06-14 Sun 19:43]
 ** DONE Symbol Interning
 CLOSED: [2026-06-15 Mon 20:15]
 ** DONE Basic GC
 CLOSED: [2026-06-16 Tue 19:15]
 ** DONE Basic Environment
 CLOSED: [2026-06-16 Tue 13:24]
-** TODO Basic Interpreter
+** DONE Basic Interpreter
+CLOSED: [2026-06-17 Wed 22:10]
+** DONE Basic REPL
+CLOSED: [2026-06-17 Wed 22:10]
 ** TODO Macros
-** TODO Basic REPL
+** TODO Throwing, Catching, Errors, and Unwind Protect
+** TODO Basic Special Forms [0/7]
+*** TODO let
+*** TODO let*
+*** TODO while
+*** TODO quasiquote
+*** TODO unquote
+*** TODO unquote-splice
+*** TODO string-substitute
+** TODO Basic Reader Forms [0/4]
+*** TODO ` => quasiquote
+*** TODO , => unquote
+*** TODO ,@ => unquote-splice
+*** TODO $ => string-substitute
 ** TODO Add recursive check to printing
-** TODO Formatting
+** TODO Pretty Printing
 ** TODO Full numerical tower
 ** TODO Metaobject system
-** DONE Reading
-CLOSED: [2026-06-14 Sun 19:43]
+** TODO Gensyms
+** TODO Lexical Scoping
 ** TODO Memory Leak with String Parsing if Error with Writer
 We need to implement the error system and unwind protect
-** TODO Throwing, Catching, Errors, and Unwind Protect
 

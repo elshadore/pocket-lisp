@@ -103,6 +103,33 @@ union PKAtom_ {
     PKAtomCFunc cfunc;
 };
 
+typedef enum PKFuncMode_ {
+    PKFuncMode_Func = 0,
+    PKFuncMode_Macro,
+} PKFuncMode;
+
+typedef enum PKFuncTy_ {
+    PKFuncTy_CFast = 0,
+    PKFuncTy_CFunc,
+    PKFuncTy_Lisp,
+} PKFuncTy;
+
+typedef struct PKFuncCall_ {
+    PKFuncTy ty;
+    union {
+        PKFn fast;
+        PKAtomCFunc *cfunc;
+        struct {
+            PKAtom *args;
+            PKAtom *body;
+        } lisp;
+    } as;
+    int arity;
+    PKFuncMode mode;
+    size_t final_arity;
+    bool replace_nil;
+} PKFuncCall;
+
 typedef struct PKWriter_ {
     Pocket lisp;
     char *c;
@@ -184,13 +211,20 @@ struct PKPool_ {
     PKPool *next;
 };
 
+typedef struct PKAtoms_ {
+    PKAtom **e;
+    size_t length;
+} PKAtoms;
+
 typedef struct PKCache_ {
     PKAtom *nil;
-    PKAtomSymbol *nilsym;
+    PKAtomSymbol *nil_sym;
     PKAtomSymbol *t;
     PKAtomSymbol *lambda;
     PKAtomSymbol *quote;
+    PKAtomSymbol *progn;
     PKAtomSymbol *if_sym;
+    PKAtomSymbol *while_sym;
     PKAtomString *empty_string;
 } PKCache;
 
@@ -209,6 +243,8 @@ struct PocketLispMachine_ {
     PKAtomFree *free;
     PKPool *pool;
 };
+
+#define pk_index_inv(i_, length_) ((length_) - (i_) - 1)
 
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);
 void pk_print(Pocket lisp, char *c, size_t length);
@@ -248,7 +284,9 @@ void pk_free(Pocket lisp, void *ptr, size_t size);
 void pk_push(Pocket lisp, PKAtom *atom);
 void pk_stack_expand(Pocket lisp, size_t total);
 size_t pk_sp_index(Pocket lisp, int stack_pointer);
+PKAtom *pk_stack_pop(Pocket lisp);
 PKAtom *pk_stack_get(Pocket lisp, int stack_pointer);
+PKAtoms pk_stack_slice(Pocket lisp);
 void pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom);
 size_t pk_stack_total(Pocket lisp);
 
@@ -299,6 +337,7 @@ PKAtomCons *pk_read_from_string(Pocket lisp, PKString string);
 
 void pk_frame_push(Pocket lisp, size_t arity);
 void pk_frame_pop(Pocket lisp);
+void pk_frame_clear(Pocket lisp);
 void pk_let_push(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value);
 void pk_let_pop(Pocket lisp, size_t n);
 
@@ -321,6 +360,7 @@ void pk_load_std(Pocket lisp);
 
 void pk_atom_eval(Pocket lisp, PKAtom *atom);
 void pk_atom_evlist(Pocket lisp, PKAtom *list);
+size_t pk_atom_evrec(Pocket lisp, PKAtom *list);
 
 PKString pk_slurp(Pocket lisp, const char *file_path);
 PKAtom *pk_get_result(Pocket lisp);

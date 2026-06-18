@@ -9,6 +9,24 @@ void pk_atom_evlist(Pocket lisp, PKAtom *list) {
     }
 }
 
+size_t pk_atom_evrec(Pocket lisp, PKAtom *list) {
+    switch (list->tag.ty) {
+        case PKAtomTy_Nil: {
+            return 0;
+        }
+        case PKAtomTy_Cons: {
+            PKAtomCons *cons = (PKAtomCons *)list;
+            size_t result = pk_atom_evrec(lisp, cons->cdr) + 1;
+            pk_atom_eval(lisp, cons->car);
+            return result;
+        }
+        default: {
+            pk_error(lisp);
+            return 0;
+        }
+    }
+}
+
 bool pk_atom_eval_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *body, PKAtom *expression) {
     if (symbol == lisp->cache.lambda) {
         pk_push(lisp, expression);
@@ -21,8 +39,32 @@ bool pk_atom_eval_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *body, 
             pk_error(lisp);
         }
         pk_push(lisp, body_cons->car);
+    } else if (symbol == lisp->cache.progn) {
+        pk_atom_evlist(lisp, body);
+    } else if (symbol == lisp->cache.while_sym) {
+        if (body->tag.ty != PKAtomTy_Cons) {
+            pk_error(lisp);
+        }
+        PKAtomCons *body_cons = (PKAtomCons *)body;
+        PKAtom *cond = body_cons->car;
+        PKAtom *loop = body_cons->cdr;
+        
+        pk_push_nil(lisp);
+        for (;;) {
+            pk_atom_eval(lisp, cond);
+            PKAtom *a = pk_stack_get(lisp, -1);
+            if (a == lisp->cache.nil) {
+                break;
+            }
+            pk_pop(lisp);
+            pk_atom_evlist(lisp, loop);
+            pk_swap(lisp, -1, -2);
+            pk_pop(lisp);
+        }
     } else if (symbol == lisp->cache.if_sym) {
-        if (body->tag.ty != PKAtomTy_Cons) pk_error(lisp);
+        if (body->tag.ty != PKAtomTy_Cons) {
+            pk_error(lisp);
+        }
         PKAtomCons *body_cons = (PKAtomCons *)body;
         PKAtomCons *then_cons;
         PKAtomCons *else_cons;
@@ -73,11 +115,7 @@ void pk_atom_eval(Pocket lisp, PKAtom *atom) {
                 pk_atom_eval(lisp, form_car);
             }
             
-            int argc = 0;
-            pk_cdolist(lisp, arg, form->cdr) {
-                pk_atom_eval(lisp, arg);
-                argc++;
-            }
+            int argc = (int)pk_atom_evrec(lisp, form->cdr);
             pk_funcall(lisp, argc);
             break;
         }

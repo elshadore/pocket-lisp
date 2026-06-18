@@ -17,15 +17,17 @@ Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print) {
     lisp->cache = (PKCache) {
         .nil = pk_atom_nil(lisp),
         .t = pk_atom_symbol_interned(lisp, pkstr("t")),
-        .nilsym = pk_atom_symbol_interned(lisp, pkstr("nil")),
+        .nil_sym = pk_atom_symbol_interned(lisp, pkstr("nil")),
         .lambda = pk_atom_symbol_interned(lisp, pkstr("lambda")),
         .quote = pk_atom_symbol_interned(lisp, pkstr("quote")),
+        .progn = pk_atom_symbol_interned(lisp, pkstr("progn")),
+        .while_sym = pk_atom_symbol_interned(lisp, pkstr("while")),
         .if_sym = pk_atom_symbol_interned(lisp, pkstr("if")),
         .empty_string = pk_atom_string_nomemcpy(lisp, pkstr("")),
     };
 
     pk_env_set(lisp, PKEnvTy_Var, lisp->cache.t, (PKAtom *)lisp->cache.t);
-    pk_env_set(lisp, PKEnvTy_Var, lisp->cache.nilsym, lisp->cache.nil);
+    pk_env_set(lisp, PKEnvTy_Var, lisp->cache.nil_sym, lisp->cache.nil);
 
     pk_load_std(lisp);
 

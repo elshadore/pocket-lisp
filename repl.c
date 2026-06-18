@@ -27,12 +27,6 @@ void repl_print(void *user_env, char *c, size_t length) {
     printf("%.*s\n", (int)length, c);
 }
 
-void example(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_push_int(lisp, 67);
-    pk_stack_dump(lisp, "b");
-}
-
 void repl_read_user_input(void *user_closure, Pocket lisp) {
     (void)user_closure;
     char buf[4096];

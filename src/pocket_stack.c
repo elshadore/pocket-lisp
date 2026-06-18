@@ -84,10 +84,7 @@ void pk_push(Pocket lisp, PKAtom *atom) {
 }
 
 void pk_pop(Pocket lisp) {
-    if (lisp->stack.count == 0) {
-        pk_error(lisp);
-    }
-    lisp->stack.count -= 1;
+    (void)pk_stack_pop(lisp);
 }
 
 void pk_popn(Pocket lisp, int n) {
@@ -100,9 +97,27 @@ void pk_popn(Pocket lisp, int n) {
     lisp->stack.count -= (size_t)n;
 }
 
+PKAtom *pk_stack_pop(Pocket lisp) {
+    if (lisp->stack.count == 0) {
+        pk_error(lisp);
+    }
+    size_t index = lisp->stack.count - 1;
+    PKAtom *popped = lisp->stack.e[index];
+    lisp->stack.count = index;
+    return popped;
+}
+
 PKAtom *pk_stack_get(Pocket lisp, int stack_pointer) {
     if (stack_pointer == 0) return lisp->cache.nil;
     return lisp->stack.e[pk_sp_index(lisp, stack_pointer)];
+}
+
+PKAtoms pk_stack_slice(Pocket lisp) {
+    size_t total = pk_stack_total(lisp);
+    size_t offset = lisp->current_frame.stack_offset;
+    size_t length = total - offset;
+    PKAtom **e = lisp->stack.e + offset;
+    return (PKAtoms){.e = e, .length = length};
 }
 
 void pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom) {
@@ -150,6 +165,10 @@ void pk_frame_pop(Pocket lisp) {
     lisp->stack.count = new_total;
     frames->count -= 1;
     lisp->current_frame = popped;
+}
+
+void pk_frame_clear(Pocket lisp) {
+    lisp->stack.count = lisp->current_frame.stack_offset;
 }
 
 void pk_let_push(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value) {

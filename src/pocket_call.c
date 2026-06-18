@@ -62,16 +62,19 @@ void pk_funcall(Pocket lisp, int arity) {
             PKAtomCons *b = pk_atom_cast_cons(lisp, a->cdr);
             PKAtom *args = b->car;
           
-            int i = 0;
+            size_t i = 0;
+            PKAtoms slice = pk_stack_slice(lisp);
             pk_cdolist(lisp, el, args) {
-                if ((size_t)i > uarity) {
+                if (i >= uarity) {
                     pk_error(lisp);
                 }
+                size_t index = pk_index_inv(i, slice.length);
+                PKAtom *atom = slice.e[index];
                 PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, el);
-                pk_let_push(lisp, PKEnvTy_Var, sym, pk_stack_get(lisp, i + 1));
+                pk_let_push(lisp, PKEnvTy_Var, sym, atom);
                 i++;
             }
-            
+            pk_frame_clear(lisp);
             pk_atom_evlist(lisp, b->cdr);
             break;
         }

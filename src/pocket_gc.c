@@ -38,11 +38,13 @@ void pk_gc_collect(Pocket lisp) {
     // Mark
     
     pk_gc_mark((PKAtom *)lisp->cache.nil);
-    pk_gc_mark((PKAtom *)lisp->cache.nilsym);
+    pk_gc_mark((PKAtom *)lisp->cache.nil_sym);
     pk_gc_mark((PKAtom *)lisp->cache.t);
     pk_gc_mark((PKAtom *)lisp->cache.lambda);
     pk_gc_mark((PKAtom *)lisp->cache.if_sym);
+    pk_gc_mark((PKAtom *)lisp->cache.while_sym);
     pk_gc_mark((PKAtom *)lisp->cache.quote);
+    pk_gc_mark((PKAtom *)lisp->cache.progn);
     pk_gc_mark((PKAtom *)lisp->cache.empty_string);
     
     for (size_t i = 0; i < lisp->intern.count; ++i) {
