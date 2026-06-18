@@ -109,25 +109,30 @@ typedef enum PKFuncMode_ {
 } PKFuncMode;
 
 typedef enum PKFuncTy_ {
-    PKFuncTy_CFast = 0,
-    PKFuncTy_CFunc,
-    PKFuncTy_Lisp,
+    PKFuncTy_CFunc = 0,
+    PKFuncTy_Lambda,
+    PKFuncTy_Expression,
+    PKFuncTy_Evlist,
 } PKFuncTy;
 
 typedef struct PKFuncCall_ {
     PKFuncTy ty;
     union {
-        PKFn fast;
-        PKAtomCFunc *cfunc;
+        struct {
+            void *user_closure;
+            PKFn fn;
+        } c;
         struct {
             PKAtom *args;
             PKAtom *body;
         } lisp;
+        PKAtom *value;
     } as;
-    int arity;
     PKFuncMode mode;
     size_t final_arity;
-    bool replace_nil;
+    size_t extra_nils;
+    bool insert_result;
+    PKAtom *expression;
 } PKFuncCall;
 
 typedef struct PKWriter_ {
@@ -366,5 +371,8 @@ size_t pk_atom_evrec(Pocket lisp, PKAtom *list);
 
 PKString pk_slurp(Pocket lisp, const char *file_path);
 PKAtom *pk_get_result(Pocket lisp);
+
+void pk_call(Pocket lisp, PKFuncCall call);
+PKFuncCall pk_get_callconv(Pocket lisp, PKAtom *atom, int arity);
 
 #endif

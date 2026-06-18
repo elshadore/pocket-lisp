@@ -45,11 +45,10 @@ void repl_read_user_input(void *user_closure, Pocket lisp) {
 }
 
 void repl(Pocket lisp) {
-    pk_push_cfunc(lisp, NULL, repl_read_user_input, 1, PKArity_Normal);
+    pk_push_cfunc(lisp, NULL, repl_read_user_input, 0, PKArity_Normal);
     pk_push_symbol(lisp, pkstr("read-user-input"));
     pk_fset(lisp, -1, -2);
     pk_popn(lisp, 2);
-    
     pk_read_string(lisp, pkstr(REPL_SRC));
     pk_evlist(lisp, -1);
 }
