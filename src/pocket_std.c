@@ -2,45 +2,37 @@
 
 void pk_fn_add(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    int top = pk_get_top(lisp);
-    pk_dupe(lisp, 1);
-    for (int i = 2; i <= top; ++i) {
-        pk_add(lisp, i, -1);
-        pk_swap(lisp, -1, -2);
-        pk_pop(lisp);
+    while (pk_get_top(lisp) > 2) {
+        pk_add(lisp, -1, -2);
+        pk_swap(lisp, -1, -3);
+        pk_popn(lisp, 2);
     }
 }
 
 void pk_fn_sub(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    int top = pk_get_top(lisp);
-    pk_dupe(lisp, 1);
-    for (int i = 2; i <= top; ++i) {
-        pk_sub(lisp, -1, i);
-        pk_swap(lisp, -1, -2);
-        pk_pop(lisp);
+    while (pk_get_top(lisp) > 2) {
+        pk_sub(lisp, -1, -2);
+        pk_swap(lisp, -1, -3);
+        pk_popn(lisp, 2);
     }
 }
 
 void pk_fn_mul(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    int top = pk_get_top(lisp);
-    pk_dupe(lisp, 1);
-    for (int i = 2; i <= top; ++i) {
-        pk_mul(lisp, i, -1);
-        pk_swap(lisp, -1, -2);
-        pk_pop(lisp);
+    while (pk_get_top(lisp) > 2) {
+        pk_mul(lisp, -1, -2);
+        pk_swap(lisp, -1, -3);
+        pk_popn(lisp, 2);
     }
 }
 
 void pk_fn_div(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    int top = pk_get_top(lisp);
-    pk_dupe(lisp, 1);
-    for (int i = 2; i <= top; ++i) {
-        pk_div(lisp, -1, i);
-        pk_swap(lisp, -1, -2);
-        pk_pop(lisp);
+    while (pk_get_top(lisp) > 2) {
+        pk_div(lisp, -1, -2);
+        pk_swap(lisp, -1, -3);
+        pk_popn(lisp, 2);
     }
 }
 
@@ -142,48 +134,61 @@ void pk_fn_set_cdr(void *user_closure, Pocket lisp) {
 
 void pk_fn_gt(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    int top = pk_get_top(lisp);
-    for (int i = 1; i < top; ++i) {
-        if (!pk_gt(lisp, i, i + 1)) {
+    while (pk_get_top(lisp) > 2) {
+        if (!pk_gt(lisp, -1, -2)) {
             pk_push_nil(lisp);
             return;
         }
+        pk_pop(lisp);
     }
     pk_push_t(lisp);
 }
 
 void pk_fn_gte(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    int top = pk_get_top(lisp);
-    for (int i = 1; i < top; ++i) {
-        if (!pk_gte(lisp, i, i + 1)) {
+    while (pk_get_top(lisp) > 2) {
+        if (!pk_gte(lisp, -1, -2)) {
             pk_push_nil(lisp);
             return;
         }
+        pk_pop(lisp);
     }
     pk_push_t(lisp);
 }
 
 void pk_fn_lt(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    int top = pk_get_top(lisp);
-    for (int i = 1; i < top; ++i) {
-        if (!pk_lt(lisp, i, i + 1)) {
+    while (pk_get_top(lisp) > 2) {
+        if (!pk_lt(lisp, -1, -2)) {
             pk_push_nil(lisp);
             return;
         }
+        pk_pop(lisp);
     }
     pk_push_t(lisp);
+    
 }
 
 void pk_fn_lte(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    int top = pk_get_top(lisp);
-    for (int i = 1; i < top; ++i) {
-        if (!pk_lte(lisp, i, i + 1)) {
+    while (pk_get_top(lisp) > 2) {
+        if (!pk_lte(lisp, -1, -2)) {
             pk_push_nil(lisp);
             return;
         }
+        pk_pop(lisp);
+    }
+    pk_push_t(lisp);
+}
+
+void pk_fn_eq(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    while (pk_get_top(lisp) > 2) {
+        if (!pk_eq(lisp, -1, -2)) {
+            pk_push_nil(lisp);
+            return;
+        }
+        pk_pop(lisp);
     }
     pk_push_t(lisp);
 }
@@ -196,18 +201,6 @@ void pk_fn_list_vars(void *user_closure, Pocket lisp) {
 void pk_fn_list_funs(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_push(lisp, pk_symtable_alist(lisp, &lisp->funs));
-}
-
-void pk_fn_eq(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    int top = pk_get_top(lisp);
-    for (int i = 1; i < top; ++i) {
-        if (!pk_eq(lisp, i, i + 1)) {
-            pk_push_nil(lisp);
-            return;
-        }
-    }
-    pk_push_t(lisp);
 }
 
 void pk_load_std(Pocket lisp) {

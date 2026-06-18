@@ -27,7 +27,6 @@ PKAtomNumber *pk_atom_cast_number(Pocket lisp, PKAtom *atom) {
     return (PKAtomNumber *)atom;
 }
 
-
 #define pk_atom_number_op_template(op_) \
     switch (lhs->ty) { \
         case PKNumberTy_Int: { \
