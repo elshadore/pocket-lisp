@@ -2,43 +2,51 @@
 
 void pk_fn_add(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    while (pk_get_top(lisp) > 2) {
-        pk_add(lisp, -1, -2);
-        pk_swap(lisp, -1, -3);
-        pk_popn(lisp, 2);
+    int top = pk_get_top(lisp);
+    pk_dupe(lisp, 1);
+    for (int i = 2; i <= top; ++i) {
+        pk_add(lisp, -1, i);
+        pk_swap(lisp, -1, -2);
+        pk_pop(lisp);
     }
 }
 
 void pk_fn_sub(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    while (pk_get_top(lisp) > 2) {
-        pk_sub(lisp, -1, -2);
-        pk_swap(lisp, -1, -3);
-        pk_popn(lisp, 2);
+    int top = pk_get_top(lisp);
+    pk_dupe(lisp, 1);
+    for (int i = 2; i <= top; ++i) {
+        pk_sub(lisp, -1, i);
+        pk_swap(lisp, -1, -2);
+        pk_pop(lisp);
     }
 }
 
 void pk_fn_mul(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    while (pk_get_top(lisp) > 2) {
-        pk_mul(lisp, -1, -2);
-        pk_swap(lisp, -1, -3);
-        pk_popn(lisp, 2);
+    int top = pk_get_top(lisp);
+    pk_dupe(lisp, 1);
+    for (int i = 2; i <= top; ++i) {
+        pk_add(lisp, -1, i);
+        pk_swap(lisp, -1, -2);
+        pk_pop(lisp);
     }
 }
 
 void pk_fn_div(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    while (pk_get_top(lisp) > 2) {
-        pk_div(lisp, -1, -2);
-        pk_swap(lisp, -1, -3);
-        pk_popn(lisp, 2);
+    int top = pk_get_top(lisp);
+    pk_dupe(lisp, 1);
+    for (int i = 2; i <= top; ++i) {
+        pk_add(lisp, -1, i);
+        pk_swap(lisp, -1, -2);
+        pk_pop(lisp);
     }
 }
 
 void pk_fn_slurp(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    PKString path = pk_to_string(lisp, -1);
+    PKString path = pk_to_string(lisp, 1);
     PKString contents = pk_slurp(lisp, path.c);
     PKAtomString *string = pk_atom_string_nomemcpy(lisp, contents);
     pk_push(lisp, (PKAtom *)string);
@@ -46,81 +54,81 @@ void pk_fn_slurp(void *user_closure, Pocket lisp) {
 
 void pk_fn_read(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_read(lisp, -1);
+    pk_read(lisp, 1);
 }
 
 void pk_fn_eval(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_eval(lisp, -1);
+    pk_eval(lisp, 1);
 }
 
 void pk_fn_evlist(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_evlist(lisp, -1);
+    pk_evlist(lisp, 1);
 }
 
 void pk_fn_format(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_format(lisp, -1);
+    pk_format(lisp, 1);
 }
 
 void pk_fn_print(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    PKString string = pk_to_string(lisp, -1);
+    PKString string = pk_to_string(lisp, 1);
     pk_print(lisp, string.c, string.length);
 }
 
 void pk_fn_puts(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    PKString string = pk_to_string(lisp, -1);
+    PKString string = pk_to_string(lisp, 1);
     pk_puts(lisp, string.c, string.length);
 }
 
 void pk_fn_set(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_set(lisp, -1, -2);
+    pk_set(lisp, 1, 2);
 }
 
 void pk_fn_get(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_get(lisp, -1);
+    pk_get(lisp, 1);
 }
 
 void pk_fn_unbind(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_unbind(lisp, -1);
+    pk_unbind(lisp, 1);
 }
 
 void pk_fn_fset(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_fset(lisp, -1, -2);
+    pk_fset(lisp, 1, 2);
 }
 
 void pk_fn_fget(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_fget(lisp, -1);
+    pk_fget(lisp, 1);
 }
 
 void pk_fn_funbind(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_funbind(lisp, -1);
+    pk_funbind(lisp, 1);
 }
 
 void pk_fn_car(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_car(lisp, -1);
+    pk_car(lisp, 1);
 }
 
 void pk_fn_cdr(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_cdr(lisp, -1);
+    pk_cdr(lisp, 1);
 }
 
 void pk_fn_set_car(void *user_closure, Pocket lisp) {
     (void)user_closure;
     PKAtomCons *c = pk_atom_cast_cons(lisp, pk_stack_get(lisp, 2));
     PKAtom *old = c->car;
-    pk_set_car(lisp, -1, -2);
+    pk_set_car(lisp, 1, 2);
     pk_push(lisp, old);
 }
 
@@ -128,67 +136,66 @@ void pk_fn_set_cdr(void *user_closure, Pocket lisp) {
     (void)user_closure;
     PKAtomCons *c = pk_atom_cast_cons(lisp, pk_stack_get(lisp, 2));
     PKAtom *old = c->cdr;
-    pk_set_cdr(lisp, -1, -2);
+    pk_set_cdr(lisp, 1, 2);
     pk_push(lisp, old);
 }
 
 void pk_fn_gt(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    while (pk_get_top(lisp) > 2) {
-        if (!pk_gt(lisp, -1, -2)) {
+    int top = pk_get_top(lisp);
+    for (int i = 1; i < top; ++i) {
+        if (!pk_gt(lisp, i, i + 1)) {
             pk_push_nil(lisp);
             return;
         }
-        pk_pop(lisp);
     }
     pk_push_t(lisp);
 }
 
 void pk_fn_gte(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    while (pk_get_top(lisp) > 2) {
-        if (!pk_gte(lisp, -1, -2)) {
+    int top = pk_get_top(lisp);
+    for (int i = 1; i < top; ++i) {
+        if (!pk_gte(lisp, i, i + 1)) {
             pk_push_nil(lisp);
             return;
         }
-        pk_pop(lisp);
     }
     pk_push_t(lisp);
 }
 
 void pk_fn_lt(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    while (pk_get_top(lisp) > 2) {
-        if (!pk_lt(lisp, -1, -2)) {
+    int top = pk_get_top(lisp);
+    for (int i = 1; i < top; ++i) {
+        if (!pk_lt(lisp, i, i + 1)) {
             pk_push_nil(lisp);
             return;
         }
-        pk_pop(lisp);
     }
     pk_push_t(lisp);
-    
 }
 
 void pk_fn_lte(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    while (pk_get_top(lisp) > 2) {
-        if (!pk_lte(lisp, -1, -2)) {
+    int top = pk_get_top(lisp);
+    for (int i = 1; i < top; ++i) {
+        if (!pk_lte(lisp, i, i + 1)) {
             pk_push_nil(lisp);
             return;
         }
-        pk_pop(lisp);
     }
     pk_push_t(lisp);
 }
 
 void pk_fn_eq(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    while (pk_get_top(lisp) > 2) {
-        if (!pk_eq(lisp, -1, -2)) {
+    int top = pk_get_top(lisp);
+    for (int i = 1; i < top; ++i) {
+        if (!pk_eq(lisp, i, i + 1)) {
             pk_push_nil(lisp);
             return;
         }
-        pk_pop(lisp);
     }
     pk_push_t(lisp);
 }

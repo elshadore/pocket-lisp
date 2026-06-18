@@ -325,9 +325,11 @@ void pk_writer_print(PKWriter *w);
 void pk_writer_address(PKWriter *w, uintptr_t address);
 
 uint8_t pk_char_to_digit(char c);
-char pk_char_from_digit(uint8_t integer);
+bool pk_char_is_hex(char c);
+uint8_t pk_char_to_hex(char c);
 char pk_char_from_hex(uint8_t byte);
 bool pk_char_is_digit(char c);
+char pk_char_from_digit(uint8_t integer);
 bool pk_char_is_whitespace(char c);
 bool pk_char_is_alphabet(char c);
 bool pk_char_is_symbol(char c);

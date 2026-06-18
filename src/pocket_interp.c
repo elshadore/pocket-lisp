@@ -115,7 +115,11 @@ void pk_atom_eval(Pocket lisp, PKAtom *atom) {
                 pk_atom_eval(lisp, form_car);
             }
             
-            int argc = (int)pk_atom_evrec(lisp, form->cdr);
+            int argc = 0;
+            pk_cdolist(lisp, el, form->cdr) {
+                pk_atom_eval(lisp, el);
+                argc += 1;
+            }
             pk_funcall(lisp, argc);
             break;
         }

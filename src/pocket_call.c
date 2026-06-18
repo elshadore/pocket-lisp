@@ -38,7 +38,7 @@ void pk_funcall(Pocket lisp, int arity) {
     }
 
     PKAtom *call = pk_stack_get(lisp, -(arity + 1));
-
+ 
     if (call->tag.ty == PKAtomTy_Symbol) {
         PKAtomSymbol *sym = (PKAtomSymbol *)call;
         call = (PKAtom *)pk_env_get(lisp, PKEnvTy_Fun, sym);
