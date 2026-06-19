@@ -179,6 +179,7 @@ typedef struct PKFrame_ {
     size_t stack_offset;
     size_t arity;
     size_t lets_offset;
+    PKFuncMode mode;
 } PKFrame;
 
 typedef struct PKFrames_ {
@@ -226,6 +227,7 @@ typedef struct PKCache_ {
     PKAtomSymbol *nil_sym;
     PKAtomSymbol *t;
     PKAtomSymbol *lambda;
+    PKAtomSymbol *macro;
     PKAtomSymbol *quote;
     PKAtomSymbol *progn;
     PKAtomSymbol *if_sym;
@@ -342,7 +344,7 @@ bool pk_char_is_symbol(char c);
 PKAtom *pk_read_atom(PKReader *r);
 PKAtomCons *pk_read_from_string(Pocket lisp, PKString string);
 
-void pk_frame_push(Pocket lisp, size_t arity);
+void pk_frame_push(Pocket lisp, size_t arity, PKFuncMode mode);
 void pk_frame_pop(Pocket lisp);
 void pk_frame_clear(Pocket lisp);
 void pk_let_push(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value);

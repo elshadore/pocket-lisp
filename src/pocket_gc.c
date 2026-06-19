@@ -41,6 +41,7 @@ void pk_gc_collect(Pocket lisp) {
     pk_gc_mark((PKAtom *)lisp->cache.nil_sym);
     pk_gc_mark((PKAtom *)lisp->cache.t);
     pk_gc_mark((PKAtom *)lisp->cache.lambda);
+    pk_gc_mark((PKAtom *)lisp->cache.macro);
     pk_gc_mark((PKAtom *)lisp->cache.if_sym);
     pk_gc_mark((PKAtom *)lisp->cache.while_sym);
     pk_gc_mark((PKAtom *)lisp->cache.quote);

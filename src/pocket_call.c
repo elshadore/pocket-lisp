@@ -4,8 +4,8 @@ void pk_call(Pocket lisp, PKFuncCall call) {
     for (size_t i = 0; i < call.extra_nils; ++i) {
         pk_push_nil(lisp);
     }
-    
-    pk_frame_push(lisp, call.final_arity);
+
+    pk_frame_push(lisp, call.final_arity, lisp->current_frame.mode);
 
     switch (call.ty) {
         case PKFuncTy_CFunc: {
@@ -97,10 +97,13 @@ PKFuncCall pk_get_callconv(Pocket lisp, PKAtom *atom, int arity) {
         }
         case PKAtomTy_Cons: {
             PKAtomCons *cons = (PKAtomCons *)atom;
-            PKFuncMode mode = PKFuncMode_Func;
             PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, cons->car);
+            
+            PKFuncMode mode = PKFuncMode_Func;
             if (sym == lisp->cache.lambda) {
                 mode = PKFuncMode_Func;
+            } else if (sym == lisp->cache.macro) {
+                mode = PKFuncMode_Macro;
             } else {
                 pk_error(lisp);
             }

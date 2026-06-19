@@ -19,6 +19,7 @@ Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print) {
         .t = pk_atom_symbol_interned(lisp, pkstr("t")),
         .nil_sym = pk_atom_symbol_interned(lisp, pkstr("nil")),
         .lambda = pk_atom_symbol_interned(lisp, pkstr("lambda")),
+        .macro = pk_atom_symbol_interned(lisp, pkstr("macro")),
         .quote = pk_atom_symbol_interned(lisp, pkstr("quote")),
         .progn = pk_atom_symbol_interned(lisp, pkstr("progn")),
         .while_sym = pk_atom_symbol_interned(lisp, pkstr("while")),
