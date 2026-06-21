@@ -222,6 +222,11 @@ typedef struct PKAtoms_ {
     size_t length;
 } PKAtoms;
 
+typedef struct PKThrow_ {
+    PKAtomSymbol *catch_sym;
+    jmp_buf jmp;
+} PKThrow;
+
 typedef struct PKCache_ {
     PKAtom *nil;
     PKAtomSymbol *nil_sym;
@@ -232,6 +237,7 @@ typedef struct PKCache_ {
     PKAtomSymbol *progn;
     PKAtomSymbol *if_sym;
     PKAtomSymbol *while_sym;
+    PKAtomSymbol *error;
     PKAtomString *empty_string;
 } PKCache;
 
