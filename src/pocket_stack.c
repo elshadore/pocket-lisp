@@ -120,6 +120,29 @@ PKAtoms pk_stack_slice(Pocket lisp) {
     return (PKAtoms){.e = e, .length = length};
 }
 
+PKStackSlice pk_stack_slice_by(Pocket lisp, int a, int b) {
+    size_t ia = pk_sp_index(lisp, a);
+    size_t ib = pk_sp_index(lisp, b);
+    size_t offset = lisp->current_frame.stack_offset;
+    if (ia < ib) {
+        return (PKStackSlice) {
+            .order = PKOrder_Normal,
+            .slice = (PKAtoms) {
+                .e = lisp->stack.e + offset + a,
+                .length = b - a,
+            },
+        };
+    } else {
+        return (PKStackSlice) {
+            .order = PKOrder_Reversed,
+            .slice = (PKAtoms) {
+                .e = lisp->stack.e + offset + b,
+                .length = a - b,
+            },
+        };
+    }
+}
+
 void pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom) {
     size_t index = pk_sp_index(lisp, stack_pointer);
     lisp->stack.e[index] = atom;

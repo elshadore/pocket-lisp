@@ -272,3 +272,19 @@ void pk_format(Pocket lisp, int stack_pointer) {
     pk_push(lisp, (PKAtom *)string);
     pk_writer_deinit(&w);
 }
+
+void pk_list(Pocket lisp, int head, int tail) {
+    PKStackSlice slice = pk_stack_slice_by(lisp, head, tail);
+    PKAtom *result = NULL;
+    switch (slice.order) {
+        case PKOrder_Normal: {
+            result = pk_slice_list(lisp, slice.slice);
+            break;
+        }
+        case PKOrder_Reversed: {
+            result = pk_slice_list_rev(lisp, slice.slice);
+            break;
+        }
+    }
+    pk_push(lisp, result);
+}

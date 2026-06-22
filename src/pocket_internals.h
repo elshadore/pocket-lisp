@@ -222,6 +222,16 @@ typedef struct PKAtoms_ {
     size_t length;
 } PKAtoms;
 
+typedef enum PKOrder_ {
+    PKOrder_Normal = 0,
+    PKOrder_Reversed,
+} PKOrder;
+
+typedef struct PKStackSlice_ {
+    PKOrder order;
+    PKAtoms slice;
+} PKStackSlice;
+
 typedef struct PKThrow_ {
     PKAtomSymbol *catch_sym;
     jmp_buf jmp;
@@ -312,6 +322,7 @@ size_t pk_sp_index(Pocket lisp, int stack_pointer);
 PKAtom *pk_stack_pop(Pocket lisp);
 PKAtom *pk_stack_get(Pocket lisp, int stack_pointer);
 PKAtoms pk_stack_slice(Pocket lisp);
+PKStackSlice pk_stack_slice_by(Pocket lisp, int a, int b);
 void pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom);
 size_t pk_stack_total(Pocket lisp);
 
