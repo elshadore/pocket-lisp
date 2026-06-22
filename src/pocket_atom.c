@@ -1,25 +1,13 @@
 #include "pocket_internals.h"
 
-PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr) {
-    PKAtomCons *atom = (PKAtomCons *)pk_atom_alloc(lisp);
-    *atom = (PKAtomCons) {
-        .tag.ty = PKAtomTy_Cons,
-        .tag.marked = false,
-        .car = car,
-        .cdr = cdr,
-    };
-    return atom;
+PKAtom *pk_atom_nil(Pocket lisp) {
+    return lisp->cache.nil;
 }
 
-PKAtom *pk_atom_nil(Pocket lisp) {
+PKAtom *pk_atom_nil_new(Pocket lisp) {
     PKAtom *atom = pk_atom_alloc(lisp);
     atom->tag = (PKAtomTag){ .ty = PKAtomTy_Nil, .marked = false };
     return atom;
-}
-
-PKAtomCons *pk_atom_cast_cons(Pocket lisp, PKAtom *atom) {
-    if (atom->tag.ty != PKAtomTy_Cons) pk_error(lisp);
-    return (PKAtomCons *)atom;
 }
 
 PKAtomCFunc *pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity) {

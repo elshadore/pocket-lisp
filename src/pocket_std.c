@@ -200,6 +200,20 @@ void pk_fn_eq(void *user_closure, Pocket lisp) {
     pk_push_t(lisp);
 }
 
+void pk_fn_list(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtoms slice = pk_stack_slice(lisp);
+    PKAtom *result = pk_slice_list(lisp, slice);
+    pk_push(lisp, result);
+}
+
+void pk_fn_list_reversed(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtoms slice = pk_stack_slice(lisp);
+    PKAtom *result = pk_slice_list_rev(lisp, slice);
+    pk_push(lisp, result);
+}
+
 void pk_fn_list_vars(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_push(lisp, pk_symtable_alist(lisp, &lisp->vars));
@@ -241,6 +255,8 @@ void pk_load_std(Pocket lisp) {
         {.sym = pkstr("<="), .fn = pk_fn_lte, .args = 2, .mode = PKArity_Variadic},
         {.sym = pkstr("="), .fn = pk_fn_eq, .args = 2, .mode = PKArity_Variadic},
         {.sym = pkstr("eq?"), .fn = pk_fn_eq, .args = 2, .mode = PKArity_Variadic},
+        {.sym = pkstr("list"), .fn = pk_fn_list, .args = 0, .mode = PKArity_Variadic},
+        {.sym = pkstr("list-rev"), .fn = pk_fn_list_reversed, .args = 0, .mode = PKArity_Variadic},
     };
     
     size_t count = pk_alen(lib);

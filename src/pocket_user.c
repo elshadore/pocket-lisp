@@ -15,12 +15,16 @@ Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print) {
         .cache = (PKCache){0},
     };
     lisp->cache = (PKCache) {
-        .nil = pk_atom_nil(lisp),
+        .nil = pk_atom_nil_new(lisp),
         .t = pk_atom_symbol_interned(lisp, pkstr("t")),
         .nil_sym = pk_atom_symbol_interned(lisp, pkstr("nil")),
         .lambda = pk_atom_symbol_interned(lisp, pkstr("lambda")),
         .macro = pk_atom_symbol_interned(lisp, pkstr("macro")),
         .quote = pk_atom_symbol_interned(lisp, pkstr("quote")),
+        .quasiquote = pk_atom_symbol_interned(lisp, pkstr("quasiquote")),
+        .unquote = pk_atom_symbol_interned(lisp, pkstr("unquote")),
+        .unquote_splice = pk_atom_symbol_interned(lisp, pkstr("unquote-splice")),
+        .string_substitute = pk_atom_symbol_interned(lisp, pkstr("string-substitute")),
         .progn = pk_atom_symbol_interned(lisp, pkstr("progn")),
         .while_sym = pk_atom_symbol_interned(lisp, pkstr("while")),
         .if_sym = pk_atom_symbol_interned(lisp, pkstr("if")),

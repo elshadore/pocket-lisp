@@ -49,6 +49,7 @@ void pk_popn(Pocket lisp, int n);
 void pk_dupe(Pocket lisp, int stack_pointer);
 void pk_swap(Pocket lisp, int a, int b);
 void pk_insert(Pocket lisp, int from, int to);
+void pk_list(Pocket lisp, int head, int tail);
 
 int pk_get_top(Pocket lisp);
 void pk_set_top(Pocket lisp, int new_top);

@@ -24,6 +24,14 @@ char pk_reader_inc(PKReader *r) {
     return r->c;
 }
 
+char pk_reader_peek(PKReader *r) {
+    size_t peek = r->curr + 1;
+    if (peek >= r->src.length) {
+        pk_error(r->lisp);
+    }
+    return r->src.c[peek];
+}
+
 #define PK_COMMENT_CHAR ';'
 
 bool pk_reader_trim_whitespace(PKReader *r) {
@@ -235,6 +243,33 @@ bool pk_reader_is_number_prefix(PKReader *r) {
     return false;
 }
 
+PKAtom *pk_read_simple_macro(PKReader *r, PKAtomSymbol *macro) {
+    if (!pk_reader_try_inc(r)) {
+        pk_error(r->lisp);
+    }
+    PKAtom *value = pk_read_atom(r);
+    PKAtomCons *b = pk_atom_cons(r->lisp, value, r->lisp->cache.nil);
+    PKAtomCons *a = pk_atom_cons(r->lisp, (PKAtom *)macro, (PKAtom *)b);
+    return (PKAtom *)a;
+}
+
+PKAtom *pk_read_unquote_macro(PKReader *r) {
+    if (!pk_reader_try_inc(r)) {
+        pk_error(r->lisp);
+    }
+    PKAtomSymbol *macro = NULL;
+    if (r->c == '@') {
+        macro = r->lisp->cache.unquote_splice;
+        (void)pk_reader_try_inc(r);
+    } else {
+        macro = r->lisp->cache.unquote;
+    }
+    PKAtom *value = pk_read_atom(r);
+    PKAtomCons *b = pk_atom_cons(r->lisp, value, r->lisp->cache.nil);
+    PKAtomCons *a = pk_atom_cons(r->lisp, (PKAtom *)macro, (PKAtom *)b);
+    return (PKAtom *)a;
+}
+
 PKAtom *pk_read_atom(PKReader *r) {
     if (pk_reader_is_finished(r)) {
         pk_error(r->lisp);
@@ -248,13 +283,16 @@ PKAtom *pk_read_atom(PKReader *r) {
             break;
         }
         case '\'': {
-            if (!pk_reader_try_inc(r)) {
-                pk_error(r->lisp);
-            }
-            PKAtom *value = pk_read_atom(r);
-            PKAtomCons *b = pk_atom_cons(r->lisp, value, r->lisp->cache.nil);
-            PKAtomCons *a = pk_atom_cons(r->lisp, (PKAtom *)r->lisp->cache.quote, (PKAtom *)b);
-            return (PKAtom *)a;
+            return pk_read_simple_macro(r, r->lisp->cache.quote);
+        }
+        case '`': {
+            return pk_read_simple_macro(r, r->lisp->cache.quasiquote);
+        }
+        case '$': {
+            return pk_read_simple_macro(r, r->lisp->cache.string_substitute);
+        }
+        case ',': {
+            return pk_read_unquote_macro(r);
         }
         case '\"': {
             return (PKAtom *)pk_read_atom_string(r);

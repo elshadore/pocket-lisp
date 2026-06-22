@@ -234,6 +234,10 @@ typedef struct PKCache_ {
     PKAtomSymbol *lambda;
     PKAtomSymbol *macro;
     PKAtomSymbol *quote;
+    PKAtomSymbol *quasiquote;
+    PKAtomSymbol *unquote;
+    PKAtomSymbol *unquote_splice;
+    PKAtomSymbol *string_substitute;
     PKAtomSymbol *progn;
     PKAtomSymbol *if_sym;
     PKAtomSymbol *while_sym;
@@ -274,6 +278,7 @@ PKAtomSymbol *pk_atom_symbol_interned(Pocket lisp, PKString id);
 PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);
 PKAtomCFunc *pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity);
 PKAtom *pk_atom_nil(Pocket lisp);
+PKAtom *pk_atom_nil_new(Pocket lisp);
 
 PKAtomNumber *pk_atom_cast_number(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_cast_string(Pocket lisp, PKAtom *atom);
@@ -289,6 +294,8 @@ PKString pk_string_dupe(Pocket lisp, PKString string);
 void pk_string_free(Pocket lisp, PKString string);
 PKString pk_string_from_cstr(char *cstr);
 bool pk_string_eq(PKString a, PKString b);
+
+PKAtomCons *pk_atom_cons_tail(Pocket lisp, PKAtomCons *cons);
 
 void *pk_malloc(Pocket lisp, size_t size);
 void *pk_realloc(Pocket lisp, void *ptr, size_t old_size, size_t new_size);
@@ -376,11 +383,15 @@ void pk_load_std(Pocket lisp);
 void pk_atom_eval(Pocket lisp, PKAtom *atom);
 void pk_atom_evlist(Pocket lisp, PKAtom *list);
 size_t pk_atom_evrec(Pocket lisp, PKAtom *list);
+bool pk_atom_eval_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *body, PKAtom *expression);
 
 PKString pk_slurp(Pocket lisp, const char *file_path);
 PKAtom *pk_get_result(Pocket lisp);
 
 void pk_call(Pocket lisp, PKFuncCall call);
 PKFuncCall pk_get_callconv(Pocket lisp, PKAtom *atom, int arity);
+
+PKAtom *pk_slice_list(Pocket lisp, PKAtoms atoms);
+PKAtom *pk_slice_list_rev(Pocket lisp, PKAtoms atoms);
 
 #endif

@@ -1,4 +1,4 @@
-* The Great TODO List [6/13]
+* The Great TODO List [7/18]
 ** DONE Reading
 CLOSED: [2026-06-14 Sun 19:43]
 ** DONE Symbol Interning
@@ -12,20 +12,27 @@ CLOSED: [2026-06-17 Wed 22:10]
 ** DONE Basic REPL
 CLOSED: [2026-06-17 Wed 22:10]
 ** TODO Macros
+** TODO Recursive Cloning
 ** TODO Throwing, Catching, Errors, and Unwind Protect
-** TODO Basic Special Forms [0/7]
+** TODO Basic Special Forms [1/7]
 *** TODO let
 *** TODO let*
-*** TODO while
+*** DONE while
+CLOSED: [2026-06-22 Mon 14:59]
 *** TODO quasiquote
 *** TODO unquote
 *** TODO unquote-splice
 *** TODO string-substitute
-** TODO Basic Reader Forms [0/4]
-*** TODO ` => quasiquote
-*** TODO , => unquote
-*** TODO ,@ => unquote-splice
-*** TODO $ => string-substitute
+** DONE Basic Reader Forms [4/4]
+CLOSED: [2026-06-22 Mon 15:19]
+*** DONE ` => quasiquote
+CLOSED: [2026-06-22 Mon 15:19]
+*** DONE , => unquote
+CLOSED: [2026-06-22 Mon 15:19]
+*** DONE ,@ => unquote-splice
+CLOSED: [2026-06-22 Mon 15:19]
+*** DONE $ => string-substitute
+CLOSED: [2026-06-22 Mon 15:19]
 ** TODO Add recursive check to printing
 ** TODO Pretty Printing
 ** TODO Full numerical tower
@@ -34,4 +41,5 @@ CLOSED: [2026-06-17 Wed 22:10]
 ** TODO Lexical Scoping
 ** TODO Memory Leak with String Parsing if Error with Writer
 We need to implement the error system and unwind protect
+** TODO Unreachable Instruction for C
 
