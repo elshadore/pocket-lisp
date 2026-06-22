@@ -276,9 +276,11 @@ PKAtomString *pk_atom_string_nomemcpy(Pocket lisp, PKString string);
 PKAtomSymbol *pk_atom_symbol_uninterned(Pocket lisp, PKString id);
 PKAtomSymbol *pk_atom_symbol_interned(Pocket lisp, PKString id);
 PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);
+PKAtomCons *pk_atom_cons_car(Pocket lisp, PKAtom *car);
 PKAtomCFunc *pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity);
 PKAtom *pk_atom_nil(Pocket lisp);
 PKAtom *pk_atom_nil_new(Pocket lisp);
+PKAtom *pk_atom_t(Pocket lisp);
 
 PKAtomNumber *pk_atom_cast_number(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_cast_string(Pocket lisp, PKAtom *atom);
@@ -289,6 +291,9 @@ PKAtomCFunc *pk_atom_cast_cfunc(Pocket lisp, PKAtom *atom);
 bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 bool pk_atom_symbol_eq(Pocket lisp, PKAtomSymbol *lhs, PKAtomSymbol *rhs);
 bool pk_atom_string_eq(Pocket lisp, PKAtomString *lhs, PKAtomString *rhs);
+
+bool pk_atom_is_true(PKAtom *atom);
+bool pk_atom_is_nil(PKAtom *atom);
 
 PKString pk_string_dupe(Pocket lisp, PKString string);
 void pk_string_free(Pocket lisp, PKString string);
@@ -355,7 +360,7 @@ bool pk_char_is_alphabet(char c);
 bool pk_char_is_symbol(char c);
 
 PKAtom *pk_read_atom(PKReader *r);
-PKAtomCons *pk_read_from_string(Pocket lisp, PKString string);
+PKAtom *pk_read_from_string(Pocket lisp, PKString string);
 
 void pk_frame_push(Pocket lisp, size_t arity, PKFuncMode mode);
 void pk_frame_pop(Pocket lisp);

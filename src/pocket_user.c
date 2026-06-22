@@ -261,12 +261,7 @@ void pk_read_nstr(Pocket lisp, char *string, size_t length) {
 }
 
 void pk_read_string(Pocket lisp, PKString string) {
-    PKAtomCons *result = pk_read_from_string(lisp, string);
-    if (result == NULL) {
-        pk_push(lisp, lisp->cache.nil);
-    } else {
-        pk_push(lisp, (PKAtom *)result);
-    }
+    pk_push(lisp, pk_read_from_string(lisp, string));
 }
 
 void pk_format(Pocket lisp, int stack_pointer) {

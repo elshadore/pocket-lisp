@@ -133,7 +133,7 @@ void pk_eval(Pocket lisp, int stack_pointer) {
         .ty = PKFuncTy_Expression,
         .as.value = expr,
         .mode = PKFuncMode_Func,
-        .expression = lisp->cache.nil,
+        .expression = pk_atom_nil(lisp),
     };
     pk_call(lisp, call);
 }
@@ -144,7 +144,7 @@ void pk_evlist(Pocket lisp, int stack_pointer) {
         .ty = PKFuncTy_Evlist,
         .as.value = expr,
         .mode = PKFuncMode_Func,
-        .expression = lisp->cache.nil,
+        .expression = pk_atom_nil(lisp),
     };
     pk_call(lisp, call);
 }
@@ -158,7 +158,7 @@ void pk_fastcall(void *user_closure, Pocket lisp, PKFn fn, int arity) {
         .as.c.fn = fn,
         .final_arity = (size_t)arity,
         .mode = PKFuncMode_Func,
-        .expression = lisp->cache.nil,
+        .expression = pk_atom_nil(lisp),
     };
     pk_call(lisp, call);
 }

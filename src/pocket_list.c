@@ -11,9 +11,20 @@ PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr) {
     return atom;
 }
 
+PKAtomCons *pk_atom_cons_car(Pocket lisp, PKAtom *car) {
+    PKAtomCons *atom = (PKAtomCons *)pk_atom_alloc(lisp);
+    *atom = (PKAtomCons) {
+        .tag.ty = PKAtomTy_Cons,
+        .tag.marked = false,
+        .car = car,
+        .cdr = pk_atom_nil(lisp),
+    };
+    return atom;
+}
+
 PKAtomCons *pk_atom_cons_tail(Pocket lisp, PKAtomCons *cons) {
     PKAtomCons *curr = cons;
-    while (curr->cdr != lisp->cache.nil) {
+    while (curr->cdr != pk_atom_nil(lisp)) {
         curr = pk_atom_cast_cons(lisp, curr->cdr);
     }
     return curr;
@@ -52,4 +63,8 @@ PKAtom *pk_slice_list_rev(Pocket lisp, PKAtoms atoms) {
         tail = next;
     }
     return (PKAtom *)head;
+}
+
+bool pk_atom_is_cons(PKAtom *atom) {
+    return atom->tag.ty == PKAtomTy_Cons;
 }

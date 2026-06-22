@@ -14,14 +14,19 @@ CLOSED: [2026-06-17 Wed 22:10]
 ** TODO Macros
 ** TODO Recursive Cloning
 ** TODO Throwing, Catching, Errors, and Unwind Protect
-** TODO Basic Special Forms [1/7]
+** TODO Basic Special Forms [4/7]
 *** TODO let
 *** TODO let*
+*** TODO flet
+*** TODO flet*
 *** DONE while
 CLOSED: [2026-06-22 Mon 14:59]
-*** TODO quasiquote
-*** TODO unquote
-*** TODO unquote-splice
+*** DONE quasiquote
+CLOSED: [2026-06-22 Mon 20:19]
+*** DONE unquote
+CLOSED: [2026-06-22 Mon 20:19]
+*** DONE unquote-splice
+CLOSED: [2026-06-22 Mon 20:19]
 *** TODO string-substitute
 ** DONE Basic Reader Forms [4/4]
 CLOSED: [2026-06-22 Mon 15:19]
@@ -39,6 +44,7 @@ CLOSED: [2026-06-22 Mon 15:19]
 ** TODO Metaobject system
 ** TODO Gensyms
 ** TODO Lexical Scoping
+Boxed Upvalues
 ** TODO Memory Leak with String Parsing if Error with Writer
 We need to implement the error system and unwind protect
 ** TODO Unreachable Instruction for C

@@ -187,7 +187,7 @@ PKAtom *pk_read_atom_cons(PKReader *r) {
         if (r->c == ')') {
             (void)pk_reader_try_inc(r);
             if (first) {
-                return r->lisp->cache.nil;
+                return pk_atom_nil(r->lisp);
             } else {
                 return (PKAtom *)head;
             }
@@ -216,7 +216,7 @@ PKAtom *pk_read_atom_cons(PKReader *r) {
         }
 
         PKAtom *car = pk_read_atom(r);
-        PKAtomCons *cons = pk_atom_cons(r->lisp, car, r->lisp->cache.nil);
+        PKAtomCons *cons = pk_atom_cons(r->lisp, car, pk_atom_nil(r->lisp));
 
         if (first) {
             head = cons;
@@ -248,7 +248,7 @@ PKAtom *pk_read_simple_macro(PKReader *r, PKAtomSymbol *macro) {
         pk_error(r->lisp);
     }
     PKAtom *value = pk_read_atom(r);
-    PKAtomCons *b = pk_atom_cons(r->lisp, value, r->lisp->cache.nil);
+    PKAtomCons *b = pk_atom_cons(r->lisp, value, pk_atom_nil(r->lisp));
     PKAtomCons *a = pk_atom_cons(r->lisp, (PKAtom *)macro, (PKAtom *)b);
     return (PKAtom *)a;
 }
@@ -265,7 +265,7 @@ PKAtom *pk_read_unquote_macro(PKReader *r) {
         macro = r->lisp->cache.unquote;
     }
     PKAtom *value = pk_read_atom(r);
-    PKAtomCons *b = pk_atom_cons(r->lisp, value, r->lisp->cache.nil);
+    PKAtomCons *b = pk_atom_cons(r->lisp, value, pk_atom_nil(r->lisp));
     PKAtomCons *a = pk_atom_cons(r->lisp, (PKAtom *)macro, (PKAtom *)b);
     return (PKAtom *)a;
 }
@@ -310,9 +310,9 @@ PKAtom *pk_read_atom(PKReader *r) {
 }
 
 
-PKAtomCons *pk_read_from_string(Pocket lisp, PKString string) {
+PKAtom *pk_read_from_string(Pocket lisp, PKString string) {
     if (string.length == 0) {
-        return pk_atom_cons(lisp, (PKAtom *)lisp->cache.empty_string, lisp->cache.nil);
+        return pk_atom_nil(lisp);
     }
     
     PKReader r = (PKReader) {
@@ -324,16 +324,16 @@ PKAtomCons *pk_read_from_string(Pocket lisp, PKString string) {
     (void)pk_reader_trim_whitespace(&r);
     
     PKAtom *atom = pk_read_atom(&r);
-    PKAtomCons *head = pk_atom_cons(lisp, atom, lisp->cache.nil);
+    PKAtomCons *head = pk_atom_cons_car(lisp, atom);
     PKAtomCons *acc = head;
     
     while (!pk_reader_is_finished(&r)) {
         (void)pk_reader_trim_whitespace(&r);
         PKAtom *atom = pk_read_atom(&r);
-        PKAtomCons *cons = pk_atom_cons(lisp, atom, lisp->cache.nil);
+        PKAtomCons *cons = pk_atom_cons_car(lisp, atom);
         acc->cdr = (PKAtom *)cons;
         acc = cons;
     }
     
-    return head;
+    return (PKAtom *)head;
 }

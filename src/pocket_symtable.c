@@ -93,7 +93,7 @@ PKAtom *pk_symtable_rem(Pocket lisp, PKSymTable *st, PKAtomSymbol *key) {
 }
 
 PKAtom *pk_symtable_alist(Pocket lisp, PKSymTable *st) {
-    PKAtom *alist = lisp->cache.nil;
+    PKAtom *alist = pk_atom_nil(lisp);
     for (size_t i = 0; i < st->capacity; i++) {
         for (PKSymTableSlot *slot = st->e[i]; slot; slot = slot->chain) {
             PKAtomCons *pair = pk_atom_cons(lisp, (PKAtom *)slot->key, slot->value);

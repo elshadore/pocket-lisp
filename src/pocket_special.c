@@ -6,7 +6,7 @@ bool pk_atom_eval_quasiquote(Pocket lisp, PKAtom *atom) {
             PKAtomCons *cons = (PKAtomCons *)atom;
             if ((cons->car == (PKAtom *)lisp->cache.unquote) || (cons->car == (PKAtom *)lisp->cache.unquote_splice)) {
                 PKAtomCons *a = pk_atom_cast_cons(lisp, cons->cdr);
-                if (a->cdr != lisp->cache.nil) {
+                if (a->cdr != pk_atom_nil(lisp)) {
                     pk_error(lisp);
                 }
                 pk_atom_eval(lisp, a->car);
@@ -27,7 +27,7 @@ bool pk_atom_eval_quasiquote(Pocket lisp, PKAtom *atom) {
                         acc = tail;
                     }
                 } else {
-                    PKAtomCons *next = pk_atom_cons(lisp, pop, lisp->cache.nil);
+                    PKAtomCons *next = pk_atom_cons_car(lisp, pop);
                     if (acc == NULL) {
                         acc = next;
                         pk_push(lisp, (PKAtom *)acc);
@@ -58,7 +58,7 @@ bool pk_atom_eval_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *body, 
             pk_error(lisp);
         }
         PKAtomCons *body_cons = (PKAtomCons *)body;
-        if (body_cons->cdr != lisp->cache.nil) {
+        if (!pk_atom_is_nil(body_cons->cdr)) {
             pk_error(lisp);
         }
         pk_push(lisp, body_cons->car);
@@ -67,7 +67,7 @@ bool pk_atom_eval_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *body, 
             pk_error(lisp);
         }
         PKAtomCons *body_cons = (PKAtomCons *)body;
-        if (body_cons->cdr != lisp->cache.nil) {
+        if (!pk_atom_is_nil(body_cons->cdr)) {
             pk_error(lisp);
         }
         (void)pk_atom_eval_quasiquote(lisp, body_cons->car);
@@ -89,7 +89,7 @@ bool pk_atom_eval_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *body, 
         for (;;) {
             pk_atom_eval(lisp, cond);
             PKAtom *a = pk_stack_get(lisp, -1);
-            if (a == lisp->cache.nil) {
+            if (pk_atom_is_nil(a)) {
                 break;
             }
             pk_pop(lisp);
@@ -101,24 +101,20 @@ bool pk_atom_eval_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *body, 
         if (body->tag.ty != PKAtomTy_Cons) {
             pk_error(lisp);
         }
+        
         PKAtomCons *body_cons = (PKAtomCons *)body;
-        PKAtomCons *then_cons;
-        PKAtomCons *else_cons;
-
-        if (body_cons->cdr->tag.ty != PKAtomTy_Cons) pk_error(lisp);
-        then_cons = (PKAtomCons *)body_cons->cdr;
-        if (then_cons->cdr->tag.ty != PKAtomTy_Cons) pk_error(lisp);
-        else_cons = (PKAtomCons *)then_cons->cdr;
-        if (else_cons->cdr != lisp->cache.nil) pk_error(lisp);
+        PKAtomCons *then_cons = pk_atom_cast_cons(lisp, body_cons->cdr);
+        PKAtomCons *else_cons = pk_atom_cast_cons(lisp, then_cons->cdr);
+        if (!pk_atom_is_nil(else_cons->cdr)) pk_error(lisp);
 
         pk_atom_eval(lisp, body_cons->car);
-        PKAtom *cond = pk_stack_get(lisp, -1);
-        pk_pop(lisp);
+        
+        PKAtom *cond = pk_stack_pop(lisp);
 
-        if (cond != lisp->cache.nil) {
-            pk_atom_eval(lisp, then_cons->car);
-        } else {
+        if (pk_atom_is_true(cond)) {
             pk_atom_eval(lisp, else_cons->car);
+        } else {
+            pk_atom_eval(lisp, then_cons->car);
         }
     } else {
         return false;

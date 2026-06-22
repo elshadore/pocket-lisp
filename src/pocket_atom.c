@@ -10,6 +10,10 @@ PKAtom *pk_atom_nil_new(Pocket lisp) {
     return atom;
 }
 
+PKAtom *pk_atom_t(Pocket lisp) {
+    return (PKAtom *)lisp->cache.t;
+}
+
 PKAtomCFunc *pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity) {
     PKAtomCFunc *atom = (PKAtomCFunc *)pk_atom_alloc(lisp);
     *atom = (PKAtomCFunc) {
@@ -40,3 +44,12 @@ bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
         default: return false;
     }
 }
+
+bool pk_atom_is_nil(PKAtom *atom) {
+    return atom->tag.ty == PKAtomTy_Nil;
+}
+
+bool pk_atom_is_true(PKAtom *atom) {
+    return !pk_atom_is_nil(atom);
+}
+

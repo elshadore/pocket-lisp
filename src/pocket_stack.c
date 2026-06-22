@@ -4,7 +4,7 @@ PKAtom *pk_get_result(Pocket lisp) {
     if (pk_get_top(lisp) > 0) {
         return lisp->stack.e[lisp->stack.count - 1];
     } else {
-        return lisp->cache.nil;;
+        return pk_atom_nil(lisp);
     }
 }
 
@@ -73,7 +73,7 @@ void pk_stack_expand(Pocket lisp, size_t total) {
     lisp->stack.capacity = new_capacity;
 
     for (size_t i = lisp->stack.count; i < new_capacity; i++) {
-        lisp->stack.e[i] = lisp->cache.nil;
+        lisp->stack.e[i] = pk_atom_nil(lisp);
     }
 }
 
@@ -108,7 +108,7 @@ PKAtom *pk_stack_pop(Pocket lisp) {
 }
 
 PKAtom *pk_stack_get(Pocket lisp, int stack_pointer) {
-    if (stack_pointer == 0) return lisp->cache.nil;
+    if (stack_pointer == 0) return pk_atom_nil(lisp);
     return lisp->stack.e[pk_sp_index(lisp, stack_pointer)];
 }
 
