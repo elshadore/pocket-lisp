@@ -270,6 +270,17 @@ struct PocketLispMachine_ {
 
 #define pk_index_inv(i_, length_) ((length_) - (i_) - 1)
 
+#define pk_talloc(type_, lisp_, output_) \
+pk_malloc(lisp_, sizeof(type_), output_)
+
+#define pk_tallocn(type_, lisp_, count_, output_) \
+pk_malloc(lisp_, sizeof(type_) * count_, output_)
+
+#define pk_trealloc(type_, lisp_, ptr_, old_count_, new_count_, output_) \
+pk_realloc(lisp_, ptr_, sizeof(type_) * old_count_, sizeof(type_) * new_count, output_)
+
+#define pk_error(lisp) pk_error_impl(lisp, __FILE__, __LINE__)
+
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);
 PKRes pk_print(Pocket lisp, char *c, size_t length);
 PKRes pk_puts(Pocket lisp, char *c, size_t length);
@@ -310,8 +321,9 @@ bool pk_string_eq(PKString a, PKString b);
 
 PKRes pk_atom_cons_tail(Pocket lisp, PKAtomCons *cons, PKAtomCons **output);
 
-void *pk_malloc(Pocket lisp, size_t size);
-void *pk_realloc(Pocket lisp, void *ptr, size_t old_size, size_t new_size);
+PKRes pk_malloc(Pocket lisp, size_t size, void **output);
+PKRes pk_realloc(Pocket lisp, void *ptr, size_t old_size, size_t new_size, void **output);
+
 void pk_free(Pocket lisp, void *ptr, size_t size);
 
 PKRes pk_push(Pocket lisp, PKAtom *atom);
@@ -325,7 +337,6 @@ PKRes pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom);
 size_t pk_stack_total(Pocket lisp);
 
 PKRes pk_error_impl(Pocket lisp, const char *file, int line);
-#define pk_error(lisp) pk_error_impl(lisp, __FILE__, __LINE__)
 
 PKRes pk_number_add(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs, PKAtomNumber **output);
 PKRes pk_number_sub(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs, PKAtomNumber **output);
