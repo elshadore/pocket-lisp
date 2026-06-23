@@ -1,20 +1,24 @@
 #include "pocket_internals.h"
 
-PKString pk_string_dupe(Pocket lisp, PKString string) {
+PKRes pk_string_dupe(Pocket lisp, PKString string, PKString *output) {
     if (string.length == 0) {
-        return PK_STRING_EMPTY;
+        *output = PK_STRING_EMPTY;
+        return PK_Ok;
     }
-    char *copy = pk_malloc(lisp, string.length);
+    void *copy;
+    pk_try(pk_malloc(lisp, string.length, &copy));
     memcpy(copy, string.c, string.length);
-    return (PKString){ .c = copy, .length = string.length };
+    *output = (PKString){ .c = copy, .length = string.length };
+    return PK_Ok;
 }
 
 void pk_string_free(Pocket lisp, PKString string) {
     pk_free(lisp, string.c, string.length);
 }
 
-PKString pk_string_from_cstr(char *cstr) {
-    return (PKString){ .c = cstr, .length = strlen(cstr) };
+PKRes pk_string_from_cstr(char *cstr, PKString *output) {
+    *output = (PKString){ .c = cstr, .length = strlen(cstr) };
+    return PK_Ok;
 }
 
 bool pk_string_eq(PKString a, PKString b) {
@@ -22,13 +26,15 @@ bool pk_string_eq(PKString a, PKString b) {
     return memcmp(a.c, b.c, a.length) == 0;
 }
 
-void pk_print(Pocket lisp, char *c, size_t length) {
+PKRes pk_print(Pocket lisp, char *c, size_t length) {
     (lisp->print)(lisp->user_env, c, length);
+    return PK_Ok;
 }
 
-void pk_puts(Pocket lisp, char *c, size_t length) {
+PKRes pk_puts(Pocket lisp, char *c, size_t length) {
     (void)lisp;
     fprintf(stderr, "%.*s", (int)length, c);
+    return PK_Ok;
 }
 
 uint8_t pk_char_to_digit(char c) {
@@ -96,7 +102,7 @@ bool pk_char_is_alphabet(char c) {
     if (c >= 'a' && c <= 'z') return true;
     return false;
 }
-   
+
 bool pk_char_is_symbol(char c) {
     switch (c) {
         case '+': return true;
@@ -208,61 +214,72 @@ size_t pk_hash_pointer(void *ptr) {
     return (size_t)(p >> 3);
 }
 
-void pk_stack_dump(Pocket lisp, const char *tag) {
+PKRes pk_stack_dump(Pocket lisp, const char *tag) {
     int top = pk_get_top(lisp);
     PKWriter w = pk_writer_init(lisp);
-    pk_writer_printf(&w, "*~STACK-DUMP~* (tag = %s)\n", tag);
+    PKRes result = PK_Yield;
+    pk_defer(pk_writer_printf(&w, "*~STACK-DUMP~* (tag = %s)\n", tag));
     for (int i = top; i > 0; i--) {
         int rel = pk_sp_relative(lisp, i);
-        pk_writer_printf(&w, "    [%d/%d] => ", rel, i);
-        pk_writer_atom(&w, pk_stack_get(lisp, i));
-        pk_writer_newline(&w);
+        PKAtom *a;
+        pk_defer(pk_stack_get(lisp, i, &a));
+        pk_defer(pk_writer_printf(&w, "    [%d/%d] => ", rel, i));
+        pk_defer(pk_writer_atom(&w, a));
+        pk_defer(pk_writer_newline(&w));
     }
-    pk_writer_print(&w);
+    pk_defer(pk_writer_print(&w));
+    DEFER:
     pk_writer_deinit(&w);
+    return result;
 }
 
-void pk_env_dump(Pocket lisp, const char *tag) {
+PKRes pk_env_dump(Pocket lisp, const char *tag) {
     PKWriter w = pk_writer_init(lisp);
-    pk_writer_printf(&w, "*~ENVIRONMENT~* (tag = %s)\n", tag);
-    pk_writer_printf(&w, "SECTION: VARS\n");
+    PKRes result = PK_Yield;
+    pk_defer(pk_writer_printf(&w, "*~ENVIRONMENT~* (tag = %s)\n", tag));
+    pk_defer(pk_writer_printf(&w, "SECTION: VARS\n"));
     for (size_t i = 0; i < lisp->vars.capacity; i++) {
         for (PKSymTableSlot *slot = lisp->vars.e[i]; slot; slot = slot->chain) {
-            pk_writer_string(&w, pkstr("    ["));
-            pk_writer_atom(&w, (PKAtom *)slot->key);
-            pk_writer_string(&w, pkstr("] => "));
-            pk_writer_atom(&w, slot->value);
-            pk_writer_newline(&w);
+            pk_defer(pk_writer_string(&w, pkstr("    [")));
+            pk_defer(pk_writer_atom(&w, (PKAtom *)slot->key));
+            pk_defer(pk_writer_string(&w, pkstr("] => ")));
+            pk_defer(pk_writer_atom(&w, slot->value));
+            pk_defer(pk_writer_newline(&w));
         }
     }
-    pk_writer_printf(&w, "SECTION: FUNS\n");
+    pk_defer(pk_writer_printf(&w, "SECTION: FUNS\n"));
     for (size_t i = 0; i < lisp->funs.capacity; i++) {
         for (PKSymTableSlot *slot = lisp->funs.e[i]; slot; slot = slot->chain) {
-            pk_writer_string(&w, pkstr("    ["));
-            pk_writer_atom(&w, (PKAtom *)slot->key);
-            pk_writer_string(&w, pkstr("] => "));
-            pk_writer_atom(&w, slot->value);
-            pk_writer_newline(&w);
+            pk_defer(pk_writer_string(&w, pkstr("    [")));
+            pk_defer(pk_writer_atom(&w, (PKAtom *)slot->key));
+            pk_defer(pk_writer_string(&w, pkstr("] => ")));
+            pk_defer(pk_writer_atom(&w, slot->value));
+            pk_defer(pk_writer_newline(&w));
         }
     }
-    pk_writer_print(&w);
+    pk_defer(pk_writer_print(&w));
+    result = PK_Ok;
+    DEFER:
     pk_writer_deinit(&w);
+    return result;
 }
 
-PKString pk_slurp(Pocket lisp, const char *file_path) {
+PKRes pk_slurp(Pocket lisp, const char *file_path, PKString *output) {
     FILE *f = fopen(file_path, "rb");
     if (f == NULL) {
-        pk_error(lisp);
+        return pk_error(lisp);
     }
     fseek(f, 0, SEEK_END);
     long length = ftell(f);
     if (length < 0) {
         fclose(f);
-        pk_error(lisp);
+        return pk_error(lisp);
     }
     rewind(f);
-    char *buf = pk_malloc(lisp, (size_t)length);
+    void *buf;
+    pk_try(pk_malloc(lisp, (size_t)length, &buf));
     size_t read = fread(buf, 1, (size_t)length, f);
     fclose(f);
-    return pk_string_new(buf, read);
+    *output = pk_string_new(buf, read);
+    return PK_Ok;
 }

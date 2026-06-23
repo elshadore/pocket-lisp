@@ -1,292 +1,348 @@
 #include "pocket_internals.h"
 
-Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print) {
-    Pocket lisp = (alloc)(user_closure, NULL, 0, sizeof(struct PocketLispMachine_));
-    if (lisp == NULL) {
-        return NULL;
-    }
-    *lisp = (struct PocketLispMachine_) {
-        .user_env = user_closure,
-        .alloc = alloc,
-        .stack = (PKStack){0},
-        .free = NULL,
-        .pool = NULL,
-        .print = print,
-        .cache = (PKCache){0},
-    };
-    lisp->cache = (PKCache) {
-        .nil = pk_atom_nil_new(lisp),
-        .t = pk_atom_symbol_interned(lisp, pkstr("t")),
-        .nil_sym = pk_atom_symbol_interned(lisp, pkstr("nil")),
-        .lambda = pk_atom_symbol_interned(lisp, pkstr("lambda")),
-        .macro = pk_atom_symbol_interned(lisp, pkstr("macro")),
-        .quote = pk_atom_symbol_interned(lisp, pkstr("quote")),
-        .quasiquote = pk_atom_symbol_interned(lisp, pkstr("quasiquote")),
-        .unquote = pk_atom_symbol_interned(lisp, pkstr("unquote")),
-        .unquote_splice = pk_atom_symbol_interned(lisp, pkstr("unquote-splice")),
-        .string_substitute = pk_atom_symbol_interned(lisp, pkstr("string-substitute")),
-        .progn = pk_atom_symbol_interned(lisp, pkstr("progn")),
-        .while_sym = pk_atom_symbol_interned(lisp, pkstr("while")),
-        .if_sym = pk_atom_symbol_interned(lisp, pkstr("if")),
-        .let_sym = pk_atom_symbol_interned(lisp, pkstr("let")),
-        .let_star = pk_atom_symbol_interned(lisp, pkstr("let*")),
-        .empty_string = pk_atom_string_nomemcpy(lisp, pkstr("")),
-    };
-
-    pk_env_set(lisp, PKEnvTy_Var, lisp->cache.t, (PKAtom *)lisp->cache.t);
-    pk_env_set(lisp, PKEnvTy_Var, lisp->cache.nil_sym, lisp->cache.nil);
-
-    pk_load_std(lisp);
-
-    return lisp;
+PKRes pk_push_nil(Pocket lisp) {
+    pk_try(pk_push(lisp, lisp->cache.nil));
+    return PK_Ok;
 }
 
-void pk_deinit(Pocket lisp) {
-    if (lisp == NULL) {
-        return;
-    }
-
-    pk_symtable_deinit(lisp, &lisp->vars);
-    pk_symtable_deinit(lisp, &lisp->funs);
-
-    if (lisp->stack.e != NULL) {
-        pk_free(lisp, lisp->stack.e, lisp->stack.capacity * sizeof(PKAtom *));
-    }
-    
-    if (lisp->frames.e != NULL) {
-        pk_free(lisp, lisp->frames.e, lisp->frames.capacity * sizeof(PKFrame));
-    }
-
-    if (lisp->lets.e != NULL) {
-        pk_free(lisp, lisp->lets.e, lisp->lets.capacity * sizeof(PKLet));
-    }
-
-    if (lisp->intern.e != NULL) {
-        pk_free(lisp, lisp->intern.e, lisp->intern.capacity * sizeof(PKAtomSymbol *));
-    }
-
-    for (PKPool *pool = lisp->pool; pool != NULL; pool = pool->next) {
-        for (size_t i = 0; i < PK_POOL_MAX; ++i) {
-            pk_atom_free(lisp, &pool->e[i]);
-        }
-    }
-
-    PKPool *pool = lisp->pool;
-    while (pool != NULL) {
-        PKPool *next = pool->next;
-        pk_free(lisp, pool, sizeof(PKPool));
-        pool = next;
-    }
-
-    pk_free(lisp, lisp, sizeof(struct PocketLispMachine_));
+PKRes pk_push_t(Pocket lisp) {
+    pk_try(pk_push(lisp, (PKAtom *)lisp->cache.t));
+    return PK_Ok;
 }
 
-void pk_push_nil(Pocket lisp) {
-    pk_push(lisp, lisp->cache.nil);
-}
-
-void pk_push_t(Pocket lisp) {
-    pk_push(lisp, (PKAtom *)lisp->cache.t);
-}
-
-void pk_push_cond(Pocket lisp, bool cond) {
+PKRes pk_push_cond(Pocket lisp, bool cond) {
     if (cond) {
-        pk_push_t(lisp);
+        pk_try(pk_push_t(lisp));
     } else {
-        pk_push_nil(lisp);
+        pk_try(pk_push_nil(lisp));
     }
+    return PK_Ok;
 }
 
-void pk_push_int(Pocket lisp, int integer) {
-    pk_push(lisp, (PKAtom *)pk_atom_int(lisp, integer));
+PKRes pk_push_int(Pocket lisp, int integer) {
+    PKAtomNumber *n;
+    pk_try(pk_atom_int(lisp, integer, &n));
+    pk_try(pk_push(lisp, (PKAtom *)n));
+    return PK_Ok;
 }
 
-void pk_push_float(Pocket lisp, float floater) {
-    pk_push(lisp, (PKAtom *)pk_atom_float(lisp, floater));
+PKRes pk_push_float(Pocket lisp, float floater) {
+    PKAtomNumber *n;
+    pk_try(pk_atom_float(lisp, floater, &n));
+    pk_try(pk_push(lisp, (PKAtom *)n));
+    return PK_Ok;
 }
 
-void pk_push_string(Pocket lisp, PKString string) {
-    pk_push(lisp, (PKAtom *)pk_atom_string(lisp, string));
+PKRes pk_push_string(Pocket lisp, PKString string) {
+    PKAtomString *s;
+    pk_try(pk_atom_string(lisp, string, &s));
+    pk_try(pk_push(lisp, (PKAtom *)s));
+    return PK_Ok;
 }
 
-void pk_push_cstr(Pocket lisp, char *cstr) {
-    pk_push_string(lisp, pk_string_from_cstr(cstr));
+PKRes pk_push_cstr(Pocket lisp, char *cstr) {
+    PKString s;
+    pk_try(pk_string_from_cstr(cstr, &s));
+    pk_try(pk_push_string(lisp, s));
+    return PK_Ok;
 }
 
-void pk_push_nstr(Pocket lisp, char *str, size_t length) {
-    pk_push_string(lisp, pk_string_new(str, length));
+PKRes pk_push_nstr(Pocket lisp, char *str, size_t length) {
+    pk_try(pk_push_string(lisp, pk_string_new(str, length)));
+    return PK_Ok;
 }
 
-void pk_push_symbol(Pocket lisp, PKString symbol) {
-    pk_push(lisp, (PKAtom *)pk_atom_symbol_interned(lisp, symbol));
+PKRes pk_push_symbol(Pocket lisp, PKString symbol) {
+    PKAtomSymbol *sym;
+    pk_try(pk_atom_symbol_interned(lisp, symbol, &sym));
+    pk_try(pk_push(lisp, (PKAtom *)sym));
+    return PK_Ok;
 }
 
-void pk_push_csym(Pocket lisp, char *cstr) {
-    pk_push_symbol(lisp, pk_string_from_cstr(cstr));
+PKRes pk_push_csym(Pocket lisp, char *cstr) {
+    PKString s;
+    pk_try(pk_string_from_cstr(cstr, &s));
+    pk_try(pk_push_symbol(lisp, s));
+    return PK_Ok;
 }
 
-void pk_push_nsym(Pocket lisp, char *sym, size_t length) {
-    pk_push_symbol(lisp, pk_string_new(sym, length));
+PKRes pk_push_nsym(Pocket lisp, char *sym, size_t length) {
+    pk_try(pk_push_symbol(lisp, pk_string_new(sym, length)));
+    return PK_Ok;
 }
 
-void pk_dupe(Pocket lisp, int stack_pointer) {
-    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
-    pk_push(lisp, atom);
+PKRes pk_push_cons(Pocket lisp, int car, int cdr) {
+    PKAtom *car_atom;
+    pk_try(pk_stack_get(lisp, car, &car_atom));
+    PKAtom *cdr_atom;
+    pk_try(pk_stack_get(lisp, cdr, &cdr_atom));
+    PKAtomCons *cons;
+    pk_try(pk_atom_cons(lisp, car_atom, cdr_atom, &cons));
+    pk_try(pk_push(lisp, (PKAtom *)cons));
+    return PK_Ok;
 }
 
-void pk_insert(Pocket lisp, int from, int to) {
-    size_t a = pk_sp_index(lisp, from);
-    size_t b = pk_sp_index(lisp, to);
+PKRes pk_push_cfunc(Pocket lisp, void *user_closure, PKFn fn, int args, PKArity mode) {
+    PKFuncArity arity = { .mode = mode, .args = args };
+    PKAtomCFunc *cfunc;
+    pk_try(pk_atom_cfunc(lisp, user_closure, fn, arity, &cfunc));
+    pk_try(pk_push(lisp, (PKAtom *)cfunc));
+    return PK_Ok;
+}
+
+PKRes pk_dupe(Pocket lisp, int stack_pointer) {
+    PKAtom *atom;
+    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
+    pk_try(pk_push(lisp, atom));
+    return PK_Ok;
+}
+
+PKRes pk_insert(Pocket lisp, int from, int to) {
+    size_t a, b;
+    pk_try(pk_sp_index(lisp, from, &a));
+    pk_try(pk_sp_index(lisp, to, &b));
     lisp->stack.e[b] = lisp->stack.e[a];
+    return PK_Ok;
 }
 
-void pk_swap(Pocket lisp, int a, int b) {
-    size_t ia = pk_sp_index(lisp, a);
-    size_t ib = pk_sp_index(lisp, b);
+PKRes pk_swap(Pocket lisp, int a, int b) {
+    size_t ia, ib;
+    pk_try(pk_sp_index(lisp, a, &ia));
+    pk_try(pk_sp_index(lisp, b, &ib));
     PKAtom *tmp = lisp->stack.e[ia];
     lisp->stack.e[ia] = lisp->stack.e[ib];
     lisp->stack.e[ib] = tmp;
+    return PK_Ok;
 }
 
-void pk_car(Pocket lisp, int cons) {
-    PKAtomCons *c = pk_atom_cast_cons(lisp, pk_stack_get(lisp, cons));
-    pk_push(lisp, c->car);
+PKRes pk_car(Pocket lisp, int cons) {
+    PKAtom *c_atom;
+    pk_try(pk_stack_get(lisp, cons, &c_atom));
+    PKAtomCons *c;
+    pk_try(pk_atom_cast_cons(lisp, c_atom, &c));
+    pk_try(pk_push(lisp, c->car));
+    return PK_Ok;
 }
 
-void pk_cdr(Pocket lisp, int cons) {
-    PKAtomCons *c = pk_atom_cast_cons(lisp, pk_stack_get(lisp, cons));
-    pk_push(lisp, c->cdr);
+PKRes pk_cdr(Pocket lisp, int cons) {
+    PKAtom *c_atom;
+    pk_try(pk_stack_get(lisp, cons, &c_atom));
+    PKAtomCons *c;
+    pk_try(pk_atom_cast_cons(lisp, c_atom, &c));
+    pk_try(pk_push(lisp, c->cdr));
+    return PK_Ok;
 }
 
-void pk_set_car(Pocket lisp, int cons, int new_car) {
-    PKAtomCons *c = pk_atom_cast_cons(lisp, pk_stack_get(lisp, cons));
-    c->car = pk_stack_get(lisp, new_car);
+PKRes pk_set_car(Pocket lisp, int cons, int new_car) {
+    PKAtom *c_atom;
+    pk_try(pk_stack_get(lisp, cons, &c_atom));
+    PKAtomCons *c;
+    pk_try(pk_atom_cast_cons(lisp, c_atom, &c));
+    PKAtom *val;
+    pk_try(pk_stack_get(lisp, new_car, &val));
+    c->car = val;
+    return PK_Ok;
 }
 
-void pk_set_cdr(Pocket lisp, int cons, int new_cdr) {
-    PKAtomCons *c = pk_atom_cast_cons(lisp, pk_stack_get(lisp, cons));
-    c->cdr = pk_stack_get(lisp, new_cdr);
+PKRes pk_set_cdr(Pocket lisp, int cons, int new_cdr) {
+    PKAtom *c_atom;
+    pk_try(pk_stack_get(lisp, cons, &c_atom));
+    PKAtomCons *c;
+    pk_try(pk_atom_cast_cons(lisp, c_atom, &c));
+    PKAtom *val;
+    pk_try(pk_stack_get(lisp, new_cdr, &val));
+    c->cdr = val;
+    return PK_Ok;
 }
 
-void pk_add(Pocket lisp, int lhs, int rhs) {
-    PKAtom *a = pk_stack_get(lisp, lhs);
-    PKAtom *b = pk_stack_get(lisp, rhs);
-    PKAtomNumber *n = pk_number_add(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
-    pk_push(lisp, (PKAtom *)n);
+PKRes pk_add(Pocket lisp, int lhs, int rhs) {
+    PKAtom *a, *b;
+    pk_try(pk_stack_get(lisp, lhs, &a));
+    pk_try(pk_stack_get(lisp, rhs, &b));
+    PKAtomNumber *na, *nb, *n;
+    pk_try(pk_atom_cast_number(lisp, a, &na));
+    pk_try(pk_atom_cast_number(lisp, b, &nb));
+    pk_try(pk_number_add(lisp, na, nb, &n));
+    pk_try(pk_push(lisp, (PKAtom *)n));
+    return PK_Ok;
 }
 
-void pk_sub(Pocket lisp, int lhs, int rhs) {
-    PKAtom *a = pk_stack_get(lisp, lhs);
-    PKAtom *b = pk_stack_get(lisp, rhs);
-    PKAtomNumber *n = pk_number_sub(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
-    pk_push(lisp, (PKAtom *)n);
+PKRes pk_sub(Pocket lisp, int lhs, int rhs) {
+    PKAtom *a, *b;
+    pk_try(pk_stack_get(lisp, lhs, &a));
+    pk_try(pk_stack_get(lisp, rhs, &b));
+    PKAtomNumber *na, *nb, *n;
+    pk_try(pk_atom_cast_number(lisp, a, &na));
+    pk_try(pk_atom_cast_number(lisp, b, &nb));
+    pk_try(pk_number_sub(lisp, na, nb, &n));
+    pk_try(pk_push(lisp, (PKAtom *)n));
+    return PK_Ok;
 }
 
-void pk_mul(Pocket lisp, int lhs, int rhs) {
-    PKAtom *a = pk_stack_get(lisp, lhs);
-    PKAtom *b = pk_stack_get(lisp, rhs);
-    PKAtomNumber *n = pk_number_mul(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
-    pk_push(lisp, (PKAtom *)n);
+PKRes pk_mul(Pocket lisp, int lhs, int rhs) {
+    PKAtom *a, *b;
+    pk_try(pk_stack_get(lisp, lhs, &a));
+    pk_try(pk_stack_get(lisp, rhs, &b));
+    PKAtomNumber *na, *nb, *n;
+    pk_try(pk_atom_cast_number(lisp, a, &na));
+    pk_try(pk_atom_cast_number(lisp, b, &nb));
+    pk_try(pk_number_mul(lisp, na, nb, &n));
+    pk_try(pk_push(lisp, (PKAtom *)n));
+    return PK_Ok;
 }
 
-void pk_div(Pocket lisp, int lhs, int rhs) {
-    PKAtom *a = pk_stack_get(lisp, lhs);
-    PKAtom *b = pk_stack_get(lisp, rhs);
-    PKAtomNumber *n = pk_number_div(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
-    pk_push(lisp, (PKAtom *)n);
+PKRes pk_div(Pocket lisp, int lhs, int rhs) {
+    PKAtom *a, *b;
+    pk_try(pk_stack_get(lisp, lhs, &a));
+    pk_try(pk_stack_get(lisp, rhs, &b));
+    PKAtomNumber *na, *nb, *n;
+    pk_try(pk_atom_cast_number(lisp, a, &na));
+    pk_try(pk_atom_cast_number(lisp, b, &nb));
+    pk_try(pk_number_div(lisp, na, nb, &n));
+    pk_try(pk_push(lisp, (PKAtom *)n));
+    return PK_Ok;
 }
 
-bool pk_gt(Pocket lisp, int lhs, int rhs) {
-    PKAtom *a = pk_stack_get(lisp, lhs);
-    PKAtom *b = pk_stack_get(lisp, rhs);
-    return pk_number_gt(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
+PKRes pk_gt(Pocket lisp, int lhs, int rhs, bool *output) {
+    PKAtom *a, *b;
+    pk_try(pk_stack_get(lisp, lhs, &a));
+    pk_try(pk_stack_get(lisp, rhs, &b));
+    PKAtomNumber *na, *nb;
+    pk_try(pk_atom_cast_number(lisp, a, &na));
+    pk_try(pk_atom_cast_number(lisp, b, &nb));
+    pk_try(pk_number_gt(lisp, na, nb, output));
+    return PK_Ok;
 }
 
-bool pk_gte(Pocket lisp, int lhs, int rhs) {
-    PKAtom *a = pk_stack_get(lisp, lhs);
-    PKAtom *b = pk_stack_get(lisp, rhs);
-    return pk_number_gte(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
+PKRes pk_gte(Pocket lisp, int lhs, int rhs, bool *output) {
+    PKAtom *a, *b;
+    pk_try(pk_stack_get(lisp, lhs, &a));
+    pk_try(pk_stack_get(lisp, rhs, &b));
+    PKAtomNumber *na, *nb;
+    pk_try(pk_atom_cast_number(lisp, a, &na));
+    pk_try(pk_atom_cast_number(lisp, b, &nb));
+    pk_try(pk_number_gte(lisp, na, nb, output));
+    return PK_Ok;
 }
 
-bool pk_lt(Pocket lisp, int lhs, int rhs) {
-    PKAtom *a = pk_stack_get(lisp, lhs);
-    PKAtom *b = pk_stack_get(lisp, rhs);
-    return pk_number_lt(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
+PKRes pk_lt(Pocket lisp, int lhs, int rhs, bool *output) {
+    PKAtom *a, *b;
+    pk_try(pk_stack_get(lisp, lhs, &a));
+    pk_try(pk_stack_get(lisp, rhs, &b));
+    PKAtomNumber *na, *nb;
+    pk_try(pk_atom_cast_number(lisp, a, &na));
+    pk_try(pk_atom_cast_number(lisp, b, &nb));
+    pk_try(pk_number_lt(lisp, na, nb, output));
+    return PK_Ok;
 }
 
-bool pk_lte(Pocket lisp, int lhs, int rhs) {
-    PKAtom *a = pk_stack_get(lisp, lhs);
-    PKAtom *b = pk_stack_get(lisp, rhs);
-    return pk_number_lte(lisp, pk_atom_cast_number(lisp, a), pk_atom_cast_number(lisp, b));
+PKRes pk_lte(Pocket lisp, int lhs, int rhs, bool *output) {
+    PKAtom *a, *b;
+    pk_try(pk_stack_get(lisp, lhs, &a));
+    pk_try(pk_stack_get(lisp, rhs, &b));
+    PKAtomNumber *na, *nb;
+    pk_try(pk_atom_cast_number(lisp, a, &na));
+    pk_try(pk_atom_cast_number(lisp, b, &nb));
+    pk_try(pk_number_lte(lisp, na, nb, output));
+    return PK_Ok;
 }
 
-bool pk_eq(Pocket lisp, int lhs, int rhs) {
-    PKAtom *a = pk_stack_get(lisp, lhs);
-    PKAtom *b = pk_stack_get(lisp, rhs);
-    return pk_atom_eq(lisp, a, b);
+PKRes pk_eq(Pocket lisp, int lhs, int rhs, bool *output) {
+    PKAtom *a, *b;
+    pk_try(pk_stack_get(lisp, lhs, &a));
+    pk_try(pk_stack_get(lisp, rhs, &b));
+    PKAtomNumber *na, *nb;
+    pk_try(pk_atom_cast_number(lisp, a, &na));
+    pk_try(pk_atom_cast_number(lisp, b, &nb));
+    pk_try(pk_number_eq(lisp, na, nb, output));
+    return PK_Ok;
 }
 
-int pk_to_int(Pocket lisp, int stack_pointer) {
-    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
-    return pk_number_to_int(pk_atom_cast_number(lisp, atom));
+PKRes pk_to_int(Pocket lisp, int stack_pointer, int *output) {
+    PKAtom *atom;
+    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
+    PKAtomNumber *num;
+    pk_try(pk_atom_cast_number(lisp, atom, &num));
+    *output = pk_number_to_int(num);
+    return PK_Ok;
 }
 
-float pk_to_float(Pocket lisp, int stack_pointer) {
-    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
-    return pk_number_to_float(pk_atom_cast_number(lisp, atom));
+PKRes pk_to_float(Pocket lisp, int stack_pointer, float *output) {
+    PKAtom *atom;
+    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
+    PKAtomNumber *num;
+    pk_try(pk_atom_cast_number(lisp, atom, &num));
+    *output = pk_number_to_float(num);
+    return PK_Ok;
 }
 
-PKString pk_to_string(Pocket lisp, int stack_pointer) {
-    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
-    PKAtomString *s = pk_atom_cast_string(lisp, atom);
-    return s->lit;
+PKRes pk_to_string(Pocket lisp, int stack_pointer, PKString *output) {
+    PKAtom *atom;
+    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
+    PKAtomString *s;
+    pk_try(pk_atom_cast_string(lisp, atom, &s));
+    *output = s->lit;
+    return PK_Ok;
 }
 
-void pk_push_cfunc(Pocket lisp, void *user_closure, PKFn fn, int args, PKArity mode) {
-    PKFuncArity arity = { .mode = mode, .args = args };
-    pk_push(lisp, (PKAtom *)pk_atom_cfunc(lisp, user_closure, fn, arity));
+PKRes pk_read(Pocket lisp, int stack_pointer) {
+    PKAtom *atom;
+    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
+    PKAtomString *s;
+    pk_try(pk_atom_cast_string(lisp, atom, &s));
+    pk_try(pk_read_string(lisp, s->lit));
+    return PK_Ok;
 }
 
-void pk_read(Pocket lisp, int stack_pointer) {
-    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
-    PKAtomString *s = pk_atom_cast_string(lisp, atom);
-    pk_read_string(lisp, s->lit);
+PKRes pk_read_cstr(Pocket lisp, char *cstr) {
+    PKString string;
+    pk_try(pk_string_from_cstr(cstr, &string));
+    pk_try(pk_read_string(lisp, string));
+    return PK_Ok;
 }
 
-void pk_read_cstr(Pocket lisp, char *cstr) {
-    PKString string = pk_string_from_cstr(cstr);
-    pk_read_string(lisp, string);
+PKRes pk_read_nstr(Pocket lisp, char *string, size_t length) {
+    pk_try(pk_read_string(lisp, pk_string_new(string, length)));
+    return PK_Ok;
 }
 
-void pk_read_nstr(Pocket lisp, char *string, size_t length) {
-    pk_read_string(lisp, pk_string_new(string, length));
+PKRes pk_read_string(Pocket lisp, PKString string) {
+    PKAtom *result;
+    pk_try(pk_read_from_string(lisp, string, &result));
+    pk_try(pk_push(lisp, result));
+    return PK_Ok;
 }
 
-void pk_read_string(Pocket lisp, PKString string) {
-    pk_push(lisp, pk_read_from_string(lisp, string));
-}
-
-void pk_format(Pocket lisp, int stack_pointer) {
-    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
+PKRes pk_format(Pocket lisp, int stack_pointer) {
+    PKAtom *atom;
+    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
     PKWriter w = pk_writer_init(lisp);
-    pk_writer_atom(&w, atom);
-    PKAtomString *string = pk_atom_string(lisp, pk_string_new(w.c, w.count));
-    pk_push(lisp, (PKAtom *)string);
+    PKRes res = pk_writer_atom(&w, atom);
+    if (res == PK_Ok) {
+        PKAtomString *string;
+        res = pk_atom_string(lisp, pk_string_new(w.c, w.count), &string);
+        if (res == PK_Ok) {
+            res = pk_push(lisp, (PKAtom *)string);
+        }
+    }
     pk_writer_deinit(&w);
+    return res;
 }
 
-void pk_list(Pocket lisp, int head, int tail) {
-    PKStackSlice slice = pk_stack_slice_by(lisp, head, tail);
+PKRes pk_list(Pocket lisp, int head, int tail) {
+    PKStackSlice slice;
+    pk_try(pk_stack_slice_by(lisp, head, tail, &slice));
     PKAtom *result = NULL;
     switch (slice.order) {
         case PKOrder_Normal: {
-            result = pk_slice_list(lisp, slice.slice);
+            pk_try(pk_slice_list(lisp, slice.slice, &result));
             break;
         }
         case PKOrder_Reversed: {
-            result = pk_slice_list_rev(lisp, slice.slice);
+            pk_try(pk_slice_list_rev(lisp, slice.slice, &result));
             break;
         }
     }
-    pk_push(lisp, result);
+    pk_try(pk_push(lisp, result));
+    return PK_Ok;
 }

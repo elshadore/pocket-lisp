@@ -27,39 +27,42 @@ void repl_print(void *user_env, char *c, size_t length) {
     printf("%.*s\n", (int)length, c);
 }
 
-void repl_read_user_input(void *user_closure, Pocket lisp) {
+PKRes repl_read_user_input(void *user_closure, Pocket lisp) {
     (void)user_closure;
     char buf[4096];
     if (fgets(buf, sizeof(buf), stdin) == NULL) {
-        pk_push_string(lisp, pkstr(""));
-        return;
+        pk_try(pk_push_string(lisp, pkstr("")));
+        return PK_Ok;
     }
-    
+
     size_t len = strlen(buf);
     if (len > 0 && buf[len-1] == '\n') {
         buf[len-1] = '\0';
         len--;
     }
-    
-    pk_push_nstr(lisp, buf, len);
+
+    pk_try(pk_push_nstr(lisp, buf, len));
+    return PK_Ok;
 }
 
-void repl(Pocket lisp) {
-    pk_push_cfunc(lisp, NULL, repl_read_user_input, 0, PKArity_Normal);
-    pk_push_symbol(lisp, pkstr("read-user-input"));
-    pk_fset(lisp, -1, -2);
-    pk_popn(lisp, 2);
-    pk_read_string(lisp, pkstr(REPL_SRC));
-    pk_evlist(lisp, -1);
+PKRes repl(Pocket lisp) {
+    pk_try(pk_push_cfunc(lisp, NULL, repl_read_user_input, 0, PKArity_Normal));
+    pk_try(pk_push_symbol(lisp, pkstr("read-user-input")));
+    pk_try(pk_fset(lisp, -1, -2));
+    pk_try(pk_popn(lisp, 2));
+    pk_try(pk_read_string(lisp, pkstr(REPL_SRC)));
+    pk_try(pk_evlist(lisp, -1));
+    return PK_Ok;
 }
 
 int main(void) {
-    // printf("henlo word!\n");
     Pocket lisp = pk_init(NULL, repl_alloc, repl_print);
     if (lisp == NULL) {
         return EXIT_FAILURE;
     }
-    repl(lisp);
+    if (repl(lisp) == PK_Yield) {
+        fprintf(stderr, "REPL exited with error\n");
+    }
     pk_deinit(lisp);
     stb_leakcheck_dumpmem();
     return EXIT_SUCCESS;

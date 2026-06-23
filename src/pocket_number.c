@@ -1,33 +1,40 @@
 #include "pocket_internals.h"
 
-PKAtomNumber *pk_atom_int(Pocket lisp, int value) {
-    PKAtomNumber *atom = (PKAtomNumber *)pk_atom_alloc(lisp);
+PKRes pk_atom_int(Pocket lisp, int value, PKAtomNumber **output) {
+    PKAtom *a;
+    pk_try(pk_atom_alloc(lisp, &a));
+    PKAtomNumber *atom = (PKAtomNumber *)a;
     *atom = (PKAtomNumber) {
         .tag.ty = PKAtomTy_Number,
         .tag.marked = false,
         .ty = PKNumberTy_Int,
         .as.i = value,
     };
-    return atom;
+    *output = atom;
+    return PK_Ok;
 }
 
-PKAtomNumber *pk_atom_float(Pocket lisp, float value) {
-    PKAtomNumber *atom = (PKAtomNumber *)pk_atom_alloc(lisp);
+PKRes pk_atom_float(Pocket lisp, float value, PKAtomNumber **output) {
+    PKAtom *a;
+    pk_try(pk_atom_alloc(lisp, &a));
+    PKAtomNumber *atom = (PKAtomNumber *)a;
     *atom = (PKAtomNumber) {
         .tag.ty = PKAtomTy_Number,
         .tag.marked = false,
         .ty = PKNumberTy_Float,
         .as.f = value,
     };
-    return atom;
+    *output = atom;
+    return PK_Ok;
 }
 
-PKAtomNumber *pk_atom_cast_number(Pocket lisp, PKAtom *atom) {
-    if (atom->tag.ty != PKAtomTy_Number) pk_error(lisp);
-    return (PKAtomNumber *)atom;
+PKRes pk_atom_cast_number(Pocket lisp, PKAtom *atom, PKAtomNumber **output) {
+    if (atom->tag.ty != PKAtomTy_Number) return pk_error(lisp);
+    *output = (PKAtomNumber *)atom;
+    return PK_Ok;
 }
 
-#define pk_atom_number_op_template(op_) \
+#define PK_ATOM_NUMBER_OP_TEMPLATE(op_) \
     switch (lhs->ty) { \
         case PKNumberTy_Int: { \
             int a = lhs->as.i; \
@@ -35,14 +42,21 @@ PKAtomNumber *pk_atom_cast_number(Pocket lisp, PKAtom *atom) {
                 case PKNumberTy_Int: { \
                     int b = rhs->as.i; \
                     int result = a op_ b; \
-                    return pk_atom_int(lisp, result); \
+                    PKAtomNumber *n; \
+                    pk_try(pk_atom_int(lisp, (int)result, &n)); \
+                    *output = n; \
+                    return PK_Ok; \
                 } \
                 case PKNumberTy_Float: { \
                     float b = rhs->as.f; \
                     float result = (float)a op_ b; \
-                    return pk_atom_int(lisp, result); \
+                    PKAtomNumber *n; \
+                    pk_try(pk_atom_int(lisp, (int)result, &n)); \
+                    *output = n; \
+                    return PK_Ok; \
                 } \
             } \
+            break; \
         } \
         case PKNumberTy_Float: { \
             float a = lhs->as.f; \
@@ -50,32 +64,43 @@ PKAtomNumber *pk_atom_cast_number(Pocket lisp, PKAtom *atom) {
                 case PKNumberTy_Int: { \
                     int b = rhs->as.i; \
                     float result = a op_ (float)b; \
-                    return pk_atom_int(lisp, result); \
+                    PKAtomNumber *n; \
+                    pk_try(pk_atom_int(lisp, (int)result, &n)); \
+                    *output = n; \
+                    return PK_Ok; \
                 } \
                 case PKNumberTy_Float: { \
                     float b = rhs->as.f; \
                     float result = a op_ b; \
-                    return pk_atom_int(lisp, result); \
+                    PKAtomNumber *n; \
+                    pk_try(pk_atom_int(lisp, (int)result, &n)); \
+                    *output = n; \
+                    return PK_Ok; \
                 } \
             } \
+            break; \
         } \
     }
 
-PKAtomNumber *pk_number_add(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
-    pk_atom_number_op_template(+)
+PKRes pk_number_add(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs, PKAtomNumber **output) {
+    PK_ATOM_NUMBER_OP_TEMPLATE(+)
+    return pk_error(lisp);
 }
 
-PKAtomNumber *pk_number_sub(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
-    pk_atom_number_op_template(-)
+PKRes pk_number_sub(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs, PKAtomNumber **output) {
+    PK_ATOM_NUMBER_OP_TEMPLATE(-)
+    return pk_error(lisp);
 }
 
-PKAtomNumber *pk_number_mul(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
-    pk_atom_number_op_template(*)
+PKRes pk_number_mul(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs, PKAtomNumber **output) {
+    PK_ATOM_NUMBER_OP_TEMPLATE(*)
+    return pk_error(lisp);
 }
 
-PKAtomNumber *pk_number_div(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
-    float result =  pk_number_to_float(lhs) / pk_number_to_float(rhs);
-    return pk_atom_float(lisp, result);
+PKRes pk_number_div(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs, PKAtomNumber **output) {
+    float result = pk_number_to_float(lhs) / pk_number_to_float(rhs);
+    pk_try(pk_atom_float(lisp, result, output));
+    return PK_Ok;
 }
 
 int pk_number_to_int(PKAtomNumber *num) {
@@ -94,27 +119,28 @@ float pk_number_to_float(PKAtomNumber *num) {
     }
 }
 
-PKAtomNumber *pk_number_mod(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
+PKRes pk_number_mod(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs, PKAtomNumber **output) {
     int a = pk_number_to_int(lhs);
     int b = pk_number_to_int(rhs);
     int result = a % b;
-    return pk_atom_int(lisp, result);
+    pk_try(pk_atom_int(lisp, result, output));
+    return PK_Ok;
 }
 
-#define pk_atom_number_logic_template(logic_) \
+#define PK_ATOM_NUMBER_LOGIC_TEMPLATE(logic_) \
     switch (lhs->ty) { \
         case PKNumberTy_Int: { \
             int a = lhs->as.i; \
             switch (rhs->ty) { \
                 case PKNumberTy_Int: { \
                     int b = rhs->as.i; \
-                    bool result =  a logic_ b; \
-                    return result; \
+                    *output = a logic_ b; \
+                    return PK_Ok; \
                 } \
                 case PKNumberTy_Float: { \
                     float b = rhs->as.f; \
-                    bool result = a logic_ b; \
-                    return result; \
+                    *output = (float)a logic_ b; \
+                    return PK_Ok; \
                 } \
             } \
             break; \
@@ -124,42 +150,45 @@ PKAtomNumber *pk_number_mod(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
             switch (rhs->ty) { \
                 case PKNumberTy_Int: { \
                     int b = rhs->as.i; \
-                    bool result = a logic_ b; \
-                    return result; \
+                    *output = a logic_ (float)b; \
+                    return PK_Ok; \
                 } \
                 case PKNumberTy_Float: { \
                     float b = rhs->as.f; \
-                    bool result = a logic_ b; \
-                    return result; \
+                    *output = a logic_ b; \
+                    return PK_Ok; \
                 } \
             } \
+            break; \
         } \
-        break; \
-    } \
-    return false;
+    }
 
-
-bool pk_number_lt(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
+PKRes pk_number_lt(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs, bool *output) {
     (void)lisp;
-    pk_atom_number_logic_template(<)
+    PK_ATOM_NUMBER_LOGIC_TEMPLATE(<)
+    return pk_error(lisp);
 }
 
-bool pk_number_lte(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
+PKRes pk_number_lte(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs, bool *output) {
     (void)lisp;
-    pk_atom_number_logic_template(<=)
+    PK_ATOM_NUMBER_LOGIC_TEMPLATE(<=)
+    return pk_error(lisp);
 }
 
-bool pk_number_gt(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
+PKRes pk_number_gt(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs, bool *output) {
     (void)lisp;
-    pk_atom_number_logic_template(>)
+    PK_ATOM_NUMBER_LOGIC_TEMPLATE(>)
+    return pk_error(lisp);
 }
 
-bool pk_number_gte(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
+PKRes pk_number_gte(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs, bool *output) {
     (void)lisp;
-    pk_atom_number_logic_template(>=)
+    PK_ATOM_NUMBER_LOGIC_TEMPLATE(>=)
+    return pk_error(lisp);
 }
 
-bool pk_number_eq(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
+PKRes pk_number_eq(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs, bool *output) {
     (void)lisp;
-    pk_atom_number_logic_template(==)
+    PK_ATOM_NUMBER_LOGIC_TEMPLATE(==)
+    return pk_error(lisp);
 }

@@ -4,7 +4,7 @@ void pk_gc_mark(PKAtom *atom) {
     if (atom->tag.marked) {
         return;
     }
-    
+
     atom->tag.marked = true;
     switch (atom->tag.ty) {
         case PKAtomTy_Cons: {
@@ -34,9 +34,7 @@ void pk_gc_mark_symtable(PKSymTable *st) {
     }
 }
 
-void pk_gc_collect(Pocket lisp) {
-    // Mark
-    
+PKRes pk_gc_collect(Pocket lisp) {
     pk_gc_mark((PKAtom *)lisp->cache.nil);
     pk_gc_mark((PKAtom *)lisp->cache.nil_sym);
     pk_gc_mark((PKAtom *)lisp->cache.t);
@@ -49,7 +47,7 @@ void pk_gc_collect(Pocket lisp) {
     pk_gc_mark((PKAtom *)lisp->cache.let_sym);
     pk_gc_mark((PKAtom *)lisp->cache.let_star);
     pk_gc_mark((PKAtom *)lisp->cache.empty_string);
-    
+
     for (size_t i = 0; i < lisp->intern.count; ++i) {
         PKAtomSymbol *symbol = lisp->intern.e[i];
         if (symbol == NULL) continue;
@@ -71,8 +69,6 @@ void pk_gc_collect(Pocket lisp) {
         }
     }
 
-    // Sweep
-
     for (PKPool *pool = lisp->pool; pool; pool = pool->next) {
         for (size_t i = 0; i < PK_POOL_MAX; ++i) {
             PKAtom *atom = &pool->e[i];
@@ -84,4 +80,5 @@ void pk_gc_collect(Pocket lisp) {
             atom->tag.marked = false;
         }
     }
+    return PK_Ok;
 }

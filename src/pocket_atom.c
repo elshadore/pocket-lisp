@@ -4,18 +4,22 @@ PKAtom *pk_atom_nil(Pocket lisp) {
     return lisp->cache.nil;
 }
 
-PKAtom *pk_atom_nil_new(Pocket lisp) {
-    PKAtom *atom = pk_atom_alloc(lisp);
+PKRes pk_atom_nil_new(Pocket lisp, PKAtom **output) {
+    PKAtom *atom;
+    pk_try(pk_atom_alloc(lisp, &atom));
     atom->tag = (PKAtomTag){ .ty = PKAtomTy_Nil, .marked = false };
-    return atom;
+    *output = atom;
+    return PK_Ok;
 }
 
 PKAtom *pk_atom_t(Pocket lisp) {
     return (PKAtom *)lisp->cache.t;
 }
 
-PKAtomCFunc *pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity) {
-    PKAtomCFunc *atom = (PKAtomCFunc *)pk_atom_alloc(lisp);
+PKRes pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity, PKAtomCFunc **output) {
+    PKAtom *a;
+    pk_try(pk_atom_alloc(lisp, &a));
+    PKAtomCFunc *atom = (PKAtomCFunc *)a;
     *atom = (PKAtomCFunc) {
         .tag.ty = PKAtomTy_CFunc,
         .tag.marked = false,
@@ -23,12 +27,14 @@ PKAtomCFunc *pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity
         .fn = fn,
         .arity = arity,
     };
-    return atom;
+    *output = atom;
+    return PK_Ok;
 }
 
-PKAtomCFunc *pk_atom_cast_cfunc(Pocket lisp, PKAtom *atom) {
-    if (atom->tag.ty != PKAtomTy_CFunc) pk_error(lisp);
-    return (PKAtomCFunc *)atom;
+PKRes pk_atom_cast_cfunc(Pocket lisp, PKAtom *atom, PKAtomCFunc **output) {
+    if (atom->tag.ty != PKAtomTy_CFunc) return pk_error(lisp);
+    *output = (PKAtomCFunc *)atom;
+    return PK_Ok;
 }
 
 bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
@@ -36,7 +42,9 @@ bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
     if (lhs->tag.ty != rhs->tag.ty) return false;
     switch (lhs->tag.ty) {
         case PKAtomTy_Number: {
-            return pk_number_eq(lisp, (PKAtomNumber *)lhs, (PKAtomNumber *)rhs);
+            bool result;
+            pk_number_eq(lisp, (PKAtomNumber *)lhs, (PKAtomNumber *)rhs, &result);
+            return result;
         }
         case PKAtomTy_String: {
             return pk_atom_string_eq(lisp, (PKAtomString *)lhs, (PKAtomString *)rhs);
@@ -52,4 +60,3 @@ bool pk_atom_is_nil(PKAtom *atom) {
 bool pk_atom_is_true(PKAtom *atom) {
     return !pk_atom_is_nil(atom);
 }
-

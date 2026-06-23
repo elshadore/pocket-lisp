@@ -1,9 +1,9 @@
 #include "pocket_internals.h"
 
 PKRes pk_pool_expand(Pocket lisp) {
-    PKPool *pool = NULL;
-    pk_try(pk_talloc(PKPool, lisp, (void **)&pool));
-    
+    PKPool *pool;
+    pk_try(pk_talloc(PKPool, lisp, &pool));
+
     pool->next = lisp->pool;
     for (size_t i = 0; i < (PK_POOL_MAX - 1); ++i) {
         PKAtom *a = &pool->e[i];
@@ -71,7 +71,7 @@ PKRes pk_malloc(Pocket lisp, size_t size, void **output) {
         return pk_error(lisp);
     }
     *output = result;
-    return PK_Ok;;
+    return PK_Ok;
 }
 
 PKRes pk_realloc(Pocket lisp, void *ptr, size_t old_size, size_t new_size, void **output) {
@@ -80,7 +80,7 @@ PKRes pk_realloc(Pocket lisp, void *ptr, size_t old_size, size_t new_size, void 
         return pk_error(lisp);
     }
     *output = result;
-    return PK_Ok;;
+    return PK_Ok;
 }
 
 void pk_free(Pocket lisp, void *ptr, size_t size) {

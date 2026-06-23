@@ -8,7 +8,15 @@
          _pk_tail_->tag.ty == PKAtomTy_Nil ? 0 : \
             (_pk_tail_->tag.ty == PKAtomTy_Cons ? \
                 (cursor_ = ((PKAtomCons *)_pk_tail_)->car, 1) : \
-                (pk_error(lisp_), 0)); \
+                ({ pk_error(lisp_); return PK_Yield; 0; })); \
+         _pk_tail_ = ((PKAtomCons *)_pk_tail_)->cdr)
+
+#define pk_cdolist_defer(lisp_, cursor_, list_, err_label_) \
+    for (PKAtom *_pk_tail_ = (list_), *cursor_ = NULL; \
+         _pk_tail_->tag.ty == PKAtomTy_Nil ? 0 : \
+            (_pk_tail_->tag.ty == PKAtomTy_Cons ? \
+                (cursor_ = ((PKAtomCons *)_pk_tail_)->car, 1) : \
+                ({ pk_error(lisp_); goto err_label_; 0; })); \
          _pk_tail_ = ((PKAtomCons *)_pk_tail_)->cdr)
 
 
@@ -271,7 +279,7 @@ struct PocketLispMachine_ {
 #define pk_index_inv(i_, length_) ((length_) - (i_) - 1)
 
 #define pk_talloc(type_, lisp_, output_) \
-pk_malloc(lisp_, sizeof(type_), output_)
+pk_malloc(lisp_, sizeof(type_), (void **)(output_))
 
 #define pk_tallocn(type_, lisp_, count_, output_) \
 pk_malloc(lisp_, sizeof(type_) * count_, output_)
@@ -329,6 +337,7 @@ void pk_free(Pocket lisp, void *ptr, size_t size);
 PKRes pk_push(Pocket lisp, PKAtom *atom);
 PKRes pk_stack_expand(Pocket lisp, size_t total);
 PKRes pk_sp_index(Pocket lisp, int stack_pointer, size_t *index);
+PKRes pk_stack_head(Pocket lisp, PKAtom **output);
 PKRes pk_stack_pop(Pocket lisp, PKAtom **output);
 PKRes pk_stack_get(Pocket lisp, int stack_pointer, PKAtom **output);
 PKAtoms pk_stack_slice(Pocket lisp);
@@ -385,6 +394,7 @@ PKRes pk_read_from_string(Pocket lisp, PKString string, PKAtom **output);
 PKRes pk_frame_push(Pocket lisp, size_t arity, PKFuncMode mode);
 PKRes pk_frame_pop(Pocket lisp);
 PKRes pk_frame_clear(Pocket lisp);
+size_t pk_frame_length(Pocket lisp);
 PKRes pk_let_push(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value);
 PKRes pk_let_pop(Pocket lisp, size_t n);
 
@@ -410,7 +420,6 @@ PKRes pk_atom_evlist(Pocket lisp, PKAtom *list);
 PKRes pk_atom_eval_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *body, PKAtom *expression, bool *output);
 
 PKRes pk_slurp(Pocket lisp, const char *file_path, PKString *output);
-PKRes pk_get_result(Pocket lisp, PKAtom **output);
 
 PKRes pk_call(Pocket lisp, PKFuncCall call);
 PKFuncCall pk_get_callconv(Pocket lisp, PKAtom *atom, int arity);

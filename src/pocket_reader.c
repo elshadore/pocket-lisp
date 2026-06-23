@@ -12,24 +12,24 @@ bool pk_reader_try_inc(PKReader *r) {
         return false;
     } else {
         r->c = r->src.c[r->curr];
-        // printf("inc => %c\n", r->c); 
         return true;
     }
 }
 
-char pk_reader_inc(PKReader *r) {
+PKRes pk_reader_inc(PKReader *r) {
     if (!pk_reader_try_inc(r)) {
-        pk_error(r->lisp);
+        return pk_error(r->lisp);
     }
-    return r->c;
+    return PK_Ok;
 }
 
-char pk_reader_peek(PKReader *r) {
+PKRes pk_reader_peek(PKReader *r, char *output) {
     size_t peek = r->curr + 1;
     if (peek >= r->src.length) {
-        pk_error(r->lisp);
+        return pk_error(r->lisp);
     }
-    return r->src.c[peek];
+    *output = r->src.c[peek];
+    return PK_Ok;
 }
 
 #define PK_COMMENT_CHAR ';'
@@ -49,101 +49,71 @@ bool pk_reader_trim_whitespace(PKReader *r) {
     return whitespace;
 }
 
-PKAtomString *pk_read_atom_string(PKReader *r) {
+PKRes pk_read_atom_string(PKReader *r, PKAtomString **output) {
     if (r->c != '\"') {
-        pk_error(r->lisp);
+        return pk_error(r->lisp);
     }
 
     PKWriter w = pk_writer_init(r->lisp);
-
+    PKRes result = PK_Yield;
+    
     while (pk_reader_try_inc(r)) {
         if (r->c == '\"') {
             PKString string = pk_string_new(w.c, w.count);
             (void)pk_reader_try_inc(r);
-            return pk_atom_string(r->lisp, string);
+            PKAtomString *atom = NULL;
+            pk_defer(pk_atom_string(r->lisp, string, &atom));
+            *output = atom;
+            result = PK_Ok;
+            goto DEFER;
         } else if (r->c == '\\') {
-            if (!pk_reader_try_inc(r)) {
-                pk_error(r->lisp);
-            }
+            pk_defer(pk_reader_inc(r));
             switch (r->c) {
-                case 'a': {
-                    pk_writer_char(&w, '\a');
-                    break;
-                }
-                case 'b': {
-                    pk_writer_char(&w, '\b');
-                    break;
-                }
-                case 'e': {
-                    pk_writer_char(&w, '\e');
-                    break;
-                }
-                case 'f': {
-                    pk_writer_char(&w, '\f');
-                    break;
-                }
-                case 'n': {
-                    pk_writer_char(&w, '\n');
-                    break;
-                }
-                case 'r': {
-                    pk_writer_char(&w, '\r');
-                    break;
-                }
-                case 't': {
-                    pk_writer_char(&w, '\t');
-                    break;
-                }
-                case 'v': {
-                    pk_writer_char(&w, '\v');
-                    break;
-                }
+                case 'a': { pk_defer(pk_writer_char(&w, '\a')); break; }
+                case 'b': { pk_defer(pk_writer_char(&w, '\b')); break; }
+                case 'e': { pk_defer(pk_writer_char(&w, '\e')); break; }
+                case 'f': { pk_defer(pk_writer_char(&w, '\f')); break; }
+                case 'n': { pk_defer(pk_writer_char(&w, '\n')); break; }
+                case 'r': { pk_defer(pk_writer_char(&w, '\r')); break; }
+                case 't': { pk_defer(pk_writer_char(&w, '\t')); break; }
+                case 'v': { pk_defer(pk_writer_char(&w, '\v')); break; }
                 case 'x': {
-                    uint8_t a = pk_reader_inc(r);
-                    uint8_t b = pk_reader_inc(r);
-                    if (!pk_char_is_hex(a)) {
-                        pk_error(r->lisp);
-                    }
-                    if (!pk_char_is_hex(b)) {
-                        pk_error(r->lisp);
-                    }
-                    uint8_t c = (a << 4) & b;
-                    pk_writer_char(&w, (char)c);
+                    pk_defer(pk_reader_inc(r));
+                    char a = r->c;
+                    pk_defer(pk_reader_inc(r));
+                    char b = r->c;
+                    if (!pk_char_is_hex(a)) return pk_error(r->lisp);
+                    if (!pk_char_is_hex(b)) return pk_error(r->lisp);
+                    uint8_t byte = (uint8_t)((pk_char_to_hex(a) << 4) | pk_char_to_hex(b));
+                    pk_defer(pk_writer_char(&w, (char)byte));
                     break;
                 }
-                case '\\': {
-                    pk_writer_char(&w, '\\');
-                    break;
-                }
-                case '\'': {
-                    pk_writer_char(&w, '\'');
-                    break;
-                }
-                case '\"': {
-                    pk_writer_char(&w, '\"');
-                    break;
-                }
+                case '\\': { pk_defer(pk_writer_char(&w, '\\')); break; }
+                case '\'': { pk_defer(pk_writer_char(&w, '\'')); break; }
+                case '\"': { pk_defer(pk_writer_char(&w, '\"')); break; }
                 default: {
                     pk_error(r->lisp);
+                    goto DEFER;
                     break;
                 }
             }
         } else {
-            pk_writer_char(&w, r->c);
+            pk_try(pk_writer_char(&w, r->c));
         }
     }
     pk_error(r->lisp);
-    // unreachable
-    return NULL;
+    DEFER:
+    pk_writer_deinit(&w);
+    return result;
 }
 
-PKAtomNumber *pk_read_atom_number(PKReader *r) {
+PKRes pk_read_atom_number(PKReader *r, PKAtomNumber **output) {
     bool negetive = false;
     if (r->c == '+' || r->c == '-') {
         if (r->c == '-') {
             negetive = true;
         }
-        (void)pk_reader_inc(r);
+        pk_try(pk_reader_inc(r));
     }
     int acc = pk_char_to_digit(r->c);
     while (pk_reader_try_inc(r) && pk_char_is_digit(r->c)) {
@@ -154,84 +124,84 @@ PKAtomNumber *pk_read_atom_number(PKReader *r) {
     if (negetive) {
         acc = -acc;
     }
-    return pk_atom_int(r->lisp, acc);
+    pk_try(pk_atom_int(r->lisp, acc, output));
+    return PK_Ok;
 }
 
-PKAtomSymbol *pk_read_atom_symbol(PKReader *r) {
+PKRes pk_read_atom_symbol(PKReader *r, PKAtomSymbol **output) {
     size_t curr = r->curr;
     if (!pk_char_is_symbol(r->c)) {
-        pk_error(r->lisp);
+        return pk_error(r->lisp);
     }
-    
+
     do {
         if (!pk_reader_try_inc(r)) break;
     } while(pk_char_is_symbol(r->c));
-    
-    return pk_atom_symbol_interned(r->lisp, pk_string_new(r->src.c + curr, r->curr - curr));
+
+    pk_try(pk_atom_symbol_interned(r->lisp, pk_string_new(r->src.c + curr, r->curr - curr), output));
+    return PK_Ok;
 }
 
-PKAtom *pk_read_atom_cons(PKReader *r) {
+PKRes pk_read_atom_cons(PKReader *r, PKAtom **output) {
     if (r->c != '(') {
-        pk_error(r->lisp);
+        return pk_error(r->lisp);
     }
-    
-    pk_reader_inc(r);
-    
+
+    pk_try(pk_reader_inc(r));
+
     PKAtomCons *head = NULL;
     PKAtomCons *acc = head;
-    
+
     bool first = true;
     bool whitespace = pk_reader_trim_whitespace(r);
-    
+
     while (!pk_reader_is_finished(r)) {
         if (r->c == ')') {
             (void)pk_reader_try_inc(r);
             if (first) {
-                return pk_atom_nil(r->lisp);
+                *output = pk_atom_nil(r->lisp);
             } else {
-                return (PKAtom *)head;
+                *output = (PKAtom *)head;
             }
+            return PK_Ok;
         }
         if (!first && !whitespace) {
-            pk_error(r->lisp);
+            return pk_error(r->lisp);
         }
         if (r->c == '.') {
             if (first) {
-                pk_error(r->lisp);
+                return pk_error(r->lisp);
             }
-            if (!pk_reader_try_inc(r)) {
-                pk_error(r->lisp);
-            }
+            pk_try(pk_reader_inc(r));
             (void)pk_reader_trim_whitespace(r);
-            PKAtom *cdr = pk_read_atom(r);
+            PKAtom *cdr;
+            pk_try(pk_read_atom(r, &cdr));
             (void)pk_reader_trim_whitespace(r);
-            if (!pk_reader_try_inc(r)) {
-                pk_error(r->lisp);
-            }
+            pk_try(pk_reader_inc(r));
             if (r->c != ')') {
-                pk_error(r->lisp);
+                return pk_error(r->lisp);
             }
             acc->cdr = cdr;
-            return (PKAtom *)head;
+            *output = (PKAtom *)head;
+            return PK_Ok;
         }
 
-        PKAtom *car = pk_read_atom(r);
-        PKAtomCons *cons = pk_atom_cons(r->lisp, car, pk_atom_nil(r->lisp));
+        PKAtom *car;
+        pk_try(pk_read_atom(r, &car));
+        PKAtomCons *cons;
+        pk_try(pk_atom_cons(r->lisp, car, pk_atom_nil(r->lisp), &cons));
 
         if (first) {
             head = cons;
         } else {
             acc->cdr = (PKAtom *)cons;
-  
         }
         acc = cons;
         first = false;
         whitespace = pk_reader_trim_whitespace(r);
     }
-    
-    pk_error(r->lisp);
-    // unreachable
-    return NULL;
+
+    return pk_error(r->lisp);
 }
 
 bool pk_reader_is_number_prefix(PKReader *r) {
@@ -243,78 +213,92 @@ bool pk_reader_is_number_prefix(PKReader *r) {
     return false;
 }
 
-PKAtom *pk_read_simple_macro(PKReader *r, PKAtomSymbol *macro) {
-    if (!pk_reader_try_inc(r)) {
-        pk_error(r->lisp);
-    }
-    PKAtom *value = pk_read_atom(r);
-    PKAtomCons *b = pk_atom_cons(r->lisp, value, pk_atom_nil(r->lisp));
-    PKAtomCons *a = pk_atom_cons(r->lisp, (PKAtom *)macro, (PKAtom *)b);
-    return (PKAtom *)a;
+PKRes pk_read_simple_macro(PKReader *r, PKAtomSymbol *macro, PKAtom **output) {
+    pk_try(pk_reader_inc(r));
+    PKAtom *value;
+    pk_try(pk_read_atom(r, &value));
+    PKAtomCons *b;
+    pk_try(pk_atom_cons(r->lisp, value, pk_atom_nil(r->lisp), &b));
+    PKAtomCons *a;
+    pk_try(pk_atom_cons(r->lisp, (PKAtom *)macro, (PKAtom *)b, &a));
+    *output = (PKAtom *)a;
+    return PK_Ok;
 }
 
-PKAtom *pk_read_unquote_macro(PKReader *r) {
-    if (!pk_reader_try_inc(r)) {
-        pk_error(r->lisp);
-    }
+PKRes pk_read_unquote_macro(PKReader *r, PKAtom **output) {
+    pk_try(pk_reader_inc(r));
     PKAtomSymbol *macro = NULL;
     if (r->c == '@') {
         macro = r->lisp->cache.unquote_splice;
-        (void)pk_reader_try_inc(r);
+        pk_try(pk_reader_inc(r));
     } else {
         macro = r->lisp->cache.unquote;
     }
-    PKAtom *value = pk_read_atom(r);
-    PKAtomCons *b = pk_atom_cons(r->lisp, value, pk_atom_nil(r->lisp));
-    PKAtomCons *a = pk_atom_cons(r->lisp, (PKAtom *)macro, (PKAtom *)b);
-    return (PKAtom *)a;
+    PKAtom *value;
+    pk_try(pk_read_atom(r, &value));
+    PKAtomCons *b;
+    pk_try(pk_atom_cons(r->lisp, value, pk_atom_nil(r->lisp), &b));
+    PKAtomCons *a;
+    pk_try(pk_atom_cons(r->lisp, (PKAtom *)macro, (PKAtom *)b, &a));
+    *output = (PKAtom *)a;
+    return PK_Ok;
 }
 
-PKAtom *pk_read_atom(PKReader *r) {
+PKRes pk_read_atom(PKReader *r, PKAtom **output) {
     if (pk_reader_is_finished(r)) {
-        pk_error(r->lisp);
+        return pk_error(r->lisp);
     }
     switch (r->c) {
         case '(': {
-            return (PKAtom *)pk_read_atom_cons(r);
+            pk_try(pk_read_atom_cons(r, output));
+            return PK_Ok;
         }
         case ')': {
-            pk_error(r->lisp);
-            break;
+            return pk_error(r->lisp);
         }
         case '\'': {
-            return pk_read_simple_macro(r, r->lisp->cache.quote);
+            pk_try(pk_read_simple_macro(r, r->lisp->cache.quote, output));
+            return PK_Ok;
         }
         case '`': {
-            return pk_read_simple_macro(r, r->lisp->cache.quasiquote);
+            pk_try(pk_read_simple_macro(r, r->lisp->cache.quasiquote, output));
+            return PK_Ok;
         }
         case '$': {
-            return pk_read_simple_macro(r, r->lisp->cache.string_substitute);
+            pk_try(pk_read_simple_macro(r, r->lisp->cache.string_substitute, output));
+            return PK_Ok;
         }
         case ',': {
-            return pk_read_unquote_macro(r);
+            pk_try(pk_read_unquote_macro(r, output));
+            return PK_Ok;
         }
         case '\"': {
-            return (PKAtom *)pk_read_atom_string(r);
+            PKAtomString *s;
+            pk_try(pk_read_atom_string(r, &s));
+            *output = (PKAtom *)s;
+            return PK_Ok;
         }
         default: {
             if (pk_reader_is_number_prefix(r)) {
-                return (PKAtom *)pk_read_atom_number(r);
+                PKAtomNumber *n;
+                pk_try(pk_read_atom_number(r, &n));
+                *output = (PKAtom *)n;
             } else {
-                return (PKAtom *)pk_read_atom_symbol(r);
+                PKAtomSymbol *s;
+                pk_try(pk_read_atom_symbol(r, &s));
+                *output = (PKAtom *)s;
             }
+            return PK_Ok;
         }
     }
-    // unreadable
-    return NULL;
 }
 
-
-PKAtom *pk_read_from_string(Pocket lisp, PKString string) {
+PKRes pk_read_from_string(Pocket lisp, PKString string, PKAtom **output) {
     if (string.length == 0) {
-        return pk_atom_nil(lisp);
+        *output = pk_atom_nil(lisp);
+        return PK_Ok;
     }
-    
+
     PKReader r = (PKReader) {
         .lisp = lisp,
         .src = string,
@@ -322,18 +306,23 @@ PKAtom *pk_read_from_string(Pocket lisp, PKString string) {
         .c = string.c[0],
     };
     (void)pk_reader_trim_whitespace(&r);
-    
-    PKAtom *atom = pk_read_atom(&r);
-    PKAtomCons *head = pk_atom_cons_car(lisp, atom);
+
+    PKAtom *atom;
+    pk_try(pk_read_atom(&r, &atom));
+    PKAtomCons *head;
+    pk_try(pk_atom_cons_car(lisp, atom, &head));
     PKAtomCons *acc = head;
-    
+
     while (!pk_reader_is_finished(&r)) {
         (void)pk_reader_trim_whitespace(&r);
-        PKAtom *atom = pk_read_atom(&r);
-        PKAtomCons *cons = pk_atom_cons_car(lisp, atom);
+        PKAtom *next_atom;
+        pk_try(pk_read_atom(&r, &next_atom));
+        PKAtomCons *cons;
+        pk_try(pk_atom_cons_car(lisp, next_atom, &cons));
         acc->cdr = (PKAtom *)cons;
         acc = cons;
     }
-    
-    return (PKAtom *)head;
+
+    *output = (PKAtom *)head;
+    return PK_Ok;
 }
