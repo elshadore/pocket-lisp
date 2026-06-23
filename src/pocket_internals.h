@@ -252,6 +252,8 @@ typedef struct PKCache_ {
     PKAtomSymbol *if_sym;
     PKAtomSymbol *while_sym;
     PKAtomSymbol *error;
+    PKAtomSymbol *let_sym;
+    PKAtomSymbol *let_star;
     PKAtomString *empty_string;
 } PKCache;
 

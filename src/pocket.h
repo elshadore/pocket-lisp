@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include <setjmp.h>
 #include <stdarg.h>
 #include <limits.h>
 
@@ -20,6 +19,10 @@ typedef struct PKString_ {
     char *c;
     size_t length;
 } PKString;
+
+typedef enum PKRes_ {
+    
+} PKRes;
 
 #define PK_PRINTF(fmt_, args_) __attribute__ ((format (printf, fmt_, args_)))
 

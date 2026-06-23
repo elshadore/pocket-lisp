@@ -1,3 +1,14 @@
+* Today [0/7]
+** TODO Move away from Jump based Throwing and to Value based Throwing
+** TODO Throwing, Catching, and Protecting
+** TODO Macros
+** TODO All Special Forms (except string substitute)
+** TODO Recursive Checks for Printing and Cloning
+** TODO Pretty Printing
+** TODO Basic Bignums
+Just the basics, maybe just addition.
+** TODO Basic Test Suite
+
 * The Great TODO List [7/18]
 ** DONE Reading
 CLOSED: [2026-06-14 Sun 19:43]

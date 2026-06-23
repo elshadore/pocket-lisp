@@ -112,10 +112,64 @@ bool pk_atom_eval_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *body, 
         PKAtom *cond = pk_stack_pop(lisp);
 
         if (pk_atom_is_true(cond)) {
-            pk_atom_eval(lisp, else_cons->car);
-        } else {
             pk_atom_eval(lisp, then_cons->car);
+        } else {
+            pk_atom_eval(lisp, else_cons->car);
         }
+    } else if (symbol == lisp->cache.let_sym) {
+        if (body->tag.ty != PKAtomTy_Cons) {
+            pk_error(lisp);
+        }
+
+        PKAtomCons *body_cons = (PKAtomCons *)body;
+        PKAtom *bindings = body_cons->car;
+        PKAtom *body_forms = body_cons->cdr;
+
+        size_t count = 0;
+        pk_cdolist(lisp, binding, bindings) {
+            PKAtomCons *pair = pk_atom_cast_cons(lisp, binding);
+            PKAtomCons *val = pk_atom_cast_cons(lisp, pair->cdr);
+            if (!pk_atom_is_nil(val->cdr)) pk_error(lisp);
+            pk_atom_eval(lisp, val->car);
+            count++;
+        }
+
+        int top = pk_get_top(lisp);
+        size_t i = 0;
+        pk_cdolist(lisp, binding, bindings) {
+            PKAtomCons *pair = pk_atom_cast_cons(lisp, binding);
+            PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, pair->car);
+            PKAtom *value = pk_stack_get(lisp, (int)(top - count + i + 1));
+            pk_let_push(lisp, PKEnvTy_Var, sym, value);
+            i++;
+        }
+
+        pk_popn(lisp, (int)count);
+        pk_atom_evlist(lisp, body_forms);
+        pk_let_pop(lisp, count);
+    } else if (symbol == lisp->cache.let_star) {
+        if (body->tag.ty != PKAtomTy_Cons) {
+            pk_error(lisp);
+        }
+
+        PKAtomCons *body_cons = (PKAtomCons *)body;
+        PKAtom *bindings = body_cons->car;
+        PKAtom *body_forms = body_cons->cdr;
+
+        size_t count = 0;
+        pk_cdolist(lisp, binding, bindings) {
+            PKAtomCons *pair = pk_atom_cast_cons(lisp, binding);
+            PKAtomSymbol *sym = pk_atom_cast_symbol(lisp, pair->car);
+            PKAtomCons *val = pk_atom_cast_cons(lisp, pair->cdr);
+            if (!pk_atom_is_nil(val->cdr)) pk_error(lisp);
+            pk_atom_eval(lisp, val->car);
+            PKAtom *value = pk_stack_pop(lisp);
+            pk_let_push(lisp, PKEnvTy_Var, sym, value);
+            count++;
+        }
+
+        pk_atom_evlist(lisp, body_forms);
+        pk_let_pop(lisp, count);
     } else {
         return false;
     }

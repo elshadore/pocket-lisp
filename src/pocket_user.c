@@ -28,6 +28,8 @@ Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print) {
         .progn = pk_atom_symbol_interned(lisp, pkstr("progn")),
         .while_sym = pk_atom_symbol_interned(lisp, pkstr("while")),
         .if_sym = pk_atom_symbol_interned(lisp, pkstr("if")),
+        .let_sym = pk_atom_symbol_interned(lisp, pkstr("let")),
+        .let_star = pk_atom_symbol_interned(lisp, pkstr("let*")),
         .empty_string = pk_atom_string_nomemcpy(lisp, pkstr("")),
     };
 
