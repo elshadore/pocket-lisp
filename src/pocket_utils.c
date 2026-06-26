@@ -283,3 +283,15 @@ PKRes pk_slurp(Pocket lisp, const char *file_path, PKString *output) {
     *output = pk_string_new(buf, read);
     return PK_Ok;
 }
+
+size_t pk_next_pow2(size_t value) {
+    size_t result = value;
+    result--;
+    result |= result >> 1;
+    result |= result >> 2;
+    result |= result >> 4;
+    result |= result >> 8;
+    result |= result >> 16;
+    result |= result >> 32;
+    return result + 1;
+}

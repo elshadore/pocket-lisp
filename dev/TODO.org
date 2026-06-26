@@ -1,5 +1,6 @@
-* Today [0/7]
-** TODO Move away from Jump based Throwing and to Value based Throwing
+* Today [1/8]
+** DONE Move away from Jump based Throwing and to Value based Throwing
+CLOSED: [2026-06-23 Tue 14:07]
 ** TODO Throwing, Catching, and Protecting
 ** TODO Macros
 ** TODO All Special Forms (except string substitute)

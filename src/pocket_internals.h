@@ -240,6 +240,22 @@ typedef struct PKStackSlice_ {
     PKAtoms slice;
 } PKStackSlice;
 
+#define PK_ARENA_PAGE (1024 * 1024)
+
+typedef struct PKArena_ {
+    void *e;
+    size_t head;
+    size_t size;
+} PKArena;
+
+#define PK_ARENA_STACK_INIT_CAPACITY (8)
+
+typedef struct PKArenaStack_ {
+    PKArena *e;
+    size_t count;
+    size_t capacity;
+} PKArenaStack;
+
 typedef struct PKCache_ {
     PKAtom *nil;
     PKAtomSymbol *nil_sym;
@@ -272,6 +288,8 @@ struct PocketLispMachine_ {
     PKSymTable vars;
     PKSymTable funs;
     PKIntern intern;
+    PKArenaStack arena_stack;
+    PKArena arena;
     PKAtomFree *free;
     PKPool *pool;
 };
@@ -285,11 +303,13 @@ pk_malloc(lisp_, sizeof(type_), (void **)(output_))
 pk_malloc(lisp_, sizeof(type_) * count_, output_)
 
 #define pk_trealloc(type_, lisp_, ptr_, old_count_, new_count_, output_) \
-pk_realloc(lisp_, ptr_, sizeof(type_) * old_count_, sizeof(type_) * new_count, output_)
+pk_realloc(lisp_, ptr_, sizeof(type_) * old_count_, sizeof(type_) * new_count_, output_)
 
 #define pk_error(lisp) pk_error_impl(lisp, __FILE__, __LINE__)
 
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);
+size_t pk_next_pow2(size_t value);
+
 PKRes pk_print(Pocket lisp, char *c, size_t length);
 PKRes pk_puts(Pocket lisp, char *c, size_t length);
 
@@ -426,5 +446,11 @@ PKFuncCall pk_get_callconv(Pocket lisp, PKAtom *atom, int arity);
 
 PKRes pk_slice_list(Pocket lisp, PKAtoms atoms, PKAtom **output);
 PKRes pk_slice_list_rev(Pocket lisp, PKAtoms atoms, PKAtom **output);
+
+void pk_arena_deinit(Pocket lisp, PKArena *arena);
+void pk_arena_deinit_all(Pocket lisp);
+PKRes pk_arena_alloc(Pocket lisp, size_t size, void **output);
+void *pk_arena_savepoint(Pocket lisp);
+void pk_arena_restore(Pocket lisp, void *ptr);
 
 #endif
