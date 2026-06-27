@@ -183,11 +183,17 @@ typedef struct PKStack_ {
 
 #define PK_FRAMES_INIT_CAPACITY (64)
 
+typedef enum PKEvalMode_ {
+    PKEvalMode_Eval = 0,
+    PKEvalMode_Apply,
+} PKEvalMode;
+
 typedef struct PKFrame_ {
     size_t stack_offset;
     size_t arity;
     size_t lets_offset;
-    PKFuncMode mode;
+    PKEvalMode mode;
+    PKAtom *atom;
 } PKFrame;
 
 typedef struct PKFrames_ {
@@ -411,7 +417,7 @@ bool pk_char_is_symbol(char c);
 PKRes pk_read_atom(PKReader *r, PKAtom **output);
 PKRes pk_read_from_string(Pocket lisp, PKString string, PKAtom **output);
 
-PKRes pk_frame_push(Pocket lisp, size_t arity, PKFuncMode mode);
+PKRes pk_frame_push(Pocket lisp, size_t arity, PKEvalMode mode, PKAtom *atom);
 PKRes pk_frame_pop(Pocket lisp);
 PKRes pk_frame_clear(Pocket lisp);
 size_t pk_frame_length(Pocket lisp);

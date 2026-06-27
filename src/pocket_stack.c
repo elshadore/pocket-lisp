@@ -170,7 +170,7 @@ size_t pk_stack_total(Pocket lisp) {
     return lisp->stack.count;
 }
 
-PKRes pk_frame_push(Pocket lisp, size_t arity, PKFuncMode mode) {
+PKRes pk_frame_push(Pocket lisp, size_t arity, PKEvalMode mode, PKAtom *atom) {
     size_t stack_offset = pk_stack_total(lisp) - arity;
     size_t lets_offset = lisp->lets.count;
 
@@ -189,6 +189,7 @@ PKRes pk_frame_push(Pocket lisp, size_t arity, PKFuncMode mode) {
         .arity = arity,
         .lets_offset = lets_offset,
         .mode = mode,
+        .atom = atom,
     };
     lisp->current_frame = frame;
     return PK_Ok;
