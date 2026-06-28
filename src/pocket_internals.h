@@ -190,17 +190,35 @@ typedef enum PKEvalMode_ {
     PKEvalMode_Evlist_2,
     PKEvalMode_Evargs,
     PKEvalMode_Apply,
+    PKEvalMode_Quote,
+    PKEvalMode_If,
 } PKEvalMode;
+
+typedef struct PKTuple_ {
+    PKAtom *a;
+    PKAtom *b;
+} PKTuple;
+
+typedef struct PKFastCall_ {
+    void *user_closure;
+    PKFn fn;
+} PKFastCall;
+
+typedef union PKFrameData_ {
+    PKAtom *atom;
+    PKAtomCons *cons;
+    PKTuple t;
+    PKFastCall fcall;
+} PKFrameData;
 
 typedef struct PKFrame_ {
     size_t stack_offset;
     size_t arity;
     size_t lets_offset;
     PKEvalMode mode;
-    union {
-        PKAtom *atom;
-        PKAtomCons *cons;
-    } as;
+    bool quasiquote;
+    bool macro;
+    PKFrameData as;
 } PKFrame;
 
 typedef struct PKFrames_ {
@@ -354,6 +372,7 @@ bool pk_atom_symbol_eq(Pocket lisp, PKAtomSymbol *lhs, PKAtomSymbol *rhs);
 bool pk_atom_string_eq(Pocket lisp, PKAtomString *lhs, PKAtomString *rhs);
 bool pk_atom_is_true(PKAtom *atom);
 bool pk_atom_is_nil(PKAtom *atom);
+bool pk_atom_is_symbol(PKAtom *atom);
 
 PKRes pk_string_dupe(Pocket lisp, PKString string, PKString *output);
 void pk_string_free(Pocket lisp, PKString string);
@@ -426,7 +445,7 @@ PKRes pk_read_from_string(Pocket lisp, PKString string, PKAtom **output);
 
 // Push a frame to the stack, the *arity* param refers to the number of variables to take
 // from the previous frame.
-PKRes pk_frame_push(Pocket lisp, size_t arity, PKEvalMode mode, PKAtom *atom);
+PKRes pk_frame_push(Pocket lisp, size_t arity, PKEvalMode mode, PKFrameData data);
 // Pop the current frame, clearing all stack allocated variables.
 PKRes pk_frame_pop_clear(Pocket lisp);
 // Pop the current frame, returning all the current stack allocated variables.
@@ -456,10 +475,6 @@ PKRes pk_env_unbind(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom **output)
 PKRes pk_gc_collect(Pocket lisp);
 PKRes pk_load_std(Pocket lisp);
 
-PKRes pk_atom_eval(Pocket lisp, PKAtom *atom);
-PKRes pk_atom_evlist(Pocket lisp, PKAtom *list);
-PKRes pk_atom_eval_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *body, PKAtom *expression, bool *output);
-
 PKRes pk_slurp(Pocket lisp, const char *file_path, PKString *output);
 
 PKRes pk_call(Pocket lisp, PKAtom *atom, size_t arity);
@@ -475,10 +490,20 @@ void *pk_arena_savepoint(Pocket lisp);
 void pk_arena_restore(Pocket lisp, void *ptr);
 
 PKRes pk_interp(Pocket lisp, size_t stop);
+PKRes pk_interp_eval(Pocket lisp);
+PKRes pk_interp_apply(Pocket lisp);
+PKRes pk_interp_evlist(Pocket lisp);
+PKRes pk_interp_evlist_2(Pocket lisp);
+PKRes pk_interp_evargs(Pocket lisp);
+PKRes pk_interp_quote(Pocket lisp);
+PKRes pk_interp_if(Pocket lisp);
+PKRes pk_interp_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *rest, PKAtom *expression, bool *is_special);
+
+PKRes pk_ret_top(Pocket lisp);
+PKRes pk_ret_this(Pocket lisp, PKAtom *atom);
+PKRes pk_ret_all(Pocket lisp);
+PKRes pk_ret_none(Pocket lisp);
 
 PKString pk_ident_evalmode(PKEvalMode mode);
-
-PKRes pk_ret(Pocket lisp);
-PKRes pk_ret_all(Pocket lisp);
 
 #endif

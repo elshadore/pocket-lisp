@@ -1,4 +1,4 @@
-// #include "pocket_internals.h"
+#include "pocket_internals.h"
 
 // PKRes pk_atom_eval_quasiquote(Pocket lisp, PKAtom *atom, bool *spliced) {
 //     switch (atom->tag.ty) {
@@ -198,3 +198,62 @@
 //     }
 //     return PK_Ok;
 // }
+
+PKRes pk_interp_quote(Pocket lisp) {
+    return pk_ret_this(lisp, lisp->current_frame.as.atom);
+}
+
+PKRes pk_interp_if(Pocket lisp) {
+    PKAtom *atom = NULL;
+    pk_try(pk_stack_head(lisp, &atom));
+    pk_try(pk_pop(lisp));
+    
+    PKTuple cond = lisp->current_frame.as.t;
+    lisp->current_frame.mode = PKEvalMode_Eval;
+    if (pk_atom_is_true(atom)) {
+        lisp->current_frame.as.atom = cond.a;
+    } else {
+        lisp->current_frame.as.atom = cond.b;
+    }
+    return PK_Ok;
+}
+
+PKRes pk_interp_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *rest, PKAtom *expression, bool *is_special) {
+    if (symbol == lisp->cache.lambda) {
+        *is_special = true;
+        // TODO: validate lambda structure in its creation.
+        pk_try(pk_frame_push(lisp, 0, PKEvalMode_Quote, (PKFrameData){.atom = expression}));
+    } else if (symbol == lisp->cache.quote) {
+        *is_special = true;
+        PKAtomCons *cons = NULL;
+        pk_try(pk_atom_cast_cons(lisp, rest, &cons));
+        if (!pk_atom_is_nil(cons->cdr)) {
+            pk_error(lisp);
+        }
+        pk_try(pk_frame_push(lisp, 0, PKEvalMode_Quote, (PKFrameData){.atom = cons->car}));
+    } else if (symbol == lisp->cache.if_sym) {
+        
+        PKAtomCons *a = NULL;
+        pk_try(pk_atom_cast_cons(lisp, rest, &a));
+        PKAtomCons *b = NULL;
+        pk_try(pk_atom_cast_cons(lisp, a->cdr, &b));
+        PKAtomCons *c = NULL;
+        pk_try(pk_atom_cast_cons(lisp, b->cdr, &c));
+        if (!pk_atom_is_nil(c->cdr)) {
+            pk_error(lisp);
+        }
+        
+        PKTuple cond = (PKTuple) {
+            .a = b->car,
+            .b = c->car,
+        };
+
+        pk_try(pk_frame_push(lisp, 0, PKEvalMode_If, (PKFrameData){.t = cond}));
+        pk_try(pk_frame_push(lisp, 0, PKEvalMode_Eval, (PKFrameData){.atom = a->car}));
+        
+        *is_special = true;
+    } else {
+        *is_special = false;
+    }
+    return PK_Ok;
+}

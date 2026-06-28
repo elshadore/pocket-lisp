@@ -98,3 +98,7 @@ bool pk_atom_symbol_eq(Pocket lisp, PKAtomSymbol *lhs, PKAtomSymbol *rhs) {
     if (lhs == rhs) return true;
     return pk_atom_string_eq(lisp, lhs->id, rhs->id);
 }
+
+bool pk_atom_is_symbol(PKAtom *atom) {
+    return atom->tag.ty == PKAtomTy_Symbol;
+}
