@@ -3,7 +3,6 @@
 
 #include "./src/pocket.h"
 #include "repl.h"
-#include "example.h"
 
 void *repl_alloc(void *user_env, void *ptr, size_t old_size, size_t new_size) {
     (void)user_env;
@@ -56,18 +55,12 @@ PKRes repl(Pocket lisp) {
     return PK_Ok;
 }
 
-PKRes testicle(Pocket lisp) {
-    pk_try(pk_read_string(lisp, pkstr(EXAMPLE_SRC)));
-    pk_try(pk_evlist(lisp, -1));
-    return PK_Ok;
-}
-
 int main(void) {
     Pocket lisp = pk_init(NULL, repl_alloc, repl_print);
     if (lisp == NULL) {
         return EXIT_FAILURE;
     }
-    if (testicle(lisp) == PK_Yield) {
+    if (repl(lisp) == PK_Yield) {
         fprintf(stderr, "REPL exited with error\n");
     }
     pk_deinit(lisp);

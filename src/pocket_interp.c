@@ -1,40 +1,5 @@
 #include "pocket_internals.h"
 
-PKRes pk_ret_top(Pocket lisp) {
-    PKAtom *atom = pk_atom_nil(lisp);
-    PKRes result = PK_Ok;
-    if (!pk_stack_head(lisp, &atom)) {
-        result = PK_Yield;
-    }
-    if (!pk_ret_this(lisp, atom)) {
-        result = PK_Yield;
-    }
-    return result;
-}
-
-PKRes pk_ret_nil(Pocket lisp) {
-    return pk_ret_this(lisp, pk_atom_nil(lisp));
-}
-
-PKRes pk_ret_this(Pocket lisp, PKAtom *atom) {
-    PKRes result = PK_Ok;
-    if (!pk_frame_pop_clear(lisp)) {
-        result = PK_Yield;
-    }
-    if (!pk_push(lisp, atom)) {
-        result = PK_Yield;
-    }
-    return result;
-}
-
-PKRes pk_ret_all(Pocket lisp) {
-    return pk_frame_pop_return(lisp);
-}
-
-PKRes pk_ret_none(Pocket lisp) {
-    return pk_frame_pop_clear(lisp);
-}
-
 PKRes pk_interp_eval(Pocket lisp) {
     PKAtom *atom = lisp->current_frame.as.atom;
     switch (atom->tag.ty) {
@@ -75,15 +40,31 @@ PKRes pk_interp_eval(Pocket lisp) {
 
 PKRes pk_interp_apply(Pocket lisp) {
     PKAtom *atom = lisp->current_frame.as.atom;
-    if (atom->tag.ty == PKAtomTy_Symbol) {
+    if (pk_atom_is_symbol(atom)) {
         PKAtomSymbol *sym = (PKAtomSymbol *)atom;
         pk_try(pk_env_get(lisp, PKEnvTy_Fun, sym, &atom));
     }
-    PKAtomCFunc *func = NULL;
-    pk_try(pk_atom_cast_cfunc(lisp, atom, &func));
-    pk_try((func->fn)(func->user_closure, lisp));
-    pk_try(pk_ret_top(lisp));
-    return PK_Ok;
+    
+    size_t length = pk_frame_length(lisp);
+    PKCallConv call = (PKCallConv){0};
+    pk_try(pk_callconv(lisp, atom, length, &call));
+    
+    switch (call.ty) {
+        case PKFuncTy_CFunc: {
+            pk_try((call.as.c.fn)(call.as.c.user_closure, lisp));
+            pk_try(pk_ret_top(lisp));
+            return PK_Ok;
+        }
+        case PKFuncTy_Lambda: {
+            PKAtom *args = call.as.lisp.args;
+            PKAtoms stack = pk_stack_slice(lisp);
+            pk_try(pk_bind_lambda_list(lisp, args, stack));
+            pk_frame_clear(lisp);
+            lisp->current_frame.mode = PKEvalMode_Ret;
+            pk_try(pk_frame_push(lisp, 0, PKEvalMode_Evlist, (PKFrameData){.atom = call.as.lisp.body}));
+            return PK_Ok;
+        }
+    }
 }
 
 PKRes pk_interp_evlist(Pocket lisp) {
@@ -109,15 +90,16 @@ PKRes pk_interp_evlist(Pocket lisp) {
 
 PKRes pk_interp_evlist_2(Pocket lisp) {
     PKAtomCons *cons = lisp->current_frame.as.cons;
+    pk_frame_clear(lisp);
     switch (cons->cdr->tag.ty) {
         case PKAtomTy_Cons: {
-            pk_try(pk_pop(lisp));
+            lisp->current_frame.as.cons = (PKAtomCons *)cons->cdr;
             pk_try(pk_frame_push(lisp, 0, PKEvalMode_Eval, (PKFrameData){.atom = cons->car}));
             return PK_Ok;
         }
         case PKAtomTy_Nil: {
-            pk_try(pk_ret_none(lisp));
-            pk_try(pk_frame_push(lisp, 0, PKEvalMode_Eval, (PKFrameData){.atom = cons->car}));
+            lisp->current_frame.mode = PKEvalMode_Eval;
+            lisp->current_frame.as.atom = cons->car;
             return PK_Ok;
         }
         default: {
@@ -147,10 +129,14 @@ PKRes pk_interp_evargs(Pocket lisp) {
 
 PKRes pk_interp(Pocket lisp, size_t stop) {
     while (lisp->frames.count > stop) {
-        (void)pk_trace_dump(lisp, "interp");
+        // (void)pk_trace_dump(lisp, "interp");
         switch (lisp->current_frame.mode) {
             case PKEvalMode_Root: {
                 return pk_error(lisp);
+            }
+            case PKEvalMode_Ret: {
+                pk_try(pk_ret_top(lisp));
+                break;
             }
             case PKEvalMode_Eval: {
                 pk_try(pk_interp_eval(lisp));
@@ -190,6 +176,6 @@ PKRes pk_interp(Pocket lisp, size_t stop) {
             }
         }
     }
-    (void)pk_trace_dump(lisp, "result");
+    // (void)pk_trace_dump(lisp, "result");
     return PK_Ok;
 }

@@ -119,29 +119,30 @@ typedef enum PKFuncMode_ {
 typedef enum PKFuncTy_ {
     PKFuncTy_CFunc = 0,
     PKFuncTy_Lambda,
-    PKFuncTy_Expression,
-    PKFuncTy_Evlist,
 } PKFuncTy;
 
-typedef struct PKFuncCall_ {
-    PKFuncTy ty;
+typedef struct PKCCall_ {
+    void *user_closure;
+    PKFn fn;
+} PKCCall;
+
+typedef struct PKLCall_ {
+    PKAtom *args;
+    PKAtom *body;
+} PKLCall;
+
+typedef struct PKCallConv_ {
     union {
-        struct {
-            void *user_closure;
-            PKFn fn;
-        } c;
-        struct {
-            PKAtom *args;
-            PKAtom *body;
-        } lisp;
-        PKAtom *value;
+        PKCCall c;
+        PKLCall lisp;
     } as;
+    PKFuncTy ty;
     PKFuncMode mode;
     size_t final_arity;
     size_t extra_nils;
     bool insert_result;
     PKAtom *expression;
-} PKFuncCall;
+} PKCallConv;
 
 typedef struct PKWriter_ {
     Pocket lisp;
@@ -185,6 +186,7 @@ typedef struct PKStack_ {
 
 typedef enum PKEvalMode_ {
     PKEvalMode_Root = 0,
+    PKEvalMode_Ret,
     PKEvalMode_Eval,
     PKEvalMode_Evlist,
     PKEvalMode_Evlist_2,
@@ -197,7 +199,8 @@ typedef enum PKEvalMode_ {
 } PKEvalMode;
 
 typedef enum PKEvalFrameTy_ {
-    PKEvalFrameTy_Atom = 0,
+    PKEvalFrameTy_None = 0,
+    PKEvalFrameTy_Atom,
     PKEvalFrameTy_Tuple,
     PKEvalFrameTy_CFn,
 } PKEvalFrameTy;
@@ -207,16 +210,11 @@ typedef struct PKTuple_ {
     PKAtom *b;
 } PKTuple;
 
-typedef struct PKFastCall_ {
-    void *user_closure;
-    PKFn fn;
-} PKFastCall;
-
 typedef union PKFrameData_ {
     PKAtom *atom;
     PKAtomCons *cons;
     PKTuple t;
-    PKFastCall fcall;
+    PKCCall fcall;
 } PKFrameData;
 
 typedef struct PKFrame_ {
@@ -486,7 +484,8 @@ PKRes pk_load_std(Pocket lisp);
 PKRes pk_slurp(Pocket lisp, const char *file_path, PKString *output);
 
 PKRes pk_call(Pocket lisp, PKAtom *atom, size_t arity);
-// PKFuncCall pk_get_callconv(Pocket lisp, PKAtom *atom, int arity);
+PKRes pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PKCallConv *output);
+PKRes pk_bind_lambda_list(Pocket lisp, PKAtom *symbols, PKAtoms values);
 
 PKRes pk_slice_list(Pocket lisp, PKAtoms atoms, PKAtom **output);
 PKRes pk_slice_list_rev(Pocket lisp, PKAtoms atoms, PKAtom **output);

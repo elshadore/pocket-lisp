@@ -232,7 +232,7 @@ PKRes pk_interp_while_2(Pocket lisp) {
     
     if (pk_atom_is_true(atom)) {
         lisp->current_frame.mode = PKEvalMode_While;
-        pk_try(pk_frame_push(lisp, 0, PKEvalMode_Eval, (PKFrameData){.atom = lisp->current_frame.as.t.b}));
+        pk_try(pk_frame_push(lisp, 0, PKEvalMode_Evlist, (PKFrameData){.atom = lisp->current_frame.as.t.b}));
     } else {
         pk_try(pk_ret_nil(lisp));
     }
