@@ -186,6 +186,7 @@ typedef struct PKStack_ {
 
 typedef enum PKEvalMode_ {
     PKEvalMode_Root = 0,
+    PKEvalMode_User,
     PKEvalMode_Ret,
     PKEvalMode_Eval,
     PKEvalMode_Evlist,

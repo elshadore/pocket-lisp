@@ -51,6 +51,7 @@ PKRes pk_interp_apply(Pocket lisp) {
     
     switch (call.ty) {
         case PKFuncTy_CFunc: {
+            lisp->current_frame.mode = PKEvalMode_User;
             pk_try((call.as.c.fn)(call.as.c.user_closure, lisp));
             pk_try(pk_ret_top(lisp));
             return PK_Ok;
@@ -132,6 +133,9 @@ PKRes pk_interp(Pocket lisp, size_t stop) {
         // (void)pk_trace_dump(lisp, "interp");
         switch (lisp->current_frame.mode) {
             case PKEvalMode_Root: {
+                return pk_error(lisp);
+            }
+            case PKEvalMode_User: {
                 return pk_error(lisp);
             }
             case PKEvalMode_Ret: {
