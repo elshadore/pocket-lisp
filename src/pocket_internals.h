@@ -184,7 +184,11 @@ typedef struct PKStack_ {
 #define PK_FRAMES_INIT_CAPACITY (64)
 
 typedef enum PKEvalMode_ {
-    PKEvalMode_Eval = 0,
+    PKEvalMode_Root = 0,
+    PKEvalMode_Eval,
+    PKEvalMode_Evlist,
+    PKEvalMode_Evlist_2,
+    PKEvalMode_Evargs,
     PKEvalMode_Apply,
 } PKEvalMode;
 
@@ -193,7 +197,10 @@ typedef struct PKFrame_ {
     size_t arity;
     size_t lets_offset;
     PKEvalMode mode;
-    PKAtom *atom;
+    union {
+        PKAtom *atom;
+        PKAtomCons *cons;
+    } as;
 } PKFrame;
 
 typedef struct PKFrames_ {
@@ -417,10 +424,18 @@ bool pk_char_is_symbol(char c);
 PKRes pk_read_atom(PKReader *r, PKAtom **output);
 PKRes pk_read_from_string(Pocket lisp, PKString string, PKAtom **output);
 
+// Push a frame to the stack, the *arity* param refers to the number of variables to take
+// from the previous frame.
 PKRes pk_frame_push(Pocket lisp, size_t arity, PKEvalMode mode, PKAtom *atom);
-PKRes pk_frame_pop(Pocket lisp);
+// Pop the current frame, clearing all stack allocated variables.
+PKRes pk_frame_pop_clear(Pocket lisp);
+// Pop the current frame, returning all the current stack allocated variables.
+PKRes pk_frame_pop_return(Pocket lisp);
+// Clear the current frame of all stack allocated variables.
 PKRes pk_frame_clear(Pocket lisp);
 size_t pk_frame_length(Pocket lisp);
+size_t pk_frame_savepoint(Pocket lisp);
+PKAtoms pk_frame_slice(Pocket lisp, PKFrame *frame, size_t length);
 PKRes pk_let_push(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value);
 PKRes pk_let_pop(Pocket lisp, size_t n);
 
@@ -447,8 +462,8 @@ PKRes pk_atom_eval_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *body,
 
 PKRes pk_slurp(Pocket lisp, const char *file_path, PKString *output);
 
-PKRes pk_call(Pocket lisp, PKFuncCall call);
-PKFuncCall pk_get_callconv(Pocket lisp, PKAtom *atom, int arity);
+PKRes pk_call(Pocket lisp, PKAtom *atom, size_t arity);
+// PKFuncCall pk_get_callconv(Pocket lisp, PKAtom *atom, int arity);
 
 PKRes pk_slice_list(Pocket lisp, PKAtoms atoms, PKAtom **output);
 PKRes pk_slice_list_rev(Pocket lisp, PKAtoms atoms, PKAtom **output);
@@ -458,5 +473,12 @@ void pk_arena_deinit_all(Pocket lisp);
 PKRes pk_arena_alloc(Pocket lisp, size_t size, void **output);
 void *pk_arena_savepoint(Pocket lisp);
 void pk_arena_restore(Pocket lisp, void *ptr);
+
+PKRes pk_interp(Pocket lisp, size_t stop);
+
+PKString pk_ident_evalmode(PKEvalMode mode);
+
+PKRes pk_ret(Pocket lisp);
+PKRes pk_ret_all(Pocket lisp);
 
 #endif

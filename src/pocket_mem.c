@@ -90,5 +90,6 @@ void pk_free(Pocket lisp, void *ptr, size_t size) {
 PKRes pk_error_impl(Pocket lisp, const char *file, int line) {
     (void)lisp;
     fprintf(stderr, "ERROR: %s:%d\n", file, line);
+    (void)pk_trace_dump(lisp, "error");
     return PK_Yield;
 }

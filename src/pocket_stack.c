@@ -189,13 +189,13 @@ PKRes pk_frame_push(Pocket lisp, size_t arity, PKEvalMode mode, PKAtom *atom) {
         .arity = arity,
         .lets_offset = lets_offset,
         .mode = mode,
-        .atom = atom,
+        .as.atom = atom,
     };
     lisp->current_frame = frame;
     return PK_Ok;
 }
 
-PKRes pk_frame_pop(Pocket lisp) {
+PKRes pk_frame_pop_clear(Pocket lisp) {
     PKFrames *frames = &lisp->frames;
     PKFrame popped = frames->e[frames->count - 1];
     size_t diff = lisp->current_frame.stack_offset - popped.stack_offset;
@@ -210,6 +210,18 @@ PKRes pk_frame_pop(Pocket lisp) {
     return PK_Ok;
 }
 
+PKRes pk_frame_pop_return(Pocket lisp) {
+    PKFrames *frames = &lisp->frames;
+    PKFrame popped = frames->e[frames->count - 1];
+
+    size_t lets_pop = lisp->lets.count - lisp->current_frame.lets_offset;
+    pk_try(pk_let_pop(lisp, lets_pop));
+
+    frames->count -= 1;
+    lisp->current_frame = popped;
+    return PK_Ok;
+}
+
 PKRes pk_frame_clear(Pocket lisp) {
     lisp->stack.count = lisp->current_frame.stack_offset;
     return PK_Ok;
@@ -217,6 +229,18 @@ PKRes pk_frame_clear(Pocket lisp) {
 
 size_t pk_frame_length(Pocket lisp) {
     return pk_stack_total(lisp) - lisp->current_frame.stack_offset;
+}
+
+size_t pk_frame_savepoint(Pocket lisp) {
+    return lisp->frames.count;
+}
+
+PKAtoms pk_frame_slice(Pocket lisp, PKFrame *frame, size_t length) {
+    size_t start = frame->stack_offset;
+    return (PKAtoms) {
+        .e = lisp->stack.e + start,
+        .length = length,
+    };
 }
 
 PKRes pk_let_push(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value) {

@@ -2,6 +2,10 @@
 
 PKRes pk_init2(Pocket lisp) {
     pk_try(pk_atom_nil_new(lisp, &lisp->cache.nil));
+    // TODO: this is pretty important if we fail to init before this line error could occur in the tracing.
+    // We could just add a null check in printing.
+    lisp->current_frame.as.atom = lisp->cache.nil;
+    
     pk_try(pk_atom_symbol_interned(lisp, pkstr("t"), &lisp->cache.t));
     pk_try(pk_atom_symbol_interned(lisp, pkstr("nil"), &lisp->cache.nil_sym));
     pk_try(pk_atom_symbol_interned(lisp, pkstr("lambda"), &lisp->cache.lambda));

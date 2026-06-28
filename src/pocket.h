@@ -143,6 +143,7 @@ Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print);
 void pk_deinit(Pocket lisp);
 
 PKRes pk_stack_dump(Pocket lisp, const char *tag);
+PKRes pk_trace_dump(Pocket lisp, const char *tag);
 PKRes pk_env_dump(Pocket lisp, const char *tag);
 
 #endif
