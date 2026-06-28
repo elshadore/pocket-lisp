@@ -12,6 +12,10 @@ PKRes pk_ret_top(Pocket lisp) {
     return result;
 }
 
+PKRes pk_ret_nil(Pocket lisp) {
+    return pk_ret_this(lisp, pk_atom_nil(lisp));
+}
+
 PKRes pk_ret_this(Pocket lisp, PKAtom *atom) {
     PKRes result = PK_Ok;
     if (!pk_frame_pop_clear(lisp)) {
@@ -174,6 +178,14 @@ PKRes pk_interp(Pocket lisp, size_t stop) {
             }
             case PKEvalMode_If: {
                 pk_try(pk_interp_if(lisp));
+                break;
+            }
+            case PKEvalMode_While: {
+                pk_try(pk_interp_while(lisp));
+                break;
+            }
+            case PKEvalMode_While_2: {
+                pk_try(pk_interp_while_2(lisp));
                 break;
             }
         }

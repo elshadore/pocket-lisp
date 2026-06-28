@@ -236,12 +236,29 @@ PKRes pk_stack_dump(Pocket lisp, const char *tag) {
 PKRes pk_frame_dump(Pocket lisp, PKWriter *w, PKFrame *frame, size_t length, size_t index) {
     PKString id = pk_ident_evalmode(frame->mode);
     pk_try(pk_writer_printf(w, "FRAME: [%zu] [%.*s] => ", index, (int)id.length, id.c));
-    pk_try(pk_writer_atom(w, frame->as.atom));
+    
+    switch (pk_evalmode_framety(frame->mode)) {
+        case PKEvalFrameTy_Atom: {
+            pk_try(pk_writer_atom(w, frame->as.atom));
+            break;
+        }
+        case PKEvalFrameTy_Tuple: {
+            pk_try(pk_writer_atom(w, frame->as.t.a));
+            pk_try(pk_writer_string(w, pkstr(" | ")));
+            pk_try(pk_writer_atom(w, frame->as.t.b));
+            break;
+        }
+        case PKEvalFrameTy_CFn: {
+            break;
+        }
+    }
     pk_try(pk_writer_newline(w));
+    
     PKAtoms atoms = pk_frame_slice(lisp, frame, length);
     for (size_t i = 0; i < atoms.length; ++i) {
         size_t index = pk_index_inv(i, atoms.length);
-        pk_try(pk_writer_printf(w, "    [%zu] => ", index));
+        size_t a = index + 1;
+        pk_try(pk_writer_printf(w, "    [%zu / %zu] => ", -a, a));
         pk_try(pk_writer_atom(w, atoms.e[index]));
         pk_try(pk_writer_newline(w));
     }

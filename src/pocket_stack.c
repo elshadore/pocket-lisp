@@ -222,9 +222,8 @@ PKRes pk_frame_pop_return(Pocket lisp) {
     return PK_Ok;
 }
 
-PKRes pk_frame_clear(Pocket lisp) {
+void pk_frame_clear(Pocket lisp) {
     lisp->stack.count = lisp->current_frame.stack_offset;
-    return PK_Ok;
 }
 
 size_t pk_frame_length(Pocket lisp) {

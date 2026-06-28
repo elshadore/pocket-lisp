@@ -192,7 +192,15 @@ typedef enum PKEvalMode_ {
     PKEvalMode_Apply,
     PKEvalMode_Quote,
     PKEvalMode_If,
+    PKEvalMode_While,
+    PKEvalMode_While_2,
 } PKEvalMode;
+
+typedef enum PKEvalFrameTy_ {
+    PKEvalFrameTy_Atom = 0,
+    PKEvalFrameTy_Tuple,
+    PKEvalFrameTy_CFn,
+} PKEvalFrameTy;
 
 typedef struct PKTuple_ {
     PKAtom *a;
@@ -451,7 +459,7 @@ PKRes pk_frame_pop_clear(Pocket lisp);
 // Pop the current frame, returning all the current stack allocated variables.
 PKRes pk_frame_pop_return(Pocket lisp);
 // Clear the current frame of all stack allocated variables.
-PKRes pk_frame_clear(Pocket lisp);
+void pk_frame_clear(Pocket lisp);
 size_t pk_frame_length(Pocket lisp);
 size_t pk_frame_savepoint(Pocket lisp);
 PKAtoms pk_frame_slice(Pocket lisp, PKFrame *frame, size_t length);
@@ -497,13 +505,17 @@ PKRes pk_interp_evlist_2(Pocket lisp);
 PKRes pk_interp_evargs(Pocket lisp);
 PKRes pk_interp_quote(Pocket lisp);
 PKRes pk_interp_if(Pocket lisp);
+PKRes pk_interp_while(Pocket lisp);
+PKRes pk_interp_while_2(Pocket lisp);
 PKRes pk_interp_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *rest, PKAtom *expression, bool *is_special);
 
 PKRes pk_ret_top(Pocket lisp);
+PKRes pk_ret_nil(Pocket lisp);
 PKRes pk_ret_this(Pocket lisp, PKAtom *atom);
 PKRes pk_ret_all(Pocket lisp);
 PKRes pk_ret_none(Pocket lisp);
 
 PKString pk_ident_evalmode(PKEvalMode mode);
+PKEvalFrameTy pk_evalmode_framety(PKEvalMode mode);
 
 #endif

@@ -218,6 +218,27 @@ PKRes pk_interp_if(Pocket lisp) {
     return PK_Ok;
 }
 
+PKRes pk_interp_while(Pocket lisp) {
+    lisp->current_frame.mode = PKEvalMode_While_2;
+    pk_frame_clear(lisp);
+    pk_try(pk_frame_push(lisp, 0, PKEvalMode_Eval, (PKFrameData){.atom = lisp->current_frame.as.t.a}));
+    return PK_Ok;
+}
+
+PKRes pk_interp_while_2(Pocket lisp) {
+    PKAtom *atom = NULL;
+    pk_try(pk_stack_head(lisp, &atom));
+    pk_try(pk_pop(lisp));
+    
+    if (pk_atom_is_true(atom)) {
+        lisp->current_frame.mode = PKEvalMode_While;
+        pk_try(pk_frame_push(lisp, 0, PKEvalMode_Eval, (PKFrameData){.atom = lisp->current_frame.as.t.b}));
+    } else {
+        pk_try(pk_ret_nil(lisp));
+    }
+    return PK_Ok;
+}
+
 PKRes pk_interp_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *rest, PKAtom *expression, bool *is_special) {
     if (symbol == lisp->cache.lambda) {
         *is_special = true;
@@ -232,6 +253,7 @@ PKRes pk_interp_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *rest, PK
         }
         pk_try(pk_frame_push(lisp, 0, PKEvalMode_Quote, (PKFrameData){.atom = cons->car}));
     } else if (symbol == lisp->cache.if_sym) {
+        *is_special = true;
         
         PKAtomCons *a = NULL;
         pk_try(pk_atom_cast_cons(lisp, rest, &a));
@@ -251,7 +273,23 @@ PKRes pk_interp_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *rest, PK
         pk_try(pk_frame_push(lisp, 0, PKEvalMode_If, (PKFrameData){.t = cond}));
         pk_try(pk_frame_push(lisp, 0, PKEvalMode_Eval, (PKFrameData){.atom = a->car}));
         
+    } else if (symbol == lisp->cache.progn) {
         *is_special = true;
+        pk_try(pk_frame_push(lisp, 0, PKEvalMode_Evlist, (PKFrameData){.atom = rest}));
+        
+    } else if (symbol == lisp->cache.while_sym) {
+        *is_special = true;
+        
+        PKAtomCons *cons = NULL;
+        pk_try(pk_atom_cast_cons(lisp, rest, &cons));
+        
+        PKTuple cond = (PKTuple) {
+            .a = cons->car,
+            .b = cons->cdr,
+        };
+        
+        pk_try(pk_frame_push(lisp, 0, PKEvalMode_While, (PKFrameData){.t = cond}));
+        
     } else {
         *is_special = false;
     }
