@@ -1,46 +1,68 @@
 #include "pocket_internals.h"
 
-bool pk_reader_is_finished(PKReader *r) {
-    return r->curr >= r->src.length;
+#define pk_reader_at(lisp_) (lisp_)->c
+
+bool pk_reader_is_finished(Pocket lisp) {
+    return lisp->read.curr >= lisp->read.src.length;
 }
 
-bool pk_reader_try_inc(PKReader *r) {
-    r->curr += 1;
-    if (pk_reader_is_finished(r)) {
-        r->curr = r->src.length;
-        r->c = '\0';
+void pk_reader_set(Pocket lisp, PKReader read) {
+    lisp->read = read;
+    if (pk_reader_is_finished(lisp)) {
+        lisp->c = '\0';
+    } else {
+        lisp->c = lisp->read.src.c[lisp->read.curr];
+    }
+}
+
+PKRes pk_reader_push(Pocket lisp, PKReader read) {
+    pk_try(pk_frame_push(lisp, 0, PKEvalMode_Read_Mode, (PKFrameData){.read = lisp->read}));
+    pk_reader_set(lisp, read);
+    return PK_Ok;
+}
+
+PKRes pk_reader_pop(Pocket lisp) {
+    pk_reader_set(lisp, lisp->current_frame.as.read);
+    pk_try(pk_ret_top(lisp));
+    return PK_Ok;
+}
+
+bool pk_reader_try_inc(Pocket lisp) {
+    lisp->read.curr += 1;
+    if (pk_reader_is_finished(lisp)) {
+        lisp->read.curr = lisp->read.src.length;
+        lisp->c = '\0';
         return false;
     } else {
-        r->c = r->src.c[r->curr];
+        lisp->c = lisp->read.src.c[lisp->read.curr];
         return true;
     }
 }
 
-PKRes pk_reader_inc(PKReader *r) {
-    if (!pk_reader_try_inc(r)) {
-        return pk_error(r->lisp);
+PKRes pk_reader_inc(Pocket lisp) {
+    if (!pk_reader_try_inc(lisp)) {
+        return pk_error(lisp);
+    } else {
+        return PK_Ok;
     }
-    return PK_Ok;
 }
 
-PKRes pk_reader_peek(PKReader *r, char *output) {
-    size_t peek = r->curr + 1;
-    if (peek >= r->src.length) {
-        return pk_error(r->lisp);
+bool pk_reader_peek(Pocket lisp, char *output) {
+    size_t peek = lisp->read.curr + 1;
+    if (peek >= lisp->read.src.length) {
+        return false;
     }
-    *output = r->src.c[peek];
-    return PK_Ok;
+    *output = lisp->read.src.c[peek];
+    return true;
 }
 
-#define PK_COMMENT_CHAR ';'
-
-bool pk_reader_trim_whitespace(PKReader *r) {
+bool pk_reader_trim_whitespace(Pocket lisp) {
     bool whitespace = false;
     for (;;) {
-        if (r->c == PK_COMMENT_CHAR) {
-            while (pk_reader_try_inc(r) && r->c != '\n');
-        } else if (!pk_reader_is_finished(r) && pk_char_is_whitespace(r->c)) {
-            while (pk_reader_try_inc(r) && pk_char_is_whitespace(r->c));
+        if (pk_reader_at(lisp) == PK_COMMENT_CHAR) {
+            while (pk_reader_try_inc(lisp) && pk_reader_at(lisp) != '\n');
+        } else if (!pk_reader_is_finished(lisp) && pk_char_is_whitespace(pk_reader_at(lisp))) {
+            while (pk_reader_try_inc(lisp) && pk_char_is_whitespace(pk_reader_at(lisp)));
             whitespace = true;
         } else {
             break;
@@ -49,280 +71,380 @@ bool pk_reader_trim_whitespace(PKReader *r) {
     return whitespace;
 }
 
-PKRes pk_read_atom_string(PKReader *r, PKAtomString **output) {
-    if (r->c != '\"') {
-        return pk_error(r->lisp);
+bool pk_reader_is_number_prefix(Pocket lisp) {
+    if (pk_char_is_digit(lisp->c)) return true;
+    if (lisp->c != '+' && lisp->c != '-') return false;
+    char c = '\0';
+    if (!pk_reader_peek(lisp, &c)) return false;
+    if (pk_char_is_digit(c)) return true;
+    return false;
+}
+
+PKRes pk_read_routine_string(Pocket lisp) {
+    if (pk_reader_at(lisp) != '\"') {
+        return pk_error(lisp);
     }
 
-    PKWriter w = pk_writer_init(r->lisp);
+    PKWriter w = pk_writer_init(lisp);
     PKRes result = PK_Yield;
     
-    while (pk_reader_try_inc(r)) {
-        if (r->c == '\"') {
+    while (pk_reader_try_inc(lisp)) {
+        if (pk_reader_at(lisp) == '\"') {
             PKString string = pk_string_new(w.c, w.count);
-            (void)pk_reader_try_inc(r);
+            (void)pk_reader_try_inc(lisp);
             PKAtomString *atom = NULL;
-            pk_defer(pk_atom_string(r->lisp, string, &atom));
-            *output = atom;
+            pk_defer(pk_atom_string(lisp, string, &atom));
+            pk_defer(pk_ret_this(lisp, (PKAtom *)atom));
             result = PK_Ok;
             goto DEFER;
-        } else if (r->c == '\\') {
-            pk_defer(pk_reader_inc(r));
-            switch (r->c) {
-                case 'a': { pk_defer(pk_writer_char(&w, '\a')); break; }
-                case 'b': { pk_defer(pk_writer_char(&w, '\b')); break; }
-                case 'e': { pk_defer(pk_writer_char(&w, '\e')); break; }
-                case 'f': { pk_defer(pk_writer_char(&w, '\f')); break; }
-                case 'n': { pk_defer(pk_writer_char(&w, '\n')); break; }
-                case 'r': { pk_defer(pk_writer_char(&w, '\r')); break; }
-                case 't': { pk_defer(pk_writer_char(&w, '\t')); break; }
-                case 'v': { pk_defer(pk_writer_char(&w, '\v')); break; }
+        } else if (pk_reader_at(lisp) == '\\') {
+            pk_defer(pk_reader_inc(lisp));
+            switch (pk_reader_at(lisp)) {
+                case 'a': {
+                    pk_defer(pk_writer_char(&w, '\a'));
+                    break;
+                }
+                case 'b': {
+                    pk_defer(pk_writer_char(&w, '\b'));
+                    break;
+                }
+                case 'e': {
+                    pk_defer(pk_writer_char(&w, '\e'));
+                    break;
+                }
+                case 'f': {
+                    pk_defer(pk_writer_char(&w, '\f'));
+                    break;
+                }
+                case 'n': {
+                    pk_defer(pk_writer_char(&w, '\n'));
+                    break;
+                }
+                case 'r': {
+                    pk_defer(pk_writer_char(&w, '\r'));
+                    break;
+                }
+                case 't': {
+                    pk_defer(pk_writer_char(&w, '\t'));
+                    break;
+                }
+                case 'v': {
+                    pk_defer(pk_writer_char(&w, '\v'));
+                    break;
+                }
                 case 'x': {
-                    pk_defer(pk_reader_inc(r));
-                    char a = r->c;
-                    pk_defer(pk_reader_inc(r));
-                    char b = r->c;
-                    if (!pk_char_is_hex(a)) return pk_error(r->lisp);
-                    if (!pk_char_is_hex(b)) return pk_error(r->lisp);
+                    pk_defer(pk_reader_inc(lisp));
+                    char a = pk_reader_at(lisp);
+                    pk_defer(pk_reader_inc(lisp));
+                    char b = pk_reader_at(lisp);
+                    if (!pk_char_is_hex(a)) {
+                        pk_defer(pk_error(lisp));
+                    }
+                    if (!pk_char_is_hex(b)) {
+                        pk_defer(pk_error(lisp));
+                    }
                     uint8_t byte = (uint8_t)((pk_char_to_hex(a) << 4) | pk_char_to_hex(b));
                     pk_defer(pk_writer_char(&w, (char)byte));
                     break;
                 }
-                case '\\': { pk_defer(pk_writer_char(&w, '\\')); break; }
-                case '\'': { pk_defer(pk_writer_char(&w, '\'')); break; }
-                case '\"': { pk_defer(pk_writer_char(&w, '\"')); break; }
+                case '\\': {
+                    pk_defer(pk_writer_char(&w, '\\'));
+                    break;
+                }
+                case '\'': {
+                    pk_defer(pk_writer_char(&w, '\''));
+                    break;
+                }
+                case '\"': {
+                    pk_defer(pk_writer_char(&w, '\"'));
+                    break;
+                }
                 default: {
-                    pk_error(r->lisp);
-                    goto DEFER;
+                    pk_defer(pk_error(lisp));
                     break;
                 }
             }
         } else {
-            pk_try(pk_writer_char(&w, r->c));
+            pk_defer(pk_writer_char(&w, pk_reader_at(lisp)));
         }
     }
-    pk_error(r->lisp);
+    
+    pk_defer(pk_error(lisp));
+    
     DEFER:
     pk_writer_deinit(&w);
     return result;
 }
 
-PKRes pk_read_atom_number(PKReader *r, PKAtomNumber **output) {
+PKRes pk_read_routine_number(Pocket lisp) {
     bool negetive = false;
-    if (r->c == '+' || r->c == '-') {
-        if (r->c == '-') {
+    if (pk_reader_at(lisp) == '+' || pk_reader_at(lisp) == '-') {
+        if (pk_reader_at(lisp) == '-') {
             negetive = true;
         }
-        pk_try(pk_reader_inc(r));
+        pk_try(pk_reader_inc(lisp));
     }
-    int acc = pk_char_to_digit(r->c);
-    while (pk_reader_try_inc(r) && pk_char_is_digit(r->c)) {
-        int a = pk_char_to_digit(r->c);
+    
+    int acc = pk_char_to_digit(pk_reader_at(lisp));
+    while (pk_reader_try_inc(lisp) && pk_char_is_digit(pk_reader_at(lisp))) {
+        int a = pk_char_to_digit(pk_reader_at(lisp));
         acc *= 10;
         acc += a;
     }
     if (negetive) {
         acc = -acc;
     }
-    pk_try(pk_atom_int(r->lisp, acc, output));
+    
+    PKAtomNumber *atom = NULL;
+    pk_try(pk_atom_int(lisp, acc, &atom));
+    pk_try(pk_ret_this(lisp, (PKAtom *)atom));
+    
     return PK_Ok;
 }
 
-PKRes pk_read_atom_symbol(PKReader *r, PKAtomSymbol **output) {
-    size_t curr = r->curr;
-    if (!pk_char_is_symbol(r->c)) {
-        return pk_error(r->lisp);
+PKRes pk_read_routine_symbol(Pocket lisp) {
+    size_t curr = lisp->read.curr;
+    if (!pk_char_is_symbol(pk_reader_at(lisp))) {
+        return pk_error(lisp);
     }
 
     do {
-        if (!pk_reader_try_inc(r)) break;
-    } while(pk_char_is_symbol(r->c));
+        if (!pk_reader_try_inc(lisp)) break;
+    } while(pk_char_is_symbol(pk_reader_at(lisp)));
 
-    pk_try(pk_atom_symbol_interned(r->lisp, pk_string_new(r->src.c + curr, r->curr - curr), output));
+    PKString string = pk_string_new(lisp->read.src.c + curr, lisp->read.curr - curr);
+    PKAtomSymbol *atom = NULL;
+    pk_try(pk_atom_symbol_interned(lisp, string, &atom));
+    pk_try(pk_ret_this(lisp, (PKAtom *)atom));
+    
     return PK_Ok;
 }
 
-PKRes pk_read_atom_cons(PKReader *r, PKAtom **output) {
-    if (r->c != '(') {
-        return pk_error(r->lisp);
+PKRes pk_read_routine_cons(Pocket lisp) {
+    if (pk_reader_at(lisp) != '(') {
+        return pk_error(lisp);
     }
 
-    pk_try(pk_reader_inc(r));
+    pk_try(pk_reader_inc(lisp));
 
-    PKAtomCons *head = NULL;
-    PKAtomCons *acc = head;
-
-    bool first = true;
-    bool whitespace = pk_reader_trim_whitespace(r);
-
-    while (!pk_reader_is_finished(r)) {
-        if (r->c == ')') {
-            (void)pk_reader_try_inc(r);
-            if (first) {
-                *output = pk_atom_nil(r->lisp);
-            } else {
-                *output = (PKAtom *)head;
-            }
-            return PK_Ok;
-        }
-        if (!first && !whitespace) {
-            return pk_error(r->lisp);
-        }
-        if (r->c == '.') {
-            if (first) {
-                return pk_error(r->lisp);
-            }
-            pk_try(pk_reader_inc(r));
-            (void)pk_reader_trim_whitespace(r);
-            PKAtom *cdr;
-            pk_try(pk_read_atom(r, &cdr));
-            (void)pk_reader_trim_whitespace(r);
-            pk_try(pk_reader_inc(r));
-            if (r->c != ')') {
-                return pk_error(r->lisp);
-            }
-            acc->cdr = cdr;
-            *output = (PKAtom *)head;
-            return PK_Ok;
-        }
-
-        PKAtom *car;
-        pk_try(pk_read_atom(r, &car));
-        PKAtomCons *cons;
-        pk_try(pk_atom_cons(r->lisp, car, pk_atom_nil(r->lisp), &cons));
-
-        if (first) {
-            head = cons;
-        } else {
-            acc->cdr = (PKAtom *)cons;
-        }
-        acc = cons;
-        first = false;
-        whitespace = pk_reader_trim_whitespace(r);
+    (void)pk_reader_trim_whitespace(lisp);
+    if (pk_reader_at(lisp) == ')') {
+        (void)pk_reader_try_inc(lisp);
+        pk_try(pk_ret_nil(lisp));
+        return PK_Ok;
+    } else if (pk_reader_at(lisp) == '.') {
+        return pk_error(lisp);
     }
-
-    return pk_error(r->lisp);
-}
-
-bool pk_reader_is_number_prefix(PKReader *r) {
-    PKReader p = *r;
-    if (pk_char_is_digit(p.c)) return true;
-    if (p.c != '+' && p.c != '-') return false;
-    if (!pk_reader_try_inc(&p)) return false;
-    if (pk_char_is_digit(p.c)) return true;
-    return false;
-}
-
-PKRes pk_read_simple_macro(PKReader *r, PKAtomSymbol *macro, PKAtom **output) {
-    pk_try(pk_reader_inc(r));
-    PKAtom *value;
-    pk_try(pk_read_atom(r, &value));
-    PKAtomCons *b;
-    pk_try(pk_atom_cons(r->lisp, value, pk_atom_nil(r->lisp), &b));
-    PKAtomCons *a;
-    pk_try(pk_atom_cons(r->lisp, (PKAtom *)macro, (PKAtom *)b, &a));
-    *output = (PKAtom *)a;
+    lisp->current_frame.mode = PKEvalMode_Read_Cons;
+            
+    pk_try(pk_frame_push(lisp, 0, PKEvalMode_Read_Atom, (PKFrameData){0}));
     return PK_Ok;
 }
 
-PKRes pk_read_unquote_macro(PKReader *r, PKAtom **output) {
-    pk_try(pk_reader_inc(r));
-    PKAtomSymbol *macro = NULL;
-    if (r->c == '@') {
-        macro = r->lisp->cache.unquote_splice;
-        pk_try(pk_reader_inc(r));
+PKRes pk_interp_cons(Pocket lisp) {
+    PKAtom *atom = NULL;
+    pk_try(pk_stack_head(lisp, &atom));
+    pk_frame_clear(lisp);
+    
+    PKAtomCons *cons = NULL;
+    pk_try(pk_atom_cons_car(lisp, atom, &cons));
+    (void)pk_reader_trim_whitespace(lisp);
+    if (pk_reader_at(lisp) == ')') {
+        pk_try(pk_ret_this(lisp, (PKAtom *)cons));
+        (void)pk_reader_try_inc(lisp);
+        return PK_Ok;
+    } else if (pk_reader_at(lisp) == '.') {
+        pk_try(pk_reader_inc(lisp));
+        (void)pk_reader_trim_whitespace(lisp);
+        lisp->current_frame.mode = PKEvalMode_Read_Cons_3;
     } else {
-        macro = r->lisp->cache.unquote;
+        lisp->current_frame.mode = PKEvalMode_Read_Cons_2;
     }
-    PKAtom *value;
-    pk_try(pk_read_atom(r, &value));
-    PKAtomCons *b;
-    pk_try(pk_atom_cons(r->lisp, value, pk_atom_nil(r->lisp), &b));
-    PKAtomCons *a;
-    pk_try(pk_atom_cons(r->lisp, (PKAtom *)macro, (PKAtom *)b, &a));
-    *output = (PKAtom *)a;
+    lisp->current_frame.as.tc = (PKTCons) {
+        .head = cons,
+        .tail = cons,
+    };
+    pk_try(pk_frame_push(lisp, 0, PKEvalMode_Read_Atom, (PKFrameData){0}));
     return PK_Ok;
 }
 
-PKRes pk_read_atom(PKReader *r, PKAtom **output) {
-    if (pk_reader_is_finished(r)) {
-        return pk_error(r->lisp);
+PKRes pk_interp_cons_2(Pocket lisp) {
+    PKAtom *atom = NULL;
+    pk_try(pk_stack_head(lisp, &atom));
+    pk_frame_clear(lisp);
+    
+    PKAtomCons *cons = NULL;
+    pk_try(pk_atom_cons_car(lisp, atom, &cons));
+    lisp->current_frame.as.tc.tail->cdr = (PKAtom *)cons;
+    lisp->current_frame.as.tc.tail = cons;
+    
+    (void)pk_reader_trim_whitespace(lisp);
+    if (pk_reader_at(lisp) == ')') {
+        (void)pk_reader_try_inc(lisp);
+        pk_try(pk_ret_this(lisp, (PKAtom *)lisp->current_frame.as.tc.head));
+        return PK_Ok;
+    } else if (pk_reader_at(lisp) == '.') {
+        pk_try(pk_reader_inc(lisp));
+        (void)pk_reader_trim_whitespace(lisp);
+        lisp->current_frame.mode = PKEvalMode_Read_Cons_3;
+    } else {
+        lisp->current_frame.mode = PKEvalMode_Read_Cons_2;
     }
-    switch (r->c) {
+    
+    pk_try(pk_frame_push(lisp, 0, PKEvalMode_Read_Atom, (PKFrameData){0}));
+    return PK_Ok;
+}
+
+PKRes pk_interp_cons_3(Pocket lisp) {
+    PKAtom *atom = NULL;
+    pk_try(pk_stack_head(lisp, &atom));
+    lisp->current_frame.as.tc.tail->cdr = atom;
+    (void)pk_reader_trim_whitespace(lisp);
+    if (pk_reader_at(lisp) != ')') {
+        return pk_error(lisp);
+    }
+    pk_try(pk_reader_inc(lisp));
+    return pk_ret_this(lisp, (PKAtom *)lisp->current_frame.as.tc.head);
+}
+
+PKRes pk_read_routine_simple_macro(Pocket lisp, PKAtomSymbol *macro) {
+    pk_try(pk_reader_inc(lisp));
+    lisp->current_frame.mode = PKEvalMode_Read_Append;
+    lisp->current_frame.as.atom = (PKAtom *)macro;
+    
+    pk_try(pk_frame_push(lisp, 0, PKEvalMode_Read_Atom, (PKFrameData){0}));
+    return PK_Ok;
+}
+
+PKRes pk_read_routine_unquote_macro(Pocket lisp) {
+    pk_try(pk_reader_inc(lisp));
+    PKAtomSymbol *macro = NULL;
+    if (pk_reader_at(lisp) == '@') {
+        macro = lisp->cache.unquote_splice;
+        pk_try(pk_reader_inc(lisp));
+    } else {
+        macro = lisp->cache.unquote;
+    }
+    lisp->current_frame.mode = PKEvalMode_Read_Append;
+    lisp->current_frame.as.atom = (PKAtom *)macro;
+    
+    pk_try(pk_frame_push(lisp, 0, PKEvalMode_Read_Atom, (PKFrameData){0}));
+    return PK_Ok;
+}
+
+PKRes pk_interp_read_append(Pocket lisp) {
+    PKAtom *atom = NULL;
+    pk_try(pk_stack_head(lisp, &atom));
+    PKAtomCons *list = NULL;
+    pk_try(pk_atom_list2(lisp, lisp->current_frame.as.atom, atom, &list));
+    pk_try(pk_ret_this(lisp, (PKAtom *)list));
+    return PK_Ok;
+}
+
+PKRes pk_interp_read_atom(Pocket lisp) {
+    if (pk_reader_is_finished(lisp)) {
+        return pk_error(lisp);
+    }
+    switch (pk_reader_at(lisp)) {
         case '(': {
-            pk_try(pk_read_atom_cons(r, output));
+            pk_try(pk_read_routine_cons(lisp));
             return PK_Ok;
         }
         case ')': {
-            return pk_error(r->lisp);
+            return pk_error(lisp);
         }
         case '\'': {
-            pk_try(pk_read_simple_macro(r, r->lisp->cache.quote, output));
+            pk_try(pk_read_routine_simple_macro(lisp, lisp->cache.quote));
             return PK_Ok;
         }
         case '`': {
-            pk_try(pk_read_simple_macro(r, r->lisp->cache.quasiquote, output));
+            pk_try(pk_read_routine_simple_macro(lisp, lisp->cache.quasiquote));
             return PK_Ok;
         }
         case '$': {
-            pk_try(pk_read_simple_macro(r, r->lisp->cache.string_substitute, output));
+            pk_try(pk_read_routine_simple_macro(lisp, lisp->cache.string_substitute));
             return PK_Ok;
         }
         case ',': {
-            pk_try(pk_read_unquote_macro(r, output));
+            pk_try(pk_read_routine_unquote_macro(lisp));
             return PK_Ok;
         }
         case '\"': {
-            PKAtomString *s;
-            pk_try(pk_read_atom_string(r, &s));
-            *output = (PKAtom *)s;
+            pk_try(pk_read_routine_string(lisp));
             return PK_Ok;
         }
         default: {
-            if (pk_reader_is_number_prefix(r)) {
-                PKAtomNumber *n;
-                pk_try(pk_read_atom_number(r, &n));
-                *output = (PKAtom *)n;
+            if (pk_reader_is_number_prefix(lisp)) {
+                pk_try(pk_read_routine_number(lisp));
             } else {
-                PKAtomSymbol *s;
-                pk_try(pk_read_atom_symbol(r, &s));
-                *output = (PKAtom *)s;
+                pk_try(pk_read_routine_symbol(lisp));
             }
             return PK_Ok;
         }
     }
 }
 
-PKRes pk_read_from_string(Pocket lisp, PKString string, PKAtom **output) {
-    if (string.length == 0) {
-        *output = pk_atom_nil(lisp);
+PKRes pk_interp_read_all(Pocket lisp) {
+    PKAtom *atom = NULL;
+    pk_try(pk_stack_head(lisp, &atom));
+    
+    PKAtomCons *cons = NULL;
+    pk_try(pk_atom_cons_car(lisp, atom, &cons));
+    (void)pk_reader_trim_whitespace(lisp);
+    
+    if (pk_reader_is_finished(lisp)) {
+        pk_try(pk_ret_this(lisp, (PKAtom *)cons));
+        return PK_Ok;
+    } else {
+        
+        lisp->current_frame.mode = PKEvalMode_Read_All_2;
+        lisp->current_frame.as.tc = (PKTCons) {
+            .head = cons,
+            .tail = cons
+        };
+        pk_try(pk_frame_push(lisp, 0, PKEvalMode_Read_Atom, (PKFrameData){0}));
         return PK_Ok;
     }
+}
 
-    PKReader r = (PKReader) {
-        .lisp = lisp,
-        .src = string,
-        .curr = 0,
-        .c = string.c[0],
-    };
-    (void)pk_reader_trim_whitespace(&r);
-
-    PKAtom *atom;
-    pk_try(pk_read_atom(&r, &atom));
-    PKAtomCons *head;
-    pk_try(pk_atom_cons_car(lisp, atom, &head));
-    PKAtomCons *acc = head;
-
-    while (!pk_reader_is_finished(&r)) {
-        (void)pk_reader_trim_whitespace(&r);
-        PKAtom *next_atom;
-        pk_try(pk_read_atom(&r, &next_atom));
-        PKAtomCons *cons;
-        pk_try(pk_atom_cons_car(lisp, next_atom, &cons));
-        acc->cdr = (PKAtom *)cons;
-        acc = cons;
+PKRes pk_interp_read_all_2(Pocket lisp) {
+    PKAtom *atom = NULL;
+    pk_try(pk_stack_head(lisp, &atom));
+    pk_frame_clear(lisp);
+    
+    PKAtomCons *cons = NULL;
+    pk_try(pk_atom_cons_car(lisp, atom, &cons));
+    lisp->current_frame.as.tc.tail->cdr = (PKAtom *)cons;
+    lisp->current_frame.as.tc.tail = cons;
+    
+    (void)pk_reader_trim_whitespace(lisp);
+    if (pk_reader_is_finished(lisp)) {
+        pk_try(pk_ret_this(lisp, (PKAtom *)lisp->current_frame.as.tc.head));
+        return PK_Ok;
+    } else {
+        pk_try(pk_frame_push(lisp, 0, PKEvalMode_Read_Atom, (PKFrameData){0}));
+        return PK_Ok;
     }
+}
 
-    *output = (PKAtom *)head;
+PKRes pk_interp_read_mode(Pocket lisp) {
+    return pk_reader_pop(lisp);
+}
+
+PKRes pk_trigger_read(Pocket lisp, PKString string) {
+    if (string.length == 0) {
+        return pk_push_nil(lisp);
+    }
+    pk_try(pk_reader_push(lisp, (PKReader){.src = string, .curr = 0}));
+    (void)pk_reader_trim_whitespace(lisp);
+    pk_try(pk_frame_push(lisp, 0, PKEvalMode_Read_All, (PKFrameData){0}));
+    pk_try(pk_frame_push(lisp, 0, PKEvalMode_Read_Atom, (PKFrameData){0}));
+    return PK_Ok;
+}
+
+PKRes pk_read_string(Pocket lisp, PKString string) {
+    size_t savepoint = pk_frame_savepoint(lisp);
+    pk_try(pk_trigger_read(lisp, string));
+    pk_try(pk_interp(lisp, savepoint));
     return PK_Ok;
 }

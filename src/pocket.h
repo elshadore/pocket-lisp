@@ -32,13 +32,11 @@ typedef struct PKString_ {
 #define pk_string_new(c_, length_) (PKString){.c = c_, .length = length_}
 #define pk_alen(array_) (sizeof(array_) / sizeof(*array_))
 
-#define pk_tryc(expr_, ret_) do { \
+#define pk_try(expr_) do { \
     if ((expr_) == PK_Yield) { \
-        return (ret_); \
+        return PK_Yield; \
     } \
 } while(0)
-
-#define pk_try(expr_) pk_tryc(expr_, PK_Yield)
 
 #define pk_deferc(expr_, jump_) do { \
     if ((expr_) == PK_Yield) { \
@@ -69,7 +67,6 @@ PKRes pk_popn(Pocket lisp, int n);
 PKRes pk_dupe(Pocket lisp, int stack_pointer);
 PKRes pk_swap(Pocket lisp, int a, int b);
 PKRes pk_insert(Pocket lisp, int from, int to);
-PKRes pk_list(Pocket lisp, int head, int tail);
 
 int pk_get_top(Pocket lisp);
 PKRes pk_set_top(Pocket lisp, int new_top);
@@ -105,6 +102,7 @@ PKRes pk_push_csym(Pocket lisp, char *cstr);
 PKRes pk_push_nsym(Pocket lisp, char *symbol, size_t length);
 PKRes pk_push_cons(Pocket lisp, int car, int cdr);
 PKRes pk_push_cfunc(Pocket lisp, void *user_closure, PKFn fn, int args, PKArity mode);
+PKRes pk_list(Pocket lisp, int head, int tail);
 
 PKRes pk_set_car(Pocket lisp, int cons, int new_car);
 PKRes pk_set_cdr(Pocket lisp, int cons, int new_cdr);

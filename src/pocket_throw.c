@@ -3,6 +3,7 @@
 PKRes pk_error_impl(Pocket lisp, const char *file, int line) {
     (void)lisp;
     fprintf(stderr, "ERROR: %s:%d\n", file, line);
+    // fprintf(stderr, "[READER] %zu => %c\n%.*s\n", lisp->read.curr, lisp->c, (int)lisp->read.src.length, lisp->read.src.c);
     (void)pk_trace_dump(lisp, "error");
     (void)pk_env_dump(lisp, "error");
     return PK_Yield;

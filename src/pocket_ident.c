@@ -14,11 +14,23 @@ PKString pk_ident_evalmode(PKEvalMode mode) {
         case PKEvalMode_If: return pkstr("If");
         case PKEvalMode_While: return pkstr("While");
         case PKEvalMode_While_2: return pkstr("While_2");
+        case PKEvalMode_Read_Mode: return pkstr("Read_Mode");
+        case PKEvalMode_Read_Atom: return pkstr("Read_Atom");
+        case PKEvalMode_Read_Append: return pkstr("Read_Append");
+        case PKEvalMode_Read_Cons: return pkstr("Read_Cons");
+        case PKEvalMode_Read_Cons_2: return pkstr("Read_Cons_2");
+        case PKEvalMode_Read_Cons_3: return pkstr("Read_Cons_3");
+        case PKEvalMode_Read_All: return pkstr("Read_All");
+        case PKEvalMode_Read_All_2: return pkstr("Read_All_2");
     }
 }
 
 PKEvalFrameTy pk_evalmode_framety(PKEvalMode mode) {
     switch (mode) {
+        case PKEvalMode_Read_Mode: return PKEvalFrameTy_None;
+        case PKEvalMode_Read_Cons: return PKEvalFrameTy_None;
+        case PKEvalMode_Read_All: return PKEvalFrameTy_None;
+        case PKEvalMode_Read_Atom: return PKEvalFrameTy_None;
         case PKEvalMode_Root: return PKEvalFrameTy_None;
         case PKEvalMode_User: return PKEvalFrameTy_None;
         case PKEvalMode_Ret: return PKEvalFrameTy_None;
@@ -26,5 +38,19 @@ PKEvalFrameTy pk_evalmode_framety(PKEvalMode mode) {
         case PKEvalMode_While: return PKEvalFrameTy_Tuple;
         case PKEvalMode_While_2: return PKEvalFrameTy_Tuple;
         default: return PKEvalFrameTy_Atom;
+    }
+}
+
+bool pk_evalmode_readty(PKEvalMode mode) {
+    switch (mode) {
+        case PKEvalMode_Read_Atom:
+        case PKEvalMode_Read_Mode:
+        case PKEvalMode_Read_Append:
+        case PKEvalMode_Read_Cons:
+        case PKEvalMode_Read_Cons_2:
+        case PKEvalMode_Read_Cons_3:
+        case PKEvalMode_Read_All:
+        case PKEvalMode_Read_All_2: return true;
+        default: return false;
     }
 }

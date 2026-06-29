@@ -178,6 +178,38 @@ PKRes pk_interp(Pocket lisp, size_t stop) {
                 pk_try(pk_interp_while_2(lisp));
                 break;
             }
+            case PKEvalMode_Read_Mode: {
+                pk_try(pk_interp_read_mode(lisp));
+                break;
+            }
+            case PKEvalMode_Read_Atom: {
+                pk_try(pk_interp_read_atom(lisp));
+                break;
+            }
+            case PKEvalMode_Read_All: {
+                pk_try(pk_interp_read_all(lisp));
+                break;
+            }
+            case PKEvalMode_Read_All_2: {
+                pk_try(pk_interp_read_all_2(lisp));
+                break;
+            }
+            case PKEvalMode_Read_Append: {
+                pk_try(pk_interp_read_append(lisp));
+                break;
+            }
+            case PKEvalMode_Read_Cons: {
+                pk_try(pk_interp_cons(lisp));
+                break;
+            }
+            case PKEvalMode_Read_Cons_2: {
+                pk_try(pk_interp_cons_2(lisp));
+                break;
+            }
+            case PKEvalMode_Read_Cons_3: {
+                pk_try(pk_interp_cons_3(lisp));
+                break;
+            }
         }
     }
     // (void)pk_trace_dump(lisp, "result");

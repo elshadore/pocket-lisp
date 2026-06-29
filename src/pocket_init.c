@@ -2,6 +2,7 @@
 
 PKRes pk_init2(Pocket lisp) {
     pk_try(pk_atom_nil_new(lisp, &lisp->cache.nil));
+    
     pk_try(pk_atom_symbol_interned(lisp, pkstr("t"), &lisp->cache.t));
     pk_try(pk_atom_symbol_interned(lisp, pkstr("nil"), &lisp->cache.nil_sym));
     pk_try(pk_atom_symbol_interned(lisp, pkstr("lambda"), &lisp->cache.lambda));
@@ -16,8 +17,8 @@ PKRes pk_init2(Pocket lisp) {
     pk_try(pk_atom_symbol_interned(lisp, pkstr("if"), &lisp->cache.if_sym));
     pk_try(pk_atom_symbol_interned(lisp, pkstr("let"), &lisp->cache.let_sym));
     pk_try(pk_atom_symbol_interned(lisp, pkstr("let*"), &lisp->cache.let_star));
-
-    pk_try(pk_atom_string_nomemcpy(lisp, pkstr(""), &lisp->cache.empty_string));
+    
+    pk_try(pk_atom_string_nomemcpy(lisp, PK_STRING_EMPTY, &lisp->cache.empty_string));
 
     PKAtom *_ignored;
     pk_try(pk_env_set(lisp, PKEnvTy_Var, lisp->cache.t, (PKAtom *)lisp->cache.t, &_ignored));

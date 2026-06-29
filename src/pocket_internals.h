@@ -153,10 +153,12 @@ typedef struct PKWriter_ {
 
 #define PK_WRITER_INIT_CAPACITY (256)
 
+#define PK_COMMENT_CHAR ';'
+
+#define PK_COMPTIME_CHAR '#'
+
 typedef struct PKReader_ {
-    Pocket lisp;
     PKString src;
-    char c;
     size_t curr;
 } PKReader;
 
@@ -187,6 +189,7 @@ typedef struct PKStack_ {
 typedef enum PKEvalMode_ {
     PKEvalMode_Root = 0,
     PKEvalMode_User,
+    
     PKEvalMode_Ret,
     PKEvalMode_Eval,
     PKEvalMode_Evlist,
@@ -197,6 +200,15 @@ typedef enum PKEvalMode_ {
     PKEvalMode_If,
     PKEvalMode_While,
     PKEvalMode_While_2,
+    
+    PKEvalMode_Read_Mode,
+    PKEvalMode_Read_Atom,
+    PKEvalMode_Read_Append,
+    PKEvalMode_Read_Cons,
+    PKEvalMode_Read_Cons_2,
+    PKEvalMode_Read_Cons_3,
+    PKEvalMode_Read_All,
+    PKEvalMode_Read_All_2,
 } PKEvalMode;
 
 typedef enum PKEvalFrameTy_ {
@@ -211,11 +223,19 @@ typedef struct PKTuple_ {
     PKAtom *b;
 } PKTuple;
 
+typedef struct PKTCons_ {
+    PKAtomCons *head;
+    PKAtomCons *tail;
+} PKTCons;
+
+#define PK_FRAME_DATA_EMPTY (PKFrameData){0}
 typedef union PKFrameData_ {
     PKAtom *atom;
     PKAtomCons *cons;
     PKTuple t;
+    PKTCons tc;
     PKCCall fcall;
+    PKReader read;
 } PKFrameData;
 
 typedef struct PKFrame_ {
@@ -330,6 +350,8 @@ struct PocketLispMachine_ {
     PKArena arena;
     PKAtomFree *free;
     PKPool *pool;
+    PKReader read;
+    char c;
 };
 
 #define pk_index_inv(i_, length_) ((length_) - (i_) - 1)
@@ -387,6 +409,7 @@ PKRes pk_string_from_cstr(char *cstr, PKString *output);
 bool pk_string_eq(PKString a, PKString b);
 
 PKRes pk_atom_cons_tail(Pocket lisp, PKAtomCons *cons, PKAtomCons **output);
+PKRes pk_atom_list2(Pocket lisp, PKAtom *first, PKAtom *second, PKAtomCons **output);
 
 PKRes pk_malloc(Pocket lisp, size_t size, void **output);
 PKRes pk_realloc(Pocket lisp, void *ptr, size_t old_size, size_t new_size, void **output);
@@ -447,9 +470,6 @@ bool pk_char_is_whitespace(char c);
 bool pk_char_is_alphabet(char c);
 bool pk_char_is_symbol(char c);
 
-PKRes pk_read_atom(PKReader *r, PKAtom **output);
-PKRes pk_read_from_string(Pocket lisp, PKString string, PKAtom **output);
-
 // Push a frame to the stack, the *arity* param refers to the number of variables to take
 // from the previous frame.
 PKRes pk_frame_push(Pocket lisp, size_t arity, PKEvalMode mode, PKFrameData data);
@@ -509,6 +529,15 @@ PKRes pk_interp_while(Pocket lisp);
 PKRes pk_interp_while_2(Pocket lisp);
 PKRes pk_interp_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *rest, PKAtom *expression, bool *is_special);
 
+PKRes pk_interp_read_mode(Pocket lisp);
+PKRes pk_interp_read_all(Pocket lisp);
+PKRes pk_interp_read_all_2(Pocket lisp);
+PKRes pk_interp_read_append(Pocket lisp);
+PKRes pk_interp_read_atom(Pocket lisp);
+PKRes pk_interp_cons(Pocket lisp);
+PKRes pk_interp_cons_2(Pocket lisp);
+PKRes pk_interp_cons_3(Pocket lisp);
+
 PKRes pk_ret_top(Pocket lisp);
 PKRes pk_ret_nil(Pocket lisp);
 PKRes pk_ret_this(Pocket lisp, PKAtom *atom);
@@ -517,5 +546,6 @@ PKRes pk_ret_none(Pocket lisp);
 
 PKString pk_ident_evalmode(PKEvalMode mode);
 PKEvalFrameTy pk_evalmode_framety(PKEvalMode mode);
+bool pk_evalmode_readty(PKEvalMode mode);
 
 #endif

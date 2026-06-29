@@ -257,6 +257,10 @@ PKRes pk_frame_dump(Pocket lisp, PKWriter *w, PKFrame *frame, size_t length, siz
             break;
         }
     }
+    // if (pk_evalmode_readty(frame->mode)) {
+    //     pk_try(pk_writer_string(w, pkstr(" => ")));
+    //     pk_try(pk_writer_char(w, lisp->c));
+    // }
     pk_try(pk_writer_newline(w));
     
     PKAtoms atoms = pk_frame_slice(lisp, frame, length);
@@ -274,6 +278,9 @@ PKRes pk_trace_dump(Pocket lisp, const char *tag) {
     PKWriter w = pk_writer_init(lisp);
     PKRes result = PK_Yield;
     pk_defer(pk_writer_printf(&w, "*~TRACE-DUMP~* (tag = %s)\n", tag));
+    if (lisp->c != '\0') {
+        pk_defer(pk_writer_printf(&w, "READER: %zu => %c\n", lisp->read.curr, lisp->c));
+    }
     size_t length = pk_frame_length(lisp);
     size_t dec = pk_stack_total(lisp) - length;
     pk_defer(pk_frame_dump(lisp, &w, &lisp->current_frame, length, lisp->frames.count));

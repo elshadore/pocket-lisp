@@ -39,6 +39,15 @@ PKRes pk_atom_cons_tail(Pocket lisp, PKAtomCons *cons, PKAtomCons **output) {
     return PK_Ok;
 }
 
+PKRes pk_atom_list2(Pocket lisp, PKAtom *first, PKAtom *second, PKAtomCons **output) {
+    PKAtomCons *a = NULL;
+    PKAtomCons *b = NULL;
+    pk_try(pk_atom_cons(lisp, second, pk_atom_nil(lisp), &b));
+    pk_try(pk_atom_cons(lisp, first, (PKAtom *)b, &a));
+    *output = a;
+    return PK_Ok;
+}
+
 PKRes pk_atom_cast_cons(Pocket lisp, PKAtom *atom, PKAtomCons **output) {
     if (atom->tag.ty != PKAtomTy_Cons) return pk_error(lisp);
     *output = (PKAtomCons *)atom;

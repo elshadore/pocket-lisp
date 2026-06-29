@@ -306,13 +306,6 @@ PKRes pk_read_nstr(Pocket lisp, char *string, size_t length) {
     return PK_Ok;
 }
 
-PKRes pk_read_string(Pocket lisp, PKString string) {
-    PKAtom *result;
-    pk_try(pk_read_from_string(lisp, string, &result));
-    pk_try(pk_push(lisp, result));
-    return PK_Ok;
-}
-
 PKRes pk_format(Pocket lisp, int stack_pointer) {
     PKAtom *atom;
     pk_try(pk_stack_get(lisp, stack_pointer, &atom));
