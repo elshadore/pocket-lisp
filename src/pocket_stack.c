@@ -195,6 +195,11 @@ PKRes pk_frame_push(Pocket lisp, size_t arity, PKEvalMode mode, PKFrameData data
     return PK_Ok;
 }
 
+void pk_frame_steal(Pocket lisp, PKEvalMode mode, PKFrameData data) {
+    lisp->current_frame.mode = mode;
+    lisp->current_frame.as = data;
+}
+
 PKRes pk_frame_pop_clear(Pocket lisp) {
     PKFrames *frames = &lisp->frames;
     PKFrame popped = frames->e[frames->count - 1];

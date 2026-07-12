@@ -10,7 +10,7 @@ CLOSED: [2026-06-23 Tue 14:07]
 Just the basics, maybe just addition.
 ** TODO Basic Test Suite
 
-* The Great TODO List [7/18]
+* The Great TODO List [8/19]
 ** DONE Reading
 CLOSED: [2026-06-14 Sun 19:43]
 ** DONE Symbol Interning
@@ -57,7 +57,8 @@ CLOSED: [2026-06-22 Mon 15:19]
 ** TODO Gensyms
 ** TODO Lexical Scoping
 Boxed Upvalues
-** TODO Memory Leak with String Parsing if Error with Writer
+** DONE Memory Leak with String Parsing if Error with Writer
+CLOSED: [2026-07-12 Sun 21:35]
 We need to implement the error system and unwind protect
 ** TODO Unreachable Instruction for C
 

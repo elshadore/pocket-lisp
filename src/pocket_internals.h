@@ -473,6 +473,8 @@ bool pk_char_is_symbol(char c);
 // Push a frame to the stack, the *arity* param refers to the number of variables to take
 // from the previous frame.
 PKRes pk_frame_push(Pocket lisp, size_t arity, PKEvalMode mode, PKFrameData data);
+// Steal the current frame and replace it's mode and data.
+void pk_frame_steal(Pocket lisp, PKEvalMode mode, PKFrameData data);
 // Pop the current frame, clearing all stack allocated variables.
 PKRes pk_frame_pop_clear(Pocket lisp);
 // Pop the current frame, returning all the current stack allocated variables.

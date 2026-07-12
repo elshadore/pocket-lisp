@@ -1,0 +1,141 @@
+#!/bin/pocket -e
+
+(defnamespace :my-namespace
+     (:use :pocket-lisp))
+
+(in-namespace :my-namespace)
+
+## A Comment
+
+#*
+    A Multi
+    Line
+    Comment
+
+    cool...
+*#
+
+(defparam *example* nil
+    :doc "A dynamically scoped parameter.")
+
+(defclass vec2 ()
+    :doc "A vector2 class."
+    (x 0 :x)
+    (y 0 :y))
+
+(defn vec2 (&optional x y)
+   :cons 'vec2
+   (new 'vec2 'x (or x 0) 'y (or y 0)))
+
+(let ((a (vec2 0 0)))
+    ;; Accessors
+    (getf a :x))
+
+(defmethod + ((self vec2) other)
+     (vec2
+        (+ (slot-value self 'x) (slot-value other 'x))
+        (+ (slot-value self 'y) (slot-value other 'y))))
+
+(let* ((a (vec2 10 10))
+       (b (vec2 -10 200))
+       (c (+ a b))))
+
+(defclass map (entity-system rect)
+     :doc ""
+     (data nil))
+     
+(defn map (&keys (width 8) (height 8) (x 0) (y 0) (fill nil))
+     :cons 'map
+     (let ((data (array :size (* width height) :fill fill)))
+          (new 'map :x x
+                    :y y
+                    :width width
+                    :height height
+                    'data data)))
+
+(map
+    :width 200
+    :height 200
+    :fill 'wall)
+
+(defmacro swap (lhs rhs)
+    :doc "A macro to swap two variables."
+    (with-gensyms (a b temp)
+        `(let* ((,a ,lhs)
+                (,b ,rhs)
+                (,temp ,a))
+             (setf ,a ,b)
+             (setf ,b ,temp))))
+
+(swap (car a) (cdr b))
+
+(defparam *current-map* (map
+          :width 200
+          :height 200
+          :fill 'wall))
+
+(defmacro with-current-map (map :rest body)
+     `(let ((*current-map* ,map))
+           ,@body))
+
+(map:with-current-map (map:generate)
+     (lib:do-something)
+     (actors:spawn 20 20 'foo))
+
+(map/with-current-map (map/generate)
+     (lib/do-something)
+     (actors/spawn 20 20 'foo))
+
+
+(defvar *scheme* (scheme:new))
+(scheme:run *scheme*
+    (define foo 69)
+    (define fib (lambda (n)
+          (if (<= n 0)
+              1
+              ()
+          )
+    ))
+)
+
+(defvar *forth* (forth:new))
+
+(forth:run *forth* 3 dup * print)
+
+
+(defclass example ()
+    (foo 69)
+    (bar 420))
+
+(defvar *example* nil)
+
+(defdynamic-method funny ((*example* example) new-foo new-bar)
+    (with-slots (foo bar) *example*
+          (setf foo new-foo
+                bar new-bar))
+
+(dynamic-object-scope
+    (let ((*example* (new 'example)))
+         (funny 69 420)))
+
+
+(+ (vec2 10 10) (vec2 20 20))
+
+
+(defmacro with-current-example (binding :rest body)
+     `(let ((*example* ,binding))
+           ,@body))
+
+(defmethod funny ((self example) new-foo new-bar)
+     (with-slots (foo bar) self
+          (setf foo new-foo
+                bar new-bar)))
+
+(let ((a (new 'example)))
+     (funny (a) 69 420) ;; prefer this one ...
+     (funny :msg a 69 420)
+     (funny 69 420 :msg a)
+     ((funny a) 69 420))
+
+(with-current-example (new 'example)
+    (funny 69 420))
