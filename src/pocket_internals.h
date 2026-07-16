@@ -275,6 +275,20 @@ typedef struct PKSymTable_ {
     size_t capacity;
 } PKSymTable;
 
+typedef struct PKSetSlot_ PKSetSlot;
+struct PKSetSlot_ {
+    PKAtom *key;
+    PKSetSlot *chain;
+};
+
+typedef struct PKSet_ {
+    PKSetSlot **e;
+    size_t count;
+    size_t capacity;
+} PKSet;
+
+#define PK_SET_INIT_CAPACITY (64)
+
 #define PK_POOL_MAX (1024)
 
 typedef struct PKPool_ PKPool;
@@ -380,6 +394,7 @@ PKRes pk_atom_int(Pocket lisp, int value, PKAtomNumber **output);
 PKRes pk_atom_float(Pocket lisp, float value, PKAtomNumber **output);
 PKRes pk_atom_string(Pocket lisp, PKString string, PKAtomString **output);
 PKRes pk_atom_string_nomemcpy(Pocket lisp, PKString string, PKAtomString **output);
+PKRes pk_atom_string_concat(Pocket lisp, PKAtoms strings, PKAtomString **output);
 PKRes pk_atom_symbol_uninterned(Pocket lisp, PKString id, PKAtomSymbol **output);
 PKRes pk_atom_symbol_interned(Pocket lisp, PKString id, PKAtomSymbol **output);
 PKRes pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr, PKAtomCons **output);
@@ -496,6 +511,10 @@ PKRes pk_symtable_get(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **o
 PKRes pk_symtable_rem(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **output);
 PKRes pk_symtable_alist(Pocket lisp, PKSymTable *st, PKAtom **output);
 void pk_symtable_deinit(Pocket lisp, PKSymTable *st);
+
+PKRes pk_set_grow(Pocket lisp, PKSet *s);
+PKRes pk_set_insert(Pocket lisp, PKSet *s, PKAtom *key, bool *already_present);
+void pk_set_deinit(Pocket lisp, PKSet *s);
 
 PKRes pk_env_set(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value, PKAtom **output);
 PKRes pk_env_get(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom **output);

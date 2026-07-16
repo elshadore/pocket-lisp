@@ -250,7 +250,7 @@ PKRes pk_fn_eq(void *user_closure, Pocket lisp) {
 PKRes pk_fn_list(void *user_closure, Pocket lisp) {
     (void)user_closure;
     PKAtoms slice = pk_stack_slice(lisp);
-    PKAtom *result;
+    PKAtom *result = NULL;
     pk_try(pk_slice_list(lisp, slice, &result));
     pk_try(pk_push(lisp, result));
     return PK_Ok;
@@ -259,7 +259,7 @@ PKRes pk_fn_list(void *user_closure, Pocket lisp) {
 PKRes pk_fn_list_reversed(void *user_closure, Pocket lisp) {
     (void)user_closure;
     PKAtoms slice = pk_stack_slice(lisp);
-    PKAtom *result;
+    PKAtom *result = NULL;
     pk_try(pk_slice_list_rev(lisp, slice, &result));
     pk_try(pk_push(lisp, result));
     return PK_Ok;
@@ -267,7 +267,7 @@ PKRes pk_fn_list_reversed(void *user_closure, Pocket lisp) {
 
 PKRes pk_fn_list_vars(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    PKAtom *result;
+    PKAtom *result = NULL;
     pk_try(pk_symtable_alist(lisp, &lisp->vars, &result));
     pk_try(pk_push(lisp, result));
     return PK_Ok;
@@ -275,9 +275,18 @@ PKRes pk_fn_list_vars(void *user_closure, Pocket lisp) {
 
 PKRes pk_fn_list_funs(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    PKAtom *result;
+    PKAtom *result = NULL;
     pk_try(pk_symtable_alist(lisp, &lisp->funs, &result));
     pk_try(pk_push(lisp, result));
+    return PK_Ok;
+}
+
+PKRes pk_fn_cat(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *result = NULL;
+    PKAtoms slice = pk_stack_slice(lisp);
+    pk_try(pk_atom_string_concat(lisp, slice, &result));
+    pk_try(pk_push(lisp, (PKAtom *)result));
     return PK_Ok;
 }
 
@@ -314,6 +323,7 @@ PKRes pk_load_std(Pocket lisp) {
         {.sym = pkstr("eq?"), .fn = pk_fn_eq, .args = 2, .mode = PKArity_Variadic},
         {.sym = pkstr("list"), .fn = pk_fn_list, .args = 0, .mode = PKArity_Variadic},
         {.sym = pkstr("list-rev"), .fn = pk_fn_list_reversed, .args = 0, .mode = PKArity_Variadic},
+        {.sym = pkstr("cat"), .fn = pk_fn_cat, .args = 0, .mode = PKArity_Variadic},
     };
 
     size_t count = pk_alen(lib);

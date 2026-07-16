@@ -1,15 +1,25 @@
-(fset 'square (lambda (x)
-      (* x x)))
+(fset 'square
+      (lambda (x)
+        (* x x)))
 
 (set 'repl/running t)
 
-(fset 'repl/quit (lambda ()
-    (set 'repl/running nil)))
+(fset 'repl/quit
+      (lambda ()
+        (set 'repl/running nil)))
 
-(fset 'repl (lambda ()
-  (while repl/running
-      (puts ">> ")
-      (print (format (evlist (read (read-user-input))))))))
+(fset 'repl
+      (lambda ()
+        (while repl/running
+          (puts ">> ")
+          (print (format (evlist (read (read-user-input))))))))
+
+(set 'foo 69)
+
+(fset 'example
+      (lambda ()
+        (let ((foo 420))
+          (print foo))))
 
 (repl)
 
