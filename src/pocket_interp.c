@@ -178,6 +178,14 @@ PKRes pk_interp(Pocket lisp, size_t stop) {
                 pk_try(pk_interp_while_2(lisp));
                 break;
             }
+            case PKEvalMode_Let_Eval: {
+                pk_try(pk_interp_let_eval(lisp));
+                break;
+            }
+            case PKEvalMode_Let_Bind: {
+                pk_try(pk_interp_let_bind(lisp));
+                break;
+            }
             case PKEvalMode_Read_Mode: {
                 pk_try(pk_interp_read_mode(lisp));
                 break;

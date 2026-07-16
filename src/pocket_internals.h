@@ -200,6 +200,8 @@ typedef enum PKEvalMode_ {
     PKEvalMode_If,
     PKEvalMode_While,
     PKEvalMode_While_2,
+    PKEvalMode_Let_Eval,
+    PKEvalMode_Let_Bind,
     
     PKEvalMode_Read_Mode,
     PKEvalMode_Read_Atom,
@@ -229,6 +231,7 @@ typedef struct PKTCons_ {
 } PKTCons;
 
 #define PK_FRAME_DATA_EMPTY (PKFrameData){0}
+
 typedef union PKFrameData_ {
     PKAtom *atom;
     PKAtomCons *cons;
@@ -544,6 +547,9 @@ PKRes pk_interp_apply(Pocket lisp);
 PKRes pk_interp_evlist(Pocket lisp);
 PKRes pk_interp_evlist_2(Pocket lisp);
 PKRes pk_interp_evargs(Pocket lisp);
+
+PKRes pk_interp_let_eval(Pocket lisp);
+PKRes pk_interp_let_bind(Pocket lisp);
 PKRes pk_interp_quote(Pocket lisp);
 PKRes pk_interp_if(Pocket lisp);
 PKRes pk_interp_while(Pocket lisp);

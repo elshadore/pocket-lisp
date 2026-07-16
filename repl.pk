@@ -18,8 +18,9 @@
 
 (fset 'example
       (lambda ()
-        (let ((foo 420))
-          (print foo))))
+        (let ((foo "gooby"))
+          (print foo)
+          foo)))
 
 (repl)
 
