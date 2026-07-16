@@ -35,6 +35,9 @@ void pk_gc_mark_symtable(PKSymTable *st) {
 }
 
 PKRes pk_gc_collect(Pocket lisp) {
+    // TODO: reimplement the GC.
+    return PK_Ok;
+    
     pk_gc_mark((PKAtom *)lisp->cache.nil);
     pk_gc_mark((PKAtom *)lisp->cache.nil_sym);
     pk_gc_mark((PKAtom *)lisp->cache.t);

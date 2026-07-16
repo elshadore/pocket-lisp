@@ -3,6 +3,22 @@
 
 #include "pocket.h"
 
+#define PK_WRITER_INIT_CAPACITY (256)
+#define PK_LET_INIT_CAPACITY (256)
+#define PK_INTERN_INIT_CAPACITY (64)
+#define PK_STACK_INIT_CAPACITY (128)
+#define PK_FRAMES_INIT_CAPACITY (64)
+#define PK_SYMTABLE_INIT_CAPACITY (64)
+#define PK_SET_INIT_CAPACITY (64)
+#define PK_POOL_MAX (1024)
+#define PK_ARENA_PAGE (1024 * 1024)
+#define PK_ARENA_STACK_INIT_CAPACITY (8)
+
+#define PK_COMMENT_CHAR ';'
+#define PK_COMPTIME_CHAR '#'
+
+#define PK_FRAME_DATA_EMPTY (PKFrameData){0}
+
 #define pk_cdolist(lisp_, cursor_, list_) \
     for (PKAtom *_pk_tail_ = (list_), *cursor_ = NULL; \
          _pk_tail_->tag.ty == PKAtomTy_Nil ? 0 : \
@@ -151,18 +167,11 @@ typedef struct PKWriter_ {
     size_t capacity;
 } PKWriter;
 
-#define PK_WRITER_INIT_CAPACITY (256)
-
-#define PK_COMMENT_CHAR ';'
-
-#define PK_COMPTIME_CHAR '#'
 
 typedef struct PKReader_ {
     PKString src;
     size_t curr;
 } PKReader;
-
-#define PK_LET_INIT_CAPACITY (256)
 
 typedef struct PKLet_ {
     PKEnvTy ty;
@@ -176,15 +185,12 @@ typedef struct PKLets_ {
     size_t capacity;
 } PKLets;
 
-#define PK_STACK_INIT_CAPACITY (128)
-
 typedef struct PKStack_ {
     PKAtom **e;
     size_t count;
     size_t capacity;
 } PKStack;
 
-#define PK_FRAMES_INIT_CAPACITY (64)
 
 typedef enum PKEvalMode_ {
     PKEvalMode_Root = 0,
@@ -230,8 +236,6 @@ typedef struct PKTCons_ {
     PKAtomCons *tail;
 } PKTCons;
 
-#define PK_FRAME_DATA_EMPTY (PKFrameData){0}
-
 typedef union PKFrameData_ {
     PKAtom *atom;
     PKAtomCons *cons;
@@ -263,7 +267,6 @@ typedef struct PKIntern_ {
     size_t capacity;
 } PKIntern;
 
-#define PK_SYMTABLE_INIT_CAPACITY (64)
 
 typedef struct PKSymTableSlot_ PKSymTableSlot;
 struct PKSymTableSlot_ {
@@ -290,9 +293,6 @@ typedef struct PKSet_ {
     size_t capacity;
 } PKSet;
 
-#define PK_SET_INIT_CAPACITY (64)
-
-#define PK_POOL_MAX (1024)
 
 typedef struct PKPool_ PKPool;
 struct PKPool_ {
@@ -315,15 +315,11 @@ typedef struct PKStackSlice_ {
     PKAtoms slice;
 } PKStackSlice;
 
-#define PK_ARENA_PAGE (1024 * 1024)
-
 typedef struct PKArena_ {
     void *e;
     size_t head;
     size_t size;
 } PKArena;
-
-#define PK_ARENA_STACK_INIT_CAPACITY (8)
 
 typedef struct PKArenaStack_ {
     PKArena *e;
@@ -405,6 +401,8 @@ PKRes pk_atom_cons_car(Pocket lisp, PKAtom *car, PKAtomCons **output);
 PKRes pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity, PKAtomCFunc **output);
 PKRes pk_atom_nil_new(Pocket lisp, PKAtom **output);
 
+PKType pk_atom_typeof(PKAtomTy ty);
+    
 PKAtom *pk_atom_nil(Pocket lisp);
 PKAtom *pk_atom_t(Pocket lisp);
 

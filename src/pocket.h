@@ -138,6 +138,8 @@ PKRes pk_to_int(Pocket lisp, int stack_pointer, int *output);
 PKRes pk_to_float(Pocket lisp, int stack_pointer, float *output);
 PKRes pk_to_string(Pocket lisp, int stack_pointer, PKString *output);
 
+PKRes pk_typeof(Pocket lisp, int stack_pointer, PKType *output);
+
 Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print);
 void pk_deinit(Pocket lisp);
 

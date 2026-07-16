@@ -59,9 +59,11 @@ PKRes pk_slice_list(Pocket lisp, PKAtoms atoms, PKAtom **output) {
         *output = pk_atom_nil(lisp);
         return PK_Ok;
     }
+    
     PKAtomCons *head = NULL;
     pk_try(pk_atom_cons(lisp, atoms.e[0], pk_atom_nil(lisp), &head));
     PKAtomCons *tail = head;
+    
     for (size_t i = 1; i < atoms.length; ++i) {
         PKAtomCons *next;
         pk_try(pk_atom_cons(lisp, atoms.e[i], pk_atom_nil(lisp), &next));
@@ -69,6 +71,7 @@ PKRes pk_slice_list(Pocket lisp, PKAtoms atoms, PKAtom **output) {
         tail = next;
     }
     *output = (PKAtom *)head;
+    
     return PK_Ok;
 }
 

@@ -135,7 +135,8 @@ PKAtoms pk_stack_slice(Pocket lisp) {
 }
 
 PKRes pk_stack_slice_by(Pocket lisp, int a, int b, PKStackSlice *output) {
-    size_t ia, ib;
+    size_t ia = 0;
+    size_t ib = 0;
     pk_try(pk_sp_index(lisp, a, &ia));
     pk_try(pk_sp_index(lisp, b, &ib));
     size_t offset = lisp->current_frame.stack_offset;
@@ -143,16 +144,16 @@ PKRes pk_stack_slice_by(Pocket lisp, int a, int b, PKStackSlice *output) {
         *output = (PKStackSlice) {
             .order = PKOrder_Normal,
             .slice = (PKAtoms) {
-                .e = lisp->stack.e + offset + a,
-                .length = b - a,
+                .e = lisp->stack.e + offset + ia,
+                .length = ib - ia + 1,
             },
         };
     } else {
         *output = (PKStackSlice) {
             .order = PKOrder_Reversed,
             .slice = (PKAtoms) {
-                .e = lisp->stack.e + offset + b,
-                .length = a - b,
+                .e = lisp->stack.e + offset + ib,
+                .length = ia - ib + 1,
             },
         };
     }

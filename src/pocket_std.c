@@ -295,6 +295,46 @@ PKRes pk_fn_clone(void *user_closure, Pocket lisp) {
     return pk_clone(lisp, 1);
 }
 
+PKRes pk_fn_nil_p(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKType type = PKType_Unknown;
+    pk_try(pk_typeof(lisp, 1, &type));
+    return pk_push_cond(lisp, type == PKType_Nil);
+}
+
+PKRes pk_fn_num_p(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKType type = PKType_Unknown;
+    pk_try(pk_typeof(lisp, 1, &type));
+    return pk_push_cond(lisp, type == PKType_Number);
+}
+
+PKRes pk_fn_symbol_p(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKType type = PKType_Unknown;
+    pk_try(pk_typeof(lisp, 1, &type));
+    return pk_push_cond(lisp, type == PKType_Symbol);
+}
+
+PKRes pk_fn_string_p(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKType type = PKType_Unknown;
+    pk_try(pk_typeof(lisp, 1, &type));
+    return pk_push_cond(lisp, type == PKType_String);
+}
+
+PKRes pk_fn_cons_p(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKType type = PKType_Unknown;
+    pk_try(pk_typeof(lisp, 1, &type));
+    return pk_push_cond(lisp, type == PKType_Cons);
+}
+
+PKRes pk_fn_error(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    return pk_error(lisp);
+}
+
 PKRes pk_load_std(Pocket lisp) {
     PKFuncRecord lib[] = {
         {.sym = pkstr("+"), .fn = pk_fn_add, .args = 2, .mode = PKArity_Variadic},
@@ -330,6 +370,14 @@ PKRes pk_load_std(Pocket lisp) {
         {.sym = pkstr("list-rev"), .fn = pk_fn_list_reversed, .args = 0, .mode = PKArity_Variadic},
         {.sym = pkstr("cat"), .fn = pk_fn_cat, .args = 0, .mode = PKArity_Variadic},
         {.sym = pkstr("clone"), .fn = pk_fn_clone, .args = 1, .mode = PKArity_Normal},
+        
+        {.sym = pkstr("nil?"), .fn = pk_fn_nil_p, .args = 1, .mode = PKArity_Normal},
+        {.sym = pkstr("number?"), .fn = pk_fn_num_p, .args = 1, .mode = PKArity_Normal},
+        {.sym = pkstr("string?"), .fn = pk_fn_string_p, .args = 1, .mode = PKArity_Normal},
+        {.sym = pkstr("symbol?"), .fn = pk_fn_symbol_p, .args = 1, .mode = PKArity_Normal},
+        {.sym = pkstr("cons?"), .fn = pk_fn_cons_p, .args = 1, .mode = PKArity_Normal},
+        
+        {.sym = pkstr("error"), .fn = pk_fn_error, .args = 0, .mode = PKArity_Normal},
     };
 
     size_t count = pk_alen(lib);

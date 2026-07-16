@@ -228,6 +228,7 @@ PKRes pk_stack_dump(Pocket lisp, const char *tag) {
         pk_defer(pk_writer_newline(&w));
     }
     pk_defer(pk_writer_print(&w));
+    result = PK_Ok;
     DEFER:
     pk_writer_deinit(&w);
     return result;

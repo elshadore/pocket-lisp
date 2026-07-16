@@ -6,8 +6,7 @@ PKRes pk_bind_lambda_list(Pocket lisp, PKAtom *symbols, PKAtoms values) {
         if (i >= values.length) {
             return pk_error(lisp);
         }
-        size_t index = pk_index_inv(i, values.length);
-        PKAtom *atom = values.e[index];
+        PKAtom *atom = values.e[i];
         PKAtomSymbol *sym = NULL;
         pk_try(pk_atom_cast_symbol(lisp, el, &sym));
         pk_try(pk_let_push(lisp, PKEnvTy_Var, sym, atom));

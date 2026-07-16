@@ -1,7 +1,5 @@
 #include "pocket_internals.h"
 
-#define PK_INTERN_INIT_CAPACITY 64
-
 PKRes pk_intern_grow(Pocket lisp) {
     size_t new_capacity = pk_grow_capacity(lisp->intern.capacity, PK_INTERN_INIT_CAPACITY);
     void *mem;

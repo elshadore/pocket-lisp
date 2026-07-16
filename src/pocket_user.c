@@ -323,7 +323,7 @@ PKRes pk_format(Pocket lisp, int stack_pointer) {
 }
 
 PKRes pk_list(Pocket lisp, int head, int tail) {
-    PKStackSlice slice;
+    PKStackSlice slice = (PKStackSlice){0};
     pk_try(pk_stack_slice_by(lisp, head, tail, &slice));
     PKAtom *result = NULL;
     switch (slice.order) {
@@ -342,4 +342,11 @@ PKRes pk_list(Pocket lisp, int head, int tail) {
 
 PKRes pk_clone(Pocket lisp, int stack_pointer) {
     return pk_quickcaller(lisp, stack_pointer, PKEvalMode_Clone);
+}
+
+PKRes pk_typeof(Pocket lisp, int stack_pointer, PKType *output) {
+    PKAtom *atom = NULL;
+    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
+    *output = pk_atom_typeof(atom->tag.ty);
+    return PK_Ok;
 }
