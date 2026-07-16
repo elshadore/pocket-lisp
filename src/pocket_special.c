@@ -271,7 +271,9 @@ PKRes pk_interp_let_eval(Pocket lisp) {
         return pk_error(lisp);
     }
 
-    pk_frame_steal(lisp, PKEvalMode_Evlist, (PKFrameData){.atom = expr->cdr});
+    pk_frame_clear(lisp);
+    pk_frame_steal(lisp, PKEvalMode_Ret, PK_FRAME_DATA_EMPTY);
+    pk_try(pk_frame_push(lisp, 0, PKEvalMode_Evlist, (PKFrameData){.atom = expr->cdr}));
     
     return PK_Ok;
 }

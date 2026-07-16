@@ -19,6 +19,7 @@ PKRes pk_interp_eval(Pocket lisp) {
             return PK_Ok;
         }
         case PKAtomTy_Cons: {
+            // NOTE: this is very problematic come back and see if this ret is necessary.
             pk_try(pk_ret_all(lisp));
             PKAtomCons *form = (PKAtomCons *)atom;
             if (pk_atom_is_symbol(form->car)) {
@@ -76,8 +77,7 @@ PKRes pk_interp_evlist(Pocket lisp) {
         }
         case PKAtomTy_Cons: {
             PKAtomCons *cons = (PKAtomCons *)atom;
-            lisp->current_frame.mode = PKEvalMode_Evlist_2;
-            lisp->current_frame.as.cons = cons;
+            pk_frame_steal(lisp, PKEvalMode_Evlist_2, (PKFrameData){.cons = cons});
             pk_try(pk_push_nil(lisp));
             return PK_Ok;
         }
@@ -97,8 +97,7 @@ PKRes pk_interp_evlist_2(Pocket lisp) {
             return PK_Ok;
         }
         case PKAtomTy_Nil: {
-            lisp->current_frame.mode = PKEvalMode_Eval;
-            lisp->current_frame.as.atom = cons->car;
+            pk_frame_steal(lisp, PKEvalMode_Eval, (PKFrameData){.atom = cons->car});
             return PK_Ok;
         }
         default: {
@@ -129,6 +128,7 @@ PKRes pk_interp_evargs(Pocket lisp) {
 PKRes pk_interp(Pocket lisp, size_t stop) {
     while (lisp->frames.count > stop) {
         // (void)pk_trace_dump(lisp, "interp");
+        // (void)pk_env_dump(lisp, "interp");
         switch (lisp->current_frame.mode) {
             case PKEvalMode_Root: {
                 return pk_error(lisp);
@@ -219,5 +219,6 @@ PKRes pk_interp(Pocket lisp, size_t stop) {
         }
     }
     // (void)pk_trace_dump(lisp, "result");
+    // (void)pk_env_dump(lisp, "result");
     return PK_Ok;
 }
