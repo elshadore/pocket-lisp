@@ -307,7 +307,7 @@ PKRes pk_read_nstr(Pocket lisp, char *string, size_t length) {
 }
 
 PKRes pk_format(Pocket lisp, int stack_pointer) {
-    PKAtom *atom;
+    PKAtom *atom = NULL;
     pk_try(pk_stack_get(lisp, stack_pointer, &atom));
     PKWriter w = pk_writer_init(lisp);
     PKRes res = pk_writer_atom(&w, atom);
@@ -341,7 +341,13 @@ PKRes pk_list(Pocket lisp, int head, int tail) {
 }
 
 PKRes pk_clone(Pocket lisp, int stack_pointer) {
-    return pk_quickcaller(lisp, stack_pointer, PKEvalMode_Clone);
+    PKAtom *atom = NULL;
+    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
+    size_t save = pk_frame_savepoint(lisp);
+    pk_try(pk_lex_set(lisp, (PKSet){0}));
+    pk_try(pk_frame_push(lisp, 0, PKEvalMode_Clone, (PKFrameData){.atom = (PKAtom *)atom}));
+    pk_try(pk_interp(lisp, save));
+    return PK_Ok;
 }
 
 PKRes pk_typeof(Pocket lisp, int stack_pointer, PKType *output) {

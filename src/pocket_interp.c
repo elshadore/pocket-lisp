@@ -216,6 +216,10 @@ PKRes pk_interp(Pocket lisp, size_t stop) {
                 pk_try(pk_interp_cons_3(lisp));
                 break;
             }
+            case PKEvalMode_Lex_Set: {
+                pk_try(pk_interp_lex_set(lisp));
+                break;
+            }
         }
     }
     // (void)pk_trace_dump(lisp, "result");

@@ -208,6 +208,8 @@ typedef enum PKEvalMode_ {
     PKEvalMode_Let_Eval,
     PKEvalMode_Let_Bind,
     PKEvalMode_Clone,
+
+    PKEvalMode_Lex_Set,
     
     PKEvalMode_Read_Mode,
     PKEvalMode_Read_Atom,
@@ -236,6 +238,18 @@ typedef struct PKTCons_ {
     PKAtomCons *tail;
 } PKTCons;
 
+typedef struct PKSetSlot_ PKSetSlot;
+struct PKSetSlot_ {
+    PKAtom *key;
+    PKSetSlot *chain;
+};
+
+typedef struct PKSet_ {
+    PKSetSlot **e;
+    size_t count;
+    size_t capacity;
+} PKSet;
+
 typedef union PKFrameData_ {
     PKAtom *atom;
     PKAtomCons *cons;
@@ -243,6 +257,7 @@ typedef union PKFrameData_ {
     PKTCons tc;
     PKCCall fcall;
     PKReader read;
+    PKSet set;
 } PKFrameData;
 
 typedef struct PKFrame_ {
@@ -267,7 +282,6 @@ typedef struct PKIntern_ {
     size_t capacity;
 } PKIntern;
 
-
 typedef struct PKSymTableSlot_ PKSymTableSlot;
 struct PKSymTableSlot_ {
     PKAtomSymbol *key;
@@ -280,19 +294,6 @@ typedef struct PKSymTable_ {
     size_t count;
     size_t capacity;
 } PKSymTable;
-
-typedef struct PKSetSlot_ PKSetSlot;
-struct PKSetSlot_ {
-    PKAtom *key;
-    PKSetSlot *chain;
-};
-
-typedef struct PKSet_ {
-    PKSetSlot **e;
-    size_t count;
-    size_t capacity;
-} PKSet;
-
 
 typedef struct PKPool_ PKPool;
 struct PKPool_ {
@@ -364,6 +365,7 @@ struct PocketLispMachine_ {
     PKAtomFree *free;
     PKPool *pool;
     PKReader read;
+    PKSet set;
     char c;
 };
 
@@ -575,5 +577,9 @@ PKRes pk_ret_none(Pocket lisp);
 PKString pk_ident_evalmode(PKEvalMode mode);
 PKEvalFrameTy pk_evalmode_framety(PKEvalMode mode);
 bool pk_evalmode_readty(PKEvalMode mode);
+
+PKRes pk_lex_set(Pocket lisp, PKSet set);
+
+PKRes pk_interp_lex_set(Pocket lisp);
 
 #endif
