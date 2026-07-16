@@ -115,6 +115,7 @@ PKRes pk_read_nstr(Pocket lisp, char *string, size_t length);
 PKRes pk_read_string(Pocket lisp, PKString string);
 
 PKRes pk_format(Pocket lisp, int stack_pointer);
+PKRes pk_clone(Pocket lisp, int stack_pointer);
 
 PKRes pk_eval(Pocket lisp, int stack_pointer);
 PKRes pk_evlist(Pocket lisp, int stack_pointer);

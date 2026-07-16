@@ -10,7 +10,7 @@ PKString pk_ident_evalmode(PKEvalMode mode) {
         case PKEvalMode_Evlist: return pkstr("Evlist");
         case PKEvalMode_Evlist_2: return pkstr("Evlist_2");
         case PKEvalMode_Evargs: return pkstr("Evargs");
-        case PKEvalMode_Quote: return pkstr("Quote");
+        case PKEvalMode_Clone: return pkstr("Clone");
         case PKEvalMode_If: return pkstr("If");
         case PKEvalMode_While: return pkstr("While");
         case PKEvalMode_While_2: return pkstr("While_2");

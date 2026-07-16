@@ -276,10 +276,6 @@ PKRes pk_interp_let_eval(Pocket lisp) {
     return PK_Ok;
 }
 
-PKRes pk_interp_quote(Pocket lisp) {
-    return pk_ret_this(lisp, lisp->current_frame.as.atom);
-}
-
 PKRes pk_interp_if(Pocket lisp) {
     PKAtom *atom = NULL;
     pk_try(pk_stack_head(lisp, &atom));
@@ -320,7 +316,7 @@ PKRes pk_interp_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *rest, PK
     if (symbol == lisp->cache.lambda) {
         *is_special = true;
         // TODO: validate lambda structure in its creation.
-        pk_try(pk_frame_push(lisp, 0, PKEvalMode_Quote, (PKFrameData){.atom = expression}));
+        pk_try(pk_frame_push(lisp, 0, PKEvalMode_Clone, (PKFrameData){.atom = expression}));
     } else if (symbol == lisp->cache.quote) {
         *is_special = true;
         PKAtomCons *cons = NULL;
@@ -328,7 +324,7 @@ PKRes pk_interp_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *rest, PK
         if (!pk_atom_is_nil(cons->cdr)) {
             pk_error(lisp);
         }
-        pk_try(pk_frame_push(lisp, 0, PKEvalMode_Quote, (PKFrameData){.atom = cons->car}));
+        pk_try(pk_frame_push(lisp, 0, PKEvalMode_Clone, (PKFrameData){.atom = cons->car}));
     } else if (symbol == lisp->cache.if_sym) {
         *is_special = true;
         

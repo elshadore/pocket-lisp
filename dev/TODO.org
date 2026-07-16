@@ -26,17 +26,16 @@ CLOSED: [2026-06-17 Wed 22:10]
 ** TODO Macros
 ** TODO Recursive Cloning
 ** TODO Throwing, Catching, Errors, and Unwind Protect
-** TODO Basic Special Forms [4/7]
-*** TODO let
+** TODO Basic Special Forms [3/7]
+*** DONE let
+CLOSED: [2026-07-16 Thu 17:35]
 *** TODO let*
 *** TODO flet
 *** TODO flet*
 *** DONE while
 CLOSED: [2026-06-22 Mon 14:59]
-*** DONE quasiquote
-CLOSED: [2026-06-22 Mon 20:19]
-*** DONE unquote
-CLOSED: [2026-06-22 Mon 20:19]
+*** quasiquote
+*** unquote
 *** DONE unquote-splice
 CLOSED: [2026-06-22 Mon 20:19]
 *** TODO string-substitute

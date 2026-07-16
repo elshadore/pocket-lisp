@@ -196,12 +196,12 @@ typedef enum PKEvalMode_ {
     PKEvalMode_Evlist_2,
     PKEvalMode_Evargs,
     PKEvalMode_Apply,
-    PKEvalMode_Quote,
     PKEvalMode_If,
     PKEvalMode_While,
     PKEvalMode_While_2,
     PKEvalMode_Let_Eval,
     PKEvalMode_Let_Bind,
+    PKEvalMode_Clone,
     
     PKEvalMode_Read_Mode,
     PKEvalMode_Read_Atom,
@@ -529,11 +529,13 @@ PKRes pk_load_std(Pocket lisp);
 PKRes pk_slurp(Pocket lisp, const char *file_path, PKString *output);
 
 PKRes pk_call(Pocket lisp, PKAtom *atom, size_t arity);
+PKRes pk_quickcaller(Pocket lisp, int stack_pointer, PKEvalMode mode);
 PKRes pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PKCallConv *output);
 PKRes pk_bind_lambda_list(Pocket lisp, PKAtom *symbols, PKAtoms values);
 
 PKRes pk_slice_list(Pocket lisp, PKAtoms atoms, PKAtom **output);
 PKRes pk_slice_list_rev(Pocket lisp, PKAtoms atoms, PKAtom **output);
+PKRes pk_slice_list_tailed(Pocket lisp, PKAtoms atoms, PKAtom **output);
 
 void pk_arena_deinit(Pocket lisp, PKArena *arena);
 void pk_arena_deinit_all(Pocket lisp);
@@ -548,9 +550,10 @@ PKRes pk_interp_evlist(Pocket lisp);
 PKRes pk_interp_evlist_2(Pocket lisp);
 PKRes pk_interp_evargs(Pocket lisp);
 
+PKRes pk_interp_clone(Pocket lisp);
+
 PKRes pk_interp_let_eval(Pocket lisp);
 PKRes pk_interp_let_bind(Pocket lisp);
-PKRes pk_interp_quote(Pocket lisp);
 PKRes pk_interp_if(Pocket lisp);
 PKRes pk_interp_while(Pocket lisp);
 PKRes pk_interp_while_2(Pocket lisp);

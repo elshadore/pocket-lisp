@@ -162,8 +162,8 @@ PKRes pk_interp(Pocket lisp, size_t stop) {
                 pk_try(pk_interp_apply(lisp));
                 break;
             }
-            case PKEvalMode_Quote: {
-                pk_try(pk_interp_quote(lisp));
+            case PKEvalMode_Clone: {
+                pk_try(pk_interp_clone(lisp));
                 break;
             }
             case PKEvalMode_If: {

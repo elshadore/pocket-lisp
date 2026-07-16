@@ -290,6 +290,11 @@ PKRes pk_fn_cat(void *user_closure, Pocket lisp) {
     return PK_Ok;
 }
 
+PKRes pk_fn_clone(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    return pk_clone(lisp, 1);
+}
+
 PKRes pk_load_std(Pocket lisp) {
     PKFuncRecord lib[] = {
         {.sym = pkstr("+"), .fn = pk_fn_add, .args = 2, .mode = PKArity_Variadic},
@@ -324,6 +329,7 @@ PKRes pk_load_std(Pocket lisp) {
         {.sym = pkstr("list"), .fn = pk_fn_list, .args = 0, .mode = PKArity_Variadic},
         {.sym = pkstr("list-rev"), .fn = pk_fn_list_reversed, .args = 0, .mode = PKArity_Variadic},
         {.sym = pkstr("cat"), .fn = pk_fn_cat, .args = 0, .mode = PKArity_Variadic},
+        {.sym = pkstr("clone"), .fn = pk_fn_clone, .args = 1, .mode = PKArity_Normal},
     };
 
     size_t count = pk_alen(lib);

@@ -90,6 +90,15 @@ PKRes pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PKCallConv *output) {
     }
 }
 
+PKRes pk_quickcaller(Pocket lisp, int stack_pointer, PKEvalMode mode) {
+    PKAtom *atom = NULL;
+    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
+    size_t save = pk_frame_savepoint(lisp);
+    pk_try(pk_frame_push(lisp, 0, mode, (PKFrameData){.atom = (PKAtom *)atom}));
+    pk_try(pk_interp(lisp, save));
+    return PK_Ok;
+}
+
 PKRes pk_call(Pocket lisp, PKAtom *atom, size_t arity) {
     size_t save = pk_frame_savepoint(lisp);
     pk_try(pk_frame_push(lisp, (size_t)arity, PKEvalMode_Apply, (PKFrameData){.atom = (PKAtom *)atom}));
@@ -98,21 +107,11 @@ PKRes pk_call(Pocket lisp, PKAtom *atom, size_t arity) {
 }
 
 PKRes pk_eval(Pocket lisp, int stack_pointer) {
-    PKAtom *atom = NULL;
-    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
-    size_t save = pk_frame_savepoint(lisp);
-    pk_try(pk_frame_push(lisp, 0, PKEvalMode_Eval, (PKFrameData){.atom = (PKAtom *)atom}));
-    pk_try(pk_interp(lisp, save));
-    return PK_Ok;
+    return pk_quickcaller(lisp, stack_pointer, PKEvalMode_Eval);
 }
 
 PKRes pk_evlist(Pocket lisp, int stack_pointer) {
-    PKAtom *atom = NULL;
-    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
-    size_t save = pk_frame_savepoint(lisp);
-    pk_try(pk_frame_push(lisp, 0, PKEvalMode_Evlist, (PKFrameData){.atom = (PKAtom *)atom}));
-    pk_try(pk_interp(lisp, save));
-    return PK_Ok;
+    return pk_quickcaller(lisp, stack_pointer, PKEvalMode_Evlist);
 }
 
 PKRes pk_fastcall(void *user_closure, Pocket lisp, PKFn fn, int arity) {

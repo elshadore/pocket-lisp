@@ -339,3 +339,7 @@ PKRes pk_list(Pocket lisp, int head, int tail) {
     pk_try(pk_push(lisp, result));
     return PK_Ok;
 }
+
+PKRes pk_clone(Pocket lisp, int stack_pointer) {
+    return pk_quickcaller(lisp, stack_pointer, PKEvalMode_Clone);
+}
