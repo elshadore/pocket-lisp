@@ -56,6 +56,10 @@ typedef enum PKType_ {
     PKType_Object = 6,
 } PKType;
 
+typedef enum PKVariant_ {
+    PKVariant_Unknown = 0,
+} PKVariant;
+
 typedef enum PKArity_ {
     PKArity_Normal = 0,
     PKArity_Optional = 1,
@@ -86,7 +90,7 @@ PKRes pk_let(Pocket lisp, int symbol, int value);
 PKRes pk_flet(Pocket lisp, int symbol, int value);
 
 // void pk_getf(Pocket lisp, int object, int accessor);
-// void pk_getf_setf(Pocket lisp, int object, int accessor, int value);
+// void pk_setf(Pocket lisp, int object, int accessor, int value);
 
 PKRes pk_push_t(Pocket lisp);
 PKRes pk_push_nil(Pocket lisp);
@@ -139,6 +143,12 @@ PKRes pk_to_float(Pocket lisp, int stack_pointer, float *output);
 PKRes pk_to_string(Pocket lisp, int stack_pointer, PKString *output);
 
 PKRes pk_typeof(Pocket lisp, int stack_pointer, PKType *output);
+
+PKRes pk_is_nil(Pocket lisp, int stack_pointer, bool *output);
+PKRes pk_is_number(Pocket lisp, int stack_pointer, bool *output);
+PKRes pk_is_symbol(Pocket lisp, int stack_pointer, bool *output);
+PKRes pk_is_string(Pocket lisp, int stack_pointer, bool *output);
+PKRes pk_is_cons(Pocket lisp, int stack_pointer, bool *output);
 
 Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print);
 void pk_deinit(Pocket lisp);

@@ -50,11 +50,11 @@ PKRes pk_fn_div(void *user_closure, Pocket lisp) {
 
 PKRes pk_fn_slurp(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    PKString path;
+    PKString path = PK_STRING_EMPTY;
     pk_try(pk_to_string(lisp, 1, &path));
-    PKString contents;
+    PKString contents = PK_STRING_EMPTY;
     pk_try(pk_slurp(lisp, path.c, &contents));
-    PKAtomString *string;
+    PKAtomString *string = NULL;
     pk_try(pk_atom_string_nomemcpy(lisp, contents, &string));
     pk_try(pk_push(lisp, (PKAtom *)string));
     return PK_Ok;

@@ -344,8 +344,7 @@ PKRes pk_clone(Pocket lisp, int stack_pointer) {
     PKAtom *atom = NULL;
     pk_try(pk_stack_get(lisp, stack_pointer, &atom));
     size_t save = pk_frame_savepoint(lisp);
-    pk_try(pk_lex_set(lisp, (PKSet){0}));
-    pk_try(pk_frame_push(lisp, 0, PKEvalMode_Clone, (PKFrameData){.atom = (PKAtom *)atom}));
+    pk_try(pk_process_quote(lisp, atom));
     pk_try(pk_interp(lisp, save));
     return PK_Ok;
 }
@@ -355,4 +354,34 @@ PKRes pk_typeof(Pocket lisp, int stack_pointer, PKType *output) {
     pk_try(pk_stack_get(lisp, stack_pointer, &atom));
     *output = pk_atom_typeof(atom->tag.ty);
     return PK_Ok;
+}
+
+#define PK_TYPEOF_TEMPLATE(ty_) \
+    PKAtom *atom = NULL; \
+    pk_try(pk_stack_get(lisp, stack_pointer, &atom)); \
+    if (atom->tag.ty == (ty_)) { \
+        *output = true; \
+    } else { \
+        *output = false; \
+    } \
+    return PK_Ok;
+
+PKRes pk_is_nil(Pocket lisp, int stack_pointer, bool *output) {
+    PK_TYPEOF_TEMPLATE(PKAtomTy_Nil)
+}
+
+PKRes pk_is_number(Pocket lisp, int stack_pointer, bool *output) {
+    PK_TYPEOF_TEMPLATE(PKAtomTy_Number)
+}
+
+PKRes pk_is_symbol(Pocket lisp, int stack_pointer, bool *output) {
+    PK_TYPEOF_TEMPLATE(PKAtomTy_Symbol)
+}
+
+PKRes pk_is_string(Pocket lisp, int stack_pointer, bool *output) {
+    PK_TYPEOF_TEMPLATE(PKAtomTy_String)
+}
+
+PKRes pk_is_cons(Pocket lisp, int stack_pointer, bool *output) {
+    PK_TYPEOF_TEMPLATE(PKAtomTy_Cons)
 }

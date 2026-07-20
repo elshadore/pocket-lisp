@@ -2,9 +2,10 @@
 
 PKRes pk_symtable_grow(Pocket lisp, PKSymTable *st) {
     size_t new_capacity = pk_grow_capacity(st->capacity, PK_SYMTABLE_INIT_CAPACITY);
-    void *mem;
-    pk_try(pk_malloc(lisp, new_capacity * sizeof(PKSymTableSlot *), &mem));
-    PKSymTableSlot **new_e = mem;
+    
+    PKSymTableSlot **new_e = NULL;
+    pk_try(pk_malloc(lisp, new_capacity * sizeof(PKSymTableSlot *), (void **)&new_e));
+    
     for (size_t i = 0; i < new_capacity; i++) {
         new_e[i] = NULL;
     }
@@ -20,16 +21,17 @@ PKRes pk_symtable_grow(Pocket lisp, PKSymTable *st) {
         }
     }
 
-    if (st->e) {
+    if (st->e != NULL) {
         pk_free(lisp, st->e, st->capacity * sizeof(PKSymTableSlot *));
     }
+    
     st->e = new_e;
     st->capacity = new_capacity;
     return PK_Ok;
 }
 
 PKRes pk_symtable_put(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom *value, PKAtom **output) {
-    if (st->capacity == 0) {
+    if (st-> count >= st->capacity) {
         pk_try(pk_symtable_grow(lisp, st));
     }
 
@@ -58,7 +60,7 @@ PKRes pk_symtable_put(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom *va
 
 PKRes pk_symtable_get(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **output) {
     (void)lisp;
-    if (st->capacity == 0) {
+    if (st->count == 0) {
         *output = NULL;
         return PK_Ok;
     }

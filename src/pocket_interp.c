@@ -24,7 +24,7 @@ PKRes pk_interp_eval(Pocket lisp) {
             PKAtomCons *form = (PKAtomCons *)atom;
             if (pk_atom_is_symbol(form->car)) {
                 bool is_special = false;
-                pk_try(pk_interp_special_form(lisp, (PKAtomSymbol *)form->car, form->cdr, (PKAtom *)form, &is_special));
+                pk_try(pk_process_special_form(lisp, (PKAtomSymbol *)form->car, form->cdr, (PKAtom *)form, &is_special));
                 if (is_special) {
                     return PK_Ok;
                 }
@@ -160,8 +160,12 @@ PKRes pk_interp(Pocket lisp, size_t stop) {
                 pk_try(pk_interp_apply(lisp));
                 break;
             }
-            case PKEvalMode_Clone: {
-                pk_try(pk_interp_clone(lisp));
+            case PKEvalMode_Quote: {
+                pk_try(pk_interp_quote(lisp));
+                break;
+            }
+            case PKEvalMode_Quote_End: {
+                pk_try(pk_interp_quote_end(lisp));
                 break;
             }
             case PKEvalMode_If: {
@@ -214,10 +218,6 @@ PKRes pk_interp(Pocket lisp, size_t stop) {
             }
             case PKEvalMode_Read_Cons_3: {
                 pk_try(pk_interp_cons_3(lisp));
-                break;
-            }
-            case PKEvalMode_Lex_Set: {
-                pk_try(pk_interp_lex_set(lisp));
                 break;
             }
         }

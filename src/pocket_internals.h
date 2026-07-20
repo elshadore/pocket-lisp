@@ -19,6 +19,12 @@
 
 #define PK_FRAME_DATA_EMPTY (PKFrameData){0}
 
+#define PK_HASHTABLE_EMPTY (PKHashTable) { \
+    .e = NULL, \
+    .count = 0, \
+    .capacity = 0, \
+}
+
 #define pk_cdolist(lisp_, cursor_, list_) \
     for (PKAtom *_pk_tail_ = (list_), *cursor_ = NULL; \
          _pk_tail_->tag.ty == PKAtomTy_Nil ? 0 : \
@@ -167,7 +173,6 @@ typedef struct PKWriter_ {
     size_t capacity;
 } PKWriter;
 
-
 typedef struct PKReader_ {
     PKString src;
     size_t curr;
@@ -191,7 +196,6 @@ typedef struct PKStack_ {
     size_t capacity;
 } PKStack;
 
-
 typedef enum PKEvalMode_ {
     PKEvalMode_Root = 0,
     PKEvalMode_User,
@@ -207,9 +211,9 @@ typedef enum PKEvalMode_ {
     PKEvalMode_While_2,
     PKEvalMode_Let_Eval,
     PKEvalMode_Let_Bind,
-    PKEvalMode_Clone,
 
-    PKEvalMode_Lex_Set,
+    PKEvalMode_Quote,
+    PKEvalMode_Quote_End,
     
     PKEvalMode_Read_Mode,
     PKEvalMode_Read_Atom,
@@ -238,17 +242,18 @@ typedef struct PKTCons_ {
     PKAtomCons *tail;
 } PKTCons;
 
-typedef struct PKSetSlot_ PKSetSlot;
-struct PKSetSlot_ {
+typedef struct PKHashTableSlot_ PKHashTableSlot;
+struct PKHashTableSlot_ {
     PKAtom *key;
-    PKSetSlot *chain;
+    PKAtom *value;
+    PKHashTableSlot *chain;
 };
 
-typedef struct PKSet_ {
-    PKSetSlot **e;
+typedef struct PKHashTable_ {
+    PKHashTableSlot **e;
     size_t count;
     size_t capacity;
-} PKSet;
+} PKHashTable;
 
 typedef union PKFrameData_ {
     PKAtom *atom;
@@ -257,7 +262,7 @@ typedef union PKFrameData_ {
     PKTCons tc;
     PKCCall fcall;
     PKReader read;
-    PKSet set;
+    PKHashTable table;
 } PKFrameData;
 
 typedef struct PKFrame_ {
@@ -365,7 +370,7 @@ struct PocketLispMachine_ {
     PKAtomFree *free;
     PKPool *pool;
     PKReader read;
-    PKSet set;
+    PKHashTable table;
     char c;
 };
 
@@ -515,9 +520,10 @@ PKRes pk_symtable_rem(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **o
 PKRes pk_symtable_alist(Pocket lisp, PKSymTable *st, PKAtom **output);
 void pk_symtable_deinit(Pocket lisp, PKSymTable *st);
 
-PKRes pk_set_grow(Pocket lisp, PKSet *s);
-PKRes pk_set_insert(Pocket lisp, PKSet *s, PKAtom *key, bool *already_present);
-void pk_set_deinit(Pocket lisp, PKSet *s);
+PKRes pk_hashtable_grow(Pocket lisp, PKHashTable *ht);
+PKRes pk_hashtable_get(Pocket lisp, PKHashTable *ht, PKAtom *key, PKAtom **output);
+PKRes pk_hashtable_put(Pocket lisp, PKHashTable *ht, PKAtom *key, PKAtom *value);
+void pk_hashtable_deinit(Pocket lisp, PKHashTable *ht);
 
 PKRes pk_env_set(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value, PKAtom **output);
 PKRes pk_env_get(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom **output);
@@ -550,14 +556,11 @@ PKRes pk_interp_evlist(Pocket lisp);
 PKRes pk_interp_evlist_2(Pocket lisp);
 PKRes pk_interp_evargs(Pocket lisp);
 
-PKRes pk_interp_clone(Pocket lisp);
-
 PKRes pk_interp_let_eval(Pocket lisp);
 PKRes pk_interp_let_bind(Pocket lisp);
 PKRes pk_interp_if(Pocket lisp);
 PKRes pk_interp_while(Pocket lisp);
 PKRes pk_interp_while_2(Pocket lisp);
-PKRes pk_interp_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *rest, PKAtom *expression, bool *is_special);
 
 PKRes pk_interp_read_mode(Pocket lisp);
 PKRes pk_interp_read_all(Pocket lisp);
@@ -567,6 +570,12 @@ PKRes pk_interp_read_atom(Pocket lisp);
 PKRes pk_interp_cons(Pocket lisp);
 PKRes pk_interp_cons_2(Pocket lisp);
 PKRes pk_interp_cons_3(Pocket lisp);
+
+PKRes pk_interp_quote(Pocket lisp);
+PKRes pk_interp_quote_end(Pocket lisp);
+
+PKRes pk_process_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *rest, PKAtom *expression, bool *is_special);
+PKRes pk_process_quote(Pocket lisp, PKAtom *atom);
 
 PKRes pk_ret_top(Pocket lisp);
 PKRes pk_ret_nil(Pocket lisp);
@@ -578,8 +587,5 @@ PKString pk_ident_evalmode(PKEvalMode mode);
 PKEvalFrameTy pk_evalmode_framety(PKEvalMode mode);
 bool pk_evalmode_readty(PKEvalMode mode);
 
-PKRes pk_lex_set(Pocket lisp, PKSet set);
-
-PKRes pk_interp_lex_set(Pocket lisp);
 
 #endif
