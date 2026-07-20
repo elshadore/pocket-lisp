@@ -209,8 +209,9 @@ typedef enum PKEvalMode_ {
     PKEvalMode_If,
     PKEvalMode_While,
     PKEvalMode_While_2,
-    PKEvalMode_Let_Eval,
     PKEvalMode_Let_Bind,
+    PKEvalMode_Let,
+    PKEvalMode_Flet,
 
     PKEvalMode_Quote,
     PKEvalMode_Quote_End,
@@ -242,6 +243,12 @@ typedef struct PKTCons_ {
     PKAtomCons *tail;
 } PKTCons;
 
+typedef struct PKCCons_ {
+    PKAtomCons *cons;
+    PKAtomCons *head;
+    PKAtomCons *tail;
+} PKCCons;
+
 typedef struct PKHashTableSlot_ PKHashTableSlot;
 struct PKHashTableSlot_ {
     PKAtom *key;
@@ -260,6 +267,7 @@ typedef union PKFrameData_ {
     PKAtomCons *cons;
     PKTuple t;
     PKTCons tc;
+    PKCCons cc;
     PKCCall fcall;
     PKReader read;
     PKHashTable table;
@@ -349,6 +357,7 @@ typedef struct PKCache_ {
     PKAtomSymbol *while_sym;
     PKAtomSymbol *error;
     PKAtomSymbol *let_sym;
+    PKAtomSymbol *flet_sym;
     PKAtomSymbol *let_star;
     PKAtomString *empty_string;
 } PKCache;
@@ -556,8 +565,10 @@ PKRes pk_interp_evlist(Pocket lisp);
 PKRes pk_interp_evlist_2(Pocket lisp);
 PKRes pk_interp_evargs(Pocket lisp);
 
-PKRes pk_interp_let_eval(Pocket lisp);
 PKRes pk_interp_let_bind(Pocket lisp);
+PKRes pk_interp_let(Pocket lisp);
+PKRes pk_interp_flet(Pocket lisp);
+
 PKRes pk_interp_if(Pocket lisp);
 PKRes pk_interp_while(Pocket lisp);
 PKRes pk_interp_while_2(Pocket lisp);

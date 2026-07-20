@@ -15,7 +15,8 @@ PKString pk_ident_evalmode(PKEvalMode mode) {
         case PKEvalMode_If: return pkstr("If");
         case PKEvalMode_While: return pkstr("While");
         case PKEvalMode_While_2: return pkstr("While_2");
-        case PKEvalMode_Let_Eval: return pkstr("Let_Eval");
+        case PKEvalMode_Let: return pkstr("Let");
+        case PKEvalMode_Flet: return pkstr("Flet");
         case PKEvalMode_Let_Bind: return pkstr("Let_Bind");
         case PKEvalMode_Read_Mode: return pkstr("Read_Mode");
         case PKEvalMode_Read_Atom: return pkstr("Read_Atom");

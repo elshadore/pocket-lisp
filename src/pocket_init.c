@@ -17,10 +17,11 @@ PKRes pk_init2(Pocket lisp) {
     pk_try(pk_atom_symbol_interned(lisp, pkstr("if"), &lisp->cache.if_sym));
     pk_try(pk_atom_symbol_interned(lisp, pkstr("let"), &lisp->cache.let_sym));
     pk_try(pk_atom_symbol_interned(lisp, pkstr("let*"), &lisp->cache.let_star));
+    pk_try(pk_atom_symbol_interned(lisp, pkstr("flet"), &lisp->cache.flet_sym));
     
     pk_try(pk_atom_string_nomemcpy(lisp, PK_STRING_EMPTY, &lisp->cache.empty_string));
 
-    PKAtom *_ignored;
+    PKAtom *_ignored = NULL;
     pk_try(pk_env_set(lisp, PKEnvTy_Var, lisp->cache.t, (PKAtom *)lisp->cache.t, &_ignored));
     pk_try(pk_env_set(lisp, PKEnvTy_Var, lisp->cache.nil_sym, lisp->cache.nil, &_ignored));
 
