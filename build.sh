@@ -4,10 +4,8 @@ set -e
 
 mkdir -p out
 
-./tools/file2h.sh repl.pk > repl.h 
-
 CC="clang"
-CFLAGS="-std=c99 -Wall -Wextra"
+CFLAGS="-std=c89 -Wall -Wextra -Werror -pedantic"
 SRC=$(find src -name '*.c')
 
 $CC $CFLAGS repl.c $SRC -o ./out/repl

@@ -1,12 +1,14 @@
-// stb_leakcheck.h - v0.6 - quick & dirty malloc leak-checking - public domain
-// LICENSE
-//
-//   See end of file.
+/*
+stb_leakcheck.h - v0.6 - quick & dirty malloc leak-checking - public domain
+LICENSE
+
+See end of file.
+*/
 
 #ifdef STB_LEAKCHECK_IMPLEMENTATION
-#undef STB_LEAKCHECK_IMPLEMENTATION // don't implement more than once
+#undef STB_LEAKCHECK_IMPLEMENTATION /* don't implement more than once */
 
-// if we've already included leakcheck before, undefine the macros
+/* if we've already included leakcheck before, undefine the macros */
 #ifdef malloc
 #undef malloc
 #undef free

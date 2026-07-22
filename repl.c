@@ -1,8 +1,6 @@
-#define STB_LEAKCHECK_IMPLEMENTATION
-#include "./lib/stb_leakcheck.h"
-
 #include "./src/pocket.h"
-#include "repl.h"
+#include <string.h>
+#include <stdio.h>
 
 void *repl_alloc(void *user_env, void *ptr, size_t old_size, size_t new_size) {
     (void)user_env;
@@ -27,46 +25,53 @@ void repl_print(void *user_env, char *c, size_t length) {
     printf("%.*s\n", (int)length, c);
 }
 
+static char repl_buffer[4096];
+
 PKRes repl_read_user_input(void *user_closure, Pocket lisp) {
+    size_t len = 0;
+    
     (void)user_closure;
-    char buf[4096];
-    if (fgets(buf, sizeof(buf), stdin) == NULL) {
-        pk_try(pk_push_string(lisp, pkstr("")));
+    
+    if (fgets(repl_buffer, sizeof(repl_buffer), stdin) == NULL) {
+        pk_try(pk_push_string(lisp, ""));
         return PK_Ok;
     }
 
-    size_t len = strlen(buf);
-    if (len > 0 && buf[len-1] == '\n') {
-        buf[len-1] = '\0';
+    len = strlen(repl_buffer);
+    if (len > 0 && repl_buffer[len-1] == '\n') {
+        repl_buffer[len-1] = '\0';
         len--;
     }
 
-    pk_try(pk_push_nstr(lisp, buf, len));
+    pk_try(pk_push_stringn(lisp, repl_buffer, len));
     return PK_Ok;
 }
 
 PKRes repl_cmd_args(Pocket lisp, int argc, char **argv) {
+    int i = 0;
     if (argc == 0) {
         pk_try(pk_push_nil(lisp));
     } else {
-        for (int i = 0; i < argc; ++i) {
-            pk_try(pk_push_cstr(lisp, argv[i]));
+        for (i = 0; i < argc; ++i) {
+            pk_try(pk_push_string(lisp, argv[i]));
         }
         pk_try(pk_list(lisp, -argc, -1));
     }
-    pk_try(pk_push_symbol(lisp, pkstr("argv")));
+    pk_try(pk_push_symbol(lisp, "argv"));
     pk_try(pk_set(lisp, -1, -2));
     pk_try(pk_popn(lisp, argc + 2));
     return PK_Ok;
 }
 
+
 PKRes repl(Pocket lisp, int argc, char **argv) {
     pk_try(repl_cmd_args(lisp, argc, argv));
     pk_try(pk_push_cfunc(lisp, NULL, repl_read_user_input, 0, PKArity_Normal));
-    pk_try(pk_push_symbol(lisp, pkstr("read-user-input")));
+    pk_try(pk_push_symbol(lisp, "read-user-input"));
     pk_try(pk_fset(lisp, -1, -2));
     pk_try(pk_popn(lisp, 2));
-    pk_try(pk_read_string(lisp, pkstr(REPL_SRC)));
+    pk_try(pk_push_string(lisp, "./repl.pk"));
+    pk_try(pk_read_file(lisp, -1, PK_READ_LISTED));
     pk_try(pk_evlist(lisp, -1));
     return PK_Ok;
 }
@@ -80,6 +85,5 @@ int main(int argc, char **argv) {
         fprintf(stderr, "REPL exited with error\n");
     }
     pk_deinit(lisp);
-    stb_leakcheck_dumpmem();
     return EXIT_SUCCESS;
 }

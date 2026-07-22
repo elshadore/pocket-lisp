@@ -35,7 +35,10 @@ void pk_gc_mark_symtable(PKSymTable *st) {
 }
 
 PKRes pk_gc_collect(Pocket lisp) {
-    // TODO: reimplement the GC.
+    size_t i = 0;
+    PKPool *pool = NULL;
+    
+    /* TODO: reimplement the GC. */
     return PK_Ok;
     
     pk_gc_mark((PKAtom *)lisp->cache.nil);
@@ -51,7 +54,7 @@ PKRes pk_gc_collect(Pocket lisp) {
     pk_gc_mark((PKAtom *)lisp->cache.let_star);
     pk_gc_mark((PKAtom *)lisp->cache.empty_string);
 
-    for (size_t i = 0; i < lisp->intern.count; ++i) {
+    for (i = 0; i < lisp->intern.count; ++i) {
         PKAtomSymbol *symbol = lisp->intern.e[i];
         if (symbol == NULL) continue;
         pk_gc_mark((PKAtom *)symbol);
@@ -60,11 +63,11 @@ PKRes pk_gc_collect(Pocket lisp) {
     pk_gc_mark_symtable(&lisp->vars);
     pk_gc_mark_symtable(&lisp->funs);
 
-    for (size_t i = 0; i < lisp->stack.count; ++i) {
+    for (i = 0; i < lisp->stack.count; ++i) {
         pk_gc_mark((PKAtom *)lisp->stack.e[i]);
     }
 
-    for (size_t i = 0; i < lisp->lets.count; ++i) {
+    for (i = 0; i < lisp->lets.count; ++i) {
         PKLet let = lisp->lets.e[i];
         pk_gc_mark((PKAtom *)let.symbol);
         if (let.restore != NULL) {
@@ -72,8 +75,8 @@ PKRes pk_gc_collect(Pocket lisp) {
         }
     }
 
-    for (PKPool *pool = lisp->pool; pool; pool = pool->next) {
-        for (size_t i = 0; i < PK_POOL_MAX; ++i) {
+    for (pool = lisp->pool; pool; pool = pool->next) {
+        for (i = 0; i < PK_POOL_MAX; ++i) {
             PKAtom *atom = &pool->e[i];
             if (atom->tag.ty != PKAtomTy_Free) {
                 if (!atom->tag.marked) {

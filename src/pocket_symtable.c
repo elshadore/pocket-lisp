@@ -1,16 +1,18 @@
 #include "pocket_internals.h"
 
 PKRes pk_symtable_grow(Pocket lisp, PKSymTable *st) {
-    size_t new_capacity = pk_grow_capacity(st->capacity, PK_SYMTABLE_INIT_CAPACITY);
-    
     PKSymTableSlot **new_e = NULL;
-    pk_try(pk_malloc(lisp, new_capacity * sizeof(PKSymTableSlot *), (void **)&new_e));
+    size_t new_capacity = 0;
+    size_t i = 0;
     
-    for (size_t i = 0; i < new_capacity; i++) {
+    new_capacity = pk_grow_capacity(st->capacity, PK_SYMTABLE_INIT_CAPACITY);
+    
+    pk_try(pk_malloc(lisp, new_capacity * sizeof(PKSymTableSlot *), (void **)&new_e));
+    for (i = 0; i < new_capacity; i++) {
         new_e[i] = NULL;
     }
 
-    for (size_t i = 0; i < st->capacity; i++) {
+    for (i = 0; i < st->capacity; i++) {
         PKSymTableSlot *entry = st->e[i];
         while (entry) {
             PKSymTableSlot *next = entry->chain;
@@ -31,27 +33,29 @@ PKRes pk_symtable_grow(Pocket lisp, PKSymTable *st) {
 }
 
 PKRes pk_symtable_put(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom *value, PKAtom **output) {
+    PKSymTableSlot *slot = NULL;
+    PKSymTableSlot *entry = NULL;
+    size_t bucket = 0;
+    
     if (st-> count >= st->capacity) {
         pk_try(pk_symtable_grow(lisp, st));
     }
 
-    size_t bucket = pk_hash_pointer(key) % st->capacity;
+    bucket = pk_hash_pointer(key) % st->capacity;
 
-    for (PKSymTableSlot *slot = st->e[bucket]; slot; slot = slot->chain) {
+    for (slot = st->e[bucket]; slot; slot = slot->chain) {
         if (slot->key == key) {
             *output = slot->value;
             slot->value = value;
             return PK_Ok;
         }
     }
-
-    PKSymTableSlot *entry;
+    
     pk_try(pk_malloc(lisp, sizeof(PKSymTableSlot), (void **)&entry));
-    *entry = (PKSymTableSlot) {
-        .key = key,
-        .value = value,
-        .chain = st->e[bucket],
-    };
+    entry->key = key;
+    entry->value = value;
+    entry->chain = st->e[bucket];
+    
     st->e[bucket] = entry;
     st->count++;
     *output = NULL;

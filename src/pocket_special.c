@@ -39,7 +39,7 @@ PKRes pk_interp_while_2(Pocket lisp) {
 PKRes pk_process_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *rest, PKAtom *expression, bool *is_special) {
     if (symbol == lisp->cache.lambda) {
         *is_special = true;
-        // TODO: validate lambda structure in its creation.
+        /* TODO: validate lambda structure in its creation. */
         pk_try(pk_process_quote(lisp, expression));
     } else if (symbol == lisp->cache.quote) {
         *is_special = true;
@@ -53,10 +53,10 @@ PKRes pk_process_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *rest, P
         *is_special = true;
         
         PKAtomCons *a = NULL;
-        pk_try(pk_atom_cast_cons(lisp, rest, &a));
         PKAtomCons *b = NULL;
-        pk_try(pk_atom_cast_cons(lisp, a->cdr, &b));
         PKAtomCons *c = NULL;
+        pk_try(pk_atom_cast_cons(lisp, rest, &a));
+        pk_try(pk_atom_cast_cons(lisp, a->cdr, &b));
         pk_try(pk_atom_cast_cons(lisp, b->cdr, &c));
         if (!pk_atom_is_nil(c->cdr)) {
             pk_error(lisp);

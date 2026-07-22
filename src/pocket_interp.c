@@ -129,15 +129,17 @@ PKRes pk_interp(Pocket lisp, size_t stop) {
     while (lisp->frames.count > stop) {
         // (void)pk_trace_dump(lisp, "interp");
         // (void)pk_env_dump(lisp, "interp");
+        PKRes result = PK_Ok;
         switch (lisp->current_frame.mode) {
             case PKEvalMode_Root: {
-                return pk_error(lisp);
+                result = pk_error(lisp);
+                break;
             }
             case PKEvalMode_User: {
-                return pk_error(lisp);
+                result = pk_error(lisp);
             }
             case PKEvalMode_Ret: {
-                pk_try(pk_ret_top(lisp));
+                result = pk_ret_top(lisp);
                 break;
             }
             case PKEvalMode_Eval: {
@@ -224,6 +226,9 @@ PKRes pk_interp(Pocket lisp, size_t stop) {
                 pk_try(pk_interp_cons_3(lisp));
                 break;
             }
+        }
+        if (result == PK_Yield) {
+            
         }
     }
     // (void)pk_trace_dump(lisp, "result");

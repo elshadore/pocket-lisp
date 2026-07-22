@@ -5,7 +5,8 @@ void pk_arena_deinit(Pocket lisp, PKArena *arena) {
 }
 
 void pk_arena_deinit_all(Pocket lisp) {
-    for (size_t i = 0; i < lisp->arena_stack.count; ++i) {
+    size_t i = 0;
+    for (i = 0; i < lisp->arena_stack.count; ++i) {
         pk_arena_deinit(lisp, &lisp->arena_stack.e[i]);
     }
     pk_arena_deinit(lisp, &lisp->arena);
@@ -79,7 +80,8 @@ void *pk_arena_savepoint(Pocket lisp) {
 
 size_t pk_arena_savepoint_index(Pocket lisp, void *savepoint) {
     PKArenaStack *s = &lisp->arena_stack;
-    for (size_t i = 0; i < s->count; ++i) {
+    size_t i = 0;
+    for (i = 0; i < s->count; ++i) {
         size_t index = pk_index_inv(i, s->count);
         PKArena *arena = &s->e[index];
         if (pk_arena_inbetween(arena, savepoint)) {
@@ -93,7 +95,8 @@ void pk_arena_restore(Pocket lisp, void *savepoint) {
     if (!pk_arena_inbetween(&lisp->arena, savepoint)) {
         PKArenaStack *s = &lisp->arena_stack;
         size_t index = pk_arena_savepoint_index(lisp, savepoint);
-        for (size_t i = (index + 1); i < s->count; ++i) {
+        size_t i = 0;
+        for (i = (index + 1); i < s->count; ++i) {
             pk_arena_deinit(lisp, &s->e[i]);
         }
         lisp->arena = s->e[index];

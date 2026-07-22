@@ -1,6 +1,0 @@
-#ifndef POCKET_REPL_H
-#define POCKET_REPL_H
-
-#define REPL_SRC "(fset 'square\n      (lambda (x)\n        (* x x)))\n\n(set 'repl/running t)\n\n(fset 'repl/quit\n      (lambda ()\n        (set 'repl/running nil)))\n\n(fset 'repl\n      (lambda ()\n        (while repl/running\n          (puts \">> \")\n          (print (format (evlist (read (read-user-input))))))))\n\n(set 'foo 69)\n\n(fset 'example\n      (lambda ()\n        (let ((foo \"gooby\"))\n          (print foo)\n          foo)))\n\n(fset 'fib\n      (lambda (n)\n        (if (<= n 1)\n            n\n          (+ (fib (- n 1)) (fib (- n 2))))))\n\n(fset 'funny\n      (lambda (a b c d) d))\n\n(fset 'last-cons-1\n      (lambda (a b)\n        (if (nil? b)\n            a\n          (last-cons-1 (cdr a) (cdr b)))))\n\n(fset 'last-cons\n      (lambda (list) (last-cons-1 list (cdr list))))\n\n(fset 'make-circular-list\n      (lambda (list)\n        (let ((foo (last-cons list)))\n          (set-cdr foo list))))\n\n(fset 'cadr\n      (lambda (list)\n        (car (cdr list))))\n\n(fset 'cdar\n      (lambda (list)\n        (cdr (car list))))\n\n(if (nil? (cdr argv))\n    nil\n  (progn\n    (print \"*~ARG-EVAL~*\")\n    (print (cadr argv))\n    (puts \">> \")\n    (print (format (evlist (read (cadr argv)))))))\n\n(repl)\n\n(print \"REPL Quitting...\")\n\n;; (some-stuff)"
-
-#endif
