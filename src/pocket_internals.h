@@ -357,11 +357,11 @@ void pk_atom_free(Pocket lisp, PKAtom *atom);
 
 PKRes pk_atom_int(Pocket lisp, int value, PKAtomNumber **output);
 PKRes pk_atom_float(Pocket lisp, float value, PKAtomNumber **output);
-PKRes pk_atom_string(Pocket lisp, char *c, size_t length, PKAtomString **output);
+PKRes pk_atom_string(Pocket lisp, const char *c, size_t length, PKAtomString **output);
 PKRes pk_atom_string_nomemcpy(Pocket lisp, char *c, size_t length, PKAtomString **output);
 PKRes pk_atom_string_concat(Pocket lisp, PKAtoms strings, PKAtomString **output);
-PKRes pk_atom_symbol_uninterned(Pocket lisp, char *c, size_t length, PKAtomSymbol **output);
-PKRes pk_atom_symbol_interned(Pocket lisp, char *c, size_t length, PKAtomSymbol **output);
+PKRes pk_atom_symbol_uninterned(Pocket lisp, const char *c, size_t length, PKAtomSymbol **output);
+PKRes pk_atom_symbol_interned(Pocket lisp, const char *c, size_t length, PKAtomSymbol **output);
 PKRes pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr, PKAtomCons **output);
 PKRes pk_atom_cons_car(Pocket lisp, PKAtom *car, PKAtomCons **output);
 PKRes pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity, PKAtomCFunc **output);
@@ -540,5 +540,7 @@ PKRes pk_read_atom_cons(PKReader *r, PKAtom **output);
 PKRes pk_read_atom_simple_macro(PKReader *r, PKAtomSymbol *macro, PKAtomCons **output);
 PKRes pk_read_atom_unquote_macro(PKReader *r, PKAtomCons **output);
 PKRes pk_read_atom(PKReader *r, PKAtom **atom);
+
+PKRes pk_read_string(Pocket lisp, char *c, size_t length, PK_READ mode, PKAtom **output);
 
 #endif
