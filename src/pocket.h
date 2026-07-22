@@ -98,11 +98,9 @@ PKRes pk_car(Pocket lisp, int cons);
 PKRes pk_cdr(Pocket lisp, int cons);
 
 PKRes pk_read(Pocket lisp, int stack_pointer, PK_READ mode);
-PKRes pk_read_file(Pocket lisp, int file_path, PK_READ mode);
-
+PKRes pk_slurp(Pocket lisp, int file_path);
 PKRes pk_format(Pocket lisp, int stack_pointer);
 PKRes pk_clone(Pocket lisp, int stack_pointer);
-
 PKRes pk_eval(Pocket lisp, int stack_pointer);
 PKRes pk_evlist(Pocket lisp, int stack_pointer);
 PKRes pk_apply(Pocket lisp, int function, int args);

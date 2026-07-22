@@ -342,12 +342,27 @@ PKRes pk_env_dump(Pocket lisp, const char *tag) {
 }
 */
 
-PKRes pk_slurp(Pocket lisp, const char *file_path, char **out_c, size_t *out_length) {
+PKRes pk_util_slurpn(Pocket lisp, const char *file_path, size_t length, char **out_c, size_t *out_length) {
+    char *buffer = NULL;
+    PKRes result = PK_Yield;
+    
+    pk_try(pk_malloc(lisp, length + 1, (void **)&buffer));
+    (void)memcpy(buffer, file_path, length);
+    buffer[length] = '\0';
+
+    result = pk_util_slurp(lisp, buffer, out_c, out_length);
+
+    pk_free(lisp, buffer, length + 1);
+
+    return result;
+}
+    
+PKRes pk_util_slurp(Pocket lisp, const char *file_path, char **out_c, size_t *out_length) {
     FILE *f = NULL;
     long length = 0;
     size_t read = 0;
     char *buf = NULL;
-    
+
     f = fopen(file_path, "rb");
     
     if (f == NULL) {

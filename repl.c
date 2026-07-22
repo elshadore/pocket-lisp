@@ -71,7 +71,8 @@ PKRes repl(Pocket lisp, int argc, char **argv) {
     pk_try(pk_fset(lisp, -1, -2));
     pk_try(pk_popn(lisp, 2));
     pk_try(pk_push_string(lisp, "./repl.pk"));
-    pk_try(pk_read_file(lisp, -1, PK_READ_LISTED));
+    pk_try(pk_slurp(lisp, -1));
+    pk_try(pk_read(lisp, -1, PK_READ_LISTED));
     pk_try(pk_evlist(lisp, -1));
     return PK_Ok;
 }

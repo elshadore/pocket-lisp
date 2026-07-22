@@ -84,17 +84,25 @@ PKRes pk_popn(Pocket lisp, int n) {
 }
 
 PKRes pk_stack_head(Pocket lisp, PKAtom **output) {
-    if (pk_frame_length(lisp) == 0) {
+    if (pk_stack_length_frame(lisp) == 0) {
         return pk_error(lisp);
     }
     *output = lisp->stack.e[lisp->stack.count - 1];
     return PK_Ok;
 }
 
+PKAtom *pk_stack_result(Pocket lisp) {
+    if (pk_stack_length_frame(lisp) == 0) {
+        return pk_atom_nil(lisp);
+    } else {
+        return lisp->stack.e[lisp->stack.count - 1];
+    }
+}
+
 PKRes pk_stack_pop(Pocket lisp, PKAtom **output) {
     size_t index = 0;
     
-    if (pk_frame_length(lisp) == 0) {
+    if (pk_stack_length_frame(lisp) == 0) {
         return pk_error(lisp);
     }
     index = lisp->stack.count - 1;
@@ -116,7 +124,7 @@ PKRes pk_stack_get(Pocket lisp, int stack_pointer, PKAtom **output) {
 }
 
 PKAtoms pk_stack_slice(Pocket lisp) {
-    size_t total = pk_stack_total(lisp);
+    size_t total = pk_stack_length_total(lisp);
     size_t offset = lisp->current_frame.stack_offset;
     size_t length = total - offset;
     PKAtom **e = lisp->stack.e + offset;
@@ -158,7 +166,7 @@ PKRes pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom) {
 
 PKRes pk_frame_push(Pocket lisp, size_t arity) {
     PKFrames *frames = &lisp->frames;
-    size_t stack_offset = pk_stack_total(lisp) - arity;
+    size_t stack_offset = pk_stack_length_total(lisp) - arity;
     size_t lets_offset = lisp->lets.count;
     
     if (frames->count >= frames->capacity) {

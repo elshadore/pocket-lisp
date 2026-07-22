@@ -61,17 +61,8 @@ PKRes pk_fn_div(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_fn_slurp(void *user_closure, Pocket lisp) {
-    PKAtomString *string = NULL;
-    char *a = NULL;
-    char *b = NULL;
-    size_t a_length = 0;
-    size_t b_length = 0;
-    
     (void)user_closure;
-    pk_try(pk_to_string(lisp, 1, &a, &a_length));
-    pk_try(pk_slurp(lisp, a, &b, &b_length));
-    pk_try(pk_atom_stringn_nomemcpy(lisp, b, b_length, &string));
-    pk_try(pk_push(lisp, (PKAtom *)string));
+    pk_try(pk_slurp(lisp, 1));
     return PK_Ok;
 }
 

@@ -279,18 +279,6 @@ typedef struct PKStackSlice_ {
     PKAtoms slice;
 } PKStackSlice;
 
-typedef struct PKArena_ {
-    void *e;
-    size_t head;
-    size_t size;
-} PKArena;
-
-typedef struct PKArenaStack_ {
-    PKArena *e;
-    size_t count;
-    size_t capacity;
-} PKArenaStack;
-
 typedef struct PKCache_ {
     PKAtom *nil;
     PKAtomSymbol *nil_sym;
@@ -346,10 +334,10 @@ pk_realloc(lisp_, ptr_, sizeof(type_) * old_count_, sizeof(type_) * new_count_, 
 #define pk_error(lisp) pk_error_impl(lisp, __FILE__, __LINE__)
 
 #define pk_stack_length_total(lisp_) \
-(lisp_)->stack.count
+((lisp_)->stack.count)
 
 #define pk_stack_length_frame(lisp_) \
-pk_stack_length_total(lisp_) - (lisp_)->current_frame.stack_offset
+(pk_stack_length_total(lisp_) - (lisp_)->current_frame.stack_offset)
 
 #define pk_string_free(lisp_, c_, length_) \
 pk_free(lisp_, c_, length_)
@@ -370,6 +358,7 @@ PKRes pk_atom_string(Pocket lisp, const char *cstr, PKAtomString **output);
 PKRes pk_atom_stringn(Pocket lisp, const char *string, size_t length, PKAtomString **output);
 PKRes pk_atom_stringn_nomemcpy(Pocket lisp, char *string, size_t length, PKAtomString **output);
 PKRes pk_atom_string_concat(Pocket lisp, PKAtoms strings, PKAtomString **output);
+PKRes pk_atom_string_slurp(Pocket lisp, PKAtomString *file_path, PKAtomString **output);
 
 PKRes pk_atom_symbol_uninterned(Pocket lisp, const char *cstr, PKAtomSymbol **output);
 PKRes pk_atom_symbol_interned(Pocket lisp, const char *string, PKAtomSymbol **output);
@@ -395,6 +384,7 @@ PKRes pk_atom_cast_cfunc(Pocket lisp, PKAtom *atom, PKAtomCFunc **output);
 pk_bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 pk_bool pk_atom_symbol_eq(Pocket lisp, PKAtomSymbol *lhs, PKAtomSymbol *rhs);
 pk_bool pk_atom_string_eq(Pocket lisp, PKAtomString *lhs, PKAtomString *rhs);
+
 pk_bool pk_atom_is_true(PKAtom *atom);
 pk_bool pk_atom_is_nil(PKAtom *atom);
 pk_bool pk_atom_is_symbol(PKAtom *atom);
@@ -412,12 +402,12 @@ void pk_free(Pocket lisp, void *ptr, size_t size);
 PKRes pk_push(Pocket lisp, PKAtom *atom);
 PKRes pk_sp_index(Pocket lisp, int stack_pointer, size_t *index);
 PKRes pk_stack_head(Pocket lisp, PKAtom **output);
+PKAtom *pk_stack_result(Pocket lisp);
 PKRes pk_stack_pop(Pocket lisp, PKAtom **output);
 PKRes pk_stack_get(Pocket lisp, int stack_pointer, PKAtom **output);
 PKAtoms pk_stack_slice(Pocket lisp);
 PKRes pk_stack_slice_by(Pocket lisp, int a, int b, PKStackSlice *output);
 PKRes pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom);
-size_t pk_stack_total(Pocket lisp);
 
 PKRes pk_error_impl(Pocket lisp, const char *file, int line);
 
@@ -473,8 +463,6 @@ PKRes pk_frame_pop_clear(Pocket lisp);
 PKRes pk_frame_pop_return(Pocket lisp);
 /* Clear the current frame of all stack allocated variables. */
 void pk_frame_clear(Pocket lisp);
-size_t pk_frame_length(Pocket lisp);
-size_t pk_frame_savepoint(Pocket lisp);
 PKAtoms pk_frame_slice(Pocket lisp, PKFrame *frame, size_t length);
 PKRes pk_let_push(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value);
 PKRes pk_let_pop(Pocket lisp, size_t n);
@@ -501,7 +489,8 @@ PKRes pk_env_unbind(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom **output)
 PKRes pk_gc_collect(Pocket lisp);
 PKRes pk_load_std(Pocket lisp);
 
-PKRes pk_slurp(Pocket lisp, const char *file_path, char **out_buffer, size_t *out_length);
+PKRes pk_util_slurp(Pocket lisp, const char *file_path, char **out_buffer, size_t *out_length);
+PKRes pk_util_slurpn(Pocket lisp, const char *file_path, size_t length, char **out_c, size_t *out_length);
 
 PKRes pk_call(Pocket lisp, PKAtom *atom, size_t arity);
 PKRes pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PKCallConv *output);
@@ -510,12 +499,6 @@ PKRes pk_bind_lambda_list(Pocket lisp, PKAtom *symbols, PKAtoms values);
 PKRes pk_slice_list(Pocket lisp, PKAtoms atoms, PKAtom **output);
 PKRes pk_slice_list_rev(Pocket lisp, PKAtoms atoms, PKAtom **output);
 PKRes pk_slice_list_tailed(Pocket lisp, PKAtoms atoms, PKAtom **output);
-
-void pk_arena_deinit(Pocket lisp, PKArena *arena);
-void pk_arena_deinit_all(Pocket lisp);
-PKRes pk_arena_alloc(Pocket lisp, size_t size, void **output);
-void *pk_arena_savepoint(Pocket lisp);
-void pk_arena_restore(Pocket lisp, void *ptr);
 
 PKRes pk_ret_top(Pocket lisp);
 PKRes pk_ret_nil(Pocket lisp);

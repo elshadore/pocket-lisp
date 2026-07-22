@@ -276,6 +276,19 @@ PKRes pk_read(Pocket lisp, int stack_pointer, PK_READ mode) {
     return PK_Ok;
 }
 
+PKRes pk_slurp(Pocket lisp, int file_path) {
+    PKAtom *atom = NULL;
+    PKAtomString *result = NULL;
+    PKAtomString *spath = NULL;
+    
+    pk_try(pk_stack_get(lisp, file_path, &atom));
+    pk_try(pk_atom_cast_string(lisp, atom, &spath));
+    pk_try(pk_atom_string_slurp(lisp, spath, &result));
+    pk_try(pk_push(lisp, (PKAtom *)result));
+
+    return PK_Ok;
+}
+
 PKRes pk_format(Pocket lisp, int stack_pointer) {
     PKAtom *atom = NULL;
     PKWriter w = pk_writer_init(lisp);

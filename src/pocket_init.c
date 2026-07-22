@@ -118,8 +118,6 @@ void pk_deinit(Pocket lisp) {
         pk_free(lisp, pool, sizeof(PKPool));
         pool = next;
     }
-
-    pk_arena_deinit_all(lisp);
-    
+   
     pk_free(lisp, lisp, sizeof(struct PocketLispMachine_));
 }

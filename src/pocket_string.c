@@ -83,3 +83,16 @@ pk_bool pk_atom_string_eq(Pocket lisp, PKAtomString *lhs, PKAtomString *rhs) {
     return pk_string_eq(lhs->c, lhs->length, rhs->c, rhs->length);
 }
 
+PKRes pk_atom_string_slurp(Pocket lisp, PKAtomString *file_path, PKAtomString **output) {
+    char *buffer = NULL;
+    size_t length = 0;
+
+    pk_try(pk_util_slurpn(lisp, file_path->c, file_path->length, &buffer, &length));
+    
+    if (!pk_atom_stringn_nomemcpy(lisp, buffer, length, output)) {
+        pk_string_free(lisp, buffer, length);
+        return PK_Yield;
+    }
+    
+    return PK_Ok;
+}
