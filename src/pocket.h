@@ -105,7 +105,7 @@ PKRes pk_clone(Pocket lisp, int stack_pointer);
 
 PKRes pk_eval(Pocket lisp, int stack_pointer);
 PKRes pk_evlist(Pocket lisp, int stack_pointer);
-PKRes pk_apply(Pocket lisp, int function, int args_lists);
+PKRes pk_apply(Pocket lisp, int function, int args);
 PKRes pk_funcall(Pocket lisp, int arity);
 PKRes pk_fastcall(void *user_closure, Pocket lisp, PKFn fn, int arity);
 
@@ -136,7 +136,5 @@ Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print);
 void pk_deinit(Pocket lisp);
 
 PKRes pk_dump_stack(Pocket lisp, const char *tag);
-PKRes pk_trace_dump(Pocket lisp, const char *tag);
-PKRes pk_env_dump(Pocket lisp, const char *tag);
 
 #endif

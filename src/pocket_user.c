@@ -20,14 +20,14 @@ PKRes pk_push_cond(Pocket lisp, int cond) {
 }
 
 PKRes pk_push_int(Pocket lisp, int integer) {
-    PKAtomNumber *n;
+    PKAtomNumber *n = NULL;
     pk_try(pk_atom_int(lisp, integer, &n));
     pk_try(pk_push(lisp, (PKAtom *)n));
     return PK_Ok;
 }
 
 PKRes pk_push_float(Pocket lisp, float floater) {
-    PKAtomNumber *n;
+    PKAtomNumber *n = NULL;
     pk_try(pk_atom_float(lisp, floater, &n));
     pk_try(pk_push(lisp, (PKAtom *)n));
     return PK_Ok;
@@ -35,10 +35,7 @@ PKRes pk_push_float(Pocket lisp, float floater) {
 
 PKRes pk_push_string(Pocket lisp, const char *cstr) {
     PKAtomString *a = NULL;
-    size_t length = 0;
-
-    length = strlen(cstr);
-    pk_try(pk_atom_string(lisp, cstr, length, &a));
+    pk_try(pk_atom_string(lisp, cstr, &a));
     pk_try(pk_push(lisp, (PKAtom *)a));
     return PK_Ok;
 }
@@ -46,25 +43,21 @@ PKRes pk_push_string(Pocket lisp, const char *cstr) {
 PKRes pk_push_stringn(Pocket lisp, const char *string, size_t length) {
     PKAtomString *a = NULL;
     
-    pk_try(pk_atom_string(lisp, string, length, &a));
+    pk_try(pk_atom_stringn(lisp, string, length, &a));
     pk_try(pk_push(lisp, (PKAtom *)a));
     return PK_Ok;
 }
 
 PKRes pk_push_symbol(Pocket lisp, const char *csym) {
     PKAtomSymbol *a = NULL;
-    size_t length = 0;
-
-    length = strlen(csym);
-    pk_try(pk_atom_symbol_interned(lisp, csym, length, &a));
+    pk_try(pk_atom_symbol_interned(lisp, csym, &a));
     pk_try(pk_push(lisp, (PKAtom *)a));
     return PK_Ok;
 }
 
 PKRes pk_push_symboln(Pocket lisp, const char *symbol, size_t length) {
     PKAtomSymbol *a = NULL;
-
-    pk_try(pk_atom_symbol_interned(lisp, symbol, length, &a));
+    pk_try(pk_atom_symboln_interned(lisp, symbol, length, &a));
     pk_try(pk_push(lisp, (PKAtom *)symbol));
     return PK_Ok;
 }
@@ -292,7 +285,7 @@ PKRes pk_format(Pocket lisp, int stack_pointer) {
     res = pk_writer_atom(&w, atom);
     if (res == PK_Ok) {
         PKAtomString *string = NULL;
-        res = pk_atom_string(lisp, w.c, w.count, &string);
+        res = pk_atom_stringn(lisp, w.c, w.count, &string);
         if (res == PK_Ok) {
             res = pk_push(lisp, (PKAtom *)string);
         }

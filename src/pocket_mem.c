@@ -2,58 +2,66 @@
 
 PKRes pk_pool_expand(Pocket lisp) {
     PKPool *pool;
+    PKAtomFree *free;
+    size_t i = 0;
+    
     pk_try(pk_talloc(PKPool, lisp, &pool));
 
     pool->next = lisp->pool;
-    for (size_t i = 0; i < (PK_POOL_MAX - 1); ++i) {
+    for (i = 0; i < (PK_POOL_MAX - 1); ++i) {
         PKAtom *a = &pool->e[i];
         PKAtom *b = &pool->e[i + 1];
-        a->free = (PKAtomFree) {
-            .tag.ty = PKAtomTy_Free,
-            .tag.marked = false,
-            .next = (PKAtomFree *)b,
-        };
+        
+        a->tag.ty = PKAtomTy_Free;
+        a->tag.marked = PK_FALSE;
+        a->free.next = (PKAtomFree *)b;
     }
-    PKAtomFree *free = (PKAtomFree *)&pool->e[PK_POOL_MAX - 1];
-    *free = (PKAtomFree) {
-        .tag.ty = PKAtomTy_Free,
-        .tag.marked = false,
-        .next = lisp->free,
-    };
+    
+    free = (PKAtomFree *)&pool->e[PK_POOL_MAX - 1];
+    
+    free->tag.ty = PKAtomTy_Free;
+    free->tag.marked = PK_FALSE;
+    free->next = lisp->free;
+    
     lisp->free = free;
     lisp->pool = pool;
     return PK_Ok;
 }
 
 PKRes pk_atom_alloc(Pocket lisp, PKAtom **output) {
+    PKAtomFree *result = NULL;
+    
     if (lisp->free == NULL) {
         pk_try(pk_pool_expand(lisp));
     }
-    PKAtomFree *result = lisp->free;
+    
+    result = lisp->free;
     lisp->free = result->next;
+    
     *output = (PKAtom *)result;
     return PK_Ok;
 }
 
 void pk_atom_free(Pocket lisp, PKAtom *atom) {
+    PKAtomFree *free = NULL;
     switch (atom->tag.ty) {
         case PKAtomTy_Free: {
             return;
         }
         case PKAtomTy_String: {
-            pk_string_free(lisp, atom->string.lit);
+            pk_string_free(lisp, atom->string.c, atom->string.length);
             break;
         }
         default: {
             break;
         }
     }
-    PKAtomFree *free = (PKAtomFree *)atom;
-    *free = (PKAtomFree) {
-        .tag.ty = PKAtomTy_Free,
-        .tag.marked = false,
-        .next = lisp->free,
-    };
+    
+    free = (PKAtomFree *)atom;
+    free->tag.ty = PKAtomTy_Free;
+    free->tag.marked = PK_FALSE;
+    free->next = lisp->free;
+    
     lisp->free = free;
 }
 

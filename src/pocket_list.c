@@ -1,31 +1,19 @@
 #include "pocket_internals.h"
 
 PKRes pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr, PKAtomCons **output) {
-    PKAtom *a;
+    PKAtom *a = NULL;
     pk_try(pk_atom_alloc(lisp, &a));
-    PKAtomCons *atom = (PKAtomCons *)a;
-    *atom = (PKAtomCons) {
-        .tag.ty = PKAtomTy_Cons,
-        .tag.marked = false,
-        .car = car,
-        .cdr = cdr,
-    };
-    *output = atom;
+    
+    a->tag.ty = PKAtomTy_Cons,
+    a->cons.car = car,
+    a->cons.cdr = cdr,
+    
+    *output = (PKAtomCons *)a;
     return PK_Ok;
 }
 
 PKRes pk_atom_cons_car(Pocket lisp, PKAtom *car, PKAtomCons **output) {
-    PKAtom *a;
-    pk_try(pk_atom_alloc(lisp, &a));
-    PKAtomCons *atom = (PKAtomCons *)a;
-    *atom = (PKAtomCons) {
-        .tag.ty = PKAtomTy_Cons,
-        .tag.marked = false,
-        .car = car,
-        .cdr = pk_atom_nil(lisp),
-    };
-    *output = atom;
-    return PK_Ok;
+    return pk_atom_cons(lisp, car, pk_atom_nil(lisp), output);
 }
 
 PKRes pk_atom_cons_tail(Pocket lisp, PKAtomCons *cons, PKAtomCons **output) {
@@ -55,16 +43,19 @@ PKRes pk_atom_cast_cons(Pocket lisp, PKAtom *atom, PKAtomCons **output) {
 }
 
 PKRes pk_slice_list(Pocket lisp, PKAtoms atoms, PKAtom **output) {
+    PKAtomCons *head = NULL;
+    PKAtomCons *tail = NULL;
+    size_t i = 0;
+    
     if (atoms.length == 0) {
         *output = pk_atom_nil(lisp);
         return PK_Ok;
     }
     
-    PKAtomCons *head = NULL;
     pk_try(pk_atom_cons(lisp, atoms.e[0], pk_atom_nil(lisp), &head));
-    PKAtomCons *tail = head;
+    tail = head;
     
-    for (size_t i = 1; i < atoms.length; ++i) {
+    for (i = 1; i < atoms.length; ++i) {
         PKAtomCons *next;
         pk_try(pk_atom_cons(lisp, atoms.e[i], pk_atom_nil(lisp), &next));
         tail->cdr = (PKAtom *)next;
@@ -76,15 +67,19 @@ PKRes pk_slice_list(Pocket lisp, PKAtoms atoms, PKAtom **output) {
 }
 
 PKRes pk_slice_list_rev(Pocket lisp, PKAtoms atoms, PKAtom **output) {
+    size_t last = 0;
+    size_t i = 0;
+    PKAtomCons *head = NULL;
+    PKAtomCons *tail = NULL;
+    
     if (atoms.length == 0) {
         *output = pk_atom_nil(lisp);
         return PK_Ok;
     }
-    size_t last = atoms.length - 1;
-    PKAtomCons *head = NULL;
+    last = atoms.length - 1;
     pk_try(pk_atom_cons(lisp, atoms.e[last], pk_atom_nil(lisp), &head));
-    PKAtomCons *tail = head;
-    for (size_t i = 0; i < last; ++i) {
+    tail = head;
+    for (i = 0; i < last; ++i) {
         size_t index = pk_index_inv(i, last);
         PKAtomCons *next;
         pk_try(pk_atom_cons(lisp, atoms.e[index], pk_atom_nil(lisp), &next));
@@ -96,15 +91,20 @@ PKRes pk_slice_list_rev(Pocket lisp, PKAtoms atoms, PKAtom **output) {
 }
 
 PKRes pk_slice_list_tailed(Pocket lisp, PKAtoms atoms, PKAtom **output) {
+    size_t i = 0;
+    PKAtomCons *head = NULL;
+    PKAtomCons *tail = NULL;
+    
     if (atoms.length == 0) {
         *output = pk_atom_nil(lisp);
         return PK_Ok;
     }
-    PKAtomCons *head = NULL;
+    
     pk_try(pk_atom_cons(lisp, atoms.e[0], pk_atom_nil(lisp), &head));
-    PKAtomCons *tail = head;
-    for (size_t i = 1; i < (atoms.length - 1); ++i) {
-        PKAtomCons *next;
+    tail = head;
+    
+    for (i = 1; i < (atoms.length - 1); ++i) {
+        PKAtomCons *next = NULL;
         pk_try(pk_atom_cons(lisp, atoms.e[i], pk_atom_nil(lisp), &next));
         tail->cdr = (PKAtom *)next;
         tail = next;

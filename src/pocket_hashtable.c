@@ -2,15 +2,16 @@
 
 PKRes pk_hashtable_grow(Pocket lisp, PKHashTable *ht) {
     size_t new_capacity = pk_grow_capacity(ht->capacity, PK_SET_INIT_CAPACITY);
-    
+    size_t i = 0;
     PKHashTableSlot **new_e = NULL;
+    
     pk_try(pk_malloc(lisp, new_capacity * sizeof(PKHashTableSlot *), (void **)&new_e));
     
-    for (size_t i = 0; i < new_capacity; i++) {
+    for (i = 0; i < new_capacity; i++) {
         new_e[i] = NULL;
     }
 
-    for (size_t i = 0; i < ht->capacity; i++) {
+    for (i = 0; i < ht->capacity; i++) {
         PKHashTableSlot *entry = ht->e[i];
         while (entry != NULL) {
             PKHashTableSlot *next = entry->chain;
@@ -30,15 +31,18 @@ PKRes pk_hashtable_grow(Pocket lisp, PKHashTable *ht) {
 }
 
 PKRes pk_hashtable_get(Pocket lisp, PKHashTable *ht, PKAtom *key, PKAtom **output) {
+    PKHashTableSlot *entry = NULL;
+    size_t bucket = 0;
+    
     (void)lisp;
     if (ht->count == 0) {
         *output = NULL;
         return PK_Ok;
     }
 
-    size_t bucket = pk_hash_pointer(key) % ht->capacity;
+    bucket = pk_hash_pointer(key) % ht->capacity;
 
-    for (PKHashTableSlot *entry = ht->e[bucket]; entry; entry = entry->chain) {
+    for (entry = ht->e[bucket]; entry; entry = entry->chain) {
         if (entry->key == key) {
             *output = entry->value;
             return PK_Ok;
@@ -50,33 +54,37 @@ PKRes pk_hashtable_get(Pocket lisp, PKHashTable *ht, PKAtom *key, PKAtom **outpu
 }
     
 PKRes pk_hashtable_put(Pocket lisp, PKHashTable *ht, PKAtom *key, PKAtom *value) {
+    PKHashTableSlot *slot = NULL;
+    PKHashTableSlot *entry = NULL;
+    size_t bucket = 0;
+    
     if (ht->count >= ht->capacity) {
         pk_try(pk_hashtable_grow(lisp, ht));
     }
 
-    size_t bucket = pk_hash_pointer(key) % ht->capacity;
+    bucket = pk_hash_pointer(key) % ht->capacity;
 
-    for (PKHashTableSlot *slot = ht->e[bucket]; slot; slot = slot->chain) {
+    for (slot = ht->e[bucket]; slot; slot = slot->chain) {
         if (slot->key == key) {
             slot->value = value;
             return PK_Ok;
         }
     }
 
-    PKHashTableSlot *entry = NULL;
     pk_try(pk_malloc(lisp, sizeof(PKHashTableSlot), (void **)&entry));
-    *entry = (PKHashTableSlot) {
-        .key = key,
-        .value = value,
-        .chain = ht->e[bucket],
-    };
+    
+    entry->key = key;
+    entry->value = value;
+    entry->chain = ht->e[bucket];
+    
     ht->e[bucket] = entry;
     ht->count++;
     return PK_Ok;
 }
         
 void pk_hashtable_deinit(Pocket lisp, PKHashTable *ht) {
-    for (size_t i = 0; i < ht->capacity; i++) {
+    size_t i = 0;
+    for (i = 0; i < ht->capacity; i++) {
         PKHashTableSlot *entry = ht->e[i];
         while (entry) {
             PKHashTableSlot *next = entry->chain;

@@ -70,7 +70,7 @@ PKRes pk_fn_slurp(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_try(pk_to_string(lisp, 1, &a, &a_length));
     pk_try(pk_slurp(lisp, a, &b, &b_length));
-    pk_try(pk_atom_string_nomemcpy(lisp, b, b_length, &string));
+    pk_try(pk_atom_stringn_nomemcpy(lisp, b, b_length, &string));
     pk_try(pk_push(lisp, (PKAtom *)string));
     return PK_Ok;
 }
@@ -440,16 +440,14 @@ PKRes pk_load_std(Pocket lisp) {
         PKAtomCFunc *cfunc = NULL;
         PKAtomSymbol *sym = NULL;
         PKAtom *_ignored = NULL;
-        size_t length = 0;
         PKFuncArity arity;
         PKFuncRecord *rec = &lib[i];
 
         arity.args = rec->args;
         arity.mode = rec->mode;
-        length = strlen(rec->sym);
         
         pk_try(pk_atom_cfunc(lisp, rec->user_closure, rec->fn, arity, &cfunc));
-        pk_try(pk_atom_symbol_interned(lisp, rec->sym, length, &sym));
+        pk_try(pk_atom_symbol_interned(lisp, rec->sym, &sym));
         pk_try(pk_env_set(lisp, PKEnvTy_Fun, sym, (PKAtom *)cfunc, &_ignored));
     }
     return PK_Ok;

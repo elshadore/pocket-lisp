@@ -50,13 +50,20 @@ PKAtomSymbol *pk_intern_lookup(Pocket lisp, const char *c, size_t length) {
     return NULL;
 }
 
-PKRes pk_atom_symbol_interned(Pocket lisp, const char *c, size_t length, PKAtomSymbol **output) {
+PKRes pk_atom_symbol_interned(Pocket lisp, const char *cstr, PKAtomSymbol **output) {
+    size_t length = 0;
+    length = strlen(cstr);
+    return pk_atom_symboln_interned(lisp, cstr, length, output);
+}
+
+    
+PKRes pk_atom_symboln_interned(Pocket lisp, const char *string, size_t length, PKAtomSymbol **output) {
     PKAtomSymbol *existing = NULL;
     PKAtomSymbol *sym = NULL;
     size_t hash = 0;
     size_t bucket = 0;
     
-    existing = pk_intern_lookup(lisp, c, length);
+    existing = pk_intern_lookup(lisp, string, length);
     
     if (existing != NULL) {
         *output = existing;
@@ -67,8 +74,8 @@ PKRes pk_atom_symbol_interned(Pocket lisp, const char *c, size_t length, PKAtomS
         pk_try(pk_intern_grow(lisp));
     }
 
-    pk_try(pk_atom_symbol_uninterned(lisp, c, length, &sym));
-    hash = pk_hash_djb2(c, length);
+    pk_try(pk_atom_symboln_uninterned(lisp, string, length, &sym));
+    hash = pk_hash_djb2(string, length);
     bucket = hash % lisp->intern.capacity;
 
     sym->chain = lisp->intern.e[bucket];
@@ -78,23 +85,29 @@ PKRes pk_atom_symbol_interned(Pocket lisp, const char *c, size_t length, PKAtomS
     return PK_Ok;
 }
 
-PKRes pk_atom_symbol_uninterned(Pocket lisp, const char *c, size_t length, PKAtomSymbol **output) {
+PKRes pk_atom_symbol_uninterned(Pocket lisp, const char *csym, PKAtomSymbol **output) {
+    size_t length = 0;
+    length = strlen(csym);
+    return pk_atom_symboln_uninterned(lisp, csym, length, output);
+}
+    
+PKRes pk_atom_symboln_uninterned(Pocket lisp, const char *string, size_t length, PKAtomSymbol **output) {
     PKAtomSymbol *existing = NULL;
-    PKAtomString *string = NULL;
+    PKAtomString *a_string = NULL;
     PKAtom *a = NULL;
     
-    existing = pk_intern_lookup(lisp, c, length);
+    existing = pk_intern_lookup(lisp, string, length);
     
     if (existing != NULL) {
         *output = existing;
         return PK_Ok;
     }
 
-    pk_try(pk_atom_string(lisp, c, length, &string));
+    pk_try(pk_atom_stringn(lisp, string, length, &a_string));
     pk_try(pk_atom_alloc(lisp, &a));
     
     a->tag.ty = PKAtomTy_Symbol;
-    a->symbol.id = string,
+    a->symbol.id = a_string,
     a->symbol.chain = NULL,
         
     *output = (PKAtomSymbol *)a;

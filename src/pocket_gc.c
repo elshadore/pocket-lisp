@@ -5,7 +5,8 @@ void pk_gc_mark(PKAtom *atom) {
         return;
     }
 
-    atom->tag.marked = true;
+    atom->tag.marked = PK_TRUE;
+    
     switch (atom->tag.ty) {
         case PKAtomTy_Cons: {
             PKAtomCons *cons = (PKAtomCons *)atom;
@@ -26,8 +27,10 @@ void pk_gc_mark(PKAtom *atom) {
 }
 
 void pk_gc_mark_symtable(PKSymTable *st) {
-    for (size_t i = 0; i < st->capacity; ++i) {
-        for (PKSymTableSlot *slot = st->e[i]; slot; slot = slot->chain) {
+    size_t i = 0;
+    for (i = 0; i < st->capacity; ++i) {
+        PKSymTableSlot *slot = NULL;
+        for (slot = st->e[i]; slot; slot = slot->chain) {
             pk_gc_mark((PKAtom *)slot->key);
             pk_gc_mark((PKAtom *)slot->value);
         }
@@ -83,7 +86,7 @@ PKRes pk_gc_collect(Pocket lisp) {
                     pk_atom_free(lisp, atom);
                 }
             }
-            atom->tag.marked = false;
+            atom->tag.marked = PK_FALSE;
         }
     }
     return PK_Ok;

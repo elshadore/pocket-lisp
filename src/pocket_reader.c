@@ -87,7 +87,7 @@ PKRes pk_read_atom_string(PKReader *r, PKAtomString **string) {
     while (pk_reader_inc(r, &c)) {
         if (c == '\"') {
             (void)pk_reader_inc(r, &c);
-            pk_defer(pk_atom_string(r->lisp, w.c, w.count, string));
+            pk_defer(pk_atom_stringn(r->lisp, w.c, w.count, string));
             result = PK_Ok;
             goto DEFER;
         } else if (c == '\\') {
@@ -220,7 +220,7 @@ PKRes pk_read_atom_symbol(PKReader *r, PKAtomSymbol **symbol) {
         if (!pk_reader_inc(r, &c)) break;
     } while(pk_char_is_symbol(c));
 
-    pk_try(pk_atom_symbol_interned(r->lisp, r->c + save, r->curr - save, symbol));
+    pk_try(pk_atom_symboln_interned(r->lisp, r->c + save, r->curr - save, symbol));
     
     return PK_Ok;
 }

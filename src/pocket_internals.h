@@ -345,6 +345,15 @@ pk_realloc(lisp_, ptr_, sizeof(type_) * old_count_, sizeof(type_) * new_count_, 
 
 #define pk_error(lisp) pk_error_impl(lisp, __FILE__, __LINE__)
 
+#define pk_stack_length_total(lisp_) \
+(lisp_)->stack.count
+
+#define pk_stack_length_frame(lisp_) \
+pk_stack_length_total(lisp_) - (lisp_)->current_frame.stack_offset
+
+#define pk_string_free(lisp_, c_, length_) \
+pk_free(lisp_, c_, length_)
+
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);
 size_t pk_next_pow2(size_t value);
 
@@ -356,11 +365,17 @@ void pk_atom_free(Pocket lisp, PKAtom *atom);
 
 PKRes pk_atom_int(Pocket lisp, int value, PKAtomNumber **output);
 PKRes pk_atom_float(Pocket lisp, float value, PKAtomNumber **output);
-PKRes pk_atom_string(Pocket lisp, const char *c, size_t length, PKAtomString **output);
-PKRes pk_atom_string_nomemcpy(Pocket lisp, char *c, size_t length, PKAtomString **output);
+
+PKRes pk_atom_string(Pocket lisp, const char *cstr, PKAtomString **output);
+PKRes pk_atom_stringn(Pocket lisp, const char *string, size_t length, PKAtomString **output);
+PKRes pk_atom_stringn_nomemcpy(Pocket lisp, char *string, size_t length, PKAtomString **output);
 PKRes pk_atom_string_concat(Pocket lisp, PKAtoms strings, PKAtomString **output);
-PKRes pk_atom_symbol_uninterned(Pocket lisp, const char *c, size_t length, PKAtomSymbol **output);
-PKRes pk_atom_symbol_interned(Pocket lisp, const char *c, size_t length, PKAtomSymbol **output);
+
+PKRes pk_atom_symbol_uninterned(Pocket lisp, const char *cstr, PKAtomSymbol **output);
+PKRes pk_atom_symbol_interned(Pocket lisp, const char *string, PKAtomSymbol **output);
+PKRes pk_atom_symboln_uninterned(Pocket lisp, const char *cstr, size_t length, PKAtomSymbol **output);
+PKRes pk_atom_symboln_interned(Pocket lisp, const char *string, size_t length, PKAtomSymbol **output);
+
 PKRes pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr, PKAtomCons **output);
 PKRes pk_atom_cons_car(Pocket lisp, PKAtom *car, PKAtomCons **output);
 PKRes pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity, PKAtomCFunc **output);
@@ -385,11 +400,6 @@ pk_bool pk_atom_is_nil(PKAtom *atom);
 pk_bool pk_atom_is_symbol(PKAtom *atom);
 
 PKRes pk_string_dupe(Pocket lisp, const char *c, size_t length, char **output);
-void pk_string_free(Pocket lisp, char *c, size_t length);
-
-#define pk_string_free(lisp_, c_, length_) \
-pk_free(lisp_, c_, length_)
-
 pk_bool pk_string_eq(const char *a, size_t a_length, const char *b, size_t b_length);
 
 PKRes pk_atom_cons_tail(Pocket lisp, PKAtomCons *cons, PKAtomCons **output);
@@ -397,11 +407,9 @@ PKRes pk_atom_list2(Pocket lisp, PKAtom *first, PKAtom *second, PKAtomCons **out
 
 PKRes pk_malloc(Pocket lisp, size_t size, void **output);
 PKRes pk_realloc(Pocket lisp, void *ptr, size_t old_size, size_t new_size, void **output);
-
 void pk_free(Pocket lisp, void *ptr, size_t size);
 
 PKRes pk_push(Pocket lisp, PKAtom *atom);
-PKRes pk_stack_expand(Pocket lisp, size_t total);
 PKRes pk_sp_index(Pocket lisp, int stack_pointer, size_t *index);
 PKRes pk_stack_head(Pocket lisp, PKAtom **output);
 PKRes pk_stack_pop(Pocket lisp, PKAtom **output);
