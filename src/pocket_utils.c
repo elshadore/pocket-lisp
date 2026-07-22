@@ -20,6 +20,20 @@ pk_bool pk_string_eq(const char *a, size_t a_length, const char *b, size_t b_len
     return (pk_bool)memcmp(a, b, a_length) == 0;
 }
 
+void pk_string_reverse(char *c, size_t length) {
+    size_t i = 0;
+    size_t j = 0;
+    
+    if (length <= 1) return;
+    j = length - 1;
+    
+    for (; i < j; i++, j--) {
+        char temp = c[i];
+        c[i] = c[j];
+        c[j] = temp;
+    }
+}
+
 PKRes pk_print(Pocket lisp, char *c, size_t length) {
     (lisp->print)(lisp->user_env, c, length);
     return PK_Ok;
@@ -81,6 +95,7 @@ pk_bool pk_char_is_digit(char c) {
 
 pk_bool pk_char_is_whitespace(char c) {
     switch (c) {
+        case '\0': return PK_TRUE;
         case ' ': return PK_TRUE;
         case '\n': return PK_TRUE;
         case '\f': return PK_TRUE;

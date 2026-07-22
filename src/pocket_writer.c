@@ -96,8 +96,26 @@ PKRes pk_writer_string_escaped(PKWriter *w, const char *string) {
 }
 
 PKRes pk_writer_int(PKWriter *w, int integer) {
-    (void)integer;
-    pk_try(pk_writer_string(w, "[TODO: writing integers]"));
+    unsigned int dec = 0;
+    size_t save = 0;
+    
+    if (integer < 0) {
+        dec = (unsigned int)-integer;
+        pk_try(pk_writer_char(w, '-'));
+    } else {
+        dec = (unsigned int)integer;
+    }
+    
+    save = w->count;
+    
+    do {
+        int digit = dec % 10;
+        pk_try(pk_writer_char(w, pk_char_from_digit((pk_u8)digit)));
+        
+    } while ((dec /= 10) > 0);
+    
+    pk_string_reverse(w->c + save, w->count - save);
+    
     return PK_Ok;
 }
 

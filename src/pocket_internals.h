@@ -168,9 +168,12 @@ typedef struct PKWriter_ {
 
 typedef struct PKReader_ {
     Pocket lisp;
-    char *c;
+    char *string;
     size_t length;
     size_t curr;
+    size_t line;
+    size_t bol;
+    char c;
 } PKReader;
 
 typedef struct PKLet_ {
@@ -391,6 +394,7 @@ pk_bool pk_atom_is_symbol(PKAtom *atom);
 
 PKRes pk_string_dupe(Pocket lisp, const char *c, size_t length, char **output);
 pk_bool pk_string_eq(const char *a, size_t a_length, const char *b, size_t b_length);
+void pk_string_reverse(char *c, size_t length);
 
 PKRes pk_atom_cons_tail(Pocket lisp, PKAtomCons *cons, PKAtomCons **output);
 PKRes pk_atom_list2(Pocket lisp, PKAtom *first, PKAtom *second, PKAtomCons **output);
