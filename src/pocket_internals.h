@@ -5,7 +5,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <stdarg.h>
 #include <limits.h>
 
 #define PK_WRITER_INIT_CAPACITY (256)
@@ -385,9 +384,13 @@ pk_bool pk_atom_is_true(PKAtom *atom);
 pk_bool pk_atom_is_nil(PKAtom *atom);
 pk_bool pk_atom_is_symbol(PKAtom *atom);
 
-PKRes pk_string_dupe(Pocket lisp, char *c, size_t length, char **output);
+PKRes pk_string_dupe(Pocket lisp, const char *c, size_t length, char **output);
 void pk_string_free(Pocket lisp, char *c, size_t length);
-pk_bool pk_string_eq(char *a, size_t a_length, char *b, size_t b_length);
+
+#define pk_string_free(lisp_, c_, length_) \
+pk_free(lisp_, c_, length_)
+
+pk_bool pk_string_eq(const char *a, size_t a_length, const char *b, size_t b_length);
 
 PKRes pk_atom_cons_tail(Pocket lisp, PKAtomCons *cons, PKAtomCons **output);
 PKRes pk_atom_list2(Pocket lisp, PKAtom *first, PKAtom *second, PKAtomCons **output);
@@ -428,10 +431,10 @@ float pk_number_to_float(PKAtomNumber *num);
 PKWriter pk_writer_init(Pocket lisp);
 PKRes pk_writer_deinit(PKWriter *w);
 PKRes pk_writer_char(PKWriter *w, char c);
-PKRes pk_writer_string(PKWriter *w, const char *c);
-PKRes pk_writer_stringn(PKWriter *w, const char *c, size_t length);
-PKRes pk_writer_string_escaped(PKWriter *w, const char *c);
-PKRes PK_PRINTF(2, 3) pk_writer_printf(PKWriter *w, const char *fmt, ...);
+PKRes pk_writer_string(PKWriter *w, const char *string);
+PKRes pk_writer_stringn(PKWriter *w, const char *string, size_t length);
+PKRes pk_writer_string_escaped(PKWriter *w, const char *string);
+PKRes pk_writer_stringn_escaped(PKWriter *w, const char *string, size_t length);
 PKRes pk_writer_newline(PKWriter *w);
 PKRes pk_writer_int(PKWriter *w, int integer);
 PKRes pk_writer_float(PKWriter *w, float floater);
@@ -468,7 +471,7 @@ PKAtoms pk_frame_slice(Pocket lisp, PKFrame *frame, size_t length);
 PKRes pk_let_push(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value);
 PKRes pk_let_pop(Pocket lisp, size_t n);
 
-size_t pk_hash_djb2(char *c, size_t length);
+size_t pk_hash_djb2(const char *c, size_t length);
 size_t pk_hash_pointer(void *ptr);
 
 PKRes pk_symtable_grow(Pocket lisp, PKSymTable *st);
@@ -505,27 +508,6 @@ void pk_arena_deinit_all(Pocket lisp);
 PKRes pk_arena_alloc(Pocket lisp, size_t size, void **output);
 void *pk_arena_savepoint(Pocket lisp);
 void pk_arena_restore(Pocket lisp, void *ptr);
-
-PKRes pk_interp(Pocket lisp, size_t stop);
-PKRes pk_interp_eval(Pocket lisp);
-PKRes pk_interp_apply(Pocket lisp);
-PKRes pk_interp_evlist(Pocket lisp);
-PKRes pk_interp_evlist_2(Pocket lisp);
-PKRes pk_interp_evargs(Pocket lisp);
-
-PKRes pk_interp_let_bind(Pocket lisp);
-PKRes pk_interp_let(Pocket lisp);
-PKRes pk_interp_flet(Pocket lisp);
-
-PKRes pk_interp_if(Pocket lisp);
-PKRes pk_interp_while(Pocket lisp);
-PKRes pk_interp_while_2(Pocket lisp);
-
-PKRes pk_interp_quote(Pocket lisp);
-PKRes pk_interp_quote_end(Pocket lisp);
-
-PKRes pk_process_special_form(Pocket lisp, PKAtomSymbol *symbol, PKAtom *rest, PKAtom *expression, pk_bool *is_special);
-PKRes pk_process_quote(Pocket lisp, PKAtom *atom);
 
 PKRes pk_ret_top(Pocket lisp);
 PKRes pk_ret_nil(Pocket lisp);

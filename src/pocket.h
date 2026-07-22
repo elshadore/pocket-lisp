@@ -14,8 +14,6 @@ typedef PKRes (*PKFn)(void *user_closure, Pocket lisp);
 typedef void *(*PKAllocFn)(void *user_env, void *ptr, size_t old_size, size_t new_size);
 typedef void (*PKPrintFn)(void *user_env, char *c, size_t length);
 
-#define PK_PRINTF(fmt_, args_) __attribute__ ((format (printf, fmt_, args_)))
-
 #define pk_try(expr_) do { \
     if ((expr_) == PK_Yield) { \
         return PK_Yield; \
@@ -88,7 +86,6 @@ PKRes pk_push_int(Pocket lisp, int integer);
 PKRes pk_push_float(Pocket lisp, float floater);
 PKRes pk_push_string(Pocket lisp, const char *cstr);
 PKRes pk_push_stringn(Pocket lisp, const char *string, size_t length);
-PKRes PK_PRINTF(2, 3) pk_push_printf(Pocket lisp, const char *fmt, ...);
 PKRes pk_push_symbol(Pocket lisp, const char *csym);
 PKRes pk_push_symboln(Pocket lisp, const char *symbol, size_t length);
 PKRes pk_push_cons(Pocket lisp, int car, int cdr);
@@ -138,7 +135,7 @@ PKRes pk_is_cons(Pocket lisp, int stack_pointer, int *output);
 Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print);
 void pk_deinit(Pocket lisp);
 
-PKRes pk_stack_dump(Pocket lisp, const char *tag);
+PKRes pk_dump_stack(Pocket lisp, const char *tag);
 PKRes pk_trace_dump(Pocket lisp, const char *tag);
 PKRes pk_env_dump(Pocket lisp, const char *tag);
 

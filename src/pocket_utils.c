@@ -1,29 +1,23 @@
 #include "pocket_internals.h"
 
-PKRes pk_string_dupe(Pocket lisp, PKString string, PKString *output) {
-    if (string.length == 0) {
-        *output = PK_STRING_EMPTY;
+PKRes pk_string_dupe(Pocket lisp, const char *c, size_t length, char **output) {
+    char *copy = NULL;
+    
+    if (length == 0) {
+        *output = NULL;
         return PK_Ok;
     }
-    void *copy;
-    pk_try(pk_malloc(lisp, string.length, &copy));
-    memcpy(copy, string.c, string.length);
-    *output = (PKString){ .c = copy, .length = string.length };
+    
+    pk_try(pk_malloc(lisp, length, (void **)&copy));
+    (void)memcpy(copy, c, length);
+    *output = copy;
+
     return PK_Ok;
 }
 
-void pk_string_free(Pocket lisp, PKString string) {
-    pk_free(lisp, string.c, string.length);
-}
-
-PKRes pk_string_from_cstr(char *cstr, PKString *output) {
-    *output = (PKString){ .c = cstr, .length = strlen(cstr) };
-    return PK_Ok;
-}
-
-bool pk_string_eq(PKString a, PKString b) {
-    if (a.length != b.length) return false;
-    return memcmp(a.c, b.c, a.length) == 0;
+pk_bool pk_string_eq(const char *a, size_t a_length, const char *b, size_t b_length) {
+    if (a_length != b_length) return PK_FALSE;
+    return (pk_bool)memcmp(a, b, a_length) == 0;
 }
 
 PKRes pk_print(Pocket lisp, char *c, size_t length) {
@@ -37,7 +31,7 @@ PKRes pk_puts(Pocket lisp, char *c, size_t length) {
     return PK_Ok;
 }
 
-uint8_t pk_char_to_digit(char c) {
+pk_u8 pk_char_to_digit(char c) {
     switch (c) {
         case '0': return 0;
         case '1': return 1;
@@ -53,7 +47,7 @@ uint8_t pk_char_to_digit(char c) {
     }
 }
 
-char pk_char_from_digit(uint8_t integer) {
+char pk_char_from_digit(pk_u8 integer) {
     switch (integer) {
         case 0: return '0';
         case 1: return '1';
@@ -69,62 +63,62 @@ char pk_char_from_digit(uint8_t integer) {
     }
 }
 
-bool pk_char_is_digit(char c) {
+pk_bool pk_char_is_digit(char c) {
     switch (c) {
-        case '0': return true;
-        case '1': return true;
-        case '2': return true;
-        case '3': return true;
-        case '4': return true;
-        case '5': return true;
-        case '6': return true;
-        case '7': return true;
-        case '8': return true;
-        case '9': return true;
-        default: return false;
+        case '0': return PK_TRUE;
+        case '1': return PK_TRUE;
+        case '2': return PK_TRUE;
+        case '3': return PK_TRUE;
+        case '4': return PK_TRUE;
+        case '5': return PK_TRUE;
+        case '6': return PK_TRUE;
+        case '7': return PK_TRUE;
+        case '8': return PK_TRUE;
+        case '9': return PK_TRUE;
+        default: return PK_FALSE;
     }
 }
 
-bool pk_char_is_whitespace(char c) {
+pk_bool pk_char_is_whitespace(char c) {
     switch (c) {
-        case ' ': return true;
-        case '\n': return true;
-        case '\f': return true;
-        case '\r': return true;
-        case '\t': return true;
-        case '\v': return true;
-        default: return false;
+        case ' ': return PK_TRUE;
+        case '\n': return PK_TRUE;
+        case '\f': return PK_TRUE;
+        case '\r': return PK_TRUE;
+        case '\t': return PK_TRUE;
+        case '\v': return PK_TRUE;
+        default: return PK_FALSE;
     }
 }
 
-bool pk_char_is_alphabet(char c) {
-    if (c >= 'A' && c <= 'Z') return true;
-    if (c >= 'a' && c <= 'z') return true;
-    return false;
+pk_bool pk_char_is_alphabet(char c) {
+    if (c >= 'A' && c <= 'Z') return PK_TRUE;
+    if (c >= 'a' && c <= 'z') return PK_TRUE;
+    return PK_FALSE;
 }
 
-bool pk_char_is_symbol(char c) {
+pk_bool pk_char_is_symbol(char c) {
     switch (c) {
-        case '+': return true;
-        case '-': return true;
-        case '/': return true;
-        case '*': return true;
-        case '!': return true;
-        case '?': return true;
-        case '>': return true;
-        case '<': return true;
-        case '=': return true;
-        case '_': return true;
-        case '%': return true;
+        case '+': return PK_TRUE;
+        case '-': return PK_TRUE;
+        case '/': return PK_TRUE;
+        case '*': return PK_TRUE;
+        case '!': return PK_TRUE;
+        case '?': return PK_TRUE;
+        case '>': return PK_TRUE;
+        case '<': return PK_TRUE;
+        case '=': return PK_TRUE;
+        case '_': return PK_TRUE;
+        case '%': return PK_TRUE;
         default: {
-            if (pk_char_is_alphabet(c)) return true;
-            if (pk_char_is_digit(c)) return true;
-            return false;
+            if (pk_char_is_alphabet(c)) return PK_TRUE;
+            if (pk_char_is_digit(c)) return PK_TRUE;
+            return PK_FALSE;
         }
     }
 }
 
-char pk_char_from_hex(uint8_t byte) {
+char pk_char_from_hex(pk_u8 byte) {
     switch (byte) {
         case 0: return '0';
         case 1: return '1';
@@ -145,7 +139,7 @@ char pk_char_from_hex(uint8_t byte) {
     }
 }
 
-bool pk_char_is_hex(char c) {
+pk_bool pk_char_is_hex(char c) {
     switch (c) {
         case '0':
         case '1':
@@ -168,12 +162,12 @@ bool pk_char_is_hex(char c) {
         case 'c':
         case 'd':
         case 'e':
-        case 'f': return true;
-        default: return false;
+        case 'f': return PK_TRUE;
+        default: return PK_FALSE;
     }
 }
 
-uint8_t pk_char_to_hex(char c) {
+pk_u8 pk_char_to_hex(char c) {
     switch (c) {
         case '0': return 0;
         case '1': return 1;
@@ -201,29 +195,45 @@ uint8_t pk_char_to_hex(char c) {
     }
 }
 
-size_t pk_hash_djb2(char *c, size_t length) {
+size_t pk_hash_djb2(const char *c, size_t length) {
     size_t hash = 5381;
-    for (size_t i = 0; i < length; ++i) {
+    size_t i = 0;
+    for (i = 0; i < length; ++i) {
         hash = ((hash << 5) + hash) + (size_t)c[i];
     }
     return hash;
 }
 
 size_t pk_hash_pointer(void *ptr) {
-    uintptr_t p = (uintptr_t)ptr;
+    size_t p = (size_t)ptr;
     return (size_t)(p >> 3);
 }
 
-PKRes pk_stack_dump(Pocket lisp, const char *tag) {
+PKRes pk_dump_stack(Pocket lisp, const char *tag) {
     int top = pk_get_top(lisp);
+    int i = 0;
     PKWriter w = pk_writer_init(lisp);
     PKRes result = PK_Yield;
-    pk_defer(pk_writer_printf(&w, "*~STACK-DUMP~* (tag = %s)\n", tag));
-    for (int i = top; i > 0; i--) {
+    
+    pk_defer(pk_writer_string(&w, "*~STACK-DUMP~*"));
+    if (tag != NULL) {
+        pk_defer(pk_writer_string(&w, " (tag = "));
+        pk_defer(pk_writer_string(&w, tag));
+        pk_defer(pk_writer_string(&w, ")"));
+    }
+    pk_defer(pk_writer_newline(&w));
+    
+    for (i = top; i > 0; i--) {
         int rel = pk_sp_relative(lisp, i);
-        PKAtom *a;
+        PKAtom *a = NULL;
         pk_defer(pk_stack_get(lisp, i, &a));
-        pk_defer(pk_writer_printf(&w, "    [%d/%d] => ", rel, i));
+        
+        pk_defer(pk_writer_string(&w, "    ["));
+        pk_defer(pk_writer_int(&w, rel));
+        pk_defer(pk_writer_string(&w, "/"));
+        pk_defer(pk_writer_int(&w, i));
+        pk_defer(pk_writer_string(&w, "] => "));
+        
         pk_defer(pk_writer_atom(&w, a));
         pk_defer(pk_writer_newline(&w));
     }
@@ -234,6 +244,7 @@ PKRes pk_stack_dump(Pocket lisp, const char *tag) {
     return result;
 }
 
+/*
 PKRes pk_frame_dump(Pocket lisp, PKWriter *w, PKFrame *frame, size_t length, size_t index) {
     PKString id = pk_ident_evalmode(frame->mode);
     pk_try(pk_writer_printf(w, "FRAME: [%zu] [%.*s]", index, (int)id.length, id.c));
@@ -329,24 +340,36 @@ PKRes pk_env_dump(Pocket lisp, const char *tag) {
     pk_writer_deinit(&w);
     return result;
 }
+*/
 
-PKRes pk_slurp(Pocket lisp, const char *file_path, PKString *output) {
-    FILE *f = fopen(file_path, "rb");
+PKRes pk_slurp(Pocket lisp, const char *file_path, char **out_c, size_t *out_length) {
+    FILE *f = NULL;
+    long length = 0;
+    size_t read = 0;
+    char *buf = NULL;
+    
+    f = fopen(file_path, "rb");
+    
     if (f == NULL) {
         return pk_error(lisp);
     }
     fseek(f, 0, SEEK_END);
-    long length = ftell(f);
+    length = ftell(f);
     if (length < 0) {
         fclose(f);
         return pk_error(lisp);
     }
     rewind(f);
-    void *buf;
-    pk_try(pk_malloc(lisp, (size_t)length, &buf));
-    size_t read = fread(buf, 1, (size_t)length, f);
+    if (!pk_malloc(lisp, (size_t)length, (void **)&buf)) {
+        fclose(f);
+        return PK_Yield;
+    }
+    read = fread(buf, 1, (size_t)length, f);
     fclose(f);
-    *output = pk_string_new(buf, read);
+    
+    *out_c = buf;
+    *out_length = read;
+    
     return PK_Ok;
 }
 

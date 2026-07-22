@@ -1,15 +1,18 @@
 #include "pocket_internals.h"
 
 PKRes pk_intern_grow(Pocket lisp) {
-    size_t new_capacity = pk_grow_capacity(lisp->intern.capacity, PK_INTERN_INIT_CAPACITY);
-    void *mem;
-    pk_try(pk_malloc(lisp, new_capacity * sizeof(PKAtomSymbol *), &mem));
-    PKAtomSymbol **new_e = mem;
-    for (size_t i = 0; i < new_capacity; i++) {
+    PKAtomSymbol **new_e = NULL;
+    size_t new_capacity = 0;
+    size_t i = 0;
+    
+    new_capacity = pk_grow_capacity(lisp->intern.capacity, PK_INTERN_INIT_CAPACITY);
+    
+    pk_try(pk_malloc(lisp, new_capacity * sizeof(PKAtomSymbol *), (void **)&new_e));
+    for (i = 0; i < new_capacity; i++) {
         new_e[i] = NULL;
     }
 
-    for (size_t i = 0; i < lisp->intern.capacity; i++) {
+    for (i = 0; i < lisp->intern.capacity; i++) {
         PKAtomSymbol *sym = lisp->intern.e[i];
         while (sym) {
             PKAtomSymbol *next = sym->chain;
@@ -20,30 +23,42 @@ PKRes pk_intern_grow(Pocket lisp) {
         }
     }
 
-    if (lisp->intern.e)
+    if (lisp->intern.e != NULL) {
         pk_free(lisp, lisp->intern.e, lisp->intern.capacity * sizeof(PKAtomSymbol *));
+    }
     lisp->intern.e = new_e;
     lisp->intern.capacity = new_capacity;
     return PK_Ok;
 }
 
-PKAtomSymbol *pk_intern_lookup(Pocket lisp, PKString id) {
+PKAtomSymbol *pk_intern_lookup(Pocket lisp, const char *c, size_t length) {
+    PKAtomSymbol *sym = NULL;
+    size_t hash = 0;
+    size_t bucket = 0;
+    
     if (lisp->intern.capacity == 0) return NULL;
 
-    size_t hash = pk_hash_djb2(id.c, id.length);
-    size_t bucket = hash % lisp->intern.capacity;
+    hash = pk_hash_djb2(c, length);
+    bucket = hash % lisp->intern.capacity;
 
-    for (PKAtomSymbol *sym = lisp->intern.e[bucket]; sym; sym = sym->chain) {
-        if (sym->id->hash == hash && pk_string_eq(sym->id->lit, id)) {
+    for (sym = lisp->intern.e[bucket]; sym; sym = sym->chain) {
+        if (sym->id->hash == hash && pk_string_eq(sym->id->c, sym->id->length, c, length)) {
             return sym;
         }
     }
+    
     return NULL;
 }
 
-PKRes pk_atom_symbol_interned(Pocket lisp, PKString id, PKAtomSymbol **output) {
-    PKAtomSymbol *existing = pk_intern_lookup(lisp, id);
-    if (existing) {
+PKRes pk_atom_symbol_interned(Pocket lisp, const char *c, size_t length, PKAtomSymbol **output) {
+    PKAtomSymbol *existing = NULL;
+    PKAtomSymbol *sym = NULL;
+    size_t hash = 0;
+    size_t bucket = 0;
+    
+    existing = pk_intern_lookup(lisp, c, length);
+    
+    if (existing != NULL) {
         *output = existing;
         return PK_Ok;
     }
@@ -52,10 +67,9 @@ PKRes pk_atom_symbol_interned(Pocket lisp, PKString id, PKAtomSymbol **output) {
         pk_try(pk_intern_grow(lisp));
     }
 
-    PKAtomSymbol *sym;
-    pk_try(pk_atom_symbol_uninterned(lisp, id, &sym));
-    size_t hash = pk_hash_djb2(id.c, id.length);
-    size_t bucket = hash % lisp->intern.capacity;
+    pk_try(pk_atom_symbol_uninterned(lisp, c, length, &sym));
+    hash = pk_hash_djb2(c, length);
+    bucket = hash % lisp->intern.capacity;
 
     sym->chain = lisp->intern.e[bucket];
     lisp->intern.e[bucket] = sym;
@@ -64,25 +78,26 @@ PKRes pk_atom_symbol_interned(Pocket lisp, PKString id, PKAtomSymbol **output) {
     return PK_Ok;
 }
 
-PKRes pk_atom_symbol_uninterned(Pocket lisp, PKString id, PKAtomSymbol **output) {
-    PKAtomSymbol *existing = pk_intern_lookup(lisp, id);
-    if (existing) {
+PKRes pk_atom_symbol_uninterned(Pocket lisp, const char *c, size_t length, PKAtomSymbol **output) {
+    PKAtomSymbol *existing = NULL;
+    PKAtomString *string = NULL;
+    PKAtom *a = NULL;
+    
+    existing = pk_intern_lookup(lisp, c, length);
+    
+    if (existing != NULL) {
         *output = existing;
         return PK_Ok;
     }
 
-    PKAtomString *string;
-    pk_try(pk_atom_string(lisp, id, &string));
-    PKAtom *a;
+    pk_try(pk_atom_string(lisp, c, length, &string));
     pk_try(pk_atom_alloc(lisp, &a));
-    PKAtomSymbol *atom = (PKAtomSymbol *)a;
-    *atom = (PKAtomSymbol) {
-        .tag.ty = PKAtomTy_Symbol,
-        .tag.marked = false,
-        .id = string,
-        .chain = NULL,
-    };
-    *output = atom;
+    
+    a->tag.ty = PKAtomTy_Symbol;
+    a->symbol.id = string,
+    a->symbol.chain = NULL,
+        
+    *output = (PKAtomSymbol *)a;
     return PK_Ok;
 }
 
@@ -92,11 +107,11 @@ PKRes pk_atom_cast_symbol(Pocket lisp, PKAtom *atom, PKAtomSymbol **output) {
     return PK_Ok;
 }
 
-bool pk_atom_symbol_eq(Pocket lisp, PKAtomSymbol *lhs, PKAtomSymbol *rhs) {
-    if (lhs == rhs) return true;
+pk_bool pk_atom_symbol_eq(Pocket lisp, PKAtomSymbol *lhs, PKAtomSymbol *rhs) {
+    if (lhs == rhs) return PK_TRUE;
     return pk_atom_string_eq(lisp, lhs->id, rhs->id);
 }
 
-bool pk_atom_is_symbol(PKAtom *atom) {
+pk_bool pk_atom_is_symbol(PKAtom *atom) {
     return atom->tag.ty == PKAtomTy_Symbol;
 }
