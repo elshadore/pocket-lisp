@@ -62,16 +62,23 @@ PKRes pk_symtable_put(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom *va
     return PK_Ok;
 }
 
+size_t pk_symtable_hash(PKSymTable *st, PKAtomSymbol *key) {
+    return pk_hash_pointer(key) % st->capacity;
+}
+
 PKRes pk_symtable_get(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **output) {
+    PKSymTableSlot *entry = NULL;
+    size_t bucket = 0;
+    
     (void)lisp;
     if (st->count == 0) {
         *output = NULL;
         return PK_Ok;
     }
 
-    size_t bucket = pk_hash_pointer(key) % st->capacity;
+    bucket = pk_symtable_hash(st, key);
 
-    for (PKSymTableSlot *entry = st->e[bucket]; entry; entry = entry->chain) {
+    for (entry = st->e[bucket]; entry; entry = entry->chain) {
         if (entry->key == key) {
             *output = entry->value;
             return PK_Ok;
@@ -83,15 +90,18 @@ PKRes pk_symtable_get(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **o
 }
 
 PKRes pk_symtable_rem(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **output) {
+    PKSymTableSlot *prev = NULL;
+    PKSymTableSlot *slot = NULL;
+    size_t bucket = 0;
+    
     if (st->capacity == 0) {
         *output = NULL;
         return PK_Ok;
     }
 
-    size_t bucket = pk_hash_pointer(key) % st->capacity;
+    bucket = pk_symtable_hash(st, key);
 
-    PKSymTableSlot *prev = NULL;
-    for (PKSymTableSlot *slot = st->e[bucket]; slot; prev = slot, slot = slot->chain) {
+    for (slot = st->e[bucket]; slot; prev = slot, slot = slot->chain) {
         if (slot->key == key) {
             *output = slot->value;
             if (prev) {
@@ -104,17 +114,21 @@ PKRes pk_symtable_rem(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **o
             return PK_Ok;
         }
     }
+    
     *output = NULL;
     return PK_Ok;
 }
 
 PKRes pk_symtable_alist(Pocket lisp, PKSymTable *st, PKAtom **output) {
     PKAtom *alist = pk_atom_nil(lisp);
-    for (size_t i = 0; i < st->capacity; i++) {
-        for (PKSymTableSlot *slot = st->e[i]; slot; slot = slot->chain) {
+    size_t i = 0;
+    
+    for (i = 0; i < st->capacity; i++) {
+        PKSymTableSlot *slot = NULL;
+        for (slot = st->e[i]; slot; slot = slot->chain) {
             PKAtomCons *pair;
-            pk_try(pk_atom_cons(lisp, (PKAtom *)slot->key, slot->value, &pair));
             PKAtomCons *new_alist;
+            pk_try(pk_atom_cons(lisp, (PKAtom *)slot->key, slot->value, &pair));
             pk_try(pk_atom_cons(lisp, (PKAtom *)pair, alist, &new_alist));
             alist = (PKAtom *)new_alist;
         }
@@ -124,7 +138,9 @@ PKRes pk_symtable_alist(Pocket lisp, PKSymTable *st, PKAtom **output) {
 }
 
 void pk_symtable_deinit(Pocket lisp, PKSymTable *st) {
-    for (size_t i = 0; i < st->capacity; i++) {
+    size_t i = 0;
+    
+    for (i = 0; i < st->capacity; i++) {
         PKSymTableSlot *entry = st->e[i];
         while (entry) {
             PKSymTableSlot *next = entry->chain;
@@ -135,5 +151,8 @@ void pk_symtable_deinit(Pocket lisp, PKSymTable *st) {
     if (st->e) {
         pk_free(lisp, st->e, st->capacity * sizeof(PKSymTableSlot *));
     }
-    *st = (PKSymTable){0};
+    
+    st->e = NULL;
+    st->count = 0;
+    st->capacity = 0;
 }

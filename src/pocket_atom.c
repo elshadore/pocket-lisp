@@ -5,10 +5,12 @@ PKAtom *pk_atom_nil(Pocket lisp) {
 }
 
 PKRes pk_atom_nil_new(Pocket lisp, PKAtom **output) {
-    PKAtom *atom;
-    pk_try(pk_atom_alloc(lisp, &atom));
-    atom->tag = (PKAtomTag){ .ty = PKAtomTy_Nil, .marked = false };
-    *output = atom;
+    PKAtom *a = NULL;
+    pk_try(pk_atom_alloc(lisp, &a));
+    
+    a->tag.ty = PKAtomTy_Nil;
+    
+    *output = a;
     return PK_Ok;
 }
 
@@ -17,17 +19,15 @@ PKAtom *pk_atom_t(Pocket lisp) {
 }
 
 PKRes pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity, PKAtomCFunc **output) {
-    PKAtom *a;
+    PKAtom *a = NULL;
     pk_try(pk_atom_alloc(lisp, &a));
-    PKAtomCFunc *atom = (PKAtomCFunc *)a;
-    *atom = (PKAtomCFunc) {
-        .tag.ty = PKAtomTy_CFunc,
-        .tag.marked = false,
-        .user_closure = user_closure,
-        .fn = fn,
-        .arity = arity,
-    };
-    *output = atom;
+    
+    a->tag.ty = PKAtomTy_CFunc;
+    a->cfunc.user_closure = user_closure;
+    a->cfunc.fn = fn;
+    a->cfunc.arity = arity;
+    
+    *output = (PKAtomCFunc *)a;
     return PK_Ok;
 }
 
@@ -37,27 +37,27 @@ PKRes pk_atom_cast_cfunc(Pocket lisp, PKAtom *atom, PKAtomCFunc **output) {
     return PK_Ok;
 }
 
-bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
-    if (lhs == rhs) return true;
-    if (lhs->tag.ty != rhs->tag.ty) return false;
+pk_bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
+    if (lhs == rhs) return PK_TRUE;
+    if (lhs->tag.ty != rhs->tag.ty) return PK_FALSE;
     switch (lhs->tag.ty) {
         case PKAtomTy_Number: {
-            bool result;
+            pk_bool result = PK_FALSE;
             pk_number_eq(lisp, (PKAtomNumber *)lhs, (PKAtomNumber *)rhs, &result);
             return result;
         }
         case PKAtomTy_String: {
             return pk_atom_string_eq(lisp, (PKAtomString *)lhs, (PKAtomString *)rhs);
         }
-        default: return false;
+        default: return PK_FALSE;
     }
 }
 
-bool pk_atom_is_nil(PKAtom *atom) {
+pk_bool pk_atom_is_nil(PKAtom *atom) {
     return atom->tag.ty == PKAtomTy_Nil;
 }
 
-bool pk_atom_is_true(PKAtom *atom) {
+pk_bool pk_atom_is_true(PKAtom *atom) {
     return !pk_atom_is_nil(atom);
 }
 

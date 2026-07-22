@@ -1,10 +1,13 @@
 #include "pocket_internals.h"
 
 PKRes pk_fn_add(void *user_closure, Pocket lisp) {
+    int top = 0;
+    int i = 0;
+    
     (void)user_closure;
-    int top = pk_get_top(lisp);
+    top = pk_get_top(lisp);
     pk_try(pk_dupe(lisp, 1));
-    for (int i = 2; i <= top; ++i) {
+    for (i = 2; i <= top; ++i) {
         pk_try(pk_add(lisp, -1, i));
         pk_try(pk_swap(lisp, -1, -2));
         pk_try(pk_pop(lisp));
@@ -13,10 +16,13 @@ PKRes pk_fn_add(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_fn_sub(void *user_closure, Pocket lisp) {
+    int top = 0;
+    int i = 0;
+    
     (void)user_closure;
-    int top = pk_get_top(lisp);
+    pk_get_top(lisp);
     pk_try(pk_dupe(lisp, 1));
-    for (int i = 2; i <= top; ++i) {
+    for (i = 2; i <= top; ++i) {
         pk_try(pk_sub(lisp, -1, i));
         pk_try(pk_swap(lisp, -1, -2));
         pk_try(pk_pop(lisp));
@@ -25,10 +31,13 @@ PKRes pk_fn_sub(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_fn_mul(void *user_closure, Pocket lisp) {
+    int top = 0;
+    int i = 0;
+    
     (void)user_closure;
-    int top = pk_get_top(lisp);
+    top = pk_get_top(lisp);
     pk_try(pk_dupe(lisp, 1));
-    for (int i = 2; i <= top; ++i) {
+    for (i = 2; i <= top; ++i) {
         pk_try(pk_add(lisp, -1, i));
         pk_try(pk_swap(lisp, -1, -2));
         pk_try(pk_pop(lisp));
@@ -37,10 +46,13 @@ PKRes pk_fn_mul(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_fn_div(void *user_closure, Pocket lisp) {
+    int top = 0;
+    int i = 0;
+    
     (void)user_closure;
-    int top = pk_get_top(lisp);
+    top = pk_get_top(lisp);
     pk_try(pk_dupe(lisp, 1));
-    for (int i = 2; i <= top; ++i) {
+    for (i = 2; i <= top; ++i) {
         pk_try(pk_add(lisp, -1, i));
         pk_try(pk_swap(lisp, -1, -2));
         pk_try(pk_pop(lisp));
@@ -49,20 +61,31 @@ PKRes pk_fn_div(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_fn_slurp(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    PKString path = PK_STRING_EMPTY;
-    pk_try(pk_to_string(lisp, 1, &path));
-    PKString contents = PK_STRING_EMPTY;
-    pk_try(pk_slurp(lisp, path.c, &contents));
     PKAtomString *string = NULL;
-    pk_try(pk_atom_string_nomemcpy(lisp, contents, &string));
+    char *a = NULL;
+    char *b = NULL;
+    size_t a_length = 0;
+    size_t b_length = 0;
+    
+    (void)user_closure;
+    pk_try(pk_to_string(lisp, 1, &a, &a_length));
+    pk_try(pk_slurp(lisp, a, &b, &b_length));
+    pk_try(pk_atom_string_nomemcpy(lisp, b, b_length, &string));
     pk_try(pk_push(lisp, (PKAtom *)string));
     return PK_Ok;
 }
 
 PKRes pk_fn_read(void *user_closure, Pocket lisp) {
+    PK_READ mode = PK_READ_EXPRESSION;
+    int boolean = 0;
+    
     (void)user_closure;
-    pk_try(pk_read(lisp, 1));
+    
+    pk_try(pk_is_nil(lisp, 2, &boolean));
+    if (boolean) {
+        mode = PK_READ_LISTED;
+    }
+    pk_try(pk_read(lisp, 1, mode));
     return PK_Ok;
 }
 
@@ -85,18 +108,22 @@ PKRes pk_fn_format(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_fn_print(void *user_closure, Pocket lisp) {
+    char *c = NULL;
+    size_t length = 0;
+    
     (void)user_closure;
-    PKString string;
-    pk_try(pk_to_string(lisp, 1, &string));
-    pk_try(pk_print(lisp, string.c, string.length));
+    pk_try(pk_to_string(lisp, 1, &c, &length));
+    pk_try(pk_print(lisp, c, length));
     return PK_Ok;
 }
 
 PKRes pk_fn_puts(void *user_closure, Pocket lisp) {
+    char *c = NULL;
+    size_t length = 0;
+    
     (void)user_closure;
-    PKString string;
-    pk_try(pk_to_string(lisp, 1, &string));
-    pk_try(pk_puts(lisp, string.c, string.length));
+    pk_try(pk_to_string(lisp, 1, &c, &length));
+    pk_try(pk_puts(lisp, c, length));
     return PK_Ok;
 }
 
@@ -149,36 +176,42 @@ PKRes pk_fn_cdr(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_fn_set_car(void *user_closure, Pocket lisp) {
+    PKAtom *c_atom = NULL;
+    PKAtomCons *c = NULL;
+    PKAtom *old = NULL;
+    
     (void)user_closure;
-    PKAtom *c_atom;
     pk_try(pk_stack_get(lisp, 2, &c_atom));
-    PKAtomCons *c;
     pk_try(pk_atom_cast_cons(lisp, c_atom, &c));
-    PKAtom *old = c->car;
+    old = c->car;
     pk_try(pk_set_car(lisp, 1, 2));
     pk_try(pk_push(lisp, old));
     return PK_Ok;
 }
 
 PKRes pk_fn_set_cdr(void *user_closure, Pocket lisp) {
+    PKAtom *c_atom = NULL;
+    PKAtomCons *c = NULL;
+    PKAtom *old = NULL;
     (void)user_closure;
-    PKAtom *c_atom;
     pk_try(pk_stack_get(lisp, 2, &c_atom));
-    PKAtomCons *c;
     pk_try(pk_atom_cast_cons(lisp, c_atom, &c));
-    PKAtom *old = c->cdr;
+    old = c->cdr;
     pk_try(pk_set_cdr(lisp, 1, 2));
     pk_try(pk_push(lisp, old));
     return PK_Ok;
 }
 
 PKRes pk_fn_gt(void *user_closure, Pocket lisp) {
+    int top = 0;
+    int i = 0;
+    
     (void)user_closure;
-    int top = pk_get_top(lisp);
-    for (int i = 1; i < top; ++i) {
-        bool result;
-        pk_try(pk_gt(lisp, i, i + 1, &result));
-        if (!result) {
+    top = pk_get_top(lisp);
+    for (i = 1; i < top; ++i) {
+        int boolean = 0;
+        pk_try(pk_gt(lisp, i, i + 1, &boolean));
+        if (!boolean) {
             pk_try(pk_push_nil(lisp));
             return PK_Ok;
         }
@@ -188,12 +221,15 @@ PKRes pk_fn_gt(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_fn_gte(void *user_closure, Pocket lisp) {
+    int top = 0;
+    int i = 0;
+    
     (void)user_closure;
-    int top = pk_get_top(lisp);
-    for (int i = 1; i < top; ++i) {
-        bool result;
-        pk_try(pk_gte(lisp, i, i + 1, &result));
-        if (!result) {
+    top = pk_get_top(lisp);
+    for (i = 1; i < top; ++i) {
+        int boolean = 0;
+        pk_try(pk_gte(lisp, i, i + 1, &boolean));
+        if (!boolean) {
             pk_try(pk_push_nil(lisp));
             return PK_Ok;
         }
@@ -203,12 +239,15 @@ PKRes pk_fn_gte(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_fn_lt(void *user_closure, Pocket lisp) {
+    int top = 0;
+    int i = 0;
+    
     (void)user_closure;
-    int top = pk_get_top(lisp);
-    for (int i = 1; i < top; ++i) {
-        bool result;
-        pk_try(pk_lt(lisp, i, i + 1, &result));
-        if (!result) {
+    top = pk_get_top(lisp);
+    for (i = 1; i < top; ++i) {
+        int boolean = 0;
+        pk_try(pk_lt(lisp, i, i + 1, &boolean));
+        if (!boolean) {
             pk_try(pk_push_nil(lisp));
             return PK_Ok;
         }
@@ -218,12 +257,15 @@ PKRes pk_fn_lt(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_fn_lte(void *user_closure, Pocket lisp) {
+    int top = 0;
+    int i = 0;
+    
     (void)user_closure;
-    int top = pk_get_top(lisp);
-    for (int i = 1; i < top; ++i) {
-        bool result;
-        pk_try(pk_lte(lisp, i, i + 1, &result));
-        if (!result) {
+    top = pk_get_top(lisp);
+    for (i = 1; i < top; ++i) {
+        int boolean = 0;
+        pk_try(pk_lte(lisp, i, i + 1, &boolean));
+        if (!boolean) {
             pk_try(pk_push_nil(lisp));
             return PK_Ok;
         }
@@ -233,12 +275,15 @@ PKRes pk_fn_lte(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_fn_eq(void *user_closure, Pocket lisp) {
+    int top = 0;
+    int i = 0;
+    
     (void)user_closure;
-    int top = pk_get_top(lisp);
-    for (int i = 1; i < top; ++i) {
-        bool result;
-        pk_try(pk_eq(lisp, i, i + 1, &result));
-        if (!result) {
+    top = pk_get_top(lisp);
+    for (i = 1; i < top; ++i) {
+        int boolean = 0;
+        pk_try(pk_eq(lisp, i, i + 1, &boolean));
+        if (!boolean) {
             pk_try(pk_push_nil(lisp));
             return PK_Ok;
         }
@@ -248,43 +293,51 @@ PKRes pk_fn_eq(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_fn_list(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    PKAtoms slice = pk_stack_slice(lisp);
+    PKAtoms slice;
     PKAtom *result = NULL;
+    
+    (void)user_closure;
+    slice = pk_stack_slice(lisp);
     pk_try(pk_slice_list(lisp, slice, &result));
     pk_try(pk_push(lisp, result));
     return PK_Ok;
 }
 
 PKRes pk_fn_list_reversed(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    PKAtoms slice = pk_stack_slice(lisp);
+    PKAtoms slice;
     PKAtom *result = NULL;
+    
+    (void)user_closure;
+    slice = pk_stack_slice(lisp);
     pk_try(pk_slice_list_rev(lisp, slice, &result));
     pk_try(pk_push(lisp, result));
     return PK_Ok;
 }
 
 PKRes pk_fn_list_vars(void *user_closure, Pocket lisp) {
-    (void)user_closure;
     PKAtom *result = NULL;
+    
+    (void)user_closure;
     pk_try(pk_symtable_alist(lisp, &lisp->vars, &result));
     pk_try(pk_push(lisp, result));
     return PK_Ok;
 }
 
 PKRes pk_fn_list_funs(void *user_closure, Pocket lisp) {
-    (void)user_closure;
     PKAtom *result = NULL;
+    
+    (void)user_closure;
     pk_try(pk_symtable_alist(lisp, &lisp->funs, &result));
     pk_try(pk_push(lisp, result));
     return PK_Ok;
 }
 
 PKRes pk_fn_cat(void *user_closure, Pocket lisp) {
-    (void)user_closure;
     PKAtomString *result = NULL;
-    PKAtoms slice = pk_stack_slice(lisp);
+    PKAtoms slice;
+    
+    (void)user_closure;
+    slice = pk_stack_slice(lisp);
     pk_try(pk_atom_string_concat(lisp, slice, &result));
     pk_try(pk_push(lisp, (PKAtom *)result));
     return PK_Ok;
@@ -296,38 +349,38 @@ PKRes pk_fn_clone(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_fn_nil_p(void *user_closure, Pocket lisp) {
+    int boolean = 0;
     (void)user_closure;
-    PKType type = PKType_Unknown;
-    pk_try(pk_typeof(lisp, 1, &type));
-    return pk_push_cond(lisp, type == PKType_Nil);
+    pk_try(pk_is_nil(lisp, 1, &boolean));
+    return pk_push_cond(lisp, boolean);
 }
 
 PKRes pk_fn_num_p(void *user_closure, Pocket lisp) {
+    int boolean = 0;
     (void)user_closure;
-    PKType type = PKType_Unknown;
-    pk_try(pk_typeof(lisp, 1, &type));
-    return pk_push_cond(lisp, type == PKType_Number);
+    pk_try(pk_is_number(lisp, 1, &boolean));
+    return pk_push_cond(lisp, boolean);
 }
 
 PKRes pk_fn_symbol_p(void *user_closure, Pocket lisp) {
+    int boolean = 0;
     (void)user_closure;
-    PKType type = PKType_Unknown;
-    pk_try(pk_typeof(lisp, 1, &type));
-    return pk_push_cond(lisp, type == PKType_Symbol);
+    pk_try(pk_is_symbol(lisp, 1, &boolean));
+    return pk_push_cond(lisp, boolean);
 }
 
 PKRes pk_fn_string_p(void *user_closure, Pocket lisp) {
+    int boolean = 0;
     (void)user_closure;
-    PKType type = PKType_Unknown;
-    pk_try(pk_typeof(lisp, 1, &type));
-    return pk_push_cond(lisp, type == PKType_String);
+    pk_try(pk_is_string(lisp, 1, &boolean));
+    return pk_push_cond(lisp, boolean);
 }
 
 PKRes pk_fn_cons_p(void *user_closure, Pocket lisp) {
+    int boolean = 0;
     (void)user_closure;
-    PKType type = PKType_Unknown;
-    pk_try(pk_typeof(lisp, 1, &type));
-    return pk_push_cond(lisp, type == PKType_Cons);
+    pk_try(pk_is_cons(lisp, 1, &boolean));
+    return pk_push_cond(lisp, boolean);
 }
 
 PKRes pk_fn_error(void *user_closure, Pocket lisp) {
@@ -336,59 +389,67 @@ PKRes pk_fn_error(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_load_std(Pocket lisp) {
-    PKFuncRecord lib[] = {
-        {.sym = pkstr("+"), .fn = pk_fn_add, .args = 2, .mode = PKArity_Variadic},
-        {.sym = pkstr("-"), .fn = pk_fn_sub, .args = 2, .mode = PKArity_Variadic},
-        {.sym = pkstr("*"), .fn = pk_fn_mul, .args = 2, .mode = PKArity_Variadic},
-        {.sym = pkstr("/"), .fn = pk_fn_div, .args = 2, .mode = PKArity_Variadic},
-        {.sym = pkstr("list-vars"), .fn = pk_fn_list_vars, .args = 0, .mode = PKArity_Normal},
-        {.sym = pkstr("list-funs"), .fn = pk_fn_list_funs, .args = 0, .mode = PKArity_Normal},
-        {.sym = pkstr("slurp"), .fn = pk_fn_slurp, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("read"), .fn = pk_fn_read, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("eval"), .fn = pk_fn_eval, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("evlist"), .fn = pk_fn_evlist, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("print"), .fn = pk_fn_print, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("puts"), .fn = pk_fn_puts, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("format"), .fn = pk_fn_format, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("set"), .fn = pk_fn_set, .args = 2, .mode = PKArity_Normal},
-        {.sym = pkstr("get"), .fn = pk_fn_get, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("unbind"), .fn = pk_fn_unbind, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("fset"), .fn = pk_fn_fset, .args = 2, .mode = PKArity_Normal},
-        {.sym = pkstr("fget"), .fn = pk_fn_fget, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("funbind"), .fn = pk_fn_funbind, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("car"), .fn = pk_fn_car, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("cdr"), .fn = pk_fn_cdr, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("set-car"), .fn = pk_fn_set_car, .args = 2, .mode = PKArity_Normal},
-        {.sym = pkstr("set-cdr"), .fn = pk_fn_set_cdr, .args = 2, .mode = PKArity_Normal},
-        {.sym = pkstr(">"), .fn = pk_fn_gt, .args = 2, .mode = PKArity_Variadic},
-        {.sym = pkstr(">="), .fn = pk_fn_gte, .args = 2, .mode = PKArity_Variadic},
-        {.sym = pkstr("<"), .fn = pk_fn_lt, .args = 2, .mode = PKArity_Variadic},
-        {.sym = pkstr("<="), .fn = pk_fn_lte, .args = 2, .mode = PKArity_Variadic},
-        {.sym = pkstr("="), .fn = pk_fn_eq, .args = 2, .mode = PKArity_Variadic},
-        {.sym = pkstr("eq?"), .fn = pk_fn_eq, .args = 2, .mode = PKArity_Variadic},
-        {.sym = pkstr("list"), .fn = pk_fn_list, .args = 0, .mode = PKArity_Variadic},
-        {.sym = pkstr("list-rev"), .fn = pk_fn_list_reversed, .args = 0, .mode = PKArity_Variadic},
-        {.sym = pkstr("cat"), .fn = pk_fn_cat, .args = 0, .mode = PKArity_Variadic},
-        {.sym = pkstr("clone"), .fn = pk_fn_clone, .args = 1, .mode = PKArity_Normal},
+    size_t i = 0;
+    
+    #define PK_STD_LIB_COUNT (39)
+    PKFuncRecord lib[PK_STD_LIB_COUNT] = {
+        {"+", pk_fn_add, 2, PKArity_Variadic, NULL},
+        {"-", pk_fn_sub, 2, PKArity_Variadic, NULL},
+        {"*", pk_fn_mul, 2, PKArity_Variadic, NULL},
+        {"/", pk_fn_div, 2, PKArity_Variadic, NULL},
+        {"list-vars", pk_fn_list_vars, 0, PKArity_Normal, NULL},
+        {"list-funs", pk_fn_list_funs, 0, PKArity_Normal, NULL},
+        {"slurp", pk_fn_slurp, 1, PKArity_Normal, NULL},
+        {"read", pk_fn_read, 1, PKArity_Optional, NULL},
+        {"eval", pk_fn_eval, 1, PKArity_Normal, NULL},
+        {"evlist", pk_fn_evlist, 1, PKArity_Normal, NULL},
+        {"print", pk_fn_print, 1, PKArity_Normal, NULL},
+        {"puts", pk_fn_puts, 1, PKArity_Normal, NULL},
+        {"format", pk_fn_format, 1, PKArity_Normal, NULL},
+        {"set", pk_fn_set, 2, PKArity_Normal, NULL},
+        {"get", pk_fn_get, 1, PKArity_Normal, NULL},
+        {"unbind", pk_fn_unbind, 1, PKArity_Normal, NULL},
+        {"fset", pk_fn_fset, 2, PKArity_Normal, NULL},
+        {"fget", pk_fn_fget, 1, PKArity_Normal, NULL},
+        {"funbind", pk_fn_funbind, 1, PKArity_Normal, NULL},
+        {"car", pk_fn_car, 1, PKArity_Normal, NULL},
+        {"cdr", pk_fn_cdr, 1, PKArity_Normal, NULL},
+        {"set-car", pk_fn_set_car, 2, PKArity_Normal, NULL},
+        {"set-cdr", pk_fn_set_cdr, 2, PKArity_Normal, NULL},
+        {">", pk_fn_gt, 2, PKArity_Variadic, NULL},
+        {">=", pk_fn_gte, 2, PKArity_Variadic, NULL},
+        {"<", pk_fn_lt, 2, PKArity_Variadic, NULL},
+        {"<=", pk_fn_lte, 2, PKArity_Variadic, NULL},
+        {"=", pk_fn_eq, 2, PKArity_Variadic, NULL},
+        {"eq?", pk_fn_eq, 2, PKArity_Variadic, NULL},
+        {"list", pk_fn_list, 0, PKArity_Variadic, NULL},
+        {"list-rev", pk_fn_list_reversed, 0, PKArity_Variadic, NULL},
+        {"cat", pk_fn_cat, 0, PKArity_Variadic, NULL},
+        {"clone", pk_fn_clone, 1, PKArity_Normal, NULL},
         
-        {.sym = pkstr("nil?"), .fn = pk_fn_nil_p, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("number?"), .fn = pk_fn_num_p, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("string?"), .fn = pk_fn_string_p, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("symbol?"), .fn = pk_fn_symbol_p, .args = 1, .mode = PKArity_Normal},
-        {.sym = pkstr("cons?"), .fn = pk_fn_cons_p, .args = 1, .mode = PKArity_Normal},
+        {"nil?", pk_fn_nil_p, 1, PKArity_Normal, NULL},
+        {"number?", pk_fn_num_p, 1, PKArity_Normal, NULL},
+        {"string?", pk_fn_string_p, 1, PKArity_Normal, NULL},
+        {"symbol?", pk_fn_symbol_p, 1, PKArity_Normal, NULL},
+        {"cons?", pk_fn_cons_p, 1, PKArity_Normal, NULL},
         
-        {.sym = pkstr("error"), .fn = pk_fn_error, .args = 0, .mode = PKArity_Normal},
+        {"error", pk_fn_error, 0, PKArity_Normal, NULL},
     };
 
-    size_t count = pk_alen(lib);
-
-    for (size_t i = 0; i < count; ++i) {
+    for (i = 0; i < PK_STD_LIB_COUNT; ++i) {
+        PKAtomCFunc *cfunc = NULL;
+        PKAtomSymbol *sym = NULL;
+        PKAtom *_ignored = NULL;
+        size_t length = 0;
+        PKFuncArity arity;
         PKFuncRecord *rec = &lib[i];
-        PKAtomCFunc *cfunc;
-        pk_try(pk_atom_cfunc(lisp, rec->user_closure, rec->fn, (PKFuncArity){.args = rec->args, .mode = rec->mode}, &cfunc));
-        PKAtomSymbol *sym;
-        pk_try(pk_atom_symbol_interned(lisp, rec->sym, &sym));
-        PKAtom *_ignored;
+
+        arity.args = rec->args;
+        arity.mode = rec->mode;
+        length = strlen(rec->sym);
+        
+        pk_try(pk_atom_cfunc(lisp, rec->user_closure, rec->fn, arity, &cfunc));
+        pk_try(pk_atom_symbol_interned(lisp, rec->sym, length, &sym));
         pk_try(pk_env_set(lisp, PKEnvTy_Fun, sym, (PKAtom *)cfunc, &_ignored));
     }
     return PK_Ok;

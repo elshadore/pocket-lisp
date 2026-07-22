@@ -104,10 +104,10 @@ typedef struct PKFuncArity_ {
 
 typedef struct PKFuncRecord_ {
     char *sym;
-    void *user_closure;
     PKFn fn;
     int args;
     PKArity mode;
+    void *user_closure;
 } PKFuncRecord;
 
 typedef struct PKAtomCFunc_ {
@@ -521,15 +521,6 @@ PKRes pk_interp_if(Pocket lisp);
 PKRes pk_interp_while(Pocket lisp);
 PKRes pk_interp_while_2(Pocket lisp);
 
-PKRes pk_interp_read_mode(Pocket lisp);
-PKRes pk_interp_read_all(Pocket lisp);
-PKRes pk_interp_read_all_2(Pocket lisp);
-PKRes pk_interp_read_append(Pocket lisp);
-PKRes pk_interp_read_atom(Pocket lisp);
-PKRes pk_interp_cons(Pocket lisp);
-PKRes pk_interp_cons_2(Pocket lisp);
-PKRes pk_interp_cons_3(Pocket lisp);
-
 PKRes pk_interp_quote(Pocket lisp);
 PKRes pk_interp_quote_end(Pocket lisp);
 
@@ -541,5 +532,13 @@ PKRes pk_ret_nil(Pocket lisp);
 PKRes pk_ret_this(Pocket lisp, PKAtom *atom);
 PKRes pk_ret_all(Pocket lisp);
 PKRes pk_ret_none(Pocket lisp);
+
+PKRes pk_read_atom_string(PKReader *r, PKAtomString **string);
+PKRes pk_read_atom_number(PKReader *r, PKAtomNumber **number);
+PKRes pk_read_atom_symbol(PKReader *r, PKAtomSymbol **symbol);
+PKRes pk_read_atom_cons(PKReader *r, PKAtom **output);
+PKRes pk_read_atom_simple_macro(PKReader *r, PKAtomSymbol *macro, PKAtomCons **output);
+PKRes pk_read_atom_unquote_macro(PKReader *r, PKAtomCons **output);
+PKRes pk_read_atom(PKReader *r, PKAtom **atom);
 
 #endif
