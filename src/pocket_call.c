@@ -33,8 +33,9 @@ PKRes pk_arity_convert(Pocket lisp, int arity, size_t *output) {
 
 PKRes pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PKCallConv *output) {
     PKAtom *function = NULL;
-    if (function->tag.ty == PKAtomTy_Symbol) {
-        pk_try(pk_env_get(lisp, PKEnvTy_Fun, (PKAtomSymbol *)function, &function));
+    
+    if (atom->tag.ty == PKAtomTy_Symbol) {
+        pk_try(pk_env_get(lisp, PKEnvTy_Fun, (PKAtomSymbol *)atom, &function));
     } else {
         function = atom;
     }
@@ -124,6 +125,9 @@ PKRes pk_call(Pocket lisp, PKCallConv *conv) {
             break;
         }
     }
+    
+    ret = pk_stack_result(lisp);
+    
     result = PK_Ok;
     
     DEFER:
@@ -151,6 +155,18 @@ PKRes pk_atom_eval(Pocket lisp, PKAtom *atom) {
 }
 
 PKRes pk_atom_evlist(Pocket lisp, PKAtom *atom) {
-    (void)atom;
-    return pk_error(lisp);
+    PKAtom *iter = atom;
+
+    while (!pk_atom_is_nil(iter)) {
+        PKAtomCons *cons = NULL;
+        
+        pk_try(pk_atom_cast_cons(lisp, iter, &cons));
+        pk_try(pk_atom_eval(lisp, cons->car));
+        if (!pk_atom_is_nil(cons->cdr)) {
+            pk_try(pk_pop(lisp));
+        }
+        iter = cons->cdr;
+    }
+
+    return PK_Ok;
 }
