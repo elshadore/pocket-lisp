@@ -5,7 +5,7 @@
 
 (in-namespace :my-namespace)
 
-## A Comment
+# A Comment
 
 #*
     A Multi
@@ -15,7 +15,7 @@
     cool...
 *#
 
-(defparam *example* nil
+(defvar *example* nil
     :doc "A dynamically scoped parameter.")
 
 (defclass vec2 ()
@@ -23,7 +23,7 @@
     (x 0 :x)
     (y 0 :y))
 
-(defn vec2 (&optional x y)
+(defun vec2 (&optional x y)
    :cons 'vec2
    (new 'vec2 'x (or x 0) 'y (or y 0)))
 
@@ -44,7 +44,7 @@
      :doc ""
      (data nil))
      
-(defn map (&keys (width 8) (height 8) (x 0) (y 0) (fill nil))
+(defun map (&keys (width 8) (height 8) (x 0) (y 0) (fill nil))
      :cons 'map
      (let ((data (array :size (* width height) :fill fill)))
           (new 'map :x x
@@ -69,7 +69,7 @@
 
 (swap (car a) (cdr b))
 
-(defparam *current-map* (map
+(defvar *current-map* (map
           :width 200
           :height 200
           :fill 'wall))

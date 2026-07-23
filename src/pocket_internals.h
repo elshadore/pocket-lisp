@@ -19,8 +19,8 @@
 #define PK_ARENA_PAGE (1024 * 1024)
 #define PK_ARENA_STACK_INIT_CAPACITY (8)
 
-#define PK_COMMENT_CHAR ';'
-#define PK_COMPTIME_CHAR '#'
+#define PK_COMMENT_CHAR '#'
+#define PK_COMPTIME_CHAR '&'
 
 typedef signed char pk_i8;
 typedef signed short pk_i16;
@@ -128,6 +128,7 @@ typedef struct PKAtomLFunc_ {
         PKAtom **e;
         size_t length;
     } atoms;
+    PKFuncArity arity;
 } PKAtomLFunc;
 
 union PKAtom_ {
@@ -177,6 +178,13 @@ typedef struct PKReader_ {
     char c;
 } PKReader;
 
+typedef struct PKVM_ {
+    Pocket lisp;
+    PKAtomLFunc *lfunc;
+    size_t curr;
+    pk_u8 op;
+} PKVM;
+
 typedef struct PKBytes_ {
     pk_u8 *e;
     size_t count;
@@ -191,10 +199,17 @@ typedef struct PKAtoms_ {
 
 #define PK_OP_ILLEGAL (0)
 #define PK_OP_NOP (1)
-#define PK_OP_LOAD (2)
-#define PK_OP_CALL (3)
-#define PK_OP_BLOCK (4)
-#define PK_OP_RET (5)
+#define PK_OP_RET (2)
+#define PK_OP_LOAD (3)
+#define PK_OP_CALL (4)
+#define PK_OP_BLOCK_BEGIN (5)
+#define PK_OP_BLOCK_END (6)
+#define PK_OP_JMP_IF_NIL (7)
+#define PK_OP_JMP (8)
+#define PK_OP_JMP_BACK (9)
+#define PK_OP_LET (10)
+#define PK_OP_LOOKUP_VAR (11)
+#define PK_OP_LOOKUP_FUN (12)
 
 typedef enum PK_OPCODE_TY_ {
     PK_OPCODE_TY_NORMAL = 0,
@@ -419,6 +434,7 @@ PKRes pk_atom_cast_symbol(Pocket lisp, PKAtom *atom, PKAtomSymbol **output);
 PKRes pk_atom_cast_cons(Pocket lisp, PKAtom *atom, PKAtomCons **output);
 PKRes pk_atom_cast_cfunc(Pocket lisp, PKAtom *atom, PKAtomCFunc **output);
 PKRes pk_atom_cast_lfunc(Pocket lisp, PKAtom *atom, PKAtomLFunc **output);
+PKRes pk_atom_assert_nil(Pocket lisp, PKAtom *atom);
 
 pk_bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 pk_bool pk_atom_symbol_eq(Pocket lisp, PKAtomSymbol *lhs, PKAtomSymbol *rhs);
@@ -446,6 +462,7 @@ PKAtom *pk_stack_result(Pocket lisp);
 PKRes pk_stack_pop(Pocket lisp, PKAtom **output);
 PKRes pk_stack_get(Pocket lisp, int stack_pointer, PKAtom **output);
 PKAtomSlice pk_stack_slice(Pocket lisp);
+PKRes pk_stack_slice_down(Pocket lisp, size_t depth, PKAtomSlice *output);
 PKRes pk_stack_slice_by(Pocket lisp, int a, int b, PKStackSlice *output);
 PKRes pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom);
 
@@ -499,9 +516,7 @@ from the previous frame.
 */
 PKRes pk_frame_push(Pocket lisp, size_t arity);
 /* Pop the current frame, clearing all stack allocated variables. */
-PKRes pk_frame_pop_clear(Pocket lisp);
-/* Pop the current frame, returning all the current stack allocated variables. */
-PKRes pk_frame_pop_return(Pocket lisp);
+PKRes pk_frame_pop(Pocket lisp);
 /* Clear the current frame of all stack allocated variables. */
 void pk_frame_clear(Pocket lisp);
 PKAtomSlice pk_frame_slice(Pocket lisp, PKFrame *frame, size_t length);
@@ -546,11 +561,8 @@ PKRes pk_slice_list(Pocket lisp, PKAtomSlice atoms, PKAtom **output);
 PKRes pk_slice_list_rev(Pocket lisp, PKAtomSlice atoms, PKAtom **output);
 PKRes pk_slice_list_tailed(Pocket lisp, PKAtomSlice atoms, PKAtom **output);
 
-PKRes pk_ret_top(Pocket lisp);
-PKRes pk_ret_nil(Pocket lisp);
-PKRes pk_ret_this(Pocket lisp, PKAtom *atom);
-PKRes pk_ret_all(Pocket lisp);
-PKRes pk_ret_none(Pocket lisp);
+PKRes pk_return_push(Pocket lisp);
+PKRes pk_return_insert(Pocket lisp);
 
 PKRes pk_read_atom_string(PKReader *r, PKAtomString **string);
 PKRes pk_read_atom_number(PKReader *r, PKAtomNumber **number);
@@ -571,11 +583,14 @@ PKRes pk_compile_evlist(PKCompiler *c, PKAtom *args);
 PKRes pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_bool *is_special);
 PKRes pk_compile_expression(PKCompiler *c, PKAtomCons *expr);
 PKRes pk_compile_value(PKCompiler *c, PKAtom *value);
-PKRes pk_compile_compile(PKCompiler *c, PKAtomLFunc **output);
+PKRes pk_compile_compile(PKCompiler *c, size_t arity, PKAtomLFunc **output);
+PKRes pk_compile_lambda(Pocket lisp, PKAtom *args, PKAtom *body, PKAtomLFunc **output);
 PKRes pk_compile_atom(Pocket lisp, PKAtom *value, PKAtomLFunc **output);
+
+PKRes pk_lfunc_exec(Pocket lisp, PKAtomLFunc *lfunc);
 
 const char *pk_ident_opcode(pk_u8 op);
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
-
+    
 PKRes pk_dump_hex_atom(Pocket lisp, PKAtomLFunc *lfunc);
 #endif

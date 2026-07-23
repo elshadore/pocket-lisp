@@ -122,6 +122,22 @@ PKAtomSlice pk_stack_slice(Pocket lisp) {
     return result;
 }
 
+PKRes pk_stack_slice_down(Pocket lisp, size_t depth, PKAtomSlice *output) {
+    PKAtomSlice slice = pk_stack_slice(lisp);
+    size_t offset = 0;
+    
+    if (slice.length > depth) {
+        return pk_error(lisp);
+    }
+    
+    offset = slice.length - depth;
+    
+    slice.e = slice.e + offset;
+    slice.length = depth;
+    *output = slice;
+    return PK_Ok;
+}
+
 PKRes pk_stack_slice_by(Pocket lisp, int a, int b, PKStackSlice *output) {
     size_t ia = 0;
     size_t ib = 0;
@@ -175,7 +191,7 @@ PKRes pk_frame_push(Pocket lisp, size_t arity) {
     return PK_Ok;
 }
 
-PKRes pk_frame_pop_clear(Pocket lisp) {
+PKRes pk_frame_pop(Pocket lisp) {
     PKFrames *frames = &lisp->frames;
     PKFrame popped = frames->e[frames->count - 1];
     size_t diff = lisp->current_frame.stack_offset - popped.stack_offset;
@@ -190,16 +206,20 @@ PKRes pk_frame_pop_clear(Pocket lisp) {
     return PK_Ok;
 }
 
-PKRes pk_frame_pop_return(Pocket lisp) {
-    PKFrames *frames = &lisp->frames;
-    PKFrame popped = frames->e[frames->count - 1];
+PKRes pk_return_push(Pocket lisp) {
+    PKAtom *ret = pk_stack_result(lisp);
+    PKRes result = PK_Ok;
+    result &= pk_frame_pop(lisp);
+    result &= pk_push(lisp, ret);
+    return result;
+}
 
-    size_t lets_pop = lisp->lets.count - lisp->current_frame.lets_offset;
-    pk_try(pk_let_pop(lisp, lets_pop));
-
-    frames->count -= 1;
-    lisp->current_frame = popped;
-    return PK_Ok;
+PKRes pk_return_insert(Pocket lisp) {
+    PKAtom *ret = pk_stack_result(lisp);
+    PKRes result = PK_Ok;
+    result = pk_frame_pop(lisp);
+    lisp->stack.e[lisp->stack.count - 1] = ret;
+    return result;
 }
 
 PKAtomSlice pk_frame_slice(Pocket lisp, PKFrame *frame, size_t length) {

@@ -136,5 +136,6 @@ void pk_deinit(Pocket lisp);
 
 PKRes pk_dump_stack(Pocket lisp, const char *tag);
 PKRes pk_dump_hex(Pocket lisp, int stack_pointer);
+PKRes pk_dump_env(Pocket lisp, const char *tag);
 
 #endif

@@ -114,6 +114,51 @@ PKRes pk_dump_hex(Pocket lisp, int stack_pointer) {
     return PK_Ok;
 }
 
+PKRes pk_dump_env(Pocket lisp, const char *tag) {
+    PKWriter w = pk_writer_init(lisp);
+    PKRes result = PK_Yield;
+    size_t i = 0;
+    
+    pk_defer(pk_writer_string(&w, "*~ENVIRONMENT~*"));
+    if (tag != NULL) {
+        pk_defer(pk_writer_string(&w, " (tag = "));
+        pk_defer(pk_writer_string(&w, tag));
+        pk_defer(pk_writer_string(&w, ")"));
+    }
+    pk_defer(pk_writer_newline(&w));
+    
+    pk_defer(pk_writer_string(&w, "SECTION: VARS\n"));
+    for (i = 0; i < lisp->vars.capacity; i++) {
+        PKSymTableSlot *slot = NULL;
+        for (slot = lisp->vars.e[i]; slot; slot = slot->chain) {
+            pk_defer(pk_writer_string(&w, "    ["));
+            pk_defer(pk_writer_atom(&w, (PKAtom *)slot->key));
+            pk_defer(pk_writer_string(&w, "] => "));
+            pk_defer(pk_writer_atom(&w, slot->value));
+            pk_defer(pk_writer_newline(&w));
+        }
+    }
+    
+    pk_defer(pk_writer_string(&w, "SECTION: FUNS\n"));
+    for (i = 0; i < lisp->funs.capacity; i++) {
+        PKSymTableSlot *slot = NULL;
+        for (slot = lisp->funs.e[i]; slot; slot = slot->chain) {
+            pk_defer(pk_writer_string(&w, "    ["));
+            pk_defer(pk_writer_atom(&w, (PKAtom *)slot->key));
+            pk_defer(pk_writer_string(&w, "] => "));
+            pk_defer(pk_writer_atom(&w, slot->value));
+            pk_defer(pk_writer_newline(&w));
+        }
+    }
+    
+    pk_writer_print(&w);
+    
+    result = PK_Ok;
+    DEFER:
+    pk_writer_deinit(&w);
+    return result;
+}
+
 /*
 PKRes pk_frame_dump(Pocket lisp, PKWriter *w, PKFrame *frame, size_t length, size_t index) {
     PKString id = pk_ident_evalmode(frame->mode);
@@ -179,35 +224,5 @@ PKRes pk_trace_dump(Pocket lisp, const char *tag) {
     pk_writer_deinit(&w);
     return result;
 }
-
-PKRes pk_env_dump(Pocket lisp, const char *tag) {
-    PKWriter w = pk_writer_init(lisp);
-    PKRes result = PK_Yield;
-    pk_defer(pk_writer_printf(&w, "*~ENVIRONMENT~* (tag = %s)\n", tag));
-    pk_defer(pk_writer_printf(&w, "SECTION: VARS\n"));
-    for (size_t i = 0; i < lisp->vars.capacity; i++) {
-        for (PKSymTableSlot *slot = lisp->vars.e[i]; slot; slot = slot->chain) {
-            pk_defer(pk_writer_string(&w, pkstr("    [")));
-            pk_defer(pk_writer_atom(&w, (PKAtom *)slot->key));
-            pk_defer(pk_writer_string(&w, pkstr("] => ")));
-            pk_defer(pk_writer_atom(&w, slot->value));
-            pk_defer(pk_writer_newline(&w));
-        }
-    }
-    pk_defer(pk_writer_printf(&w, "SECTION: FUNS\n"));
-    for (size_t i = 0; i < lisp->funs.capacity; i++) {
-        for (PKSymTableSlot *slot = lisp->funs.e[i]; slot; slot = slot->chain) {
-            pk_defer(pk_writer_string(&w, pkstr("    [")));
-            pk_defer(pk_writer_atom(&w, (PKAtom *)slot->key));
-            pk_defer(pk_writer_string(&w, pkstr("] => ")));
-            pk_defer(pk_writer_atom(&w, slot->value));
-            pk_defer(pk_writer_newline(&w));
-        }
-    }
-    pk_defer(pk_writer_print(&w));
-    result = PK_Ok;
-    DEFER:
-    pk_writer_deinit(&w);
-    return result;
-}
 */
+

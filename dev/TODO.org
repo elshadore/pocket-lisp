@@ -1,63 +1,55 @@
-* Today [1/8]
-** DONE Move away from Jump based Throwing and to Value based Throwing
-CLOSED: [2026-06-23 Tue 14:07]
-** TODO Throwing, Catching, and Protecting
-** TODO Macros
-** TODO All Special Forms (except string substitute)
-** TODO Recursive Checks for Printing and Cloning
-** TODO Pretty Printing
-** TODO Basic Bignums
-Just the basics, maybe just addition.
-** TODO Basic Test Suite
-
 * The Great TODO List [8/19]
-** DONE Reading
-CLOSED: [2026-06-14 Sun 19:43]
-** DONE Symbol Interning
-CLOSED: [2026-06-15 Mon 20:15]
-** DONE Basic GC
-CLOSED: [2026-06-16 Tue 19:15]
-** DONE Basic Environment
-CLOSED: [2026-06-16 Tue 13:24]
-** DONE Basic Interpreter
-CLOSED: [2026-06-17 Wed 22:10]
-** DONE Basic REPL
-CLOSED: [2026-06-17 Wed 22:10]
 ** TODO Macros
 ** TODO Recursive Cloning
+** TODO Recursive Printing
+** TODO Pretty Printing
 ** TODO Throwing, Catching, Errors, and Unwind Protect
-** TODO Basic Special Forms [3/7]
-*** DONE let
-CLOSED: [2026-07-16 Thu 17:35]
+** TODO Basic Special Forms [2/13]
+*** DONE if
+CLOSED: [2026-07-23 Thu 22:03]
+*** TODO lambda
+*** TODO macro
+*** TODO let
 *** TODO let*
 *** TODO flet
 *** TODO flet*
-*** DONE while
-CLOSED: [2026-06-22 Mon 14:59]
-*** quasiquote
-*** unquote
-*** DONE unquote-splice
-CLOSED: [2026-06-22 Mon 20:19]
+*** TODO while
+*** DONE quote
+CLOSED: [2026-07-23 Thu 22:12]
+*** TODO quasiquote
+*** TODO unquote
+*** TODO unquote-splice
 *** TODO string-substitute
-** DONE Basic Reader Forms [4/4]
-CLOSED: [2026-06-22 Mon 15:19]
-*** DONE ` => quasiquote
-CLOSED: [2026-06-22 Mon 15:19]
-*** DONE , => unquote
-CLOSED: [2026-06-22 Mon 15:19]
-*** DONE ,@ => unquote-splice
-CLOSED: [2026-06-22 Mon 15:19]
-*** DONE $ => string-substitute
-CLOSED: [2026-06-22 Mon 15:19]
-** TODO Add recursive check to printing
-** TODO Pretty Printing
+** TODO Comptime
+#+BEGIN_SRC pocket-lisp
+
+## Compile time stuff.
+(comptime (+ 1 2))
+
+## Reader macro.
+&!(+ 1 2)
+
+#+END_SRC
+** TODO Object References
+#+BEGIN_SRC pocket-lisp
+object-var
+
+-> &<OBJECT::0xFF>
+
+(read "&<OBJECT::0xFF")
+
+-> &<OBJECT::0xFF>
+
+#+END_SRC
 ** TODO Full numerical tower
 ** TODO Metaobject system
 ** TODO Gensyms
 ** TODO Lexical Scoping
-Boxed Upvalues
-** DONE Memory Leak with String Parsing if Error with Writer
-CLOSED: [2026-07-12 Sun 21:35]
-We need to implement the error system and unwind protect
-** TODO Unreachable Instruction for C
-
+Boxed Upvalues?
+** TODO Debugger
+** TODO Lisp Object
+A lisp interpetter object.
+** TODO UTF8-Strings
+** TODO Char Type
+** TODO Binary Blobs
+** TODO Byte Type

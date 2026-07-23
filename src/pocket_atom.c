@@ -63,6 +63,13 @@ pk_bool pk_atom_is_nil(PKAtom *atom) {
     return atom->tag.ty == PKAtomTy_Nil;
 }
 
+PKRes pk_atom_assert_nil(Pocket lisp, PKAtom *atom) {
+    if (!pk_atom_is_nil(atom)) {
+        return pk_error(lisp);
+    }
+    return PK_Ok;
+}
+
 pk_bool pk_atom_is_true(PKAtom *atom) {
     return !pk_atom_is_nil(atom);
 }

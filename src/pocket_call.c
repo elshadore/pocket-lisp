@@ -104,7 +104,6 @@ void pk_callconv_quick(void *user_closure, PKFn fn, size_t arity, PKCallConv *ou
 PKRes pk_call(Pocket lisp, PKCallConv *conv) {
     size_t i = 0;
     PKRes result = PK_Yield;
-    PKAtom *ret = pk_atom_nil(lisp);
     
     pk_try(pk_frame_push(lisp, conv->final_arity));
     
@@ -120,23 +119,24 @@ PKRes pk_call(Pocket lisp, PKCallConv *conv) {
             pk_defer((conv->as.c->fn)(conv->as.c->user_closure, lisp));
             break;
         }
+        case PK_CALLTY_LFUNC: {
+            pk_defer(pk_lfunc_exec(lisp, conv->as.lisp));
+            break;
+        }
         default: {
             pk_defer(pk_error(lisp));
             break;
         }
     }
     
-    ret = pk_stack_result(lisp);
-    
     result = PK_Ok;
     
     DEFER:
-    pk_try(pk_frame_pop_clear(lisp));
         
     if (conv->insert_result) {
-        lisp->stack.e[lisp->stack.count - 1] = ret;
+        pk_try(pk_return_insert(lisp));
     } else {
-        pk_try(pk_push(lisp, ret));
+        pk_try(pk_return_push(lisp));
     }
 
     return result;

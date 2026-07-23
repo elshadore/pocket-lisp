@@ -194,13 +194,19 @@ PKRes pk_writer_atom(PKWriter *w, PKAtom *atom) {
             break;
         }
         case PKAtomTy_CFunc: {
-            pk_try(pk_writer_string(w, "#<cfunc::"));
+            pk_try(pk_writer_string(w, "&<CFUNC::"));
+            pk_try(pk_writer_address(w, (size_t)atom));
+            pk_try(pk_writer_char(w, '>'));
+            break;
+        }
+        case PKAtomTy_LFunc: {
+            pk_try(pk_writer_string(w, "&<LFUNC::"));
             pk_try(pk_writer_address(w, (size_t)atom));
             pk_try(pk_writer_char(w, '>'));
             break;
         }
         default: {
-            pk_try(pk_writer_string(w, "#<unknown>"));
+            pk_try(pk_writer_string(w, "&<UNKNOWN>"));
             break;
         }
     }
