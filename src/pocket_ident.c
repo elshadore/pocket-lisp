@@ -13,12 +13,20 @@ PKType pk_atom_typeof(PKAtomTy ty) {
 
 const char *pk_ident_opcode(pk_u8 op) {
     switch (op) {
-        case 0: return "ILLEGAL";
-        case 1: return "NOP";
-        case 2: return "LOAD";
-        case 3: return "CALL";
-        case 4: return "BLOCK";
-        case 5: return "RET";
+        case PK_OP_ILLEGAL: return "ILLEGAL";
+        case PK_OP_NOP: return "NOP";
+        case PK_OP_LOAD: return "LOAD";
+        case PK_OP_CALL: return "CALL";
+        case PK_OP_BLOCK: return "BLOCK";
+        case PK_OP_RET: return "RET";
         default: return "UNKNOWN";
+    }
+}
+
+PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
+    switch (op) {
+        case PK_OP_LOAD: return PK_OPCODE_TY_LOAD;
+        case PK_OP_CALL: return PK_OPCODE_TY_LIT;
+        default: return PK_OPCODE_TY_NORMAL;
     }
 }

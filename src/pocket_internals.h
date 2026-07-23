@@ -210,6 +210,12 @@ typedef struct PKAtoms_ {
 #define PK_OP_BLOCK (4)
 #define PK_OP_RET (5)
 
+typedef enum PK_OPCODE_TY_ {
+    PK_OPCODE_TY_NORMAL = 0,
+    PK_OPCODE_TY_LOAD,
+    PK_OPCODE_TY_LIT
+} PK_OPCODE_TY;
+
 typedef struct PKCompiler_ {
     Pocket lisp;
     PKBytes bc;
@@ -574,6 +580,7 @@ PKRes pk_compile_compile(PKCompiler *c, PKAtomLFunc **output);
 PKRes pk_compile_atom(Pocket lisp, PKAtom *value, PKAtomLFunc **output);
 
 const char *pk_ident_opcode(pk_u8 op);
+PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
 
 PKRes pk_dump_hex_atom(Pocket lisp, PKAtomLFunc *lfunc);
 #endif

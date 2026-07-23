@@ -45,10 +45,45 @@ PKRes pk_dump_hex_atom(Pocket lisp, PKAtomLFunc *lfunc) {
     for (i = 0; i < lfunc->bc.length; ++i) {
         pk_u8 byte = lfunc->bc.e[i];
         const char *ident = pk_ident_opcode(byte);
+        PK_OPCODE_TY ty = pk_opcode_ty(byte);
+        pk_defer(pk_writer_string(&w, "["));
+        pk_defer(pk_writer_int(&w, (int)i));
+        pk_defer(pk_writer_string(&w, "] => "));
+        /*
         pk_defer(pk_writer_string(&w, "["));
         pk_defer(pk_writer_int(&w, (int)byte));
         pk_defer(pk_writer_string(&w, "] => "));
+        */
         pk_defer(pk_writer_string(&w, ident));
+        switch (ty) {
+            case PK_OPCODE_TY_LOAD: {
+                pk_u8 data = 0;
+                PKAtom *atom = NULL;
+                i++;
+                if (i >= lfunc->bc.length) {
+                    pk_defer(pk_error(lisp));
+                }
+                data = lfunc->bc.e[i];
+                atom = lfunc->atoms.e[data];
+                
+                pk_defer(pk_writer_string(&w, " => "));
+                pk_defer(pk_writer_atom(&w, atom));
+                break;
+            }
+            case PK_OPCODE_TY_LIT: {
+                pk_u8 data = 0;
+                i++;
+                if (i >= lfunc->bc.length) {
+                    pk_defer(pk_error(lisp));
+                }
+                data = lfunc->bc.e[i];
+                
+                pk_defer(pk_writer_string(&w, " => "));
+                pk_defer(pk_writer_int(&w, (int)data));
+                break;
+            }
+            default: break;
+        }
         pk_defer(pk_writer_newline(&w));
     }
 
