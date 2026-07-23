@@ -1,6 +1,6 @@
 #include "pocket_internals.h"
 
-PKRes pk_bind_lambda_list(Pocket lisp, PKAtom *symbols, PKAtoms values) {
+PKRes pk_bind_lambda_list(Pocket lisp, PKAtom *symbols, PKAtomSlice values) {
     size_t i = 0;
     PKAtom *acc = symbols;
     

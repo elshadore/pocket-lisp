@@ -34,7 +34,7 @@ PKRes pk_atom_stringn_nomemcpy(Pocket lisp, char *c, size_t length, PKAtomString
     return PK_Ok;
 }
 
-PKRes pk_atom_string_concat(Pocket lisp, PKAtoms strings, PKAtomString **output) {
+PKRes pk_atom_string_concat(Pocket lisp, PKAtomSlice strings, PKAtomString **output) {
     size_t length = 0;
     size_t i = 0;
     size_t acc = 0;

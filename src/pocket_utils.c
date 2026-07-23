@@ -1,5 +1,49 @@
 #include "pocket_internals.h"
 
+PKRes pk_atoms_push(Pocket lisp, PKAtoms *atoms, PKAtom *atom, size_t init) {
+    if (atoms->count >= atoms->capacity) {
+        size_t new_capacity = pk_grow_capacity(atoms->capacity, init);
+        pk_try(pk_realloc(
+            lisp,
+            atoms->e,
+            sizeof(PKAtom *) * atoms->capacity,
+            sizeof(PKAtom *) * new_capacity,
+            (void **)&atoms->e)
+        );
+        atoms->capacity = new_capacity;
+    }
+    
+    atoms->e[atoms->count++] = atom;
+    
+    return PK_Ok;
+}
+
+void pk_atoms_free(Pocket lisp, PKAtoms *atoms) {
+    pk_free(lisp, atoms->e, atoms->capacity * sizeof(PKAtom *));
+}
+
+PKRes pk_bytes_push(Pocket lisp, PKBytes *bytes, pk_u8 byte, size_t init) {
+    if (bytes->count >= bytes->capacity) {
+        size_t new_capacity = pk_grow_capacity(bytes->capacity, init);
+        pk_try(pk_realloc(
+            lisp,
+            bytes->e,
+            sizeof(pk_u8) * bytes->capacity,
+            sizeof(pk_u8) * new_capacity,
+            (void **)&bytes->e)
+        );
+        bytes->capacity = new_capacity;
+    }
+    
+    bytes->e[bytes->count++] = byte;
+    
+    return PK_Ok;
+}
+
+void pk_bytes_free(Pocket lisp, PKBytes *bytes) {
+    pk_free(lisp, bytes->e, bytes->capacity * sizeof(pk_u8));
+}
+
 PKRes pk_string_dupe(Pocket lisp, const char *c, size_t length, char **output) {
     char *copy = NULL;
     
@@ -223,139 +267,6 @@ size_t pk_hash_pointer(void *ptr) {
     size_t p = (size_t)ptr;
     return (size_t)(p >> 3);
 }
-
-PKRes pk_dump_stack(Pocket lisp, const char *tag) {
-    int top = pk_get_top(lisp);
-    int i = 0;
-    PKWriter w = pk_writer_init(lisp);
-    PKRes result = PK_Yield;
-    
-    pk_defer(pk_writer_string(&w, "*~STACK-DUMP~*"));
-    if (tag != NULL) {
-        pk_defer(pk_writer_string(&w, " (tag = "));
-        pk_defer(pk_writer_string(&w, tag));
-        pk_defer(pk_writer_string(&w, ")"));
-    }
-    pk_defer(pk_writer_newline(&w));
-    
-    for (i = top; i > 0; i--) {
-        int rel = pk_sp_relative(lisp, i);
-        PKAtom *a = NULL;
-        pk_defer(pk_stack_get(lisp, i, &a));
-        
-        pk_defer(pk_writer_string(&w, "    ["));
-        pk_defer(pk_writer_int(&w, rel));
-        pk_defer(pk_writer_string(&w, "/"));
-        pk_defer(pk_writer_int(&w, i));
-        pk_defer(pk_writer_string(&w, "] => "));
-        
-        pk_defer(pk_writer_atom(&w, a));
-        pk_defer(pk_writer_newline(&w));
-    }
-    pk_defer(pk_writer_print(&w));
-    result = PK_Ok;
-    DEFER:
-    pk_writer_deinit(&w);
-    return result;
-}
-
-/*
-PKRes pk_frame_dump(Pocket lisp, PKWriter *w, PKFrame *frame, size_t length, size_t index) {
-    PKString id = pk_ident_evalmode(frame->mode);
-    pk_try(pk_writer_printf(w, "FRAME: [%zu] [%.*s]", index, (int)id.length, id.c));
-    
-    switch (pk_evalmode_framety(frame->mode)) {
-        case PKEvalFrameTy_None: {
-            break;
-        }
-        case PKEvalFrameTy_Atom: {
-            pk_try(pk_writer_string(w, pkstr(" => ")));
-            pk_try(pk_writer_atom(w, frame->as.atom));
-            break;
-        }
-        case PKEvalFrameTy_Tuple: {
-            pk_try(pk_writer_string(w, pkstr(" => ")));
-            pk_try(pk_writer_atom(w, frame->as.t.a));
-            pk_try(pk_writer_string(w, pkstr(" | ")));
-            pk_try(pk_writer_atom(w, frame->as.t.b));
-            break;
-        }
-        case PKEvalFrameTy_CFn: {
-            break;
-        }
-    }
-    // if (pk_evalmode_readty(frame->mode)) {
-    //     pk_try(pk_writer_string(w, pkstr(" => ")));
-    //     pk_try(pk_writer_char(w, lisp->c));
-    // }
-    pk_try(pk_writer_newline(w));
-    
-    PKAtoms atoms = pk_frame_slice(lisp, frame, length);
-    for (size_t i = 0; i < atoms.length; ++i) {
-        size_t index = pk_index_inv(i, atoms.length);
-        int a = (int)(index + 1);
-        pk_try(pk_writer_printf(w, "    [%d / %d] => ", -a, a));
-        pk_try(pk_writer_atom(w, atoms.e[index]));
-        pk_try(pk_writer_newline(w));
-    }
-    return PK_Ok;
-}
-
-PKRes pk_trace_dump(Pocket lisp, const char *tag) {
-    PKWriter w = pk_writer_init(lisp);
-    PKRes result = PK_Yield;
-    pk_defer(pk_writer_printf(&w, "*~TRACE-DUMP~* (tag = %s)\n", tag));
-    if (lisp->c != '\0') {
-        pk_defer(pk_writer_printf(&w, "READER: %zu => %c\n", lisp->read.curr, lisp->c));
-    }
-    size_t length = pk_frame_length(lisp);
-    size_t dec = pk_stack_total(lisp) - length;
-    pk_defer(pk_frame_dump(lisp, &w, &lisp->current_frame, length, lisp->frames.count));
-    for (size_t i = 0; i < lisp->frames.count; ++i) {
-        size_t index = pk_index_inv(i, lisp->frames.count);
-        PKFrame frame = lisp->frames.e[index];
-        size_t length = dec - frame.stack_offset;
-        pk_defer(pk_frame_dump(lisp, &w, &frame, length, index));
-        dec -= length;
-    }
-    pk_defer(pk_writer_print(&w));
-    result = PK_Ok;
-    DEFER:
-    pk_writer_deinit(&w);
-    return result;
-}
-
-PKRes pk_env_dump(Pocket lisp, const char *tag) {
-    PKWriter w = pk_writer_init(lisp);
-    PKRes result = PK_Yield;
-    pk_defer(pk_writer_printf(&w, "*~ENVIRONMENT~* (tag = %s)\n", tag));
-    pk_defer(pk_writer_printf(&w, "SECTION: VARS\n"));
-    for (size_t i = 0; i < lisp->vars.capacity; i++) {
-        for (PKSymTableSlot *slot = lisp->vars.e[i]; slot; slot = slot->chain) {
-            pk_defer(pk_writer_string(&w, pkstr("    [")));
-            pk_defer(pk_writer_atom(&w, (PKAtom *)slot->key));
-            pk_defer(pk_writer_string(&w, pkstr("] => ")));
-            pk_defer(pk_writer_atom(&w, slot->value));
-            pk_defer(pk_writer_newline(&w));
-        }
-    }
-    pk_defer(pk_writer_printf(&w, "SECTION: FUNS\n"));
-    for (size_t i = 0; i < lisp->funs.capacity; i++) {
-        for (PKSymTableSlot *slot = lisp->funs.e[i]; slot; slot = slot->chain) {
-            pk_defer(pk_writer_string(&w, pkstr("    [")));
-            pk_defer(pk_writer_atom(&w, (PKAtom *)slot->key));
-            pk_defer(pk_writer_string(&w, pkstr("] => ")));
-            pk_defer(pk_writer_atom(&w, slot->value));
-            pk_defer(pk_writer_newline(&w));
-        }
-    }
-    pk_defer(pk_writer_print(&w));
-    result = PK_Ok;
-    DEFER:
-    pk_writer_deinit(&w);
-    return result;
-}
-*/
 
 PKRes pk_util_slurpn(Pocket lisp, const char *file_path, size_t length, char **out_c, size_t *out_length) {
     char *buffer = NULL;

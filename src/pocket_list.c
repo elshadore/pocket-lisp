@@ -42,7 +42,7 @@ PKRes pk_atom_cast_cons(Pocket lisp, PKAtom *atom, PKAtomCons **output) {
     return PK_Ok;
 }
 
-PKRes pk_slice_list(Pocket lisp, PKAtoms atoms, PKAtom **output) {
+PKRes pk_slice_list(Pocket lisp, PKAtomSlice atoms, PKAtom **output) {
     PKAtomCons *head = NULL;
     PKAtomCons *tail = NULL;
     size_t i = 0;
@@ -66,7 +66,7 @@ PKRes pk_slice_list(Pocket lisp, PKAtoms atoms, PKAtom **output) {
     return PK_Ok;
 }
 
-PKRes pk_slice_list_rev(Pocket lisp, PKAtoms atoms, PKAtom **output) {
+PKRes pk_slice_list_rev(Pocket lisp, PKAtomSlice atoms, PKAtom **output) {
     size_t last = 0;
     size_t i = 0;
     PKAtomCons *head = NULL;
@@ -90,7 +90,7 @@ PKRes pk_slice_list_rev(Pocket lisp, PKAtoms atoms, PKAtom **output) {
     return PK_Ok;
 }
 
-PKRes pk_slice_list_tailed(Pocket lisp, PKAtoms atoms, PKAtom **output) {
+PKRes pk_slice_list_tailed(Pocket lisp, PKAtomSlice atoms, PKAtom **output) {
     size_t i = 0;
     PKAtomCons *head = NULL;
     PKAtomCons *tail = NULL;

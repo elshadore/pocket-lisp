@@ -11,6 +11,7 @@
 #define PK_LET_INIT_CAPACITY (256)
 #define PK_INTERN_INIT_CAPACITY (64)
 #define PK_STACK_INIT_CAPACITY (128)
+#define PK_COMPILER_INIT_CAPACITY (4)
 #define PK_FRAMES_INIT_CAPACITY (64)
 #define PK_SYMTABLE_INIT_CAPACITY (64)
 #define PK_SET_INIT_CAPACITY (64)
@@ -43,7 +44,8 @@ typedef enum PKAtomTy_ {
     PKAtomTy_Symbol,
     PKAtomTy_String,
     PKAtomTy_Cons,
-    PKAtomTy_CFunc
+    PKAtomTy_CFunc,
+    PKAtomTy_LFunc
 } PKAtomTy;
 
 typedef enum PKEnvTy_ {
@@ -116,6 +118,18 @@ typedef struct PKAtomCFunc_ {
     PKFuncArity arity;
 } PKAtomCFunc;
 
+typedef struct PKAtomLFunc_ {
+    PKAtomTag tag;
+    struct {
+        pk_u8 *e;
+        size_t length;
+    } bc;
+    struct {
+        PKAtom **e;
+        size_t length;
+    } atoms;
+} PKAtomLFunc;
+
 union PKAtom_ {
     PKAtomTag tag;
     PKAtomFree free;
@@ -124,6 +138,7 @@ union PKAtom_ {
     PKAtomString string;
     PKAtomCons cons;
     PKAtomCFunc cfunc;
+    PKAtomLFunc lfunc;
 };
 
 typedef enum PKFuncMode_ {
@@ -176,6 +191,32 @@ typedef struct PKReader_ {
     char c;
 } PKReader;
 
+typedef struct PKBytes_ {
+    pk_u8 *e;
+    size_t count;
+    size_t capacity;
+} PKBytes;
+
+typedef struct PKAtoms_ {
+    PKAtom **e;
+    size_t count;
+    size_t capacity;
+} PKAtoms;
+
+#define PK_OP_ILLEGAL (0)
+#define PK_OP_NOP (1)
+#define PK_OP_LOAD (2)
+#define PK_OP_CALL (3)
+#define PK_OP_BLOCK (4)
+#define PK_OP_RET (5)
+
+typedef struct PKCompiler_ {
+    Pocket lisp;
+    PKBytes bc;
+    PKAtoms atoms;
+    pk_u8 addr;
+} PKCompiler;
+
 typedef struct PKLet_ {
     PKEnvTy ty;
     PKAtomSymbol *symbol;
@@ -187,12 +228,6 @@ typedef struct PKLets_ {
     size_t count;
     size_t capacity;
 } PKLets;
-
-typedef struct PKStack_ {
-    PKAtom **e;
-    size_t count;
-    size_t capacity;
-} PKStack;
 
 typedef enum PKEvalFrameTy_ {
     PKEvalFrameTy_None = 0,
@@ -267,10 +302,10 @@ struct PKPool_ {
     PKPool *next;
 };
 
-typedef struct PKAtoms_ {
+typedef struct PKAtomSlice_ {
     PKAtom **e;
     size_t length;
-} PKAtoms;
+} PKAtomSlice;
 
 typedef enum PKOrder_ {
     PKOrder_Normal = 0,
@@ -279,7 +314,7 @@ typedef enum PKOrder_ {
 
 typedef struct PKStackSlice_ {
     PKOrder order;
-    PKAtoms slice;
+    PKAtomSlice slice;
 } PKStackSlice;
 
 typedef struct PKCache_ {
@@ -303,14 +338,19 @@ typedef struct PKCache_ {
     PKAtomString *empty_string;
 } PKCache;
 
+typedef struct PKThrow_ {
+    PKAtomSymbol *throw_sym;
+    pk_bool throwing;
+} PKThrow;
+
 struct PocketLispMachine_ {
     void *user_env;
     PKAllocFn alloc;
     PKPrintFn print;
     
     PKCache cache;
-    
-    PKStack stack;
+   
+    PKAtoms stack;
     PKLets lets;
     PKFrames frames;
     PKFrame current_frame;
@@ -360,7 +400,7 @@ PKRes pk_atom_float(Pocket lisp, float value, PKAtomNumber **output);
 PKRes pk_atom_string(Pocket lisp, const char *cstr, PKAtomString **output);
 PKRes pk_atom_stringn(Pocket lisp, const char *string, size_t length, PKAtomString **output);
 PKRes pk_atom_stringn_nomemcpy(Pocket lisp, char *string, size_t length, PKAtomString **output);
-PKRes pk_atom_string_concat(Pocket lisp, PKAtoms strings, PKAtomString **output);
+PKRes pk_atom_string_concat(Pocket lisp, PKAtomSlice strings, PKAtomString **output);
 PKRes pk_atom_string_slurp(Pocket lisp, PKAtomString *file_path, PKAtomString **output);
 
 PKRes pk_atom_symbol_uninterned(Pocket lisp, const char *cstr, PKAtomSymbol **output);
@@ -383,6 +423,7 @@ PKRes pk_atom_cast_string(Pocket lisp, PKAtom *atom, PKAtomString **output);
 PKRes pk_atom_cast_symbol(Pocket lisp, PKAtom *atom, PKAtomSymbol **output);
 PKRes pk_atom_cast_cons(Pocket lisp, PKAtom *atom, PKAtomCons **output);
 PKRes pk_atom_cast_cfunc(Pocket lisp, PKAtom *atom, PKAtomCFunc **output);
+PKRes pk_atom_cast_lfunc(Pocket lisp, PKAtom *atom, PKAtomLFunc **output);
 
 pk_bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 pk_bool pk_atom_symbol_eq(Pocket lisp, PKAtomSymbol *lhs, PKAtomSymbol *rhs);
@@ -409,7 +450,7 @@ PKRes pk_stack_head(Pocket lisp, PKAtom **output);
 PKAtom *pk_stack_result(Pocket lisp);
 PKRes pk_stack_pop(Pocket lisp, PKAtom **output);
 PKRes pk_stack_get(Pocket lisp, int stack_pointer, PKAtom **output);
-PKAtoms pk_stack_slice(Pocket lisp);
+PKAtomSlice pk_stack_slice(Pocket lisp);
 PKRes pk_stack_slice_by(Pocket lisp, int a, int b, PKStackSlice *output);
 PKRes pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom);
 
@@ -467,7 +508,7 @@ PKRes pk_frame_pop_clear(Pocket lisp);
 PKRes pk_frame_pop_return(Pocket lisp);
 /* Clear the current frame of all stack allocated variables. */
 void pk_frame_clear(Pocket lisp);
-PKAtoms pk_frame_slice(Pocket lisp, PKFrame *frame, size_t length);
+PKAtomSlice pk_frame_slice(Pocket lisp, PKFrame *frame, size_t length);
 PKRes pk_let_push(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value);
 PKRes pk_let_pop(Pocket lisp, size_t n);
 
@@ -498,11 +539,11 @@ PKRes pk_util_slurpn(Pocket lisp, const char *file_path, size_t length, char **o
 
 PKRes pk_call(Pocket lisp, PKAtom *atom, size_t arity);
 PKRes pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PKCallConv *output);
-PKRes pk_bind_lambda_list(Pocket lisp, PKAtom *symbols, PKAtoms values);
+PKRes pk_bind_lambda_list(Pocket lisp, PKAtom *symbols, PKAtomSlice values);
 
-PKRes pk_slice_list(Pocket lisp, PKAtoms atoms, PKAtom **output);
-PKRes pk_slice_list_rev(Pocket lisp, PKAtoms atoms, PKAtom **output);
-PKRes pk_slice_list_tailed(Pocket lisp, PKAtoms atoms, PKAtom **output);
+PKRes pk_slice_list(Pocket lisp, PKAtomSlice atoms, PKAtom **output);
+PKRes pk_slice_list_rev(Pocket lisp, PKAtomSlice atoms, PKAtom **output);
+PKRes pk_slice_list_tailed(Pocket lisp, PKAtomSlice atoms, PKAtom **output);
 
 PKRes pk_ret_top(Pocket lisp);
 PKRes pk_ret_nil(Pocket lisp);
@@ -520,4 +561,19 @@ PKRes pk_read_atom(PKReader *r, PKAtom **atom);
 
 PKRes pk_read_string(Pocket lisp, char *c, size_t length, PK_READ mode, PKAtom **output);
 
+PKRes pk_atoms_push(Pocket lisp, PKAtoms *atoms, PKAtom *atom, size_t init);
+void pk_atoms_free(Pocket lisp, PKAtoms *atoms);
+PKRes pk_bytes_push(Pocket lisp, PKBytes *bytes, pk_u8 byte, size_t init);
+void pk_bytes_free(Pocket lisp, PKBytes *bytes);
+
+PKRes pk_compile_evlist(PKCompiler *c, PKAtom *args);
+PKRes pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_bool *is_special);
+PKRes pk_compile_expression(PKCompiler *c, PKAtomCons *expr);
+PKRes pk_compile_value(PKCompiler *c, PKAtom *value);
+PKRes pk_compile_compile(PKCompiler *c, PKAtomLFunc **output);
+PKRes pk_compile_atom(Pocket lisp, PKAtom *value, PKAtomLFunc **output);
+
+const char *pk_ident_opcode(pk_u8 op);
+
+PKRes pk_dump_hex_atom(Pocket lisp, PKAtomLFunc *lfunc);
 #endif

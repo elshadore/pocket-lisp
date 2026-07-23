@@ -326,6 +326,15 @@ PKRes pk_list(Pocket lisp, int head, int tail) {
     return PK_Ok;
 }
 
+PKRes pk_compile(Pocket lisp, int stack_pointer) {
+    PKAtom *atom = NULL;
+    PKAtomLFunc *result = NULL;
+    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
+    pk_try(pk_compile_atom(lisp, atom, &result));
+    pk_try(pk_push(lisp, (PKAtom *)result));
+    return PK_Ok;
+}
+
 PKRes pk_clone(Pocket lisp, int stack_pointer) {
     (void)stack_pointer;
     return pk_error(lisp);

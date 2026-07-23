@@ -102,6 +102,7 @@ PKRes pk_slurp(Pocket lisp, int file_path);
 PKRes pk_format(Pocket lisp, int stack_pointer);
 PKRes pk_clone(Pocket lisp, int stack_pointer);
 PKRes pk_eval(Pocket lisp, int stack_pointer);
+PKRes pk_compile(Pocket lisp, int stack_pointer);
 PKRes pk_evlist(Pocket lisp, int stack_pointer);
 PKRes pk_apply(Pocket lisp, int function, int args);
 PKRes pk_funcall(Pocket lisp, int arity);
@@ -134,5 +135,6 @@ Pocket pk_init(void *user_closure, PKAllocFn alloc, PKPrintFn print);
 void pk_deinit(Pocket lisp);
 
 PKRes pk_dump_stack(Pocket lisp, const char *tag);
+PKRes pk_dump_hex(Pocket lisp, int stack_pointer);
 
 #endif

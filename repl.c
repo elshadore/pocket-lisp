@@ -77,13 +77,28 @@ PKRes repl(Pocket lisp, int argc, char **argv) {
     return PK_Ok;
 }
 
+PKRes testicle(Pocket lisp) {
+    pk_try(pk_push_string(lisp, "(+ 1 2 3)"));
+    pk_try(pk_read(lisp, -1, PK_READ_EXPRESSION));
+    pk_try(pk_compile(lisp, -1));
+    pk_try(pk_dump_hex(lisp, -1));
+    return PK_Ok;
+}
+
 int main(int argc, char **argv) {
     Pocket lisp = pk_init(NULL, repl_alloc, repl_print);
     if (lisp == NULL) {
         return EXIT_FAILURE;
     }
+    /*
     if (repl(lisp, argc, argv) == PK_Yield) {
         fprintf(stderr, "REPL exited with error\n");
+    }
+    */
+    if (testicle(lisp) == PK_Yield) {
+        (void)argc;
+        (void)argv;
+        fprintf(stderr, "Testicle failed!\n");
     }
     pk_deinit(lisp);
     return EXIT_SUCCESS;

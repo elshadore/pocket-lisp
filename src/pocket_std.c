@@ -284,7 +284,7 @@ PKRes pk_fn_eq(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_fn_list(void *user_closure, Pocket lisp) {
-    PKAtoms slice;
+    PKAtomSlice slice;
     PKAtom *result = NULL;
     
     (void)user_closure;
@@ -295,7 +295,7 @@ PKRes pk_fn_list(void *user_closure, Pocket lisp) {
 }
 
 PKRes pk_fn_list_reversed(void *user_closure, Pocket lisp) {
-    PKAtoms slice;
+    PKAtomSlice slice;
     PKAtom *result = NULL;
     
     (void)user_closure;
@@ -325,7 +325,7 @@ PKRes pk_fn_list_funs(void *user_closure, Pocket lisp) {
 
 PKRes pk_fn_cat(void *user_closure, Pocket lisp) {
     PKAtomString *result = NULL;
-    PKAtoms slice;
+    PKAtomSlice slice;
     
     (void)user_closure;
     slice = pk_stack_slice(lisp);

@@ -48,21 +48,7 @@ PKRes pk_sp_index(Pocket lisp, int stack_pointer, size_t *index) {
 }
 
 PKRes pk_push(Pocket lisp, PKAtom *atom) {
-    if (lisp->stack.count >= lisp->stack.capacity) {
-        size_t new_capacity = pk_grow_capacity(lisp->stack.capacity, PK_STACK_INIT_CAPACITY);
-        pk_try(pk_realloc(
-            lisp,
-            lisp->stack.e,
-            sizeof(PKAtom *) * lisp->stack.capacity,
-            sizeof(PKAtom *) * new_capacity,
-            (void **)&lisp->stack.e)
-        );
-        lisp->stack.capacity = new_capacity;
-    }
-    
-    lisp->stack.e[lisp->stack.count++] = atom;
-    
-    return PK_Ok;
+    return pk_atoms_push(lisp, &lisp->stack, atom, PK_STACK_INIT_CAPACITY);
 }
 
 PKRes pk_pop(Pocket lisp) {
@@ -123,12 +109,12 @@ PKRes pk_stack_get(Pocket lisp, int stack_pointer, PKAtom **output) {
     return PK_Ok;
 }
 
-PKAtoms pk_stack_slice(Pocket lisp) {
+PKAtomSlice pk_stack_slice(Pocket lisp) {
     size_t total = pk_stack_length_total(lisp);
     size_t offset = lisp->current_frame.stack_offset;
     size_t length = total - offset;
     PKAtom **e = lisp->stack.e + offset;
-    PKAtoms result;
+    PKAtomSlice result;
     
     result.e = e;
     result.length = length;
@@ -216,9 +202,9 @@ PKRes pk_frame_pop_return(Pocket lisp) {
     return PK_Ok;
 }
 
-PKAtoms pk_frame_slice(Pocket lisp, PKFrame *frame, size_t length) {
+PKAtomSlice pk_frame_slice(Pocket lisp, PKFrame *frame, size_t length) {
     size_t start = frame->stack_offset;
-    PKAtoms result;
+    PKAtomSlice result;
     
     result.e = lisp->stack.e + start;
     result.length = length;
