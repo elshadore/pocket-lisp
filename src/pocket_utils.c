@@ -78,17 +78,6 @@ void pk_string_reverse(char *c, size_t length) {
     }
 }
 
-PKRes pk_print(Pocket lisp, char *c, size_t length) {
-    (lisp->print)(lisp->user_env, c, length);
-    return PK_Ok;
-}
-
-PKRes pk_puts(Pocket lisp, char *c, size_t length) {
-    (void)lisp;
-    fprintf(stderr, "%.*s", (int)length, c);
-    return PK_Ok;
-}
-
 pk_u8 pk_char_to_digit(char c) {
     switch (c) {
         case '0': return 0;

@@ -141,37 +141,23 @@ union PKAtom_ {
     PKAtomLFunc lfunc;
 };
 
-typedef enum PKFuncMode_ {
-    PKFuncMode_Func = 0,
-    PKFuncMode_Macro
-} PKFuncMode;
-
-typedef enum PKFuncTy_ {
-    PKFuncTy_CFunc = 0,
-    PKFuncTy_Lambda
-} PKFuncTy;
-
-typedef struct PKCCall_ {
-    void *user_closure;
-    PKFn fn;
-} PKCCall;
-
-typedef struct PKLCall_ {
-    PKAtom *args;
-    PKAtom *body;
-} PKLCall;
+#define PK_CALLTY_QUICK (0)
+#define PK_CALLTY_CFUNC (1)
+#define PK_CALLTY_LFUNC (2)
 
 typedef struct PKCallConv_ {
     union {
-        PKCCall c;
-        PKLCall lisp;
+        struct {
+            void *user_closure;
+            PKFn fn;
+        } quick;
+        PKAtomCFunc *c;
+        PKAtomLFunc *lisp;
     } as;
-    PKFuncTy ty;
-    PKFuncMode mode;
+    pk_u8 ty;
+    pk_bool insert_result;
     size_t final_arity;
     size_t extra_nils;
-    pk_bool insert_result;
-    PKAtom *expression;
 } PKCallConv;
 
 typedef struct PKWriter_ {
@@ -394,8 +380,11 @@ pk_free(lisp_, c_, length_)
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);
 size_t pk_next_pow2(size_t value);
 
-PKRes pk_print(Pocket lisp, char *c, size_t length);
-PKRes pk_puts(Pocket lisp, char *c, size_t length);
+void pk_puts(Pocket lisp, char *c, size_t length);
+void pk_print(Pocket lisp, char *c, size_t length);
+void pk_newline(Pocket lisp);
+PKRes pk_print_atom(Pocket lisp, PKAtom *atom);
+PKRes pk_puts_atom(Pocket lisp, PKAtom *atom);
 
 PKRes pk_atom_alloc(Pocket lisp, PKAtom **output);
 void pk_atom_free(Pocket lisp, PKAtom *atom);
@@ -490,7 +479,8 @@ PKRes pk_writer_float(PKWriter *w, float floater);
 PKRes pk_writer_atom(PKWriter *w, PKAtom *atom);
 PKRes pk_writer_get(PKWriter *w, char **out_c, size_t *out_length);
 PKRes pk_writer_reset(PKWriter *w);
-PKRes pk_writer_print(PKWriter *w);
+void pk_writer_print(PKWriter *w);
+void pk_writer_puts(PKWriter *w);
 PKRes pk_writer_address(PKWriter *w, size_t address);
 
 pk_u8 pk_char_to_digit(char c);
@@ -543,8 +533,13 @@ PKRes pk_load_std(Pocket lisp);
 PKRes pk_util_slurp(Pocket lisp, const char *file_path, char **out_buffer, size_t *out_length);
 PKRes pk_util_slurpn(Pocket lisp, const char *file_path, size_t length, char **out_c, size_t *out_length);
 
-PKRes pk_call(Pocket lisp, PKAtom *atom, size_t arity);
+PKRes pk_atom_eval(Pocket lisp, PKAtom *atom);
+PKRes pk_atom_evlist(Pocket lisp, PKAtom *atom);
+
+PKRes pk_call(Pocket lisp, PKCallConv *conv);
+PKRes pk_arity_convert(Pocket lisp, int arity, size_t *output);
 PKRes pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PKCallConv *output);
+void pk_callconv_quick(void *user_closure, PKFn fn, size_t arity, PKCallConv *output);
 PKRes pk_bind_lambda_list(Pocket lisp, PKAtom *symbols, PKAtomSlice values);
 
 PKRes pk_slice_list(Pocket lisp, PKAtomSlice atoms, PKAtom **output);

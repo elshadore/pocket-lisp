@@ -23,10 +23,25 @@ PKRes pk_bind_lambda_list(Pocket lisp, PKAtom *symbols, PKAtomSlice values) {
     return PK_Ok;
 }
 
+PKRes pk_arity_convert(Pocket lisp, int arity, size_t *output) {
+    if (arity < 0 || arity > UCHAR_MAX)  {
+        return pk_error(lisp);
+    }
+    *output = (size_t)arity;
+    return PK_Ok;
+}
+
 PKRes pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PKCallConv *output) {
-    switch (atom->tag.ty) {
+    PKAtom *function = NULL;
+    if (function->tag.ty == PKAtomTy_Symbol) {
+        pk_try(pk_env_get(lisp, PKEnvTy_Fun, (PKAtomSymbol *)function, &function));
+    } else {
+        function = atom;
+    }
+    
+    switch (function->tag.ty) {
         case PKAtomTy_CFunc: {
-            PKAtomCFunc *cfunc = (PKAtomCFunc *)atom;
+            PKAtomCFunc *cfunc = (PKAtomCFunc *)function;
             size_t farity = arity;
             size_t carity = (size_t)cfunc->arity.args;
             size_t nils = 0;
@@ -53,43 +68,21 @@ PKRes pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PKCallConv *output) {
                 }
             }
             
-            output->ty = PKFuncTy_CFunc;
-            output->as.c.fn = cfunc->fn;
-            output->as.c.user_closure = cfunc->user_closure;
+            output->ty = PK_CALLTY_CFUNC;
+            output->as.c = cfunc;
             output->final_arity = farity;
-            output->mode = PKFuncMode_Func;
             output->insert_result = PK_TRUE;
             output->extra_nils = nils;
-            output->expression = atom;
-            
+
             return PK_Ok;
         }
-        case PKAtomTy_Cons: {
-            PKAtomCons *cons = (PKAtomCons *)atom;
-            PKAtomSymbol *sym = NULL;
-            PKAtomCons *a = NULL;
-            PKFuncMode mode = PKFuncMode_Func;
-            
-            pk_try(pk_atom_cast_symbol(lisp, cons->car, &sym));
-
-            if (sym == lisp->cache.lambda) {
-                mode = PKFuncMode_Func;
-            } else if (sym == lisp->cache.macro) {
-                mode = PKFuncMode_Macro;
-            } else {
-                return pk_error(lisp);
-            }
-
-            pk_try(pk_atom_cast_cons(lisp, cons->cdr, &a));
-
-            output->ty = PKFuncTy_Lambda;
-            output->as.lisp.args = a->car;
-            output->as.lisp.body = a->cdr;
+        case PKAtomTy_LFunc: {
+            PKAtomLFunc *lfunc = (PKAtomLFunc *)function;
+            output->ty = PK_CALLTY_LFUNC;
+            output->as.lisp = lfunc;
             output->final_arity = arity;
-            output->mode = mode;
             output->insert_result = PK_TRUE;
-            output->expression = atom;
-            
+            output->extra_nils = 0;
             return PK_Ok;
         }
         default: {
@@ -98,24 +91,66 @@ PKRes pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PKCallConv *output) {
     }
 }
 
-PKRes pk_eval(Pocket lisp, int stack_pointer) {
-    (void)stack_pointer;
-    return pk_error(lisp);
+void pk_callconv_quick(void *user_closure, PKFn fn, size_t arity, PKCallConv *output) {
+    output->ty = PK_CALLTY_QUICK;
+    output->as.quick.user_closure = user_closure;
+    output->as.quick.fn = fn;
+    output->final_arity = arity;
+    output->extra_nils = 0;
+    output->insert_result = PK_FALSE;
 }
 
-PKRes pk_evlist(Pocket lisp, int stack_pointer) {
-    (void)stack_pointer;
-    return pk_error(lisp);
+PKRes pk_call(Pocket lisp, PKCallConv *conv) {
+    size_t i = 0;
+    PKRes result = PK_Yield;
+    PKAtom *ret = pk_atom_nil(lisp);
+    
+    pk_try(pk_frame_push(lisp, conv->final_arity));
+    
+    for (i = 0; i < conv->extra_nils; ++i) {
+        pk_defer(pk_push_nil(lisp));
+    }
+    switch (conv->ty) {
+        case PK_CALLTY_QUICK: {
+            pk_defer((conv->as.quick.fn)(conv->as.quick.user_closure, lisp));
+            break;
+        }
+        case PK_CALLTY_CFUNC: {
+            pk_defer((conv->as.c->fn)(conv->as.c->user_closure, lisp));
+            break;
+        }
+        default: {
+            pk_defer(pk_error(lisp));
+            break;
+        }
+    }
+    result = PK_Ok;
+    
+    DEFER:
+    pk_try(pk_frame_pop_clear(lisp));
+        
+    if (conv->insert_result) {
+        lisp->stack.e[lisp->stack.count - 1] = ret;
+    } else {
+        pk_try(pk_push(lisp, ret));
+    }
+
+    return result;
 }
 
-PKRes pk_fastcall(void *user_closure, Pocket lisp, PKFn fn, int arity) {
-    (void)user_closure;
-    (void)fn;
-    (void)arity;
-    return pk_error(lisp);
+PKRes pk_atom_eval(Pocket lisp, PKAtom *atom) {
+    PKCallConv call;
+    PKAtomLFunc *function = NULL;
+    
+    pk_try(pk_compile_atom(lisp, atom, &function));
+    pk_try(pk_callconv(lisp, (PKAtom *)function, 0, &call));
+
+    pk_try(pk_call(lisp, &call));
+    
+    return PK_Ok;
 }
 
-PKRes pk_funcall(Pocket lisp, int arity) {
-    (void)arity;
+PKRes pk_atom_evlist(Pocket lisp, PKAtom *atom) {
+    (void)atom;
     return pk_error(lisp);
 }

@@ -104,7 +104,7 @@ PKRes pk_fn_print(void *user_closure, Pocket lisp) {
     
     (void)user_closure;
     pk_try(pk_to_string(lisp, 1, &c, &length));
-    pk_try(pk_print(lisp, c, length));
+    pk_print(lisp, c, length);
     return PK_Ok;
 }
 
@@ -114,7 +114,7 @@ PKRes pk_fn_puts(void *user_closure, Pocket lisp) {
     
     (void)user_closure;
     pk_try(pk_to_string(lisp, 1, &c, &length));
-    pk_try(pk_puts(lisp, c, length));
+    pk_puts(lisp, c, length);
     return PK_Ok;
 }
 

@@ -96,7 +96,7 @@ PKRes pk_symtable_rem(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **o
     
     if (st->capacity == 0) {
         *output = NULL;
-        return PK_Ok;
+        return pk_error(lisp);
     }
 
     bucket = pk_symtable_hash(st, key);
@@ -116,7 +116,7 @@ PKRes pk_symtable_rem(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **o
     }
     
     *output = NULL;
-    return PK_Ok;
+    return pk_error(lisp);
 }
 
 PKRes pk_symtable_alist(Pocket lisp, PKSymTable *st, PKAtom **output) {

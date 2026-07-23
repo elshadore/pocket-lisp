@@ -154,9 +154,12 @@ PKRes pk_writer_reset(PKWriter *w) {
     return PK_Ok;
 }
 
-PKRes pk_writer_print(PKWriter *w) {
-    pk_try(pk_print(w->lisp, w->c, w->count));
-    return PK_Ok;
+void pk_writer_print(PKWriter *w) {
+    pk_print(w->lisp, w->c, w->count);
+}
+
+void pk_writer_puts(PKWriter *w) {
+    pk_puts(w->lisp, w->c, w->count);
 }
 
 PKRes pk_writer_atom(PKWriter *w, PKAtom *atom) {

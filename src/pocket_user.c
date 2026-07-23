@@ -336,6 +336,45 @@ PKRes pk_compile(Pocket lisp, int stack_pointer) {
     return PK_Ok;
 }
 
+PKRes pk_eval(Pocket lisp, int stack_pointer) {
+    PKAtom *atom = NULL;
+    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
+    pk_try(pk_atom_eval(lisp, atom));
+    return PK_Ok;
+}
+
+PKRes pk_evlist(Pocket lisp, int stack_pointer) {
+    PKAtom *atom = NULL;
+    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
+    pk_try(pk_atom_evlist(lisp, atom));
+    return PK_Ok;
+}
+
+PKRes pk_fastcall(void *user_closure, Pocket lisp, PKFn fn, int arity) {
+    PKCallConv call;
+    size_t carity = 0;
+    
+    pk_try(pk_arity_convert(lisp, arity, &carity));
+    pk_callconv_quick(user_closure, fn, carity, &call);
+
+    pk_try(pk_call(lisp, &call));
+
+    return PK_Ok;
+}
+
+PKRes pk_funcall(Pocket lisp, int arity) {
+    PKCallConv call;
+    PKAtom *atom = NULL;
+    size_t carity;
+    
+    pk_try(pk_arity_convert(lisp, arity, &carity));
+    pk_try(pk_stack_get(lisp, (-arity) - 1, &atom));
+    pk_try(pk_callconv(lisp, atom, carity, &call));
+    pk_try(pk_call(lisp, &call));
+    
+    return PK_Ok;;
+}
+
 PKRes pk_clone(Pocket lisp, int stack_pointer) {
     (void)stack_pointer;
     return pk_error(lisp);

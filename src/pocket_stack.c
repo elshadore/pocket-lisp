@@ -242,17 +242,18 @@ PKRes pk_let_push(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value) {
 PKRes pk_let_pop(Pocket lisp, size_t n) {
     PKLets *lets = &lisp->lets;
     size_t i = 0;
+    PKRes result = PK_Ok;
     for (i = 0; i < n; ++i) {
         size_t index = lets->count - i - 1;
         PKLet popped = lets->e[index];
         if (popped.restore != NULL) {
             PKAtom *_ignored;
-            pk_try(pk_env_set(lisp, popped.ty, popped.symbol, popped.restore, &_ignored));
+            result &= pk_env_set(lisp, popped.ty, popped.symbol, popped.restore, &_ignored);
         } else {
             PKAtom *_ignored;
-            pk_try(pk_env_unbind(lisp, popped.ty, popped.symbol, &_ignored));
+            result &= pk_env_unbind(lisp, popped.ty, popped.symbol, &_ignored);
         }
     }
     lets->count -= n;
-    return PK_Ok;
+    return result;
 }

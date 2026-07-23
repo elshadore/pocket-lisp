@@ -28,7 +28,7 @@ PKRes pk_dump_stack(Pocket lisp, const char *tag) {
         pk_defer(pk_writer_atom(&w, a));
         pk_defer(pk_writer_newline(&w));
     }
-    pk_defer(pk_writer_print(&w));
+    pk_writer_puts(&w);
     result = PK_Ok;
     DEFER:
     pk_writer_deinit(&w);
@@ -95,7 +95,7 @@ PKRes pk_dump_hex_atom(Pocket lisp, PKAtomLFunc *lfunc) {
         pk_defer(pk_writer_newline(&w));
     }
     
-    pk_defer(pk_writer_print(&w));
+    pk_writer_puts(&w);
     result = PK_Ok;
     
     DEFER:

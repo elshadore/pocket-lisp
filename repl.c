@@ -22,7 +22,7 @@ void *repl_alloc(void *user_env, void *ptr, size_t old_size, size_t new_size) {
 
 void repl_print(void *user_env, char *c, size_t length) {
     (void)user_env;
-    printf("%.*s\n", (int)length, c);
+    printf("%.*s", (int)length, c);
 }
 
 static char repl_buffer[4096];
@@ -78,10 +78,18 @@ PKRes repl(Pocket lisp, int argc, char **argv) {
 }
 
 PKRes testicle(Pocket lisp) {
+    /*
     pk_try(pk_push_string(lisp, "(+ 1 2 3)"));
     pk_try(pk_read(lisp, -1, PK_READ_EXPRESSION));
     pk_try(pk_compile(lisp, -1));
     pk_try(pk_dump_hex(lisp, -1));
+    */
+    pk_try(pk_push_symbol(lisp, "+"));
+    pk_try(pk_push_int(lisp, 1));
+    pk_try(pk_push_int(lisp, 2));
+    pk_try(pk_push_int(lisp, 3));
+    pk_try(pk_funcall(lisp, 3));
+    pk_try(pk_dump_stack(lisp, "testicle"));
     return PK_Ok;
 }
 
