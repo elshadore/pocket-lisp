@@ -101,9 +101,14 @@ PKRes pk_fn_format(void *user_closure, Pocket lisp) {
 PKRes pk_fn_print(void *user_closure, Pocket lisp) {
     char *c = NULL;
     size_t length = 0;
+    int boolean = 0;
     
     (void)user_closure;
-    pk_try(pk_to_string(lisp, 1, &c, &length));
+    pk_try(pk_is_string(lisp, 1, &boolean));
+    if (!boolean) {
+        pk_try(pk_format(lisp, 1));
+    }
+    pk_try(pk_to_string(lisp, -1, &c, &length));
     pk_print(lisp, c, length);
     return PK_Ok;
 }

@@ -78,7 +78,6 @@ PKRes repl(Pocket lisp, int argc, char **argv) {
 }
 
 PKRes testicle(Pocket lisp) {
-    
     pk_try(pk_push_string(lisp, "./testicle.pk"));
     pk_try(pk_slurp(lisp, -1));
     pk_try(pk_read(lisp, -1, PK_READ_LISTED));
@@ -95,16 +94,16 @@ int main(int argc, char **argv) {
     if (lisp == NULL) {
         return EXIT_FAILURE;
     }
-    /*
     if (repl(lisp, argc, argv) == PK_Yield) {
         fprintf(stderr, "REPL exited with error\n");
     }
-    */
+    /*
     if (testicle(lisp) == PK_Yield) {
         (void)argc;
         (void)argv;
         fprintf(stderr, "Testicle failed!\n");
     }
+    */
     pk_deinit(lisp);
     return EXIT_SUCCESS;
 }

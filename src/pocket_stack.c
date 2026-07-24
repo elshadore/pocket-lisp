@@ -91,6 +91,7 @@ PKRes pk_stack_pop(Pocket lisp, PKAtom **output) {
     if (pk_stack_length_frame(lisp) == 0) {
         return pk_error(lisp);
     }
+    
     index = lisp->stack.count - 1;
     *output = lisp->stack.e[index];
     lisp->stack.count = index;

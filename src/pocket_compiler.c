@@ -15,6 +15,8 @@ PKCompiler pk_compiler_new(Pocket lisp) {
     c.bc.count = 0;
     c.bc.capacity = 0;
 
+    c.addr = 0;
+    
     return c;
 }
 
@@ -140,7 +142,7 @@ PKRes pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_b
         predicate = cons->car;
         body = cons->cdr;
 
-        start = pk_cmp_addr(c) + 1;
+        start = pk_cmp_addr(c);
         pk_try(pk_compile_value(c, predicate));
         pk_try(pk_cmp_push_byte(c, PK_OP_JMP_IF_NIL));
         pk_try(pk_cmp_push_byte(c, 0));
@@ -148,7 +150,7 @@ PKRes pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_b
         
         pk_try(pk_compile_evlist(c, body));
         pk_try(pk_cmp_push_byte(c, PK_OP_JMP_BACK));
-        pk_try(pk_cmp_push_byte(c, pk_cmp_addr(c) - start));
+        pk_try(pk_cmp_push_byte(c, pk_cmp_addr(c) - start + 1));
         pk_try(pk_cmp_patch_byte(c, patch, pk_cmp_addr(c) + 1 - patch));
         
         *is_special = PK_TRUE;
