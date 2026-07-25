@@ -14,9 +14,11 @@ PK_RES pk_env_set(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value, PKA
 }
 
 PK_RES pk_env_get(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom **output) {
-    pk_try(pk_symtable_get(lisp, pk_environment(lisp, ty), sym, output));
-    if (*output == NULL) return pk_error(lisp);
-    return PK_OK;
+    if (!pk_symtable_get(lisp, pk_environment(lisp, ty), sym, output)) {
+        return pk_error(lisp);
+    } else {
+        return PK_OK;
+    }
 }
 
 PK_RES pk_env_unbind(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom **output) {

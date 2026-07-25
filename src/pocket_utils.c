@@ -1,5 +1,13 @@
 #include "pocket_internals.h"
 
+PKAtoms pk_atoms_init(void) {
+    PKAtoms atoms;
+    atoms.e = NULL;
+    atoms.count = 0;
+    atoms.capacity = 0;
+    return atoms;
+}
+
 PK_RES pk_atoms_push(Pocket lisp, PKAtoms *atoms, PKAtom *atom, size_t init) {
     if (atoms->count >= atoms->capacity) {
         PKAtom **new_e = NULL;
@@ -26,6 +34,14 @@ void pk_atoms_free(Pocket lisp, PKAtoms *atoms) {
     if (atoms->e != NULL) {
         pk_free(lisp, atoms->e, atoms->capacity * sizeof(PKAtom *));
     }
+}
+
+PKBytes pk_bytes_init(void) {
+    PKBytes bytes;
+    bytes.e = NULL;
+    bytes.count = 0;
+    bytes.capacity = 0;
+    return bytes;
 }
 
 PK_RES pk_bytes_push(Pocket lisp, PKBytes *bytes, pk_u8 byte, size_t init) {

@@ -1,5 +1,13 @@
 #include "pocket_internals.h"
 
+PKSymTable pk_symtable_init(void) {
+    PKSymTable st;
+    st.e = NULL;
+    st.count = 0;
+    st.capacity = 0;
+    return st;
+}
+
 PK_RES pk_symtable_grow(Pocket lisp, PKSymTable *st) {
     PKSymTableSlot **new_e = NULL;
     size_t new_capacity = 0;
@@ -66,14 +74,14 @@ size_t pk_symtable_hash(PKSymTable *st, PKAtomSymbol *key) {
     return pk_hash_pointer(key) % st->capacity;
 }
 
-PK_RES pk_symtable_get(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **output) {
+pk_u8 pk_symtable_get(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **output) {
     PKSymTableSlot *entry = NULL;
     size_t bucket = 0;
     
     (void)lisp;
     if (st->count == 0) {
         *output = NULL;
-        return PK_OK;
+        return PK_FALSE;
     }
 
     bucket = pk_symtable_hash(st, key);
@@ -81,12 +89,12 @@ PK_RES pk_symtable_get(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **
     for (entry = st->e[bucket]; entry; entry = entry->chain) {
         if (entry->key == key) {
             *output = entry->value;
-            return PK_OK;
+            return PK_TRUE;
         }
     }
 
     *output = NULL;
-    return PK_OK;
+    return PK_FALSE;
 }
 
 PK_RES pk_symtable_rem(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **output) {

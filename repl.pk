@@ -35,7 +35,8 @@
 (fset 'make-circular-list
       (lambda (list)
         (let ((foo (last-cons list)))
-          (set-cdr foo list))))
+          (set-cdr foo list)
+          list)))
 
 (fset 'cadr
       (lambda (list)
@@ -45,13 +46,15 @@
       (lambda (list)
         (cdr (car list))))
 
-## (if (nil? (cdr argv))
-##     nil
-##   (progn
-##     (print "*~ARG-EVAL~*")
-##     (print (cadr argv))
-##     (puts ">> ")
-##     (print (format (eval (read (cadr argv)))))))
+(fset 'foopy (lambda (value) "foopy"))
+
+(if (nil? (cdr argv))
+    nil
+  (progn
+    (print "*~ARG-EVAL~*")
+    (print (cadr argv))
+    (puts ">> ")
+    (print (format (eval (read (cadr argv)))))))
 
 (repl)
 

@@ -531,15 +531,17 @@ PK_RES pk_let_pop(Pocket lisp, size_t n);
 size_t pk_hash_djb2(const char *c, size_t length);
 size_t pk_hash_pointer(void *ptr);
 
+PKSymTable pk_symtable_init(void);
 PK_RES pk_symtable_grow(Pocket lisp, PKSymTable *st);
 PK_RES pk_symtable_put(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom *value, PKAtom **output);
-PK_RES pk_symtable_get(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **output);
+pk_u8 pk_symtable_get(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **output);
 PK_RES pk_symtable_rem(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **output);
 PK_RES pk_symtable_alist(Pocket lisp, PKSymTable *st, PKAtom **output);
 void pk_symtable_deinit(Pocket lisp, PKSymTable *st);
 
+PKHashTable pk_hashtable_init(void);
 PK_RES pk_hashtable_grow(Pocket lisp, PKHashTable *ht);
-PK_RES pk_hashtable_get(Pocket lisp, PKHashTable *ht, PKAtom *key, PKAtom **output);
+pk_u8 pk_hashtable_get(Pocket lisp, PKHashTable *ht, PKAtom *key, PKAtom **output);
 PK_RES pk_hashtable_put(Pocket lisp, PKHashTable *ht, PKAtom *key, PKAtom *value);
 void pk_hashtable_deinit(Pocket lisp, PKHashTable *ht);
 
@@ -579,8 +581,11 @@ PK_RES pk_read_atom(PKReader *r, PKAtom **atom);
 
 PK_RES pk_read_string(Pocket lisp, char *c, size_t length, PK_READ mode, PKAtom **output);
 
+PKAtoms pk_atoms_init(void);
 PK_RES pk_atoms_push(Pocket lisp, PKAtoms *atoms, PKAtom *atom, size_t init);
 void pk_atoms_free(Pocket lisp, PKAtoms *atoms);
+
+PKBytes pk_bytes_init(void);
 PK_RES pk_bytes_push(Pocket lisp, PKBytes *bytes, pk_u8 byte, size_t init);
 void pk_bytes_free(Pocket lisp, PKBytes *bytes);
 

@@ -42,9 +42,7 @@ Pocket pk_init(void *user_env, PKAllocFn alloc, PKPrintFn print) {
     lisp->alloc = alloc;
     lisp->print = print;
 
-    lisp->stack.e = NULL;
-    lisp->stack.count = 0;
-    lisp->stack.capacity = 0;
+    lisp->stack = pk_atoms_init();
     
     lisp->lets.e = NULL;
     lisp->lets.count = 0;
@@ -58,14 +56,9 @@ Pocket pk_init(void *user_env, PKAllocFn alloc, PKPrintFn print) {
     lisp->intern.count = 0;
     lisp->intern.capacity = 0;
     
-    lisp->vars.e = NULL;
-    lisp->vars.count = 0;
-    lisp->vars.capacity = 0;
+    lisp->vars = pk_symtable_init();
+    lisp->funs = pk_symtable_init();
     
-    lisp->funs.e = NULL;
-    lisp->funs.count = 0;
-    lisp->funs.capacity = 0;
-
     lisp->current_frame.stack_offset = 0;
     lisp->current_frame.lets_offset = 0;
     lisp->current_frame.arity = 0;

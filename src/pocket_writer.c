@@ -1,6 +1,6 @@
 #include "pocket_internals.h"
 
-PK_RES pk_writer_cons_loop(PKWriter *w, PKAtom *atom);
+PK_RES pk_writer_cons_loop(PKWriter *w, PKHashTable *ht, PKAtomCons *cons);
 
 PKWriter pk_writer_init(Pocket lisp) {
     PKWriter w;
@@ -162,7 +162,17 @@ void pk_writer_puts(PKWriter *w) {
     pk_puts(w->lisp, w->c, w->count);
 }
 
-PK_RES pk_writer_atom(PKWriter *w, PKAtom *atom) {
+PK_RES pk_writer_atom_object(PKWriter *w, PKAtom *atom){
+    const char *ident = pk_ident_atomty(atom->tag.ty);
+    pk_try(pk_writer_string(w, "&<"));
+    pk_try(pk_writer_string(w, ident));
+    pk_try(pk_writer_string(w, "::"));
+    pk_try(pk_writer_address(w, (size_t)atom));
+    pk_try(pk_writer_char(w, '>'));
+    return PK_OK;
+}
+    
+PK_RES pk_writer_atom_rec(PKWriter *w, PKHashTable *ht, PKAtom *atom) {
     switch (atom->tag.ty) {
         case PKAtomTy_Nil: {
             pk_try(pk_writer_string(w, "nil"));
@@ -187,42 +197,53 @@ PK_RES pk_writer_atom(PKWriter *w, PKAtom *atom) {
             break;
         }
         case PKAtomTy_Cons: {
-            pk_try(pk_writer_char(w, '('));
-            pk_try(pk_writer_atom(w, atom->cons.car));
-            pk_try(pk_writer_cons_loop(w, atom));
-            pk_try(pk_writer_char(w, ')'));
-            break;
-        }
-        case PKAtomTy_CFunc: {
-            pk_try(pk_writer_string(w, "&<CFUNC::"));
-            pk_try(pk_writer_address(w, (size_t)atom));
-            pk_try(pk_writer_char(w, '>'));
-            break;
-        }
-        case PKAtomTy_LFunc: {
-            pk_try(pk_writer_string(w, "&<LFUNC::"));
-            pk_try(pk_writer_address(w, (size_t)atom));
-            pk_try(pk_writer_char(w, '>'));
+            PKAtom *ignore = NULL;
+            if (pk_hashtable_get(w->lisp, ht, atom, &ignore)) {
+                pk_try(pk_writer_atom_object(w, atom));
+            } else {
+                pk_try(pk_hashtable_put(w->lisp, ht, atom, atom));
+                pk_try(pk_writer_char(w, '('));
+                pk_try(pk_writer_atom_rec(w, ht, atom->cons.car));
+                pk_try(pk_writer_cons_loop(w, ht, (PKAtomCons *)atom));
+                pk_try(pk_writer_char(w, ')'));
+            }
             break;
         }
         default: {
-            pk_try(pk_writer_string(w, "&<UNKNOWN>"));
+            pk_try(pk_writer_atom_object(w, atom));
             break;
         }
     }
     return PK_OK;
 }
+    
+PK_RES pk_writer_atom(PKWriter *w, PKAtom *atom) {
+    PKHashTable ht = pk_hashtable_init();
+    PK_RES result = pk_writer_atom_rec(w, &ht, atom);
+    pk_hashtable_deinit(w->lisp, &ht);
+    return result;
+}
 
-PK_RES pk_writer_cons_loop(PKWriter *w, PKAtom *atom) {
-    PKAtom *cdr = atom->cons.cdr;
-    while (cdr->tag.ty == PKAtomTy_Cons) {
+PK_RES pk_writer_cons_loop(PKWriter *w, PKHashTable *ht, PKAtomCons *cons) {
+    PKAtom *iter = cons->cdr;
+    
+    while (iter->tag.ty == PKAtomTy_Cons) {
+        PKAtom *ignore = NULL;
         pk_try(pk_writer_char(w, ' '));
-        pk_try(pk_writer_atom(w, cdr->cons.car));
-        cdr = cdr->cons.cdr;
+        if (pk_hashtable_get(w->lisp, ht, iter, &ignore)) {
+            pk_try(pk_writer_atom_object(w, iter));
+            return PK_OK;
+        } else {
+            pk_try(pk_hashtable_put(w->lisp, ht, iter, iter));
+            pk_try(pk_writer_atom_rec(w, ht, iter->cons.car));
+            iter = iter->cons.cdr;
+        }
     }
-    if (cdr->tag.ty != PKAtomTy_Nil) {
+    
+    if (iter->tag.ty != PKAtomTy_Nil) {
         pk_try(pk_writer_string(w, " . "));
-        pk_try(pk_writer_atom(w, cdr));
+        pk_try(pk_writer_atom_rec(w, ht, iter));
     }
+    
     return PK_OK;
 }

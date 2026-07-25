@@ -8,12 +8,9 @@ PKCompiler pk_compiler_new(Pocket lisp) {
     PKCompiler c;
     
     c.lisp = lisp;
-    c.atoms.e = NULL;
-    c.atoms.count = 0;
-    c.atoms.capacity = 0;
-    c.bc.e = NULL;
-    c.bc.count = 0;
-    c.bc.capacity = 0;
+    
+    c.atoms = pk_atoms_init();
+    c.bc = pk_bytes_init();
 
     c.addr = 0;
     
