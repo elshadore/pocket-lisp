@@ -90,7 +90,7 @@ void pk_deinit(Pocket lisp) {
     pk_symtable_deinit(lisp, &lisp->vars);
     pk_symtable_deinit(lisp, &lisp->funs);
 
-    /* pk_atoms_free(lisp, &lisp->stack); */
+    pk_atoms_free(lisp, &lisp->stack);
 
     if (lisp->frames.e != NULL) {
         pk_free(lisp, lisp->frames.e, lisp->frames.capacity * sizeof(PKFrame));

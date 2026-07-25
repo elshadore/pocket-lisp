@@ -55,11 +55,9 @@ void pk_atom_free(Pocket lisp, PKAtom *atom) {
             break;
         }
         case PKAtomTy_LFunc: {
-            /*
             PKAtomLFunc *lfunc = (PKAtomLFunc *)atom;
             pk_free(lisp, lfunc->atoms.e, lfunc->atoms.length * sizeof(PKAtom *));
             pk_free(lisp, lfunc->bc.e, lfunc->bc.length * sizeof(pk_u8));
-            */
             break;
         }
         default: {
