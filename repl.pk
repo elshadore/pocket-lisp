@@ -14,15 +14,7 @@
       (lambda ()
         (while repl/running
           (puts ">> ")
-          (print (format (evlist (read (read-user-input))))))))
-
-(set 'foo 69)
-
-## (fset 'example
-##       (lambda ()
-##         (let ((foo "gooby"))
-##           (print foo)
-##           foo)))
+          (print (format (eval (read (read-user-input))))))))
 
 (fset 'fib
       (lambda (n)
@@ -31,19 +23,19 @@
           (+ (fib (- n 1)) (fib (- n 2))))))
 
 
-## (fset 'last-cons-1
-##       (lambda (a b)
-##         (if (nil? b)
-##             a
-##           (last-cons-1 (cdr a) (cdr b)))))
+(fset 'last-cons-1
+      (lambda (a b)
+        (if (nil? b)
+            a
+          (last-cons-1 (cdr a) (cdr b)))))
 
-## (fset 'last-cons
-##       (lambda (list) (last-cons-1 list (cdr list))))
+(fset 'last-cons
+      (lambda (list) (last-cons-1 list (cdr list))))
 
-## (fset 'make-circular-list
-##       (lambda (list)
-##         (let ((foo (last-cons list)))
-##           (set-cdr foo list))))
+(fset 'make-circular-list
+      (lambda (list)
+        (let ((foo (last-cons list)))
+          (set-cdr foo list))))
 
 (fset 'cadr
       (lambda (list)
@@ -59,8 +51,8 @@
 ##     (print "*~ARG-EVAL~*")
 ##     (print (cadr argv))
 ##     (puts ">> ")
-##     (print (format (evlist (read (cadr argv)))))))
+##     (print (format (eval (read (cadr argv)))))))
 
-## (repl)
+(repl)
 
-## (print "REPL Quitting...")
+(print "REPL Quitting...")

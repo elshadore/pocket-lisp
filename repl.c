@@ -101,17 +101,18 @@ int main(int argc, char **argv) {
     if (lisp == NULL) {
         return EXIT_FAILURE;
     }
-    /*
-    if (repl(lisp, argc, argv) == PK_Yield) {
+    if (repl(lisp, argc, argv) == PK_YIELD) {
         fprintf(stderr, "REPL exited with error\n");
     }
-    */
-    
+
+    /*
     if (testicle(lisp) == PK_YIELD) {
         (void)argc;
         (void)argv;
         fprintf(stderr, "Testicle failed!\n");
     }
+    */
+    
     pk_deinit(lisp);
     
     stb_leakcheck_dumpmem();

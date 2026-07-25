@@ -188,6 +188,64 @@ PK_RES pk_compile_let(PKCompiler *c, PKAtom *args, PKEnvTy env) {
     return PK_OK;
 }
 
+PK_RES pk_compile_let_star(PKCompiler *c, PKAtom *args, PKEnvTy env) {
+    PKAtomCons *cons = NULL;
+    PKAtom *bindings = NULL;
+    PKAtom *body = NULL;
+    PKAtom *iter = NULL;
+    
+    pk_try(pk_atom_cast_cons(c->lisp, args, &cons));
+    bindings = cons->car;
+    body = cons->cdr;
+    
+    pk_try(pk_cmp_push_byte(c, PK_OP_BLOCK_BEGIN));
+
+    iter = bindings;
+    while (!pk_atom_is_nil(iter)) {
+        PKAtomCons *ca = NULL;
+        PKAtomSymbol *symbol;
+        
+        pk_try(pk_atom_cast_cons(c->lisp, iter, &ca));
+        
+        if (pk_atom_is_symbol(ca->car)) {
+            pk_try(pk_cmp_load_nil(c));
+            symbol = (PKAtomSymbol *)ca->car;
+        } else {
+            PKAtomCons *cb = NULL;
+            PKAtomCons *cc = NULL;
+            
+            pk_try(pk_atom_cast_cons(c->lisp, ca->car, &cb));
+            pk_try(pk_atom_cast_cons(c->lisp, cb->cdr, &cc));
+            
+            pk_try(pk_atom_assert_nil(c->lisp, cc->cdr));
+
+            pk_try(pk_atom_cast_symbol(c->lisp, cb->car, &symbol));
+            pk_try(pk_compile_value(c, cc->car));
+        }
+
+        pk_try(pk_cmp_load(c, (PKAtom *)symbol));
+        
+        switch (env) {
+            case PKEnvTy_Var: {
+                pk_try(pk_cmp_push_byte(c, PK_OP_LET_VAR));
+                break;
+            }
+            case PKEnvTy_Fun: {
+                pk_try(pk_cmp_push_byte(c, PK_OP_LET_FUN));
+                break;
+            }
+        }
+        pk_try(pk_cmp_push_byte(c, 1));
+        
+        iter = ca->cdr;
+    }
+    
+    pk_try(pk_compile_evlist(c, body));
+    pk_try(pk_cmp_push_byte(c, PK_OP_BLOCK_END));
+    
+    return PK_OK;
+}
+
 PK_RES pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_bool *is_special) {
     if (symbol == c->lisp->cache.lambda) {
         PKAtomCons *cons = NULL;
@@ -241,8 +299,8 @@ PK_RES pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_
         PKAtom *value = NULL;
         PKAtom *clause_t = NULL;
         PKAtom *clause_f = NULL;
-        pk_u8 jump_to_t = 0;
-        pk_u8 jump_from_f = 0;
+        pk_u8 jump_to_f = 0;
+        pk_u8 jump_from_t = 0;
         pk_u8 patch_1 = 0;
         pk_u8 patch_2 = 0;
         
@@ -260,17 +318,17 @@ PK_RES pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_
         pk_try(pk_cmp_push_byte(c, 0));
         patch_1 = pk_cmp_addr(c);
         
-        pk_try(pk_compile_value(c, clause_f));
+        pk_try(pk_compile_value(c, clause_t));
         pk_try(pk_cmp_push_byte(c, PK_OP_JMP));
         pk_try(pk_cmp_push_byte(c, 0));
         patch_2 = pk_cmp_addr(c);
         
-        jump_to_t = pk_cmp_addr(c) + 1 - patch_1;
-        pk_try(pk_compile_value(c, clause_t));
-        jump_from_f = pk_cmp_addr(c) + 1 - patch_2;
+        jump_to_f = pk_cmp_addr(c) + 1 - patch_1;
+        pk_try(pk_compile_value(c, clause_f));
+        jump_from_t = pk_cmp_addr(c) + 1 - patch_2;
 
-        pk_try(pk_cmp_patch_byte(c, patch_1, jump_to_t));
-        pk_try(pk_cmp_patch_byte(c, patch_2, jump_from_f));
+        pk_try(pk_cmp_patch_byte(c, patch_1, jump_to_f));
+        pk_try(pk_cmp_patch_byte(c, patch_2, jump_from_t));
         
         *is_special = PK_TRUE;
     } else if (symbol == c->lisp->cache.let_sym) {
@@ -279,6 +337,14 @@ PK_RES pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_
         *is_special = PK_TRUE;
     } else if (symbol == c->lisp->cache.flet_sym) {
         pk_try(pk_compile_let(c, args, PKEnvTy_Fun));
+        
+        *is_special = PK_TRUE;
+    } else if (symbol == c->lisp->cache.let_star) {
+        pk_try(pk_compile_let_star(c, args, PKEnvTy_Var));
+        
+        *is_special = PK_TRUE;
+    } else if (symbol == c->lisp->cache.flet_star) {
+        pk_try(pk_compile_let_star(c, args, PKEnvTy_Fun));
         
         *is_special = PK_TRUE;
     } else if (symbol == c->lisp->cache.progn) {
@@ -367,7 +433,7 @@ PK_RES pk_compile_compile(PKCompiler *c, size_t arity, PKAtomLFunc **output) {
     a->lfunc.arity.mode = PK_ARITY_NORMAL;
 
     *output = (PKAtomLFunc *)a;
-    pk_defer(pk_dump_hex_atom(c->lisp, *output));
+    /* pk_defer(pk_dump_hex_atom(c->lisp, *output)); */
     
     result = PK_OK;
     

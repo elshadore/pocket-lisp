@@ -20,6 +20,7 @@ PK_RES pk_init2(Pocket lisp) {
     pk_try(pk_atom_symbol_interned(lisp, "let", &lisp->cache.let_sym));
     pk_try(pk_atom_symbol_interned(lisp, "let*", &lisp->cache.let_star));
     pk_try(pk_atom_symbol_interned(lisp, "flet", &lisp->cache.flet_sym));
+    pk_try(pk_atom_symbol_interned(lisp, "flet*", &lisp->cache.flet_star));
     
     pk_try(pk_atom_stringn_nomemcpy(lisp, "", 0, &lisp->cache.empty_string));
 
