@@ -48,20 +48,20 @@ PK_RES pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, pk_bool insert_resul
             size_t nils = 0;
             
             switch (cfunc->arity.mode) {
-                case PKArity_Normal: {
+                case PK_ARITY_NORMAL: {
                     if (arity != carity) {
                         return pk_error(lisp);
                     }
                     break;
                 }
-                case PKArity_Optional: {
+                case PK_ARITY_OPTIONAL: {
                     if (arity < carity) {
                         return pk_error(lisp);
                     }
                     nils = arity - carity;
                     break;
                 }
-                case PKArity_Variadic: {
+                case PK_ARITY_VARIADIC: {
                     if (arity < carity) {
                         return pk_error(lisp);
                     }

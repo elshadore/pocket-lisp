@@ -73,7 +73,7 @@ PK_RES repl_cmd_args(Pocket lisp, int argc, char **argv) {
 
 PK_RES repl(Pocket lisp, int argc, char **argv) {
     pk_try(repl_cmd_args(lisp, argc, argv));
-    pk_try(pk_push_cfunc(lisp, NULL, repl_read_user_input, 0, PKArity_Normal));
+    pk_try(pk_push_cfunc(lisp, NULL, repl_read_user_input, 0, PK_ARITY_NORMAL));
     pk_try(pk_push_symbol(lisp, "read-user-input"));
     pk_try(pk_fset(lisp, -1, -2));
     pk_try(pk_popn(lisp, 2));

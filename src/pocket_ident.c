@@ -1,13 +1,13 @@
 #include "pocket_internals.h"
 
-PKType pk_atom_typeof(PKAtomTy ty) {
+PK_TYPE pk_atom_typeof(PKAtomTy ty) {
     switch (ty) {
-        case PKAtomTy_Nil: return PKType_Nil;
-        case PKAtomTy_Symbol: return PKType_Symbol;
-        case PKAtomTy_Cons: return PKType_Cons;
-        case PKAtomTy_String: return PKType_String;
-        case PKAtomTy_Number: return PKType_Number;
-        default: return PKType_Unknown;
+        case PKAtomTy_Nil: return PK_TYPE_NIL;
+        case PKAtomTy_Symbol: return PK_TYPE_SYMBOL;
+        case PKAtomTy_Cons: return PK_TYPE_CONS;
+        case PKAtomTy_String: return PK_TYPE_STRING;
+        case PKAtomTy_Number: return PK_TYPE_NUMBER;
+        default: return PK_TYPE_UNKNOWN;
     }
 }
 

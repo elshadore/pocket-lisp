@@ -364,7 +364,7 @@ PK_RES pk_compile_compile(PKCompiler *c, size_t arity, PKAtomLFunc **output) {
     a->lfunc.bc.e = c->bc.e;
     a->lfunc.bc.length = c->bc.capacity;
     a->lfunc.arity.args = (int)arity;
-    a->lfunc.arity.mode = PKArity_Normal;
+    a->lfunc.arity.mode = PK_ARITY_NORMAL;
 
     *output = (PKAtomLFunc *)a;
     pk_defer(pk_dump_hex_atom(c->lisp, *output));

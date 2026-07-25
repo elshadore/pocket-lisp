@@ -74,7 +74,7 @@ PK_RES pk_push_cons(Pocket lisp, int car, int cdr) {
     return PK_OK;
 }
 
-PK_RES pk_push_cfunc(Pocket lisp, void *user_closure, PKFn fn, int args, PKArity mode) {
+PK_RES pk_push_cfunc(Pocket lisp, void *user_closure, PKFn fn, int args, PK_ARITY mode) {
     PKFuncArity arity;
     PKAtomCFunc *cfunc = NULL;
     
@@ -380,7 +380,7 @@ PK_RES pk_clone(Pocket lisp, int stack_pointer) {
     return pk_error(lisp);
 }
 
-PK_RES pk_typeof(Pocket lisp, int stack_pointer, PKType *output) {
+PK_RES pk_typeof(Pocket lisp, int stack_pointer, PK_TYPE *output) {
     PKAtom *atom = NULL;
     pk_try(pk_stack_get(lisp, stack_pointer, &atom));
     *output = pk_atom_typeof(atom->tag.ty);

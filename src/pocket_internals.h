@@ -99,7 +99,7 @@ typedef struct PKAtomCons_ {
 } PKAtomCons;
 
 typedef struct PKFuncArity_ {
-    PKArity mode;
+    PK_ARITY mode;
     int args;
 } PKFuncArity;
 
@@ -107,7 +107,7 @@ typedef struct PKFuncRecord_ {
     char *sym;
     PKFn fn;
     int args;
-    PKArity mode;
+    PK_ARITY mode;
     void *user_closure;
 } PKFuncRecord;
 
@@ -425,7 +425,7 @@ PK_RES pk_atom_cons_car(Pocket lisp, PKAtom *car, PKAtomCons **output);
 PK_RES pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity, PKAtomCFunc **output);
 PK_RES pk_atom_nil_new(Pocket lisp, PKAtom **output);
 
-PKType pk_atom_typeof(PKAtomTy ty);
+PK_TYPE pk_atom_typeof(PKAtomTy ty);
     
 PKAtom *pk_atom_nil(Pocket lisp);
 PKAtom *pk_atom_t(Pocket lisp);

@@ -28,25 +28,25 @@ typedef void (*PKPrintFn)(void *user_env, char *c, size_t length);
 
 #define pk_defer(expr_) pk_deferc(expr_, DEFER)
 
-typedef enum PKType_ {
-    PKType_Unknown = 0,
-    PKType_Nil = 1,
-    PKType_Number = 2,
-    PKType_Symbol = 3,
-    PKType_String = 4,
-    PKType_Cons = 5,
-    PKType_Object = 6
-} PKType;
+typedef enum PK_TYPE_ {
+    PK_TYPE_UNKNOWN = 0,
+    PK_TYPE_NIL = 1,
+    PK_TYPE_NUMBER = 2,
+    PK_TYPE_SYMBOL = 3,
+    PK_TYPE_STRING = 4,
+    PK_TYPE_CONS = 5,
+    PK_TYPE_OBJECT = 6
+} PK_TYPE;
 
-typedef enum PKVariant_ {
-    PKVariant_Unknown = 0
-} PKVariant;
+typedef enum PK_VARIANT_ {
+    PK_VARIANT_UNKNOWN = 0
+} PK_VARIANT;
 
-typedef enum PKArity_ {
-    PKArity_Normal = 0,
-    PKArity_Optional = 1,
-    PKArity_Variadic = 2
-} PKArity;
+typedef enum PK_ARITY_ {
+    PK_ARITY_NORMAL = 0,
+    PK_ARITY_OPTIONAL = 1,
+    PK_ARITY_VARIADIC = 2
+} PK_ARITY;
 
 typedef enum PK_READ_ {
     PK_READ_EXPRESSION = 0,
@@ -89,7 +89,7 @@ PK_RES pk_push_stringn(Pocket lisp, const char *string, size_t length);
 PK_RES pk_push_symbol(Pocket lisp, const char *csym);
 PK_RES pk_push_symboln(Pocket lisp, const char *symbol, size_t length);
 PK_RES pk_push_cons(Pocket lisp, int car, int cdr);
-PK_RES pk_push_cfunc(Pocket lisp, void *user_closure, PKFn fn, int args, PKArity mode);
+PK_RES pk_push_cfunc(Pocket lisp, void *user_closure, PKFn fn, int args, PK_ARITY mode);
 PK_RES pk_list(Pocket lisp, int head, int tail);
 
 PK_RES pk_set_car(Pocket lisp, int cons, int new_car);
@@ -123,7 +123,7 @@ PK_RES pk_to_int(Pocket lisp, int stack_pointer, int *output);
 PK_RES pk_to_float(Pocket lisp, int stack_pointer, float *output);
 PK_RES pk_to_string(Pocket lisp, int stack_pointer, char **out_string, size_t *out_length);
 
-PK_RES pk_typeof(Pocket lisp, int stack_pointer, PKType *output);
+PK_RES pk_typeof(Pocket lisp, int stack_pointer, PK_TYPE *output);
 
 PK_RES pk_is_nil(Pocket lisp, int stack_pointer, int *output);
 PK_RES pk_is_number(Pocket lisp, int stack_pointer, int *output);
