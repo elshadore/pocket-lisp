@@ -1,6 +1,6 @@
 #include "pocket_internals.h"
 
-PKRes pk_symtable_grow(Pocket lisp, PKSymTable *st) {
+PK_RES pk_symtable_grow(Pocket lisp, PKSymTable *st) {
     PKSymTableSlot **new_e = NULL;
     size_t new_capacity = 0;
     size_t i = 0;
@@ -29,10 +29,10 @@ PKRes pk_symtable_grow(Pocket lisp, PKSymTable *st) {
     
     st->e = new_e;
     st->capacity = new_capacity;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_symtable_put(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom *value, PKAtom **output) {
+PK_RES pk_symtable_put(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom *value, PKAtom **output) {
     PKSymTableSlot *slot = NULL;
     PKSymTableSlot *entry = NULL;
     size_t bucket = 0;
@@ -47,7 +47,7 @@ PKRes pk_symtable_put(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom *va
         if (slot->key == key) {
             *output = slot->value;
             slot->value = value;
-            return PK_Ok;
+            return PK_OK;
         }
     }
     
@@ -59,21 +59,21 @@ PKRes pk_symtable_put(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom *va
     st->e[bucket] = entry;
     st->count++;
     *output = NULL;
-    return PK_Ok;
+    return PK_OK;
 }
 
 size_t pk_symtable_hash(PKSymTable *st, PKAtomSymbol *key) {
     return pk_hash_pointer(key) % st->capacity;
 }
 
-PKRes pk_symtable_get(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **output) {
+PK_RES pk_symtable_get(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **output) {
     PKSymTableSlot *entry = NULL;
     size_t bucket = 0;
     
     (void)lisp;
     if (st->count == 0) {
         *output = NULL;
-        return PK_Ok;
+        return PK_OK;
     }
 
     bucket = pk_symtable_hash(st, key);
@@ -81,15 +81,15 @@ PKRes pk_symtable_get(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **o
     for (entry = st->e[bucket]; entry; entry = entry->chain) {
         if (entry->key == key) {
             *output = entry->value;
-            return PK_Ok;
+            return PK_OK;
         }
     }
 
     *output = NULL;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_symtable_rem(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **output) {
+PK_RES pk_symtable_rem(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **output) {
     PKSymTableSlot *prev = NULL;
     PKSymTableSlot *slot = NULL;
     size_t bucket = 0;
@@ -111,7 +111,7 @@ PKRes pk_symtable_rem(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **o
             }
             pk_free(lisp, slot, sizeof(PKSymTableSlot));
             st->count--;
-            return PK_Ok;
+            return PK_OK;
         }
     }
     
@@ -119,7 +119,7 @@ PKRes pk_symtable_rem(Pocket lisp, PKSymTable *st, PKAtomSymbol *key, PKAtom **o
     return pk_error(lisp);
 }
 
-PKRes pk_symtable_alist(Pocket lisp, PKSymTable *st, PKAtom **output) {
+PK_RES pk_symtable_alist(Pocket lisp, PKSymTable *st, PKAtom **output) {
     PKAtom *alist = pk_atom_nil(lisp);
     size_t i = 0;
     
@@ -134,7 +134,7 @@ PKRes pk_symtable_alist(Pocket lisp, PKSymTable *st, PKAtom **output) {
         }
     }
     *output = alist;
-    return PK_Ok;
+    return PK_OK;
 }
 
 void pk_symtable_deinit(Pocket lisp, PKSymTable *st) {

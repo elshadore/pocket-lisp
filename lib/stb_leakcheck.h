@@ -97,18 +97,20 @@ void *stb_leakcheck_realloc(void *ptr, size_t sz, const char *file, int line)
 
 static void stblkck_internal_print(const char *reason, stb_leakcheck_malloc_info *mi)
 {
-#if defined(_MSC_VER) && _MSC_VER < 1900 // 1900=VS 2015
-   // Compilers that use the old MS C runtime library don't have %zd
-   // and the older ones don't even have %lld either... however, the old compilers
-   // without "long long" don't support 64-bit targets either, so here's the
-   // compromise:
-   #if _MSC_VER < 1400 // before VS 2005
+#if defined(_MSC_VER) && _MSC_VER < 1900 /* 1900=VS 2015 */
+   /*
+    Compilers that use the old MS C runtime library don't have %zd
+    and the older ones don't even have %lld either... however, the old compilers
+    without "long long" don't support 64-bit targets either, so here's the
+    compromise:
+   */
+   #if _MSC_VER < 1400 /* before VS 2005 */
       fprintf(STB_LEAKCHECK_OUTPUT_PIPE, "%s: %s (%4d): %8d bytes at %p\n", reason, mi->file, mi->line, (int)mi->size, (void*)(mi+1));
    #else
       fprintf(STB_LEAKCHECK_OUTPUT_PIPE, "%s: %s (%4d): %16lld bytes at %p\n", reason, mi->file, mi->line, (long long)mi->size, (void*)(mi+1));
    #endif
 #else
-   // Assume we have %zd on other targets.
+   /* Assume we have %zd on other targets. */
    #ifdef __MINGW32__
       __mingw_fprintf(STB_LEAKCHECK_OUTPUT_PIPE, "%s: %s (%4d): %zd bytes at %p\n", reason, mi->file, mi->line, mi->size, (void*)(mi+1));
    #else
@@ -134,12 +136,12 @@ void stb_leakcheck_dumpmem(void)
    }
    #endif
 }
-#endif // STB_LEAKCHECK_IMPLEMENTATION
+#endif /* STB_LEAKCHECK_IMPLEMENTATION */
 
 #if !defined(INCLUDE_STB_LEAKCHECK_H) || !defined(malloc)
 #define INCLUDE_STB_LEAKCHECK_H
 
-#include <stdlib.h> // we want to define the macros *after* stdlib to avoid a slew of errors
+#include <stdlib.h> /* we want to define the macros *after* stdlib to avoid a slew of errors */
 
 #define malloc(sz)    stb_leakcheck_malloc(sz, __FILE__, __LINE__)
 #define free(p)       stb_leakcheck_free(p)
@@ -150,7 +152,7 @@ extern void * stb_leakcheck_realloc(void *ptr, size_t sz, const char *file, int 
 extern void   stb_leakcheck_free(void *ptr);
 extern void   stb_leakcheck_dumpmem(void);
 
-#endif // INCLUDE_STB_LEAKCHECK_H
+#endif /* INCLUDE_STB_LEAKCHECK_H */
 
 
 /*

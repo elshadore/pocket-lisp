@@ -1,3 +1,6 @@
+#define STB_LEAKCHECK_IMPLEMENTATION
+#include "./lib/stb_leakcheck.h"
+
 #include "./src/pocket.h"
 #include <string.h>
 #include <stdio.h>
@@ -6,15 +9,19 @@ void *repl_alloc(void *user_env, void *ptr, size_t old_size, size_t new_size) {
     (void)user_env;
     if (old_size == 0) {
         if (new_size == 0) {
+            /* printf("alloc request: NONE\n"); */
             return NULL;
         } else {
+            /* printf("alloc request: MALLOC => %zu\n", new_size); */
             return malloc(new_size);
         }
     } else {
         if (new_size == 0) {
+            /* printf("alloc request: FREE => %zu\n", old_size); */
             free(ptr);
             return NULL;
         } else {
+            /* printf("alloc request: REALLOC => %zu => %zu\n", old_size, new_size); */
             return realloc(ptr, new_size);
         }
     }
@@ -27,14 +34,14 @@ void repl_print(void *user_env, char *c, size_t length) {
 
 static char repl_buffer[4096];
 
-PKRes repl_read_user_input(void *user_closure, Pocket lisp) {
+PK_RES repl_read_user_input(void *user_closure, Pocket lisp) {
     size_t len = 0;
     
     (void)user_closure;
     
     if (fgets(repl_buffer, sizeof(repl_buffer), stdin) == NULL) {
         pk_try(pk_push_string(lisp, ""));
-        return PK_Ok;
+        return PK_OK;
     }
 
     len = strlen(repl_buffer);
@@ -44,10 +51,10 @@ PKRes repl_read_user_input(void *user_closure, Pocket lisp) {
     }
 
     pk_try(pk_push_stringn(lisp, repl_buffer, len));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes repl_cmd_args(Pocket lisp, int argc, char **argv) {
+PK_RES repl_cmd_args(Pocket lisp, int argc, char **argv) {
     int i = 0;
     if (argc == 0) {
         pk_try(pk_push_nil(lisp));
@@ -60,11 +67,11 @@ PKRes repl_cmd_args(Pocket lisp, int argc, char **argv) {
     pk_try(pk_push_symbol(lisp, "argv"));
     pk_try(pk_set(lisp, -1, -2));
     pk_try(pk_popn(lisp, argc + 2));
-    return PK_Ok;
+    return PK_OK;
 }
 
 
-PKRes repl(Pocket lisp, int argc, char **argv) {
+PK_RES repl(Pocket lisp, int argc, char **argv) {
     pk_try(repl_cmd_args(lisp, argc, argv));
     pk_try(pk_push_cfunc(lisp, NULL, repl_read_user_input, 0, PKArity_Normal));
     pk_try(pk_push_symbol(lisp, "read-user-input"));
@@ -74,10 +81,10 @@ PKRes repl(Pocket lisp, int argc, char **argv) {
     pk_try(pk_slurp(lisp, -1));
     pk_try(pk_read(lisp, -1, PK_READ_LISTED));
     pk_try(pk_evlist(lisp, -1));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes testicle(Pocket lisp) {
+PK_RES testicle(Pocket lisp) {
     pk_try(pk_push_string(lisp, "./testicle.pk"));
     pk_try(pk_slurp(lisp, -1));
     pk_try(pk_read(lisp, -1, PK_READ_LISTED));
@@ -86,7 +93,7 @@ PKRes testicle(Pocket lisp) {
     pk_try(pk_dump_env(lisp, "testicle"));
     pk_try(pk_dump_stack(lisp, "testicle"));
     
-    return PK_Ok;
+    return PK_OK;
 }
 
 int main(int argc, char **argv) {
@@ -94,16 +101,20 @@ int main(int argc, char **argv) {
     if (lisp == NULL) {
         return EXIT_FAILURE;
     }
+    /*
     if (repl(lisp, argc, argv) == PK_Yield) {
         fprintf(stderr, "REPL exited with error\n");
     }
-    /*
-    if (testicle(lisp) == PK_Yield) {
+    */
+    
+    if (testicle(lisp) == PK_YIELD) {
         (void)argc;
         (void)argv;
         fprintf(stderr, "Testicle failed!\n");
     }
-    */
     pk_deinit(lisp);
+    
+    stb_leakcheck_dumpmem();
+    
     return EXIT_SUCCESS;
 }

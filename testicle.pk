@@ -1,5 +1,11 @@
-(set 'value '(1 2 3 4 5 6))
+(set 'foo 69)
 
-(while value
-   (print (car value))
-   (set 'value (cdr value)))
+(fset 'cool (lambda ()
+      (let (foo)
+           (print foo)
+           (set 'foo 420)
+           foo)))
+
+(cool)
+
+(print foo)

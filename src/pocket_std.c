@@ -1,6 +1,6 @@
 #include "pocket_internals.h"
 
-PKRes pk_fn_add(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_add(void *user_closure, Pocket lisp) {
     int top = 0;
     int i = 0;
     
@@ -12,10 +12,10 @@ PKRes pk_fn_add(void *user_closure, Pocket lisp) {
         pk_try(pk_swap(lisp, -1, -2));
         pk_try(pk_pop(lisp));
     }
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_sub(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_sub(void *user_closure, Pocket lisp) {
     int top = 0;
     int i = 0;
     
@@ -27,10 +27,10 @@ PKRes pk_fn_sub(void *user_closure, Pocket lisp) {
         pk_try(pk_swap(lisp, -1, -2));
         pk_try(pk_pop(lisp));
     }
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_mul(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_mul(void *user_closure, Pocket lisp) {
     int top = 0;
     int i = 0;
     
@@ -42,10 +42,10 @@ PKRes pk_fn_mul(void *user_closure, Pocket lisp) {
         pk_try(pk_swap(lisp, -1, -2));
         pk_try(pk_pop(lisp));
     }
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_div(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_div(void *user_closure, Pocket lisp) {
     int top = 0;
     int i = 0;
     
@@ -57,16 +57,16 @@ PKRes pk_fn_div(void *user_closure, Pocket lisp) {
         pk_try(pk_swap(lisp, -1, -2));
         pk_try(pk_pop(lisp));
     }
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_slurp(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_slurp(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_try(pk_slurp(lisp, 1));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_read(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_read(void *user_closure, Pocket lisp) {
     PK_READ mode = PK_READ_EXPRESSION;
     int boolean = 0;
     
@@ -77,28 +77,28 @@ PKRes pk_fn_read(void *user_closure, Pocket lisp) {
         mode = PK_READ_LISTED;
     }
     pk_try(pk_read(lisp, 1, mode));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_eval(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_eval(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_try(pk_eval(lisp, 1));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_evlist(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_evlist(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_try(pk_evlist(lisp, 1));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_format(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_format(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_try(pk_format(lisp, 1));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_print(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_print(void *user_closure, Pocket lisp) {
     char *c = NULL;
     size_t length = 0;
     int boolean = 0;
@@ -110,68 +110,68 @@ PKRes pk_fn_print(void *user_closure, Pocket lisp) {
     }
     pk_try(pk_to_string(lisp, -1, &c, &length));
     pk_print(lisp, c, length);
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_puts(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_puts(void *user_closure, Pocket lisp) {
     char *c = NULL;
     size_t length = 0;
     
     (void)user_closure;
     pk_try(pk_to_string(lisp, 1, &c, &length));
     pk_puts(lisp, c, length);
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_set(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_set(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_try(pk_set(lisp, 1, 2));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_get(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_get(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_try(pk_get(lisp, 1));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_unbind(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_unbind(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_try(pk_unbind(lisp, 1));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_fset(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_fset(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_try(pk_fset(lisp, 1, 2));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_fget(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_fget(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_try(pk_fget(lisp, 1));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_funbind(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_funbind(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_try(pk_funbind(lisp, 1));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_car(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_car(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_try(pk_car(lisp, 1));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_cdr(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_cdr(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_try(pk_cdr(lisp, 1));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_set_car(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_set_car(void *user_closure, Pocket lisp) {
     PKAtom *c_atom = NULL;
     PKAtomCons *c = NULL;
     PKAtom *old = NULL;
@@ -182,10 +182,10 @@ PKRes pk_fn_set_car(void *user_closure, Pocket lisp) {
     old = c->car;
     pk_try(pk_set_car(lisp, 1, 2));
     pk_try(pk_push(lisp, old));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_set_cdr(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_set_cdr(void *user_closure, Pocket lisp) {
     PKAtom *c_atom = NULL;
     PKAtomCons *c = NULL;
     PKAtom *old = NULL;
@@ -195,10 +195,10 @@ PKRes pk_fn_set_cdr(void *user_closure, Pocket lisp) {
     old = c->cdr;
     pk_try(pk_set_cdr(lisp, 1, 2));
     pk_try(pk_push(lisp, old));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_gt(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_gt(void *user_closure, Pocket lisp) {
     int top = 0;
     int i = 0;
     
@@ -209,14 +209,14 @@ PKRes pk_fn_gt(void *user_closure, Pocket lisp) {
         pk_try(pk_gt(lisp, i, i + 1, &boolean));
         if (!boolean) {
             pk_try(pk_push_nil(lisp));
-            return PK_Ok;
+            return PK_OK;
         }
     }
     pk_try(pk_push_t(lisp));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_gte(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_gte(void *user_closure, Pocket lisp) {
     int top = 0;
     int i = 0;
     
@@ -227,14 +227,14 @@ PKRes pk_fn_gte(void *user_closure, Pocket lisp) {
         pk_try(pk_gte(lisp, i, i + 1, &boolean));
         if (!boolean) {
             pk_try(pk_push_nil(lisp));
-            return PK_Ok;
+            return PK_OK;
         }
     }
     pk_try(pk_push_t(lisp));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_lt(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_lt(void *user_closure, Pocket lisp) {
     int top = 0;
     int i = 0;
     
@@ -245,14 +245,14 @@ PKRes pk_fn_lt(void *user_closure, Pocket lisp) {
         pk_try(pk_lt(lisp, i, i + 1, &boolean));
         if (!boolean) {
             pk_try(pk_push_nil(lisp));
-            return PK_Ok;
+            return PK_OK;
         }
     }
     pk_try(pk_push_t(lisp));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_lte(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_lte(void *user_closure, Pocket lisp) {
     int top = 0;
     int i = 0;
     
@@ -263,14 +263,14 @@ PKRes pk_fn_lte(void *user_closure, Pocket lisp) {
         pk_try(pk_lte(lisp, i, i + 1, &boolean));
         if (!boolean) {
             pk_try(pk_push_nil(lisp));
-            return PK_Ok;
+            return PK_OK;
         }
     }
     pk_try(pk_push_t(lisp));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_eq(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_eq(void *user_closure, Pocket lisp) {
     int top = 0;
     int i = 0;
     
@@ -281,14 +281,14 @@ PKRes pk_fn_eq(void *user_closure, Pocket lisp) {
         pk_try(pk_eq(lisp, i, i + 1, &boolean));
         if (!boolean) {
             pk_try(pk_push_nil(lisp));
-            return PK_Ok;
+            return PK_OK;
         }
     }
     pk_try(pk_push_t(lisp));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_list(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_list(void *user_closure, Pocket lisp) {
     PKAtomSlice slice;
     PKAtom *result = NULL;
     
@@ -296,10 +296,10 @@ PKRes pk_fn_list(void *user_closure, Pocket lisp) {
     slice = pk_stack_slice(lisp);
     pk_try(pk_slice_list(lisp, slice, &result));
     pk_try(pk_push(lisp, result));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_list_reversed(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_list_reversed(void *user_closure, Pocket lisp) {
     PKAtomSlice slice;
     PKAtom *result = NULL;
     
@@ -307,28 +307,28 @@ PKRes pk_fn_list_reversed(void *user_closure, Pocket lisp) {
     slice = pk_stack_slice(lisp);
     pk_try(pk_slice_list_rev(lisp, slice, &result));
     pk_try(pk_push(lisp, result));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_list_vars(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_list_vars(void *user_closure, Pocket lisp) {
     PKAtom *result = NULL;
     
     (void)user_closure;
     pk_try(pk_symtable_alist(lisp, &lisp->vars, &result));
     pk_try(pk_push(lisp, result));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_list_funs(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_list_funs(void *user_closure, Pocket lisp) {
     PKAtom *result = NULL;
     
     (void)user_closure;
     pk_try(pk_symtable_alist(lisp, &lisp->funs, &result));
     pk_try(pk_push(lisp, result));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_cat(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_cat(void *user_closure, Pocket lisp) {
     PKAtomString *result = NULL;
     PKAtomSlice slice;
     
@@ -336,55 +336,55 @@ PKRes pk_fn_cat(void *user_closure, Pocket lisp) {
     slice = pk_stack_slice(lisp);
     pk_try(pk_atom_string_concat(lisp, slice, &result));
     pk_try(pk_push(lisp, (PKAtom *)result));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_fn_clone(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_clone(void *user_closure, Pocket lisp) {
     (void)user_closure;
     return pk_clone(lisp, 1);
 }
 
-PKRes pk_fn_nil_p(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_nil_p(void *user_closure, Pocket lisp) {
     int boolean = 0;
     (void)user_closure;
     pk_try(pk_is_nil(lisp, 1, &boolean));
     return pk_push_cond(lisp, boolean);
 }
 
-PKRes pk_fn_num_p(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_num_p(void *user_closure, Pocket lisp) {
     int boolean = 0;
     (void)user_closure;
     pk_try(pk_is_number(lisp, 1, &boolean));
     return pk_push_cond(lisp, boolean);
 }
 
-PKRes pk_fn_symbol_p(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_symbol_p(void *user_closure, Pocket lisp) {
     int boolean = 0;
     (void)user_closure;
     pk_try(pk_is_symbol(lisp, 1, &boolean));
     return pk_push_cond(lisp, boolean);
 }
 
-PKRes pk_fn_string_p(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_string_p(void *user_closure, Pocket lisp) {
     int boolean = 0;
     (void)user_closure;
     pk_try(pk_is_string(lisp, 1, &boolean));
     return pk_push_cond(lisp, boolean);
 }
 
-PKRes pk_fn_cons_p(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_cons_p(void *user_closure, Pocket lisp) {
     int boolean = 0;
     (void)user_closure;
     pk_try(pk_is_cons(lisp, 1, &boolean));
     return pk_push_cond(lisp, boolean);
 }
 
-PKRes pk_fn_error(void *user_closure, Pocket lisp) {
+PK_RES pk_fn_error(void *user_closure, Pocket lisp) {
     (void)user_closure;
     return pk_error(lisp);
 }
 
-PKRes pk_load_std(Pocket lisp) {
+PK_RES pk_load_std(Pocket lisp) {
     size_t i = 0;
     
     #define PK_STD_LIB_COUNT (39)
@@ -446,5 +446,5 @@ PKRes pk_load_std(Pocket lisp) {
         pk_try(pk_atom_symbol_interned(lisp, rec->sym, &sym));
         pk_try(pk_env_set(lisp, PKEnvTy_Fun, sym, (PKAtom *)cfunc, &_ignored));
     }
-    return PK_Ok;
+    return PK_OK;
 }

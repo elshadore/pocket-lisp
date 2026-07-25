@@ -1,6 +1,6 @@
 #include "pocket_internals.h"
 
-PKRes pk_init2(Pocket lisp) {
+PK_RES pk_init2(Pocket lisp) {
     PKAtom *ignore = NULL;
     
     pk_try(pk_atom_nil_new(lisp, &lisp->cache.nil));
@@ -28,7 +28,7 @@ PKRes pk_init2(Pocket lisp) {
 
     pk_try(pk_load_std(lisp));
     
-    return PK_Ok;
+    return PK_OK;
 }
 
 Pocket pk_init(void *user_env, PKAllocFn alloc, PKPrintFn print) {
@@ -81,8 +81,7 @@ Pocket pk_init(void *user_env, PKAllocFn alloc, PKPrintFn print) {
 
 void pk_deinit(Pocket lisp) {
     PKPool *pool = NULL;
-    size_t i = 0;
-    
+
     if (lisp == NULL) {
         return;
     }
@@ -90,9 +89,7 @@ void pk_deinit(Pocket lisp) {
     pk_symtable_deinit(lisp, &lisp->vars);
     pk_symtable_deinit(lisp, &lisp->funs);
 
-    if (lisp->stack.e != NULL) {
-        pk_free(lisp, lisp->stack.e, lisp->stack.capacity * sizeof(PKAtom *));
-    }
+    /* pk_atoms_free(lisp, &lisp->stack); */
 
     if (lisp->frames.e != NULL) {
         pk_free(lisp, lisp->frames.e, lisp->frames.capacity * sizeof(PKFrame));
@@ -107,6 +104,7 @@ void pk_deinit(Pocket lisp) {
     }
 
     for (pool = lisp->pool; pool != NULL; pool = pool->next) {
+        size_t i = 0;
         for (i = 0; i < PK_POOL_MAX; ++i) {
             pk_atom_free(lisp, &pool->e[i]);
         }

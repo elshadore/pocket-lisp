@@ -13,27 +13,27 @@ PKVM pk_vm_init(Pocket lisp, PKAtomLFunc *lfunc) {
     return vm;
 }
 
-PKRes pk_vm_inc(PKVM *vm) {
+PK_RES pk_vm_inc(PKVM *vm) {
     vm->curr += 1;
     if (vm->curr >= vm->lfunc->bc.length) {
         vm->op = PK_OP_ILLEGAL;
         return pk_vm_error(vm);
     }
     vm->op = vm->lfunc->bc.e[vm->curr];
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_vm_jmp(PKVM *vm, pk_u8 jmp) {
+PK_RES pk_vm_jmp(PKVM *vm, pk_u8 jmp) {
     vm->curr += jmp;
     if (vm->curr >= vm->lfunc->bc.length) {
         vm->op = PK_OP_ILLEGAL;
         return pk_vm_error(vm);
     }
     vm->op = vm->lfunc->bc.e[vm->curr];
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_vm_jmp_back(PKVM *vm, pk_u8 jmp) {
+PK_RES pk_vm_jmp_back(PKVM *vm, pk_u8 jmp) {
     if (jmp > vm->curr) {
         vm->op = PK_OP_ILLEGAL;
         return pk_vm_error(vm);
@@ -41,18 +41,52 @@ PKRes pk_vm_jmp_back(PKVM *vm, pk_u8 jmp) {
     
     vm->curr -= jmp;
     vm->op = vm->lfunc->bc.e[vm->curr];
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_vm_get_atom(PKVM *vm, pk_u8 byte, PKAtom **output) {
+PK_RES pk_vm_get_atom(PKVM *vm, pk_u8 byte, PKAtom **output) {
     if (byte >= vm->lfunc->atoms.length) {
         return pk_vm_error(vm);
     }
     *output = vm->lfunc->atoms.e[byte];
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_vm_exec(PKVM *vm) {
+PK_RES pk_vm_op_let(PKVM *vm, PKEnvTy env) {
+    PKAtomSlice slice;
+    size_t let = 0;
+    size_t i = 0;
+    
+    pk_try(pk_vm_inc(vm));
+    let = (size_t)pk_vat(vm);
+    pk_try(pk_stack_slice_down(vm->lisp, let * 2, &slice));
+
+    for (i = 0; i < let; ++i) {
+        PKAtomSymbol *symbol = NULL;
+        pk_try(pk_atom_cast_symbol(vm->lisp, slice.e[i + let], &symbol));
+        pk_try(pk_let_push(vm->lisp, env, symbol, slice.e[i]));
+    }
+    
+    pk_try(pk_vm_inc(vm));
+    return PK_OK;
+}
+
+PK_RES pk_vm_op_lookup(PKVM *vm, PKEnvTy env) {
+    PKAtom *atom = NULL;
+    PKAtom *result = NULL;
+    PKAtomSymbol *symbol = NULL;
+    
+    pk_try(pk_vm_inc(vm));
+    pk_try(pk_vm_get_atom(vm, pk_vat(vm), &atom));
+    pk_try(pk_atom_cast_symbol(vm->lisp, atom, &symbol));
+    pk_try(pk_env_get(vm->lisp, env, symbol, &result));
+    
+    pk_try(pk_push(vm->lisp, result));
+    pk_try(pk_vm_inc(vm));
+    return PK_OK;
+}
+
+PK_RES pk_vm_exec(PKVM *vm) {
     for (;;) {
         switch (pk_vat(vm)) {
             case PK_OP_ILLEGAL: {
@@ -67,6 +101,11 @@ PKRes pk_vm_exec(PKVM *vm) {
                 pk_try(pk_vm_inc(vm));
                 pk_try(pk_vm_get_atom(vm, pk_vat(vm), &atom));
                 pk_try(pk_push(vm->lisp, atom));
+                pk_try(pk_vm_inc(vm));
+                break;
+            }
+            case PK_OP_LOAD_NIL: {
+                pk_try(pk_push_nil(vm->lisp));
                 pk_try(pk_vm_inc(vm));
                 break;
             }
@@ -111,55 +150,24 @@ PKRes pk_vm_exec(PKVM *vm) {
                 pk_try(pk_vm_jmp_back(vm, pk_vat(vm)));
                 break;
             }
-            case PK_OP_LET: {
-                PKAtomSlice slice;
-                size_t let = 0;
-                size_t i = 0;
-               
-                pk_try(pk_vm_inc(vm));
-                let = (size_t)pk_vat(vm);
-                pk_try(pk_stack_slice_down(vm->lisp, let * 2, &slice));
-
-                for (i = 0; i < let; ++i) {
-                    PKAtomSymbol *symbol = NULL;
-                    pk_try(pk_atom_cast_symbol(vm->lisp, slice.e[i + let], &symbol));
-                    pk_try(pk_let_push(vm->lisp, PKEnvTy_Var, symbol, slice.e[i]));
-                }
-                
-                pk_try(pk_vm_inc(vm));
-                
+            case PK_OP_LET_VAR: {
+                pk_try(pk_vm_op_let(vm, PKEnvTy_Var));
+                break;
+            }
+            case PK_OP_LET_FUN: {
+                pk_try(pk_vm_op_let(vm, PKEnvTy_Fun));
                 break;
             }
             case PK_OP_LOOKUP_VAR: {
-                PKAtom *atom = NULL;
-                PKAtom *result = NULL;
-                PKAtomSymbol *symbol = NULL;
-                
-                pk_try(pk_vm_inc(vm));
-                pk_try(pk_vm_get_atom(vm, pk_vat(vm), &atom));
-                pk_try(pk_atom_cast_symbol(vm->lisp, atom, &symbol));
-                pk_try(pk_env_get(vm->lisp, PKEnvTy_Var, symbol, &result));
-                
-                pk_try(pk_push(vm->lisp, result));
-                pk_try(pk_vm_inc(vm));
+                pk_try(pk_vm_op_lookup(vm, PKEnvTy_Var));
                 break;
             }
             case PK_OP_LOOKUP_FUN: {
-                PKAtom *atom = NULL;
-                PKAtom *result = NULL;
-                PKAtomSymbol *symbol = NULL;
-                
-                pk_try(pk_vm_inc(vm));
-                pk_try(pk_vm_get_atom(vm, pk_vat(vm), &atom));
-                pk_try(pk_atom_cast_symbol(vm->lisp, atom, &symbol));
-                pk_try(pk_env_get(vm->lisp, PKEnvTy_Fun, symbol, &result));
-                
-                pk_try(pk_push(vm->lisp, result));
-                pk_try(pk_vm_inc(vm));
+                pk_try(pk_vm_op_lookup(vm, PKEnvTy_Fun));
                 break;
             }
             case PK_OP_RET: {
-                return PK_Ok;
+                return PK_OK;
             }
             default: {
                 return pk_vm_error(vm);
@@ -168,7 +176,7 @@ PKRes pk_vm_exec(PKVM *vm) {
     }
 }
 
-PKRes pk_lfunc_exec(Pocket lisp, PKAtomLFunc *lfunc) {
+PK_RES pk_lfunc_exec(Pocket lisp, PKAtomLFunc *lfunc) {
     PKVM vm = pk_vm_init(lisp, lfunc);
     return pk_vm_exec(&vm);
 }

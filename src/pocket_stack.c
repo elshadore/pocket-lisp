@@ -4,7 +4,7 @@ int pk_get_top(Pocket lisp) {
     return (int)pk_stack_length_frame(lisp);
 }
 
-PKRes pk_set_top(Pocket lisp, int new_top) {
+PK_RES pk_set_top(Pocket lisp, int new_top) {
     (void)new_top;
     return pk_error(lisp);
 }
@@ -27,7 +27,7 @@ int pk_sp_relative(Pocket lisp, int stack_pointer) {
     }
 }
 
-PKRes pk_sp_index(Pocket lisp, int stack_pointer, size_t *index) {
+PK_RES pk_sp_index(Pocket lisp, int stack_pointer, size_t *index) {
     int top = pk_get_top(lisp);
     size_t absolute = 0;
     if (top <= 0) {
@@ -44,21 +44,21 @@ PKRes pk_sp_index(Pocket lisp, int stack_pointer, size_t *index) {
         return pk_error(lisp);
     }
 
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_push(Pocket lisp, PKAtom *atom) {
+PK_RES pk_push(Pocket lisp, PKAtom *atom) {
     return pk_atoms_push(lisp, &lisp->stack, atom, PK_STACK_INIT_CAPACITY);
 }
 
-PKRes pk_pop(Pocket lisp) {
+PK_RES pk_pop(Pocket lisp) {
     PKAtom *popped;
     pk_try(pk_stack_pop(lisp, &popped));
     (void)popped;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_popn(Pocket lisp, int n) {
+PK_RES pk_popn(Pocket lisp, int n) {
     if (n < 0) {
         return pk_error(lisp);
     }
@@ -66,15 +66,15 @@ PKRes pk_popn(Pocket lisp, int n) {
         return pk_error(lisp);
     }
     lisp->stack.count -= (size_t)n;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_stack_head(Pocket lisp, PKAtom **output) {
+PK_RES pk_stack_head(Pocket lisp, PKAtom **output) {
     if (pk_stack_length_frame(lisp) == 0) {
         return pk_error(lisp);
     }
     *output = lisp->stack.e[lisp->stack.count - 1];
-    return PK_Ok;
+    return PK_OK;
 }
 
 PKAtom *pk_stack_result(Pocket lisp) {
@@ -85,7 +85,7 @@ PKAtom *pk_stack_result(Pocket lisp) {
     }
 }
 
-PKRes pk_stack_pop(Pocket lisp, PKAtom **output) {
+PK_RES pk_stack_pop(Pocket lisp, PKAtom **output) {
     size_t index = 0;
     
     if (pk_stack_length_frame(lisp) == 0) {
@@ -95,19 +95,19 @@ PKRes pk_stack_pop(Pocket lisp, PKAtom **output) {
     index = lisp->stack.count - 1;
     *output = lisp->stack.e[index];
     lisp->stack.count = index;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_stack_get(Pocket lisp, int stack_pointer, PKAtom **output) {
+PK_RES pk_stack_get(Pocket lisp, int stack_pointer, PKAtom **output) {
     size_t index = 0;
     
     if (stack_pointer == 0) {
         *output = pk_atom_nil(lisp);
-        return PK_Ok;
+        return PK_OK;
     }
     pk_try(pk_sp_index(lisp, stack_pointer, &index));
     *output = lisp->stack.e[index];
-    return PK_Ok;
+    return PK_OK;
 }
 
 PKAtomSlice pk_stack_slice(Pocket lisp) {
@@ -123,7 +123,7 @@ PKAtomSlice pk_stack_slice(Pocket lisp) {
     return result;
 }
 
-PKRes pk_stack_slice_down(Pocket lisp, size_t depth, PKAtomSlice *output) {
+PK_RES pk_stack_slice_down(Pocket lisp, size_t depth, PKAtomSlice *output) {
     PKAtomSlice slice = pk_stack_slice(lisp);
     size_t offset = 0;
     
@@ -136,10 +136,10 @@ PKRes pk_stack_slice_down(Pocket lisp, size_t depth, PKAtomSlice *output) {
     slice.e = slice.e + offset;
     slice.length = depth;
     *output = slice;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_stack_slice_by(Pocket lisp, int a, int b, PKStackSlice *output) {
+PK_RES pk_stack_slice_by(Pocket lisp, int a, int b, PKStackSlice *output) {
     size_t ia = 0;
     size_t ib = 0;
     size_t offset = 0;
@@ -157,17 +157,17 @@ PKRes pk_stack_slice_by(Pocket lisp, int a, int b, PKStackSlice *output) {
         output->slice.e = lisp->stack.e + offset + ib;
         output->slice.length = ia - ib + 1;
     }
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom) {
+PK_RES pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom) {
     size_t index = 0;
     pk_try(pk_sp_index(lisp, stack_pointer, &index));
     lisp->stack.e[index] = atom;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_frame_push(Pocket lisp, size_t arity) {
+PK_RES pk_frame_push(Pocket lisp, size_t arity) {
     PKFrames *frames = &lisp->frames;
     size_t stack_offset = pk_stack_length_total(lisp) - arity;
     size_t lets_offset = lisp->lets.count;
@@ -189,10 +189,10 @@ PKRes pk_frame_push(Pocket lisp, size_t arity) {
     lisp->current_frame.lets_offset = lets_offset;
     lisp->current_frame.arity = arity;
     
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_frame_pop(Pocket lisp) {
+PK_RES pk_frame_pop(Pocket lisp) {
     PKFrames *frames = &lisp->frames;
     PKFrame popped = frames->e[frames->count - 1];
     size_t diff = lisp->current_frame.stack_offset - popped.stack_offset;
@@ -204,20 +204,27 @@ PKRes pk_frame_pop(Pocket lisp) {
     lisp->stack.count = new_total;
     frames->count -= 1;
     lisp->current_frame = popped;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_return_push(Pocket lisp) {
+void pk_frame_force_unwind(Pocket lisp, size_t i) {
+    fprintf(stderr, "ALERT: FORCE UNWIND => %zu => %zu\n", lisp->frames.count, i);
+    while (lisp->frames.count > i) {
+        (void)pk_frame_pop(lisp);
+    }
+}
+
+PK_RES pk_return_push(Pocket lisp) {
     PKAtom *ret = pk_stack_result(lisp);
-    PKRes result = PK_Ok;
+    PK_RES result = PK_OK;
     result &= pk_frame_pop(lisp);
     result &= pk_push(lisp, ret);
     return result;
 }
 
-PKRes pk_return_insert(Pocket lisp) {
+PK_RES pk_return_insert(Pocket lisp) {
     PKAtom *ret = pk_stack_result(lisp);
-    PKRes result = PK_Ok;
+    PK_RES result = PK_OK;
     result = pk_frame_pop(lisp);
     lisp->stack.e[lisp->stack.count - 1] = ret;
     return result;
@@ -233,7 +240,7 @@ PKAtomSlice pk_frame_slice(Pocket lisp, PKFrame *frame, size_t length) {
     return result;
 }
 
-PKRes pk_let_push(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value) {
+PK_RES pk_let_push(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value) {
     PKLets *lets = &lisp->lets;
     PKAtom *restore = NULL;
     PKLet *let = NULL;
@@ -257,13 +264,13 @@ PKRes pk_let_push(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value) {
     let->symbol = sym;
     let->restore = restore;
     
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_let_pop(Pocket lisp, size_t n) {
+PK_RES pk_let_pop(Pocket lisp, size_t n) {
     PKLets *lets = &lisp->lets;
     size_t i = 0;
-    PKRes result = PK_Ok;
+    PK_RES result = PK_OK;
     for (i = 0; i < n; ++i) {
         size_t index = lets->count - i - 1;
         PKLet popped = lets->e[index];

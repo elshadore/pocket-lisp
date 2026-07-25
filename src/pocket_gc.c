@@ -37,12 +37,12 @@ void pk_gc_mark_symtable(PKSymTable *st) {
     }
 }
 
-PKRes pk_gc_collect(Pocket lisp) {
+PK_RES pk_gc_collect(Pocket lisp) {
     size_t i = 0;
     PKPool *pool = NULL;
     
     /* TODO: reimplement the GC. */
-    return PK_Ok;
+    return PK_OK;
     
     pk_gc_mark((PKAtom *)lisp->cache.nil);
     pk_gc_mark((PKAtom *)lisp->cache.nil_sym);
@@ -89,5 +89,5 @@ PKRes pk_gc_collect(Pocket lisp) {
             atom->tag.marked = PK_FALSE;
         }
     }
-    return PK_Ok;
+    return PK_OK;
 }

@@ -1,6 +1,6 @@
 #include "pocket_internals.h"
 
-PKRes pk_writer_cons_loop(PKWriter *w, PKAtom *atom);
+PK_RES pk_writer_cons_loop(PKWriter *w, PKAtom *atom);
 
 PKWriter pk_writer_init(Pocket lisp) {
     PKWriter w;
@@ -11,15 +11,15 @@ PKWriter pk_writer_init(Pocket lisp) {
     return w;
 }
 
-PKRes pk_writer_deinit(PKWriter *w) {
+PK_RES pk_writer_deinit(PKWriter *w) {
     if (w->c != NULL) {
         pk_free(w->lisp, w->c, w->capacity);
     }
     *w = pk_writer_init(w->lisp);
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_writer_expand(PKWriter *w, size_t needed) {
+PK_RES pk_writer_expand(PKWriter *w, size_t needed) {
     size_t new_count = w->count + needed;
     if (new_count > w->capacity) {
         size_t new_capacity = pk_grow_capacity(w->capacity, PK_WRITER_INIT_CAPACITY);
@@ -29,16 +29,16 @@ PKRes pk_writer_expand(PKWriter *w, size_t needed) {
         pk_try(pk_realloc(w->lisp, w->c, w->capacity, new_capacity, (void **)&w->c));
         w->capacity = new_capacity;
     }
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_writer_char(PKWriter *w, char c) {
+PK_RES pk_writer_char(PKWriter *w, char c) {
     pk_try(pk_writer_expand(w, 1));
     w->c[w->count++] = c;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_writer_string(PKWriter *w, const char *string) {
+PK_RES pk_writer_string(PKWriter *w, const char *string) {
     size_t length = 0;
     
     length = strlen(string);
@@ -46,14 +46,14 @@ PKRes pk_writer_string(PKWriter *w, const char *string) {
     return pk_writer_stringn(w, string, length);
 }
 
-PKRes pk_writer_stringn(PKWriter *w, const char *string, size_t length) {
+PK_RES pk_writer_stringn(PKWriter *w, const char *string, size_t length) {
     pk_try(pk_writer_expand(w, length));
     memcpy(w->c + w->count, string, length);
     w->count += length;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_writer_stringn_escaped(PKWriter *w, const char *string, size_t length) {
+PK_RES pk_writer_stringn_escaped(PKWriter *w, const char *string, size_t length) {
     size_t i = 0;
     
     for (i = 0; i < length; ++i) {
@@ -85,17 +85,17 @@ PKRes pk_writer_stringn_escaped(PKWriter *w, const char *string, size_t length) 
             }
         }
     }
-    return PK_Ok;
+    return PK_OK;
 }
     
-PKRes pk_writer_string_escaped(PKWriter *w, const char *string) {
+PK_RES pk_writer_string_escaped(PKWriter *w, const char *string) {
     size_t length = 0;
     length = strlen(string);
 
     return pk_writer_stringn_escaped(w, string, length);
 }
 
-PKRes pk_writer_int(PKWriter *w, int integer) {
+PK_RES pk_writer_int(PKWriter *w, int integer) {
     unsigned int dec = 0;
     size_t save = 0;
     
@@ -116,16 +116,16 @@ PKRes pk_writer_int(PKWriter *w, int integer) {
     
     pk_string_reverse(w->c + save, w->count - save);
     
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_writer_float(PKWriter *w, float floater) {
+PK_RES pk_writer_float(PKWriter *w, float floater) {
     (void)floater;
     pk_try(pk_writer_string(w, "[TODO: writing floats]"));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_writer_address(PKWriter *w, size_t address) {
+PK_RES pk_writer_address(PKWriter *w, size_t address) {
     int i = 0;
     
     pk_try(pk_writer_string(w, "0x"));
@@ -135,23 +135,23 @@ PKRes pk_writer_address(PKWriter *w, size_t address) {
         pk_try(pk_writer_char(w, pk_char_from_hex(nibble)));
     }
     
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_writer_newline(PKWriter *w) {
+PK_RES pk_writer_newline(PKWriter *w) {
     pk_try(pk_writer_char(w, '\n'));
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_writer_get(PKWriter *w, char **out_c, size_t *out_length) {
+PK_RES pk_writer_get(PKWriter *w, char **out_c, size_t *out_length) {
     *out_c = w->c;
     *out_length = w->count;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_writer_reset(PKWriter *w) {
+PK_RES pk_writer_reset(PKWriter *w) {
     w->count = 0;
-    return PK_Ok;
+    return PK_OK;
 }
 
 void pk_writer_print(PKWriter *w) {
@@ -162,7 +162,7 @@ void pk_writer_puts(PKWriter *w) {
     pk_puts(w->lisp, w->c, w->count);
 }
 
-PKRes pk_writer_atom(PKWriter *w, PKAtom *atom) {
+PK_RES pk_writer_atom(PKWriter *w, PKAtom *atom) {
     switch (atom->tag.ty) {
         case PKAtomTy_Nil: {
             pk_try(pk_writer_string(w, "nil"));
@@ -210,10 +210,10 @@ PKRes pk_writer_atom(PKWriter *w, PKAtom *atom) {
             break;
         }
     }
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_writer_cons_loop(PKWriter *w, PKAtom *atom) {
+PK_RES pk_writer_cons_loop(PKWriter *w, PKAtom *atom) {
     PKAtom *cdr = atom->cons.cdr;
     while (cdr->tag.ty == PKAtomTy_Cons) {
         pk_try(pk_writer_char(w, ' '));
@@ -224,5 +224,5 @@ PKRes pk_writer_cons_loop(PKWriter *w, PKAtom *atom) {
         pk_try(pk_writer_string(w, " . "));
         pk_try(pk_writer_atom(w, cdr));
     }
-    return PK_Ok;
+    return PK_OK;
 }

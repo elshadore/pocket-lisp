@@ -1,62 +1,74 @@
 #include "pocket_internals.h"
 
-PKRes pk_atoms_push(Pocket lisp, PKAtoms *atoms, PKAtom *atom, size_t init) {
+PK_RES pk_atoms_push(Pocket lisp, PKAtoms *atoms, PKAtom *atom, size_t init) {
     if (atoms->count >= atoms->capacity) {
+        PKAtom **new_e = NULL;
         size_t new_capacity = pk_grow_capacity(atoms->capacity, init);
+        
         pk_try(pk_realloc(
             lisp,
             atoms->e,
-            sizeof(PKAtom *) * atoms->capacity,
-            sizeof(PKAtom *) * new_capacity,
-            (void **)&atoms->e)
+            atoms->capacity * sizeof(PKAtom *),
+            new_capacity * sizeof(PKAtom *),
+            (void **)&new_e)
         );
+            
+        atoms->e = new_e;
         atoms->capacity = new_capacity;
     }
     
     atoms->e[atoms->count++] = atom;
     
-    return PK_Ok;
+    return PK_OK;
 }
 
 void pk_atoms_free(Pocket lisp, PKAtoms *atoms) {
-    pk_free(lisp, atoms->e, atoms->capacity * sizeof(PKAtom *));
+    if (atoms->e != NULL) {
+        pk_free(lisp, atoms->e, atoms->capacity * sizeof(PKAtom *));
+    }
 }
 
-PKRes pk_bytes_push(Pocket lisp, PKBytes *bytes, pk_u8 byte, size_t init) {
+PK_RES pk_bytes_push(Pocket lisp, PKBytes *bytes, pk_u8 byte, size_t init) {
     if (bytes->count >= bytes->capacity) {
+        pk_u8 *new_e = NULL;
         size_t new_capacity = pk_grow_capacity(bytes->capacity, init);
+        
         pk_try(pk_realloc(
             lisp,
             bytes->e,
-            sizeof(pk_u8) * bytes->capacity,
-            sizeof(pk_u8) * new_capacity,
-            (void **)&bytes->e)
+            bytes->capacity * sizeof(pk_u8),
+            new_capacity * sizeof(pk_u8),
+            (void **)&new_e)
         );
+            
+        bytes->e = new_e;
         bytes->capacity = new_capacity;
     }
     
     bytes->e[bytes->count++] = byte;
     
-    return PK_Ok;
+    return PK_OK;
 }
 
 void pk_bytes_free(Pocket lisp, PKBytes *bytes) {
-    pk_free(lisp, bytes->e, bytes->capacity * sizeof(pk_u8));
+    if (bytes->e != NULL) {
+        pk_free(lisp, bytes->e, bytes->capacity * sizeof(pk_u8));
+    }
 }
 
-PKRes pk_string_dupe(Pocket lisp, const char *c, size_t length, char **output) {
+PK_RES pk_string_dupe(Pocket lisp, const char *c, size_t length, char **output) {
     char *copy = NULL;
     
     if (length == 0) {
         *output = NULL;
-        return PK_Ok;
+        return PK_OK;
     }
     
     pk_try(pk_malloc(lisp, length, (void **)&copy));
     (void)memcpy(copy, c, length);
     *output = copy;
 
-    return PK_Ok;
+    return PK_OK;
 }
 
 pk_bool pk_string_eq(const char *a, size_t a_length, const char *b, size_t b_length) {
@@ -257,9 +269,9 @@ size_t pk_hash_pointer(void *ptr) {
     return (size_t)(p >> 3);
 }
 
-PKRes pk_util_slurpn(Pocket lisp, const char *file_path, size_t length, char **out_c, size_t *out_length) {
+PK_RES pk_util_slurpn(Pocket lisp, const char *file_path, size_t length, char **out_c, size_t *out_length) {
     char *buffer = NULL;
-    PKRes result = PK_Yield;
+    PK_RES result = PK_YIELD;
     
     pk_try(pk_malloc(lisp, length + 1, (void **)&buffer));
     (void)memcpy(buffer, file_path, length);
@@ -272,7 +284,7 @@ PKRes pk_util_slurpn(Pocket lisp, const char *file_path, size_t length, char **o
     return result;
 }
     
-PKRes pk_util_slurp(Pocket lisp, const char *file_path, char **out_c, size_t *out_length) {
+PK_RES pk_util_slurp(Pocket lisp, const char *file_path, char **out_c, size_t *out_length) {
     FILE *f = NULL;
     long length = 0;
     size_t read = 0;
@@ -292,7 +304,7 @@ PKRes pk_util_slurp(Pocket lisp, const char *file_path, char **out_c, size_t *ou
     rewind(f);
     if (!pk_malloc(lisp, (size_t)length, (void **)&buf)) {
         fclose(f);
-        return PK_Yield;
+        return PK_YIELD;
     }
     read = fread(buf, 1, (size_t)length, f);
     fclose(f);
@@ -300,7 +312,7 @@ PKRes pk_util_slurp(Pocket lisp, const char *file_path, char **out_c, size_t *ou
     *out_c = buf;
     *out_length = read;
     
-    return PK_Ok;
+    return PK_OK;
 }
 
 size_t pk_next_pow2(size_t value) {

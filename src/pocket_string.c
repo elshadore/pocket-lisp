@@ -1,23 +1,23 @@
 #include "pocket_internals.h"
 
-PKRes pk_atom_string(Pocket lisp, const char *cstr, PKAtomString **output) {
+PK_RES pk_atom_string(Pocket lisp, const char *cstr, PKAtomString **output) {
     size_t length = 0;
     length = strlen(cstr);
     return pk_atom_stringn(lisp, cstr, length, output);
 }
 
-PKRes pk_atom_stringn(Pocket lisp, const char *string, size_t length, PKAtomString **output) {
+PK_RES pk_atom_stringn(Pocket lisp, const char *string, size_t length, PKAtomString **output) {
     char *dupe = NULL;
     if (length == 0) {
         *output = lisp->cache.empty_string;
-        return PK_Ok;
+        return PK_OK;
     }
     pk_try(pk_string_dupe(lisp, string, length, &dupe));
     pk_try(pk_atom_stringn_nomemcpy(lisp, dupe, length, output));
-    return PK_Ok;
+    return PK_OK;
 }
     
-PKRes pk_atom_stringn_nomemcpy(Pocket lisp, char *c, size_t length, PKAtomString **output) {
+PK_RES pk_atom_stringn_nomemcpy(Pocket lisp, char *c, size_t length, PKAtomString **output) {
     PKAtom *a = NULL;
     size_t hash = 0;
     
@@ -31,15 +31,15 @@ PKRes pk_atom_stringn_nomemcpy(Pocket lisp, char *c, size_t length, PKAtomString
     a->string.hash = hash;
 
     *output = (PKAtomString *)a;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_atom_string_concat(Pocket lisp, PKAtomSlice strings, PKAtomString **output) {
+PK_RES pk_atom_string_concat(Pocket lisp, PKAtomSlice strings, PKAtomString **output) {
     size_t length = 0;
     size_t i = 0;
     size_t acc = 0;
     char *buffer = NULL;
-    PKRes result = PK_Yield;
+    PK_RES result = PK_YIELD;
     
     for (i = 0; i < strings.length; ++i) {
         PKAtomString *string = NULL;
@@ -48,7 +48,7 @@ PKRes pk_atom_string_concat(Pocket lisp, PKAtomSlice strings, PKAtomString **out
     }
     if (length == 0) {
         *output = lisp->cache.empty_string;
-        return PK_Ok;
+        return PK_OK;
     }
     
     pk_try(pk_malloc(lisp, length * sizeof(char), (void **)&buffer));
@@ -63,19 +63,19 @@ PKRes pk_atom_string_concat(Pocket lisp, PKAtomSlice strings, PKAtomString **out
     
     pk_defer(pk_atom_stringn_nomemcpy(lisp, buffer, acc, output));
     
-    result = PK_Ok;
+    result = PK_OK;
     
     DEFER:
-    if (result == PK_Yield) {
+    if (result == PK_YIELD) {
         pk_free(lisp, buffer, length * sizeof(char));
     }
     return result;
 }
 
-PKRes pk_atom_cast_string(Pocket lisp, PKAtom *atom, PKAtomString **output) {
+PK_RES pk_atom_cast_string(Pocket lisp, PKAtom *atom, PKAtomString **output) {
     if (atom->tag.ty != PKAtomTy_String) return pk_error(lisp);
     *output = (PKAtomString *)atom;
-    return PK_Ok;
+    return PK_OK;
 }
 
 pk_bool pk_atom_string_eq(Pocket lisp, PKAtomString *lhs, PKAtomString *rhs) {
@@ -83,7 +83,7 @@ pk_bool pk_atom_string_eq(Pocket lisp, PKAtomString *lhs, PKAtomString *rhs) {
     return pk_string_eq(lhs->c, lhs->length, rhs->c, rhs->length);
 }
 
-PKRes pk_atom_string_slurp(Pocket lisp, PKAtomString *file_path, PKAtomString **output) {
+PK_RES pk_atom_string_slurp(Pocket lisp, PKAtomString *file_path, PKAtomString **output) {
     char *buffer = NULL;
     size_t length = 0;
 
@@ -91,8 +91,8 @@ PKRes pk_atom_string_slurp(Pocket lisp, PKAtomString *file_path, PKAtomString **
     
     if (!pk_atom_stringn_nomemcpy(lisp, buffer, length, output)) {
         pk_string_free(lisp, buffer, length);
-        return PK_Yield;
+        return PK_YIELD;
     }
     
-    return PK_Ok;
+    return PK_OK;
 }

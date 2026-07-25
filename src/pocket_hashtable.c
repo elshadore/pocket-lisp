@@ -1,6 +1,6 @@
 #include "pocket_internals.h"
 
-PKRes pk_hashtable_grow(Pocket lisp, PKHashTable *ht) {
+PK_RES pk_hashtable_grow(Pocket lisp, PKHashTable *ht) {
     size_t new_capacity = pk_grow_capacity(ht->capacity, PK_SET_INIT_CAPACITY);
     size_t i = 0;
     PKHashTableSlot **new_e = NULL;
@@ -27,17 +27,17 @@ PKRes pk_hashtable_grow(Pocket lisp, PKHashTable *ht) {
     }
     ht->e = new_e;
     ht->capacity = new_capacity;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_hashtable_get(Pocket lisp, PKHashTable *ht, PKAtom *key, PKAtom **output) {
+PK_RES pk_hashtable_get(Pocket lisp, PKHashTable *ht, PKAtom *key, PKAtom **output) {
     PKHashTableSlot *entry = NULL;
     size_t bucket = 0;
     
     (void)lisp;
     if (ht->count == 0) {
         *output = NULL;
-        return PK_Ok;
+        return PK_OK;
     }
 
     bucket = pk_hash_pointer(key) % ht->capacity;
@@ -45,15 +45,15 @@ PKRes pk_hashtable_get(Pocket lisp, PKHashTable *ht, PKAtom *key, PKAtom **outpu
     for (entry = ht->e[bucket]; entry; entry = entry->chain) {
         if (entry->key == key) {
             *output = entry->value;
-            return PK_Ok;
+            return PK_OK;
         }
     }
 
     *output = NULL;
-    return PK_Ok;
+    return PK_OK;
 }
     
-PKRes pk_hashtable_put(Pocket lisp, PKHashTable *ht, PKAtom *key, PKAtom *value) {
+PK_RES pk_hashtable_put(Pocket lisp, PKHashTable *ht, PKAtom *key, PKAtom *value) {
     PKHashTableSlot *slot = NULL;
     PKHashTableSlot *entry = NULL;
     size_t bucket = 0;
@@ -67,7 +67,7 @@ PKRes pk_hashtable_put(Pocket lisp, PKHashTable *ht, PKAtom *key, PKAtom *value)
     for (slot = ht->e[bucket]; slot; slot = slot->chain) {
         if (slot->key == key) {
             slot->value = value;
-            return PK_Ok;
+            return PK_OK;
         }
     }
 
@@ -79,7 +79,7 @@ PKRes pk_hashtable_put(Pocket lisp, PKHashTable *ht, PKAtom *key, PKAtom *value)
     
     ht->e[bucket] = entry;
     ht->count++;
-    return PK_Ok;
+    return PK_OK;
 }
         
 void pk_hashtable_deinit(Pocket lisp, PKHashTable *ht) {

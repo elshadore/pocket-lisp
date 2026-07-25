@@ -4,21 +4,21 @@ PKAtom *pk_atom_nil(Pocket lisp) {
     return lisp->cache.nil;
 }
 
-PKRes pk_atom_nil_new(Pocket lisp, PKAtom **output) {
+PK_RES pk_atom_nil_new(Pocket lisp, PKAtom **output) {
     PKAtom *a = NULL;
     pk_try(pk_atom_alloc(lisp, &a));
     
     a->tag.ty = PKAtomTy_Nil;
     
     *output = a;
-    return PK_Ok;
+    return PK_OK;
 }
 
 PKAtom *pk_atom_t(Pocket lisp) {
     return (PKAtom *)lisp->cache.t;
 }
 
-PKRes pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity, PKAtomCFunc **output) {
+PK_RES pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity, PKAtomCFunc **output) {
     PKAtom *a = NULL;
     pk_try(pk_atom_alloc(lisp, &a));
     
@@ -28,19 +28,19 @@ PKRes pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity,
     a->cfunc.arity = arity;
     
     *output = (PKAtomCFunc *)a;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_atom_cast_cfunc(Pocket lisp, PKAtom *atom, PKAtomCFunc **output) {
+PK_RES pk_atom_cast_cfunc(Pocket lisp, PKAtom *atom, PKAtomCFunc **output) {
     if (atom->tag.ty != PKAtomTy_CFunc) return pk_error(lisp);
     *output = (PKAtomCFunc *)atom;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_atom_cast_lfunc(Pocket lisp, PKAtom *atom, PKAtomLFunc **output) {
+PK_RES pk_atom_cast_lfunc(Pocket lisp, PKAtom *atom, PKAtomLFunc **output) {
     if (atom->tag.ty != PKAtomTy_LFunc) return pk_error(lisp);
     *output = (PKAtomLFunc *)atom;
-    return PK_Ok;
+    return PK_OK;
 }
 
 pk_bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
@@ -63,11 +63,11 @@ pk_bool pk_atom_is_nil(PKAtom *atom) {
     return atom->tag.ty == PKAtomTy_Nil;
 }
 
-PKRes pk_atom_assert_nil(Pocket lisp, PKAtom *atom) {
+PK_RES pk_atom_assert_nil(Pocket lisp, PKAtom *atom) {
     if (!pk_atom_is_nil(atom)) {
         return pk_error(lisp);
     }
-    return PK_Ok;
+    return PK_OK;
 }
 
 pk_bool pk_atom_is_true(PKAtom *atom) {

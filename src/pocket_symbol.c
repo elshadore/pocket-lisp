@@ -1,6 +1,6 @@
 #include "pocket_internals.h"
 
-PKRes pk_intern_grow(Pocket lisp) {
+PK_RES pk_intern_grow(Pocket lisp) {
     PKAtomSymbol **new_e = NULL;
     size_t new_capacity = 0;
     size_t i = 0;
@@ -28,7 +28,7 @@ PKRes pk_intern_grow(Pocket lisp) {
     }
     lisp->intern.e = new_e;
     lisp->intern.capacity = new_capacity;
-    return PK_Ok;
+    return PK_OK;
 }
 
 PKAtomSymbol *pk_intern_lookup(Pocket lisp, const char *c, size_t length) {
@@ -50,14 +50,14 @@ PKAtomSymbol *pk_intern_lookup(Pocket lisp, const char *c, size_t length) {
     return NULL;
 }
 
-PKRes pk_atom_symbol_interned(Pocket lisp, const char *cstr, PKAtomSymbol **output) {
+PK_RES pk_atom_symbol_interned(Pocket lisp, const char *cstr, PKAtomSymbol **output) {
     size_t length = 0;
     length = strlen(cstr);
     return pk_atom_symboln_interned(lisp, cstr, length, output);
 }
 
     
-PKRes pk_atom_symboln_interned(Pocket lisp, const char *string, size_t length, PKAtomSymbol **output) {
+PK_RES pk_atom_symboln_interned(Pocket lisp, const char *string, size_t length, PKAtomSymbol **output) {
     PKAtomSymbol *existing = NULL;
     PKAtomSymbol *sym = NULL;
     size_t hash = 0;
@@ -67,7 +67,7 @@ PKRes pk_atom_symboln_interned(Pocket lisp, const char *string, size_t length, P
     
     if (existing != NULL) {
         *output = existing;
-        return PK_Ok;
+        return PK_OK;
     }
 
     if (lisp->intern.capacity == 0) {
@@ -82,16 +82,16 @@ PKRes pk_atom_symboln_interned(Pocket lisp, const char *string, size_t length, P
     lisp->intern.e[bucket] = sym;
     lisp->intern.count++;
     *output = sym;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_atom_symbol_uninterned(Pocket lisp, const char *csym, PKAtomSymbol **output) {
+PK_RES pk_atom_symbol_uninterned(Pocket lisp, const char *csym, PKAtomSymbol **output) {
     size_t length = 0;
     length = strlen(csym);
     return pk_atom_symboln_uninterned(lisp, csym, length, output);
 }
     
-PKRes pk_atom_symboln_uninterned(Pocket lisp, const char *string, size_t length, PKAtomSymbol **output) {
+PK_RES pk_atom_symboln_uninterned(Pocket lisp, const char *string, size_t length, PKAtomSymbol **output) {
     PKAtomSymbol *existing = NULL;
     PKAtomString *a_string = NULL;
     PKAtom *a = NULL;
@@ -100,7 +100,7 @@ PKRes pk_atom_symboln_uninterned(Pocket lisp, const char *string, size_t length,
     
     if (existing != NULL) {
         *output = existing;
-        return PK_Ok;
+        return PK_OK;
     }
 
     pk_try(pk_atom_stringn(lisp, string, length, &a_string));
@@ -111,13 +111,13 @@ PKRes pk_atom_symboln_uninterned(Pocket lisp, const char *string, size_t length,
     a->symbol.chain = NULL,
         
     *output = (PKAtomSymbol *)a;
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_atom_cast_symbol(Pocket lisp, PKAtom *atom, PKAtomSymbol **output) {
+PK_RES pk_atom_cast_symbol(Pocket lisp, PKAtom *atom, PKAtomSymbol **output) {
     if (atom->tag.ty != PKAtomTy_Symbol) return pk_error(lisp);
     *output = (PKAtomSymbol *)atom;
-    return PK_Ok;
+    return PK_OK;
 }
 
 pk_bool pk_atom_symbol_eq(Pocket lisp, PKAtomSymbol *lhs, PKAtomSymbol *rhs) {

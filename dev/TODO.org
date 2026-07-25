@@ -4,16 +4,20 @@
 ** TODO Recursive Printing
 ** TODO Pretty Printing
 ** TODO Throwing, Catching, Errors, and Unwind Protect
-** TODO Basic Special Forms [2/13]
+** TODO Basic Special Forms [6/13]
 *** DONE if
 CLOSED: [2026-07-23 Thu 22:03]
-*** TODO lambda
+*** DONE lambda
+CLOSED: [2026-07-25 Sat 01:44]
 *** TODO macro
-*** TODO let
+*** DONE let
+CLOSED: [2026-07-25 Sat 01:44]
 *** TODO let*
-*** TODO flet
+*** DONE flet
+CLOSED: [2026-07-25 Sat 01:44]
 *** TODO flet*
-*** TODO while
+*** DONE while
+CLOSED: [2026-07-25 Sat 01:44]
 *** DONE quote
 CLOSED: [2026-07-23 Thu 22:12]
 *** TODO quasiquote

@@ -13,26 +13,26 @@ void pk_newline(Pocket lisp) {
     pk_puts(lisp, "\n", 1);
 }
 
-PKRes pk_print_atom(Pocket lisp, PKAtom *atom) {
+PK_RES pk_print_atom(Pocket lisp, PKAtom *atom) {
     PKWriter w = pk_writer_init(lisp);
-    PKRes result = PK_Yield;
+    PK_RES result = PK_YIELD;
     
     pk_defer(pk_writer_atom(&w, atom));
     pk_writer_print(&w);
-    result = PK_Ok;
+    result = PK_OK;
     
     DEFER:
     pk_writer_deinit(&w);
     return result;
 }
 
-PKRes pk_puts_atom(Pocket lisp, PKAtom *atom) {
+PK_RES pk_puts_atom(Pocket lisp, PKAtom *atom) {
     PKWriter w = pk_writer_init(lisp);
-    PKRes result = PK_Yield;
+    PK_RES result = PK_YIELD;
     
     pk_defer(pk_writer_atom(&w, atom));
     pk_writer_puts(&w);
-    result = PK_Ok;
+    result = PK_OK;
     
     DEFER:
     pk_writer_deinit(&w);

@@ -4,7 +4,7 @@
 
 #define pk_rat(r_) (r_)->c
 
-PKRes pk_reader_error(PKReader *r, const char *error_message) {
+PK_RES pk_reader_error(PKReader *r, const char *error_message) {
     fprintf(stderr, "READER-ERROR:\n  curr: [%zu / %zu]\n  bol = %zu\n  line = %zu\n  char = %c\n  error: %s\n", r->curr, r->length, r->bol + 1, r->line + 1, r->c, error_message);
     return pk_error(r->lisp);
 }
@@ -29,11 +29,11 @@ pk_bool pk_reader_inc(PKReader *r) {
     return PK_TRUE;
 }
 
-PKRes pk_reader_ince(PKReader *r) {
+PK_RES pk_reader_ince(PKReader *r) {
     if (!pk_reader_inc(r)) {
         return pk_reader_error(r, "reader is finished, expected more characters in string");
     } else {
-        return PK_Ok;
+        return PK_OK;
     }
 }
 
@@ -86,9 +86,9 @@ PKReader pk_reader_init(Pocket lisp, char *string, size_t length) {
     return r;
 }
 
-PKRes pk_read_atom_string(PKReader *r, PKAtomString **string) {
+PK_RES pk_read_atom_string(PKReader *r, PKAtomString **string) {
     PKWriter w = pk_writer_init(r->lisp);
-    PKRes result = PK_Yield;
+    PK_RES result = PK_YIELD;
     
     if (pk_rat(r) != '\"') {
         return pk_reader_error(r, "string does not start with \", character");
@@ -98,7 +98,7 @@ PKRes pk_read_atom_string(PKReader *r, PKAtomString **string) {
         if (pk_rat(r) == '\"') {
             (void)pk_reader_inc(r);
             pk_defer(pk_atom_stringn(r->lisp, w.c, w.count, string));
-            result = PK_Ok;
+            result = PK_OK;
             goto DEFER;
         } else if (pk_rat(r) == '\\') {
             pk_defer(pk_reader_ince(r));
@@ -184,7 +184,7 @@ PKRes pk_read_atom_string(PKReader *r, PKAtomString **string) {
     return result;
 }
 
-PKRes pk_read_atom_number(PKReader *r, PKAtomNumber **number) {
+PK_RES pk_read_atom_number(PKReader *r, PKAtomNumber **number) {
     int acc = 0;
     pk_bool negetive = PK_FALSE;
 
@@ -212,10 +212,10 @@ PKRes pk_read_atom_number(PKReader *r, PKAtomNumber **number) {
     
     pk_try(pk_atom_int(r->lisp, acc, number));
     
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_read_atom_symbol(PKReader *r, PKAtomSymbol **symbol) {
+PK_RES pk_read_atom_symbol(PKReader *r, PKAtomSymbol **symbol) {
     size_t save = r->curr;
 
     if (!pk_char_is_symbol(pk_rat(r))) {
@@ -228,10 +228,10 @@ PKRes pk_read_atom_symbol(PKReader *r, PKAtomSymbol **symbol) {
 
     pk_try(pk_atom_symboln_interned(r->lisp, r->string + save, r->curr - save, symbol));
     
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_read_atom_cons(PKReader *r, PKAtom **output) {
+PK_RES pk_read_atom_cons(PKReader *r, PKAtom **output) {
     PKAtomCons *head = NULL;
     PKAtomCons *acc = head;
     pk_bool first = PK_TRUE;
@@ -253,7 +253,7 @@ PKRes pk_read_atom_cons(PKReader *r, PKAtom **output) {
             } else {
                 *output = (PKAtom *)head;
             }
-            return PK_Ok;
+            return PK_OK;
         } else if (!first && !whitespace) {
             return pk_reader_error(r, "list elements must be seperated with whitespace");
         } else if (pk_rat(r) == '.') {
@@ -271,7 +271,7 @@ PKRes pk_read_atom_cons(PKReader *r, PKAtom **output) {
             }
             acc->cdr = cdr;
             *output = (PKAtom *)head;
-            return PK_Ok;
+            return PK_OK;
         } else {
             PKAtom *car = NULL;
             PKAtomCons *cons = NULL;
@@ -293,17 +293,17 @@ PKRes pk_read_atom_cons(PKReader *r, PKAtom **output) {
     return pk_reader_error(r, "unterminated list");
 }
 
-PKRes pk_read_atom_simple_macro(PKReader *r, PKAtomSymbol *macro, PKAtomCons **output) {
+PK_RES pk_read_atom_simple_macro(PKReader *r, PKAtomSymbol *macro, PKAtomCons **output) {
     PKAtom *a = NULL;
     
     pk_try(pk_reader_ince(r));
     pk_try(pk_read_atom(r, &a));
     pk_try(pk_atom_list2(r->lisp, (PKAtom *)macro, a, output));
     
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_read_atom_unquote_macro(PKReader *r, PKAtomCons **output) {
+PK_RES pk_read_atom_unquote_macro(PKReader *r, PKAtomCons **output) {
     PKAtomSymbol *macro = NULL;
     PKAtom *a = NULL;
     
@@ -318,10 +318,10 @@ PKRes pk_read_atom_unquote_macro(PKReader *r, PKAtomCons **output) {
     pk_try(pk_read_atom(r, &a));
     pk_try(pk_atom_list2(r->lisp, (PKAtom *)macro, a, output));
     
-    return PK_Ok;
+    return PK_OK;
 }
 
-PKRes pk_read_atom(PKReader *r, PKAtom **atom) {
+PK_RES pk_read_atom(PKReader *r, PKAtom **atom) {
     if (pk_reader_is_finished(r)) {
         return pk_reader_error(r, "reader is already finished in atom reading");
     }
@@ -329,30 +329,30 @@ PKRes pk_read_atom(PKReader *r, PKAtom **atom) {
     switch (pk_rat(r)) {
         case '(': {
             pk_try(pk_read_atom_cons(r, atom));
-            return PK_Ok;
+            return PK_OK;
         }
         case ')': {
             return pk_reader_error(r, "encountered end of list ), character without start of list (, character");
         }
         case '\'': {
             pk_try(pk_read_atom_simple_macro(r, r->lisp->cache.quote, (PKAtomCons **)atom));
-            return PK_Ok;
+            return PK_OK;
         }
         case '`': {
             pk_try(pk_read_atom_simple_macro(r, r->lisp->cache.quasiquote, (PKAtomCons **)atom));
-            return PK_Ok;
+            return PK_OK;
         }
         case '$': {
             pk_try(pk_read_atom_simple_macro(r, r->lisp->cache.string_substitute, (PKAtomCons **)atom));
-            return PK_Ok;
+            return PK_OK;
         }
         case ',': {
             pk_try(pk_read_atom_unquote_macro(r, (PKAtomCons **)atom));
-            return PK_Ok;
+            return PK_OK;
         }
         case '\"': {
             pk_try(pk_read_atom_string(r, (PKAtomString **)atom));
-            return PK_Ok;
+            return PK_OK;
         }
         default: {
             if (pk_reader_is_number_prefix(r)) {
@@ -360,12 +360,12 @@ PKRes pk_read_atom(PKReader *r, PKAtom **atom) {
             } else {
                 pk_try(pk_read_atom_symbol(r, (PKAtomSymbol **)atom));
             }
-            return PK_Ok;
+            return PK_OK;
         }
     }
 }
 
-PKRes pk_read_string(Pocket lisp, char *c, size_t length, PK_READ mode, PKAtom **output) {
+PK_RES pk_read_string(Pocket lisp, char *c, size_t length, PK_READ mode, PKAtom **output) {
     PKReader r;
     PKAtom *first = NULL;
     PKAtomCons *head = NULL;
@@ -373,7 +373,7 @@ PKRes pk_read_string(Pocket lisp, char *c, size_t length, PK_READ mode, PKAtom *
 
     if (length == 0) {
         *output = pk_atom_nil(lisp);
-        return PK_Ok;
+        return PK_OK;
     }
 
     r = pk_reader_init(lisp, c, length);
@@ -381,7 +381,7 @@ PKRes pk_read_string(Pocket lisp, char *c, size_t length, PK_READ mode, PKAtom *
     (void)pk_reader_trim_whitespace(&r);
     if (pk_reader_is_finished(&r)) {
         *output = pk_atom_nil(lisp);
-        return PK_Ok;
+        return PK_OK;
     }
 
     pk_try(pk_read_atom(&r, &first));
@@ -392,7 +392,7 @@ PKRes pk_read_string(Pocket lisp, char *c, size_t length, PK_READ mode, PKAtom *
             return pk_error(lisp);
         }
         *output = first;
-        return PK_Ok;
+        return PK_OK;
     }
 
     pk_try(pk_atom_cons_car(lisp, first, &head));
@@ -413,5 +413,5 @@ PKRes pk_read_string(Pocket lisp, char *c, size_t length, PK_READ mode, PKAtom *
     }
 
     *output = (PKAtom *)head;
-    return PK_Ok;
+    return PK_OK;
 }

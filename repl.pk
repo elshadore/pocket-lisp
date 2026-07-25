@@ -16,7 +16,7 @@
           (puts ">> ")
           (print (format (evlist (read (read-user-input))))))))
 
-## (set 'foo 69)
+(set 'foo 69)
 
 ## (fset 'example
 ##       (lambda ()
@@ -24,14 +24,12 @@
 ##           (print foo)
 ##           foo)))
 
-## (fset 'fib
-##       (lambda (n)
-##         (if (<= n 1)
-##             n
-##           (+ (fib (- n 1)) (fib (- n 2))))))
+(fset 'fib
+      (lambda (n)
+        (if (<= n 1)
+            n
+          (+ (fib (- n 1)) (fib (- n 2))))))
 
-## (fset 'funny
-##       (lambda (a b c d) d))
 
 ## (fset 'last-cons-1
 ##       (lambda (a b)
@@ -47,13 +45,13 @@
 ##         (let ((foo (last-cons list)))
 ##           (set-cdr foo list))))
 
-## (fset 'cadr
-##       (lambda (list)
-##         (car (cdr list))))
+(fset 'cadr
+      (lambda (list)
+        (car (cdr list))))
 
-## (fset 'cdar
-##       (lambda (list)
-##         (cdr (car list))))
+(fset 'cdar
+      (lambda (list)
+        (cdr (car list))))
 
 ## (if (nil? (cdr argv))
 ##     nil
