@@ -167,6 +167,7 @@ typedef struct PKCallConv_ {
     pk_bool insert_result;
     size_t final_arity;
     size_t extra_nils;
+    size_t variadic_list;
 } PKCallConv;
 
 typedef struct PKWriter_ {
@@ -631,4 +632,8 @@ PK_RES pk_dump_hex_atom(PKWriter *w, PKAtomLFunc *lfunc);
 PK_RES pk_dump_hex_string(Pocket lisp, PKAtomLFunc *lfunc, PKAtomString **output);
 
 void pk_pop_unchecked(Pocket lisp, size_t n);
+
+PK_RES pk_stack_op_list(Pocket lisp, size_t depth);
+PK_RES pk_stack_op_list_tailed(Pocket lisp, size_t depth);
+PK_RES pk_stack_op_list_merge(Pocket lisp, size_t depth);
 #endif

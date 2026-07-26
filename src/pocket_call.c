@@ -31,7 +31,7 @@ PK_RES pk_arity_convert(Pocket lisp, int arity, size_t *output) {
     return PK_OK;
 }
 
-PK_RES pk_callconv_handle_arity(Pocket lisp, size_t arity, PKFuncArity func, PKCallConv *output) {
+PK_RES pk_callconv_handle_arity(Pocket lisp, size_t arity, pk_bool variadic_list, PKFuncArity func, PKCallConv *output) {
     size_t funargs = (size_t)func.args;
 
     switch (func.mode) {
@@ -41,6 +41,7 @@ PK_RES pk_callconv_handle_arity(Pocket lisp, size_t arity, PKFuncArity func, PKC
             }
             output->final_arity = funargs;
             output->extra_nils = 0;
+            output->variadic_list = 0;
             break;
         }
         case PK_ARITY_OPTIONAL: {
@@ -52,14 +53,25 @@ PK_RES pk_callconv_handle_arity(Pocket lisp, size_t arity, PKFuncArity func, PKC
                 return pk_error(lisp);
             }
             output->final_arity = arity;
+            output->variadic_list = 0;
             break;
         }
         case PK_ARITY_VARIADIC: {
             if (arity < funargs) {
                 return pk_error(lisp);
             }
+            if (variadic_list) {
+                output->variadic_list = arity - funargs;
+                if (output->variadic_list == 0) {
+                    output->extra_nils = 1;
+                } else {
+                    output->extra_nils = 0;
+                }
+            } else {
+                output->variadic_list = 0;
+                output->extra_nils = 0;
+            }
             output->final_arity = arity;
-            output->extra_nils = 0;
             break;
         }
     }
@@ -81,7 +93,7 @@ PK_RES pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, pk_bool insert_resul
         case PKAtomTy_CFunc: {
             PKAtomCFunc *cfunc = (PKAtomCFunc *)function;
             
-            pk_try(pk_callconv_handle_arity(lisp, arity, cfunc->arity, output));
+            pk_try(pk_callconv_handle_arity(lisp, arity, PK_FALSE, cfunc->arity, output));
             
             output->ty = PK_CALLTY_CFUNC;
             output->as.c = cfunc;
@@ -92,7 +104,7 @@ PK_RES pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, pk_bool insert_resul
         case PKAtomTy_LFunc: {
             PKAtomLFunc *lfunc = (PKAtomLFunc *)function;
             
-            pk_try(pk_callconv_handle_arity(lisp, arity, lfunc->arity, output));
+            pk_try(pk_callconv_handle_arity(lisp, arity, PK_TRUE, lfunc->arity, output));
             
             output->ty = PK_CALLTY_LFUNC;
             output->as.lisp = lfunc;
@@ -113,6 +125,7 @@ void pk_callconv_quick(void *user_closure, PKFn fn, size_t arity, PKCallConv *ou
     output->final_arity = arity;
     output->extra_nils = 0;
     output->insert_result = PK_FALSE;
+    output->variadic_list = 0;
 }
 
 PK_RES pk_call(Pocket lisp, PKCallConv *conv) {
@@ -122,6 +135,10 @@ PK_RES pk_call(Pocket lisp, PKCallConv *conv) {
     
     pk_try(pk_frame_push(lisp, conv->final_arity));
     start = lisp->frames.count;
+    
+    if (conv->variadic_list > 0) {
+        pk_try(pk_stack_op_list(lisp, conv->variadic_list));
+    }
     
     for (i = 0; i < conv->extra_nils; ++i) {
         pk_defer(pk_push_nil(lisp));

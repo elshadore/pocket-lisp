@@ -167,53 +167,19 @@ PK_RES pk_vm_exec(PKVM *vm) {
                 break;
             }
             case PK_OP_MAKE_LIST: {
-                PKAtomSlice slice;
-                pk_u8 value = 0;
-                PKAtom *result = NULL;
-                
-                pk_try(pk_vm_inc(vm));
-                value = pk_vat(vm);
-                
-                pk_try(pk_stack_slice_down(vm->lisp, value, &slice));
-                pk_try(pk_slice_list(vm->lisp, slice, &result));
-                pk_pop_unchecked(vm->lisp, value);
-
-                pk_try(pk_push(vm->lisp, result));
-                
+                pk_try(pk_stack_op_list(vm->lisp, pk_vat(vm)));
                 pk_try(pk_vm_inc(vm));
                 break;
             }
             case PK_OP_MAKE_LIST_PACKED: {
-                PKAtomSlice slice;
-                pk_u8 value = 0;
-                PKAtom *result = NULL;
-                
                 pk_try(pk_vm_inc(vm));
-                value = pk_vat(vm);
-                
-                pk_try(pk_stack_slice_down(vm->lisp, value, &slice));
-                pk_try(pk_slice_list_tailed(vm->lisp, slice, &result));
-                pk_pop_unchecked(vm->lisp, value);
-
-                pk_try(pk_push(vm->lisp, result));
-                
+                pk_try(pk_stack_op_list_tailed(vm->lisp, pk_vat(vm)));
                 pk_try(pk_vm_inc(vm));
                 break;
             }
             case PK_OP_MERGE_LISTS: {
-                PKAtomSlice slice;
-                pk_u8 value = 0;
-                PKAtom *result = NULL;
-                
                 pk_try(pk_vm_inc(vm));
-                value = pk_vat(vm);
-                
-                pk_try(pk_stack_slice_down(vm->lisp, value, &slice));
-                pk_try(pk_merge_lists(vm->lisp, slice, &result));
-                pk_pop_unchecked(vm->lisp, value);
-
-                pk_try(pk_push(vm->lisp, result));
-                
+                pk_try(pk_stack_op_list_merge(vm->lisp, pk_vat(vm)));
                 pk_try(pk_vm_inc(vm));
                 break;
             }

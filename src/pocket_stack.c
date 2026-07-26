@@ -171,6 +171,45 @@ PK_RES pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom) {
     return PK_OK;
 }
 
+PK_RES pk_stack_op_list(Pocket lisp, size_t depth) {
+    PKAtomSlice slice;
+    PKAtom *result = NULL;
+    if (depth == 0) {
+        return PK_OK;
+    }
+    pk_try(pk_stack_slice_down(lisp, depth, &slice));
+    pk_try(pk_slice_list(lisp, slice, &result));
+    pk_pop_unchecked(lisp, depth - 1);
+    lisp->stack.e[lisp->stack.count - 1] = result;
+    return PK_OK;
+}
+
+PK_RES pk_stack_op_list_tailed(Pocket lisp, size_t depth) {
+    PKAtomSlice slice;
+    PKAtom *result = NULL;
+    if (depth == 0) {
+        return PK_OK;
+    }
+    pk_try(pk_stack_slice_down(lisp, depth, &slice));
+    pk_try(pk_slice_list_tailed(lisp, slice, &result));
+    pk_pop_unchecked(lisp, depth - 1);
+    lisp->stack.e[lisp->stack.count - 1] = result;
+    return PK_OK;
+}
+
+PK_RES pk_stack_op_list_merge(Pocket lisp, size_t depth) {
+    PKAtomSlice slice;
+    PKAtom *result = NULL;
+    if (depth == 0) {
+        return PK_OK;
+    }
+    pk_try(pk_stack_slice_down(lisp, depth, &slice));
+    pk_try(pk_merge_lists(lisp, slice, &result));
+    pk_pop_unchecked(lisp, depth - 1);
+    lisp->stack.e[lisp->stack.count - 1] = result;
+    return PK_OK;
+}
+
 PK_RES pk_frame_push(Pocket lisp, size_t arity) {
     PKFrames *frames = &lisp->frames;
     size_t stack_offset = pk_stack_length_total(lisp) - arity;

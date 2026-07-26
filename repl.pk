@@ -48,7 +48,7 @@
 
 (fset 'foopy (lambda (value) "foopy"))
 
-(fset 'test-fun (lambda (a :opt b)
+(fset 'test-fun (lambda (a :rest b)
       (print a)
       (print b)))
 
