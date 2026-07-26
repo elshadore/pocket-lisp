@@ -128,6 +128,7 @@ PK_RES pk_to_string(Pocket lisp, int stack_pointer, char **out_string, size_t *o
 PK_RES pk_typeof(Pocket lisp, int stack_pointer, PK_TYPE *output);
 
 PK_RES pk_is_nil(Pocket lisp, int stack_pointer, int *output);
+PK_RES pk_is_t(Pocket lisp, int stack_pointer, int *output);
 PK_RES pk_is_number(Pocket lisp, int stack_pointer, int *output);
 PK_RES pk_is_symbol(Pocket lisp, int stack_pointer, int *output);
 PK_RES pk_is_string(Pocket lisp, int stack_pointer, int *output);

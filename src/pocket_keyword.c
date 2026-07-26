@@ -30,3 +30,18 @@ pk_bool pk_atom_keyword_eq(Pocket lisp, PKAtomKeyword *lhs, PKAtomKeyword *rhs) 
     (void)lisp;
     return pk_string_eq(lhs->c, lhs->length, rhs->c, rhs->length);
 }
+
+pk_bool pk_atom_is_keyword(PKAtom *atom) {
+    return atom->tag.ty == PKAtomTy_Keyword;
+}
+
+PK_RES pk_atom_cast_keyword(Pocket lisp, PKAtom *atom, PKAtomKeyword **output) {
+    if (atom->tag.ty != PKAtomTy_Keyword) return pk_error(lisp);
+    *output = (PKAtomKeyword *)atom;
+    return PK_OK;
+}
+
+pk_bool pk_atom_keyword_qeq(PKAtomKeyword *keyword, const char *comp) {
+    size_t length = strlen(comp);
+    return pk_string_eq(keyword->c, keyword->length, comp, length);
+}

@@ -537,7 +537,7 @@ PK_RES pk_compile_value(PKCompiler *c, PKAtom *value) {
     }
 }
 
-PK_RES pk_compile_compile(PKCompiler *c, size_t arity, PKAtomLFunc **output) {
+PK_RES pk_compile_compile(PKCompiler *c, size_t arity, pk_u8 arity_mode, PKAtomLFunc **output) {
     PKAtom *a = NULL;
     size_t i = 0;
     PK_RES result = PK_YIELD;
@@ -557,7 +557,7 @@ PK_RES pk_compile_compile(PKCompiler *c, size_t arity, PKAtomLFunc **output) {
     a->lfunc.bc.e = c->bc.e;
     a->lfunc.bc.length = c->bc.capacity;
     a->lfunc.arity.args = (int)arity;
-    a->lfunc.arity.mode = PK_ARITY_NORMAL;
+    a->lfunc.arity.mode = arity_mode;
 
     *output = (PKAtomLFunc *)a;
     /* pk_defer(pk_dump_hex_atom(c->lisp, *output)); */
@@ -577,18 +577,42 @@ PK_RES pk_compile_lambda(Pocket lisp, PKAtom *args, PKAtom *body, PKAtomLFunc **
     PKCompiler c;
     size_t arity = 0;
     PKAtom *iter = args;
+    pk_u8 arity_mode = PK_ARITY_NORMAL;
+    pk_bool expected_final = PK_FALSE;
 
     c = pk_compiler_new(lisp);
     
     while (!pk_atom_is_nil(iter)) {
         PKAtomCons *cons = NULL;
         PKAtomSymbol *symbol = NULL;
-        
-        pk_try(pk_atom_cast_cons(lisp, iter, &cons));
-        pk_try(pk_atom_cast_symbol(lisp, cons->car, &symbol));
-        pk_try(pk_cmp_load(&c, (PKAtom *)symbol));
 
-        arity += 1;
+        pk_try(pk_atom_cast_cons(lisp, iter, &cons));
+        if (pk_atom_is_keyword(cons->car)) {
+            PKAtomKeyword *keyword = (PKAtomKeyword *)cons->car;
+            if (expected_final) {
+                return pk_error(lisp);
+            }
+            if (pk_atom_keyword_qeq(keyword, "rest")) {
+                arity_mode = PK_ARITY_VARIADIC;
+            } else if (pk_atom_keyword_qeq(keyword, "opt")) {
+                arity_mode = PK_ARITY_OPTIONAL;
+            } else if (pk_atom_keyword_qeq(keyword, "optional")) {
+                arity_mode = PK_ARITY_OPTIONAL;
+            }
+            expected_final = PK_TRUE;
+        } else {
+            pk_try(pk_atom_cast_symbol(lisp, cons->car, &symbol));
+            pk_try(pk_cmp_load(&c, (PKAtom *)symbol));
+
+            if (expected_final) {
+                if (!pk_atom_is_nil(cons->cdr)) {
+                    return pk_error(lisp);
+                }
+                break;
+            }
+            
+            arity += 1;
+        }
         
         iter = cons->cdr;
     }
@@ -601,7 +625,7 @@ PK_RES pk_compile_lambda(Pocket lisp, PKAtom *args, PKAtom *body, PKAtomLFunc **
     pk_try(pk_compile_evlist(&c, body));
     pk_try(pk_cmp_push_byte(&c, PK_OP_RET));
     
-    pk_try(pk_compile_compile(&c, arity, output));
+    pk_try(pk_compile_compile(&c, arity, arity_mode, output));
     
     return PK_OK;
 }
@@ -614,7 +638,7 @@ PK_RES pk_compile_atom(Pocket lisp, PKAtom *value, PKAtomLFunc **output) {
     pk_try(pk_compile_value(&c, value));
     pk_try(pk_cmp_push_byte(&c, PK_OP_RET));
     
-    pk_try(pk_compile_compile(&c, 0, output));
+    pk_try(pk_compile_compile(&c, 0, PK_ARITY_NORMAL, output));
 
     return PK_OK;
 }

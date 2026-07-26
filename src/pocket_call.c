@@ -31,6 +31,43 @@ PK_RES pk_arity_convert(Pocket lisp, int arity, size_t *output) {
     return PK_OK;
 }
 
+PK_RES pk_callconv_handle_arity(Pocket lisp, size_t arity, PKFuncArity func, PKCallConv *output) {
+    size_t funargs = (size_t)func.args;
+
+    switch (func.mode) {
+        case PK_ARITY_NORMAL: {
+            if (arity != funargs) {
+                return pk_error(lisp);
+            }
+            output->final_arity = funargs;
+            output->extra_nils = 0;
+            break;
+        }
+        case PK_ARITY_OPTIONAL: {
+            if (arity == funargs) {
+                output->extra_nils = 1;
+            } else if (arity == (funargs + 1)) {
+                output->extra_nils = 0;
+            } else {
+                return pk_error(lisp);
+            }
+            output->final_arity = funargs;
+            break;
+        }
+        case PK_ARITY_VARIADIC: {
+            if (arity < funargs) {
+                return pk_error(lisp);
+            }
+            output->final_arity = arity;
+            output->extra_nils = 0;
+            break;
+        }
+    }
+    
+    
+    return PK_OK;
+}
+
 PK_RES pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, pk_bool insert_result, PKCallConv *output) {
     PKAtom *function = NULL;
     
@@ -43,47 +80,24 @@ PK_RES pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, pk_bool insert_resul
     switch (function->tag.ty) {
         case PKAtomTy_CFunc: {
             PKAtomCFunc *cfunc = (PKAtomCFunc *)function;
-            size_t farity = arity;
-            size_t carity = (size_t)cfunc->arity.args;
-            size_t nils = 0;
             
-            switch (cfunc->arity.mode) {
-                case PK_ARITY_NORMAL: {
-                    if (arity != carity) {
-                        return pk_error(lisp);
-                    }
-                    break;
-                }
-                case PK_ARITY_OPTIONAL: {
-                    if (arity < carity) {
-                        return pk_error(lisp);
-                    }
-                    nils = arity - carity;
-                    break;
-                }
-                case PK_ARITY_VARIADIC: {
-                    if (arity < carity) {
-                        return pk_error(lisp);
-                    }
-                    break;
-                }
-            }
+            pk_try(pk_callconv_handle_arity(lisp, arity, cfunc->arity, output));
             
             output->ty = PK_CALLTY_CFUNC;
             output->as.c = cfunc;
-            output->final_arity = farity;
             output->insert_result = insert_result;
-            output->extra_nils = nils;
 
             return PK_OK;
         }
         case PKAtomTy_LFunc: {
             PKAtomLFunc *lfunc = (PKAtomLFunc *)function;
+            
+            pk_try(pk_callconv_handle_arity(lisp, arity, lfunc->arity, output));
+            
             output->ty = PK_CALLTY_LFUNC;
             output->as.lisp = lfunc;
-            output->final_arity = arity;
             output->insert_result = insert_result;
-            output->extra_nils = 0;
+            
             return PK_OK;
         }
         default: {
@@ -112,6 +126,7 @@ PK_RES pk_call(Pocket lisp, PKCallConv *conv) {
     for (i = 0; i < conv->extra_nils; ++i) {
         pk_defer(pk_push_nil(lisp));
     }
+    
     switch (conv->ty) {
         case PK_CALLTY_QUICK: {
             pk_defer((conv->as.quick.fn)(conv->as.quick.user_closure, lisp));

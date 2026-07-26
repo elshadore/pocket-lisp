@@ -49,6 +49,15 @@ const char *pk_ident_atomty(PKAtomTy ty) {
     }
 }
 
+const char *pk_ident_arity(pk_u8 arity) {
+    switch (arity) {
+        case PK_ARITY_NORMAL: return "NORMAL";
+        case PK_ARITY_OPTIONAL: return "OPTIONAL";
+        case PK_ARITY_VARIADIC: return "VARIADIC";
+        default: return "UNKNOWN";
+    }
+}
+
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
     switch (op) {
     

@@ -72,7 +72,7 @@ PK_RES pk_fn_read(void *user_closure, Pocket lisp) {
     
     (void)user_closure;
     
-    pk_try(pk_is_nil(lisp, 2, &boolean));
+    pk_try(pk_is_t(lisp, 2, &boolean));
     if (boolean) {
         mode = PK_READ_LISTED;
     }

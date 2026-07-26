@@ -171,6 +171,19 @@ PK_RES pk_writer_atom_object(PKWriter *w, PKAtom *atom){
     pk_try(pk_writer_char(w, '>'));
     return PK_OK;
 }
+
+PK_RES pk_writer_atom_function(PKWriter *w, void *mem, const char *type, PKFuncArity arity){
+    pk_try(pk_writer_string(w, "&<"));
+    pk_try(pk_writer_string(w, type));
+    pk_try(pk_writer_string(w, "::"));
+    pk_try(pk_writer_address(w, (size_t)mem));
+    pk_try(pk_writer_string(w, "::"));
+    pk_try(pk_writer_int(w, arity.args));
+    pk_try(pk_writer_string(w, "::"));
+    pk_try(pk_writer_string(w, pk_ident_arity(arity.mode)));
+    pk_try(pk_writer_char(w, '>'));
+    return PK_OK;
+}
     
 PK_RES pk_writer_atom_rec(PKWriter *w, PKHashTable *ht, PKAtom *atom) {
     switch (atom->tag.ty) {
@@ -212,6 +225,16 @@ PK_RES pk_writer_atom_rec(PKWriter *w, PKHashTable *ht, PKAtom *atom) {
                 pk_try(pk_writer_cons_loop(w, ht, (PKAtomCons *)atom));
                 pk_try(pk_writer_char(w, ')'));
             }
+            break;
+        }
+        case PKAtomTy_CFunc: {
+            PKAtomCFunc *cfunc = (PKAtomCFunc *)atom;
+            pk_try(pk_writer_atom_function(w, atom, "CFUNC", cfunc->arity));
+            break;
+        }
+        case PKAtomTy_LFunc: {
+            PKAtomLFunc *lfunc = (PKAtomLFunc *)atom;
+            pk_try(pk_writer_atom_function(w, atom, "LFUNC", lfunc->arity));
             break;
         }
         default: {

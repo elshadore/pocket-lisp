@@ -435,6 +435,7 @@ PK_RES pk_atom_symboln_interned(Pocket lisp, const char *string, size_t length, 
 PK_RES pk_atom_keyword(Pocket lisp, const char *cstr, PKAtomKeyword **output);
 PK_RES pk_atom_keywordn(Pocket lisp, const char *string, size_t length, PKAtomKeyword **output);
 PK_RES pk_atom_keywordn_nomemcpy(Pocket lisp, char *c, size_t length, PKAtomKeyword **output);
+pk_bool pk_atom_keyword_qeq(PKAtomKeyword *keyword, const char *comp);
         
 PK_RES pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr, PKAtomCons **output);
 PK_RES pk_atom_cons_car(Pocket lisp, PKAtom *car, PKAtomCons **output);
@@ -452,6 +453,7 @@ PK_RES pk_atom_cast_symbol(Pocket lisp, PKAtom *atom, PKAtomSymbol **output);
 PK_RES pk_atom_cast_cons(Pocket lisp, PKAtom *atom, PKAtomCons **output);
 PK_RES pk_atom_cast_cfunc(Pocket lisp, PKAtom *atom, PKAtomCFunc **output);
 PK_RES pk_atom_cast_lfunc(Pocket lisp, PKAtom *atom, PKAtomLFunc **output);
+PK_RES pk_atom_cast_keyword(Pocket lisp, PKAtom *atom, PKAtomKeyword **output);
 PK_RES pk_atom_assert_nil(Pocket lisp, PKAtom *atom);
 
 pk_bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
@@ -463,6 +465,7 @@ pk_bool pk_atom_is_true(PKAtom *atom);
 pk_bool pk_atom_is_nil(PKAtom *atom);
 pk_bool pk_atom_is_symbol(PKAtom *atom);
 pk_bool pk_atom_is_cons(PKAtom *atom);
+pk_bool pk_atom_is_keyword(PKAtom *atom);
 
 PK_RES pk_string_dupe(Pocket lisp, const char *c, size_t length, char **output);
 pk_bool pk_string_eq(const char *a, size_t a_length, const char *b, size_t b_length);
@@ -612,7 +615,7 @@ PK_RES pk_compile_evlist(PKCompiler *c, PKAtom *args);
 PK_RES pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_bool *is_special);
 PK_RES pk_compile_expression(PKCompiler *c, PKAtomCons *expr);
 PK_RES pk_compile_value(PKCompiler *c, PKAtom *value);
-PK_RES pk_compile_compile(PKCompiler *c, size_t arity, PKAtomLFunc **output);
+PK_RES pk_compile_compile(PKCompiler *c, size_t arity, pk_u8 arity_mode, PKAtomLFunc **output);
 PK_RES pk_compile_lambda(Pocket lisp, PKAtom *args, PKAtom *body, PKAtomLFunc **output);
 PK_RES pk_compile_atom(Pocket lisp, PKAtom *value, PKAtomLFunc **output);
 
@@ -620,6 +623,7 @@ PK_RES pk_lfunc_exec(Pocket lisp, PKAtomLFunc *lfunc);
 
 const char *pk_ident_opcode(pk_u8 op);
 const char *pk_ident_atomty(PKAtomTy ty);
+const char *pk_ident_arity(pk_u8 arity);
 
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
     

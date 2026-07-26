@@ -128,3 +128,4 @@ pk_bool pk_atom_symbol_eq(Pocket lisp, PKAtomSymbol *lhs, PKAtomSymbol *rhs) {
 pk_bool pk_atom_is_symbol(PKAtom *atom) {
     return atom->tag.ty == PKAtomTy_Symbol;
 }
+

@@ -415,6 +415,17 @@ PK_RES pk_is_nil(Pocket lisp, int stack_pointer, int *output) {
     PK_TYPEOF_TEMPLATE(PKAtomTy_Nil)
 }
 
+PK_RES pk_is_t(Pocket lisp, int stack_pointer, int *output) {
+    PKAtom *atom = NULL;
+    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
+    if (pk_atom_is_nil(atom)) {
+        *output = 0;
+    } else {
+        *output = 1;
+    }
+    return PK_OK;
+}
+
 PK_RES pk_is_number(Pocket lisp, int stack_pointer, int *output) {
     PK_TYPEOF_TEMPLATE(PKAtomTy_Number)
 }
