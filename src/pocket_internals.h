@@ -42,6 +42,7 @@ typedef enum PKAtomTy_ {
     PKAtomTy_Nil,
     PKAtomTy_Number,
     PKAtomTy_Symbol,
+    PKAtomTy_Keyword,
     PKAtomTy_String,
     PKAtomTy_Cons,
     PKAtomTy_CFunc,
@@ -92,6 +93,12 @@ struct PKAtomSymbol_ {
     PKAtomSymbol *chain;
 };
 
+typedef struct PKAtomKeyword_ {
+    PKAtomTag tag;
+    char *c;
+    size_t length;
+} PKAtomKeyword;
+
 typedef struct PKAtomCons_ {
     PKAtomTag tag;
     PKAtom *car;
@@ -136,6 +143,7 @@ union PKAtom_ {
     PKAtomFree free;
     PKAtomNumber number;
     PKAtomSymbol symbol;
+    PKAtomKeyword keyword;
     PKAtomString string;
     PKAtomCons cons;
     PKAtomCFunc cfunc;
@@ -424,6 +432,10 @@ PK_RES pk_atom_symbol_interned(Pocket lisp, const char *string, PKAtomSymbol **o
 PK_RES pk_atom_symboln_uninterned(Pocket lisp, const char *cstr, size_t length, PKAtomSymbol **output);
 PK_RES pk_atom_symboln_interned(Pocket lisp, const char *string, size_t length, PKAtomSymbol **output);
 
+PK_RES pk_atom_keyword(Pocket lisp, const char *cstr, PKAtomKeyword **output);
+PK_RES pk_atom_keywordn(Pocket lisp, const char *string, size_t length, PKAtomKeyword **output);
+PK_RES pk_atom_keywordn_nomemcpy(Pocket lisp, char *c, size_t length, PKAtomKeyword **output);
+        
 PK_RES pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr, PKAtomCons **output);
 PK_RES pk_atom_cons_car(Pocket lisp, PKAtom *car, PKAtomCons **output);
 PK_RES pk_atom_cfunc(Pocket lisp, void *user_closure, PKFn fn, PKFuncArity arity, PKAtomCFunc **output);
@@ -445,6 +457,7 @@ PK_RES pk_atom_assert_nil(Pocket lisp, PKAtom *atom);
 pk_bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 pk_bool pk_atom_symbol_eq(Pocket lisp, PKAtomSymbol *lhs, PKAtomSymbol *rhs);
 pk_bool pk_atom_string_eq(Pocket lisp, PKAtomString *lhs, PKAtomString *rhs);
+pk_bool pk_atom_keyword_eq(Pocket lisp, PKAtomKeyword *lhs, PKAtomKeyword *rhs);
 
 pk_bool pk_atom_is_true(PKAtom *atom);
 pk_bool pk_atom_is_nil(PKAtom *atom);
@@ -576,10 +589,11 @@ PK_RES pk_merge_lists(Pocket lisp, PKAtomSlice lists, PKAtom **output);
 PK_RES pk_return_push(Pocket lisp);
 PK_RES pk_return_insert(Pocket lisp);
 
-PK_RES pk_read_atom_string(PKReader *r, PKAtomString **string);
-PK_RES pk_read_atom_number(PKReader *r, PKAtomNumber **number);
 PK_RES pk_read_atom_symbol(PKReader *r, PKAtomSymbol **symbol);
+PK_RES pk_read_atom_keyword(PKReader *r, PKAtomKeyword **keyword);
 PK_RES pk_read_atom_cons(PKReader *r, PKAtom **output);
+PK_RES pk_read_atom_number(PKReader *r, PKAtomNumber **number);
+PK_RES pk_read_atom_string(PKReader *r, PKAtomString **string);
 PK_RES pk_read_atom_simple_macro(PKReader *r, PKAtomSymbol *macro, PKAtomCons **output);
 PK_RES pk_read_atom_unquote_macro(PKReader *r, PKAtomCons **output);
 PK_RES pk_read_atom(PKReader *r, PKAtom **atom);

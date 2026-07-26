@@ -88,6 +88,8 @@ PK_RES pk_push_string(Pocket lisp, const char *cstr);
 PK_RES pk_push_stringn(Pocket lisp, const char *string, size_t length);
 PK_RES pk_push_symbol(Pocket lisp, const char *csym);
 PK_RES pk_push_symboln(Pocket lisp, const char *symbol, size_t length);
+PK_RES pk_push_keyword(Pocket lisp, const char *ckey);
+PK_RES pk_push_keywordn(Pocket lisp, const char *keyword, size_t length);
 PK_RES pk_push_cons(Pocket lisp, int car, int cdr);
 PK_RES pk_push_cfunc(Pocket lisp, void *user_closure, PKFn fn, int args, PK_ARITY mode);
 PK_RES pk_list(Pocket lisp, int head, int tail);

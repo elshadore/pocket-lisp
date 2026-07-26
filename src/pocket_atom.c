@@ -52,6 +52,9 @@ pk_bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
             pk_number_eq(lisp, (PKAtomNumber *)lhs, (PKAtomNumber *)rhs, &result);
             return result;
         }
+        case PKAtomTy_Keyword: {
+            return pk_atom_keyword_eq(lisp, (PKAtomKeyword *)lhs, (PKAtomKeyword *)rhs);
+        }
         case PKAtomTy_String: {
             return pk_atom_string_eq(lisp, (PKAtomString *)lhs, (PKAtomString *)rhs);
         }

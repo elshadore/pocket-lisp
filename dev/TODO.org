@@ -1,10 +1,11 @@
-* The Great TODO List [8/19]
+* The Great TODO List [1/18]
 ** TODO Macros
 ** TODO Recursive Cloning
-** TODO Recursive Printing
+** DONE Recursive Printing
+CLOSED: [2026-07-26 Sun 05:42]
 ** TODO Pretty Printing
 ** TODO Throwing, Catching, Errors, and Unwind Protect
-** TODO Basic Special Forms [8/13]
+** TODO Basic Special Forms [11/13]
 *** DONE if
 CLOSED: [2026-07-23 Thu 22:03]
 *** DONE lambda
@@ -22,9 +23,12 @@ CLOSED: [2026-07-25 Sat 02:48]
 CLOSED: [2026-07-25 Sat 01:44]
 *** DONE quote
 CLOSED: [2026-07-23 Thu 22:12]
-*** TODO quasiquote
-*** TODO unquote
-*** TODO unquote-splice
+*** DONE quasiquote
+CLOSED: [2026-07-26 Sun 05:42]
+*** DONE unquote
+CLOSED: [2026-07-26 Sun 05:42]
+*** DONE unquote-splice
+CLOSED: [2026-07-26 Sun 05:42]
 *** TODO string-substitute
 ** TODO Comptime
 #+BEGIN_SRC pocket-lisp
@@ -59,3 +63,5 @@ A lisp interpetter object.
 ** TODO Char Type
 ** TODO Binary Blobs
 ** TODO Byte Type
+** TODO Reimplement Basic Garbage Collection
+** TODO Keywords

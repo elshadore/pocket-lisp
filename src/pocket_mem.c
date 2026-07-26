@@ -50,6 +50,10 @@ void pk_atom_free(Pocket lisp, PKAtom *atom) {
         case PKAtomTy_Free: {
             return;
         }
+        case PKAtomTy_Keyword: {
+            pk_string_free(lisp, atom->keyword.c, atom->keyword.length);
+            break;
+        }
         case PKAtomTy_String: {
             pk_string_free(lisp, atom->string.c, atom->string.length);
             break;

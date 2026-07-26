@@ -190,6 +190,11 @@ PK_RES pk_writer_atom_rec(PKWriter *w, PKHashTable *ht, PKAtom *atom) {
             pk_try(pk_writer_stringn(w, atom->symbol.id->c, atom->symbol.id->length));
             break;
         }
+        case PKAtomTy_Keyword: {
+            pk_try(pk_writer_char(w, ':'));
+            pk_try(pk_writer_stringn(w, atom->keyword.c, atom->keyword.length));
+            break;
+        }
         case PKAtomTy_String: {
             pk_try(pk_writer_char(w, '"'));
             pk_try(pk_writer_stringn_escaped(w, atom->string.c, atom->string.length));

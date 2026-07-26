@@ -86,6 +86,30 @@ PKReader pk_reader_init(Pocket lisp, char *string, size_t length) {
     return r;
 }
 
+PK_RES pk_read_atom_keyword(PKReader *r, PKAtomKeyword **keyword) {
+    size_t save = 0;
+    
+    if (pk_rat(r) != ':') {
+        return pk_reader_error(r, "keyword does not start with ':', character");
+    }
+    
+    pk_try(pk_reader_ince(r));
+    
+    save = r->curr;
+    
+    if (!pk_char_is_symbol(pk_rat(r))) {
+        return pk_reader_error(r, "expected valid symbol character at start of keyword");
+    }
+
+    do {
+        if (!pk_reader_inc(r)) break;
+    } while(pk_char_is_symbol(pk_rat(r)));
+
+    pk_try(pk_atom_keywordn(r->lisp, r->string + save, r->curr - save, keyword));
+    
+    return PK_OK;
+}
+
 PK_RES pk_read_atom_string(PKReader *r, PKAtomString **string) {
     PKWriter w = pk_writer_init(r->lisp);
     PK_RES result = PK_YIELD;
@@ -352,6 +376,10 @@ PK_RES pk_read_atom(PKReader *r, PKAtom **atom) {
         }
         case '\"': {
             pk_try(pk_read_atom_string(r, (PKAtomString **)atom));
+            return PK_OK;
+        }
+        case ':': {
+            pk_try(pk_read_atom_keyword(r, (PKAtomKeyword **)atom));
             return PK_OK;
         }
         default: {

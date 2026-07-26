@@ -62,6 +62,20 @@ PK_RES pk_push_symboln(Pocket lisp, const char *symbol, size_t length) {
     return PK_OK;
 }
 
+PK_RES pk_push_keyword(Pocket lisp, const char *csym) {
+    PKAtomKeyword *a = NULL;
+    pk_try(pk_atom_keyword(lisp, csym, &a));
+    pk_try(pk_push(lisp, (PKAtom *)a));
+    return PK_OK;
+}
+
+PK_RES pk_push_keywordn(Pocket lisp, const char *keyword, size_t length) {
+    PKAtomKeyword *a = NULL;
+    pk_try(pk_atom_keywordn(lisp, keyword, length, &a));
+    pk_try(pk_push(lisp, (PKAtom *)a));
+    return PK_OK;
+}
+
 PK_RES pk_push_cons(Pocket lisp, int car, int cdr) {
     PKAtom *car_atom = NULL;
     PKAtom *cdr_atom = NULL;
