@@ -4,6 +4,7 @@ PK_RES pk_atom_clone_rec(Pocket lisp, PKHashTable *ht, PKAtom *input, PKAtom **o
     PKAtom *duped = NULL;
     
     if (!pk_atom_is_cons(input)) {
+        *output = input;
         return PK_OK;
     }
     
