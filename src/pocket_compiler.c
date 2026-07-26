@@ -619,7 +619,11 @@ PK_RES pk_compile_lambda(Pocket lisp, PKAtom *args, PKAtom *body, PKAtomLFunc **
 
     if (arity > 0) {
         pk_try(pk_cmp_push_byte(&c, PK_OP_LET_VAR));
-        pk_try(pk_cmp_push_byte(&c, (pk_u8)arity));
+        if (arity_mode == PK_ARITY_OPTIONAL) {
+            pk_try(pk_cmp_push_any(&c, arity + 1));
+        } else {
+            pk_try(pk_cmp_push_any(&c, arity));
+        }
     }
     
     pk_try(pk_compile_evlist(&c, body));

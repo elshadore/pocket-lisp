@@ -51,7 +51,7 @@ PK_RES pk_callconv_handle_arity(Pocket lisp, size_t arity, PKFuncArity func, PKC
             } else {
                 return pk_error(lisp);
             }
-            output->final_arity = funargs;
+            output->final_arity = arity;
             break;
         }
         case PK_ARITY_VARIADIC: {
