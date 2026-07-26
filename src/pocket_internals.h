@@ -212,6 +212,8 @@ typedef struct PKAtoms_ {
 #define PK_OP_LET_FUN (12)
 #define PK_OP_LOOKUP_VAR (13)
 #define PK_OP_LOOKUP_FUN (14)
+#define PK_OP_MAKE_LIST (15)
+#define PK_OP_MAKE_LIST_PACKED (16)
 
 typedef enum PK_OPCODE_TY_ {
     PK_OPCODE_TY_NORMAL = 0,
@@ -446,6 +448,7 @@ pk_bool pk_atom_string_eq(Pocket lisp, PKAtomString *lhs, PKAtomString *rhs);
 pk_bool pk_atom_is_true(PKAtom *atom);
 pk_bool pk_atom_is_nil(PKAtom *atom);
 pk_bool pk_atom_is_symbol(PKAtom *atom);
+pk_bool pk_atom_is_cons(PKAtom *atom);
 
 PK_RES pk_string_dupe(Pocket lisp, const char *c, size_t length, char **output);
 pk_bool pk_string_eq(const char *a, size_t a_length, const char *b, size_t b_length);
@@ -604,5 +607,6 @@ const char *pk_ident_atomty(PKAtomTy ty);
 
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
     
-PK_RES pk_dump_hex_atom(Pocket lisp, PKAtomLFunc *lfunc);
+PK_RES pk_dump_hex_atom(PKWriter *w, PKAtomLFunc *lfunc);
+PK_RES pk_dump_hex_string(Pocket lisp, PKAtomLFunc *lfunc, PKAtomString **output);
 #endif

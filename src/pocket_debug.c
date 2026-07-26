@@ -35,85 +35,107 @@ PK_RES pk_dump_stack(Pocket lisp, const char *tag) {
     return result;
 }
 
-PK_RES pk_dump_hex_atom(Pocket lisp, PKAtomLFunc *lfunc) {
-    PKWriter w = pk_writer_init(lisp);
+PK_RES pk_dump_hex_atom(PKWriter *w, PKAtomLFunc *lfunc) {
     PK_RES result = PK_YIELD;
     size_t i = 0;
     
-    pk_defer(pk_writer_string(&w, "*~HEX-DUMP~*\n"));
-    pk_defer(pk_writer_string(&w, "SECTION-CODE:\n"));
+    pk_try(pk_writer_string(w, "*~HEX-DUMP~*\n"));
+    pk_try(pk_writer_string(w, "SECTION-CODE:\n"));
     for (i = 0; i < lfunc->bc.length; ++i) {
         pk_u8 byte = lfunc->bc.e[i];
         const char *ident = pk_ident_opcode(byte);
         PK_OPCODE_TY ty = pk_opcode_ty(byte);
-        pk_defer(pk_writer_string(&w, "["));
-        pk_defer(pk_writer_int(&w, (int)i));
-        pk_defer(pk_writer_string(&w, "] => "));
+        pk_try(pk_writer_string(w, "["));
+        pk_try(pk_writer_int(w, (int)i));
+        pk_try(pk_writer_string(w, "] => "));
         /*
-        pk_defer(pk_writer_string(&w, "["));
-        pk_defer(pk_writer_int(&w, (int)byte));
-        pk_defer(pk_writer_string(&w, "] => "));
+        pk_try(pk_writer_string(w, "["));
+        pk_try(pk_writer_int(w, (int)byte));
+        pk_try(pk_writer_string(w, "] => "));
         */
-        pk_defer(pk_writer_string(&w, ident));
+        pk_try(pk_writer_string(w, ident));
         switch (ty) {
             case PK_OPCODE_TY_LOAD: {
                 pk_u8 data = 0;
                 PKAtom *atom = NULL;
                 i++;
                 if (i >= lfunc->bc.length) {
-                    pk_defer(pk_error(lisp));
+                    pk_try(pk_error(w->lisp));
                 }
                 data = lfunc->bc.e[i];
                 atom = lfunc->atoms.e[data];
                 
-                pk_defer(pk_writer_string(&w, " => "));
-                pk_defer(pk_writer_atom(&w, atom));
+                pk_try(pk_writer_string(w, " => "));
+                pk_try(pk_writer_atom(w, atom));
                 break;
             }
             case PK_OPCODE_TY_LIT: {
                 pk_u8 data = 0;
                 i++;
                 if (i >= lfunc->bc.length) {
-                    pk_defer(pk_error(lisp));
+                    pk_try(pk_error(w->lisp));
                 }
                 data = lfunc->bc.e[i];
                 
-                pk_defer(pk_writer_string(&w, " => "));
-                pk_defer(pk_writer_int(&w, (int)data));
+                pk_try(pk_writer_string(w, " => "));
+                pk_try(pk_writer_int(w, (int)data));
                 break;
             }
             default: break;
         }
-        pk_defer(pk_writer_newline(&w));
+        pk_try(pk_writer_newline(w));
     }
 
-    pk_defer(pk_writer_newline(&w));
+    pk_try(pk_writer_newline(w));
     
-    pk_defer(pk_writer_string(&w, "SECTION-DATA:\n"));
+    pk_try(pk_writer_string(w, "SECTION-DATA:\n"));
     for (i = 0; i < lfunc->atoms.length; ++i) {
-        pk_defer(pk_writer_atom(&w, lfunc->atoms.e[i]));
-        pk_defer(pk_writer_newline(&w));
+        pk_try(pk_writer_atom(w, lfunc->atoms.e[i]));
+        pk_try(pk_writer_newline(w));
     }
     
-    pk_defer(pk_writer_newline(&w));
+    pk_try(pk_writer_newline(w));
     
-    pk_writer_puts(&w);
+    result = PK_OK;
+    
+    return result;
+}
+
+PK_RES pk_dump_hex_string(Pocket lisp, PKAtomLFunc *lfunc, PKAtomString **output) {
+    PKWriter w = pk_writer_init(lisp);
+    PK_RES result = PK_YIELD;
+    
+    pk_defer(pk_dump_hex_atom(&w, lfunc));
+    
     result = PK_OK;
     
     DEFER:
+    if (result == PK_OK) {
+        result = pk_atom_stringn(lisp, w.c, w.count, output);
+    }
     pk_writer_deinit(&w);
+    
     return result;
 }
 
 PK_RES pk_dump_hex(Pocket lisp, int stack_pointer) {
     PKAtom *atom = NULL;
     PKAtomLFunc *lfunc = NULL;
+    PKWriter w = pk_writer_init(lisp);
+    PK_RES result = PK_YIELD;
 
     pk_try(pk_stack_get(lisp, stack_pointer, &atom));
     pk_try(pk_atom_cast_lfunc(lisp, atom, &lfunc));
-    pk_try(pk_dump_hex_atom(lisp, lfunc));
+    pk_defer(pk_dump_hex_atom(&w, lfunc));
 
-    return PK_OK;
+    result = PK_OK;
+    DEFER:
+    if (result == PK_OK) {
+        pk_writer_puts(&w);
+    }
+    pk_writer_deinit(&w);
+
+    return result;
 }
 
 PK_RES pk_dump_env(Pocket lisp, const char *tag) {

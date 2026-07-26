@@ -384,10 +384,27 @@ PK_RES pk_fn_error(void *user_closure, Pocket lisp) {
     return pk_error(lisp);
 }
 
+PK_RES pk_fn_hexdump(void *user_closure, Pocket lisp) {
+    PKAtom* atom = NULL;
+    PKAtomLFunc *lfunc = NULL;
+    PKAtomString *result = NULL;
+    
+    (void)user_closure;
+    pk_try(pk_stack_get(lisp, 1, &atom));
+    if (pk_atom_is_symbol(atom)) {
+        pk_try(pk_env_get(lisp, PKEnvTy_Fun, (PKAtomSymbol *)atom, &atom));
+    }
+    pk_try(pk_atom_cast_lfunc(lisp, atom, &lfunc));
+    pk_try(pk_dump_hex_string(lisp, lfunc, &result));
+    pk_try(pk_push(lisp, (PKAtom *)result));
+
+    return PK_OK;
+}
+
 PK_RES pk_load_std(Pocket lisp) {
     size_t i = 0;
     
-    #define PK_STD_LIB_COUNT (39)
+    #define PK_STD_LIB_COUNT (40)
     PKFuncRecord lib[PK_STD_LIB_COUNT] = {
         {"+", pk_fn_add, 2, PK_ARITY_VARIADIC, NULL},
         {"-", pk_fn_sub, 2, PK_ARITY_VARIADIC, NULL},
@@ -430,6 +447,8 @@ PK_RES pk_load_std(Pocket lisp) {
         {"cons?", pk_fn_cons_p, 1, PK_ARITY_NORMAL, NULL},
         
         {"error", pk_fn_error, 0, PK_ARITY_NORMAL, NULL},
+        
+        {"hexdump", pk_fn_hexdump, 1, PK_ARITY_NORMAL, NULL},
     };
 
     for (i = 0; i < PK_STD_LIB_COUNT; ++i) {

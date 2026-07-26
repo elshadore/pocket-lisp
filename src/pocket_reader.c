@@ -265,10 +265,10 @@ PK_RES pk_read_atom_cons(PKReader *r, PKAtom **output) {
             (void)pk_reader_trim_whitespace(r);
             pk_try(pk_read_atom(r, &cdr));
             (void)pk_reader_trim_whitespace(r);
-            pk_try(pk_reader_ince(r));
             if (pk_rat(r) != ')') {
                 return pk_reader_error(r, "cannot create a dotted cons with multiple elements after the dot");
             }
+            (void)pk_reader_inc(r);
             acc->cdr = cdr;
             *output = (PKAtom *)head;
             return PK_OK;

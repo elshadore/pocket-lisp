@@ -48,6 +48,8 @@
 
 (fset 'foopy (lambda (value) "foopy"))
 
+(fset 'test (lambda () `(1 2 ,(* 3 3))))
+
 (if (nil? (cdr argv))
     nil
   (progn

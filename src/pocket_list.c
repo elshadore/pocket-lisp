@@ -113,3 +113,11 @@ PK_RES pk_slice_list_tailed(Pocket lisp, PKAtomSlice atoms, PKAtom **output) {
     *output = (PKAtom *)head;
     return PK_OK;
 }
+
+pk_bool pk_atom_is_cons(PKAtom *atom) {
+    if (atom->tag.ty == PKAtomTy_Cons) {
+        return PK_TRUE;
+    } else {
+        return PK_FALSE;
+    }
+}

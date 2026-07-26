@@ -166,6 +166,40 @@ PK_RES pk_vm_exec(PKVM *vm) {
                 pk_try(pk_vm_op_lookup(vm, PKEnvTy_Fun));
                 break;
             }
+            case PK_OP_MAKE_LIST: {
+                PKAtomSlice slice;
+                pk_u8 value = 0;
+                PKAtom *result = NULL;
+                
+                pk_try(pk_vm_inc(vm));
+                value = pk_vat(vm);
+                
+                pk_try(pk_stack_slice_down(vm->lisp, value, &slice));
+                pk_try(pk_slice_list(vm->lisp, slice, &result));
+                pk_try(pk_popn(vm->lisp, value));
+
+                pk_try(pk_push(vm->lisp, result));
+                
+                pk_try(pk_vm_inc(vm));
+                break;
+            }
+            case PK_OP_MAKE_LIST_PACKED: {
+                PKAtomSlice slice;
+                pk_u8 value = 0;
+                PKAtom *result = NULL;
+                
+                pk_try(pk_vm_inc(vm));
+                value = pk_vat(vm);
+                
+                pk_try(pk_stack_slice_down(vm->lisp, value, &slice));
+                pk_try(pk_slice_list_tailed(vm->lisp, slice, &result));
+                pk_try(pk_popn(vm->lisp, value));
+
+                pk_try(pk_push(vm->lisp, result));
+                
+                pk_try(pk_vm_inc(vm));
+                break;
+            }
             case PK_OP_RET: {
                 return PK_OK;
             }

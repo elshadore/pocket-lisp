@@ -28,6 +28,8 @@ const char *pk_ident_opcode(pk_u8 op) {
         case PK_OP_LET_FUN: return "LET_FUN";
         case PK_OP_LOOKUP_VAR: return "LOOKUP_VAR";
         case PK_OP_LOOKUP_FUN: return "LOOKUP_FUN";
+        case PK_OP_MAKE_LIST: return "MAKE_LIST";
+        case PK_OP_MAKE_LIST_PACKED: return "MAKE_LIST_PACKED";
         default: return "UNKNOWN";
     }
 }
@@ -58,6 +60,8 @@ PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
         case PK_OP_JMP_BACK: return PK_OPCODE_TY_LIT;
         case PK_OP_LET_VAR: return PK_OPCODE_TY_LIT;
         case PK_OP_LET_FUN: return PK_OPCODE_TY_LIT;
+        case PK_OP_MAKE_LIST: return PK_OPCODE_TY_LIT;
+        case PK_OP_MAKE_LIST_PACKED: return PK_OPCODE_TY_LIT;
         
         default: return PK_OPCODE_TY_NORMAL;
     }

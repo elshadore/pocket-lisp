@@ -35,6 +35,14 @@ PK_RES pk_cmp_push_byte(PKCompiler *c, pk_u8 byte) {
     return pk_bytes_push(c->lisp, &c->bc, byte, PK_COMPILER_INIT_CAPACITY);
 }
 
+PK_RES pk_cmp_push_any(PKCompiler *c, size_t value) {
+    if (value > UCHAR_MAX) {
+        return pk_error(c->lisp);
+    }
+
+    return pk_cmp_push_byte(c, (pk_u8)value);
+}
+
 PK_RES pk_cmp_push_atom(PKCompiler *c, PKAtom *atom) {
     size_t i = 0;
     
@@ -179,7 +187,7 @@ PK_RES pk_compile_let(PKCompiler *c, PKAtom *args, PKEnvTy env) {
         }
     }
     
-    pk_try(pk_cmp_push_byte(c, (pk_u8)lets));
+    pk_try(pk_cmp_push_any(c, lets));
     pk_try(pk_compile_evlist(c, body));
     pk_try(pk_cmp_push_byte(c, PK_OP_BLOCK_END));
     return PK_OK;
@@ -240,6 +248,83 @@ PK_RES pk_compile_let_star(PKCompiler *c, PKAtom *args, PKEnvTy env) {
     pk_try(pk_compile_evlist(c, body));
     pk_try(pk_cmp_push_byte(c, PK_OP_BLOCK_END));
     
+    return PK_OK;
+}
+
+typedef struct PKQuasiqouter_ {
+    PKCompiler *c;
+    Pocket lisp;
+    size_t count;
+    pk_bool packed_cons;
+} PKQuasiqouter;
+
+PK_RES pk_compile_quasiquote(PKCompiler *c, PKAtom *value);
+    
+PK_RES pk_compile_quasiquote_value(PKQuasiqouter *qq, PKAtom *value) {
+    switch (value->tag.ty) {
+        case PKAtomTy_Cons: {
+            PKAtomCons *cons = (PKAtomCons *)value;
+            PKAtom *iter = NULL;
+
+            if (pk_atom_is_symbol(cons->car)) {
+                if ((PKAtomSymbol *)cons->car == qq->lisp->cache.unquote) {
+                    PKAtomCons *unquote = NULL;
+                    pk_try(pk_atom_cast_cons(qq->lisp, cons->cdr, &unquote));
+                    pk_try(pk_atom_assert_nil(qq->lisp, unquote->cdr));
+                    pk_try(pk_compile_value(qq->c, unquote->car));
+                    qq->count += 1;
+                    return PK_OK;
+                } else if ((PKAtomSymbol *)cons->car == qq->lisp->cache.unquote_splice) {
+                    PKAtomCons *unquote = NULL;
+                    pk_try(pk_atom_cast_cons(qq->lisp, cons->cdr, &unquote));
+                    pk_try(pk_atom_assert_nil(qq->lisp, unquote->cdr));
+                    pk_try(pk_compile_value(qq->c, unquote->car));
+                    qq->count += 1;
+                    return PK_OK;
+                }
+            }
+            
+            iter = value;
+            while (!pk_atom_is_nil(iter)) {
+                if (pk_atom_is_cons(iter)) {
+                    PKAtomCons *cons = (PKAtomCons *)iter;
+                    pk_try(pk_compile_quasiquote_value(qq, cons->car));
+                    iter = cons->cdr;
+                } else {
+                    pk_try(pk_compile_quasiquote_value(qq, iter));
+                    qq->packed_cons = PK_TRUE;
+                    break;
+                }
+            }
+            
+            return PK_OK;
+        }
+        default: {
+            pk_try(pk_cmp_load(qq->c, value));
+            qq->count += 1;
+            return PK_OK;
+        }
+    }
+}
+
+PK_RES pk_compile_quasiquote(PKCompiler *c, PKAtom *value) {
+    PKQuasiqouter qq;
+    qq.c = c;
+    qq.count = 0;
+    qq.packed_cons = PK_FALSE;
+    
+    if (pk_atom_is_cons(value)) {
+        pk_try(pk_compile_quasiquote_value(&qq, value));
+        if (qq.packed_cons) {
+            pk_try(pk_cmp_push_byte(c, PK_OP_MAKE_LIST_PACKED));
+        } else {
+            pk_try(pk_cmp_push_byte(c, PK_OP_MAKE_LIST));
+        }
+        pk_try(pk_cmp_push_any(c, qq.count));
+    } else {
+        pk_try(pk_cmp_load(c, value));
+    }
+
     return PK_OK;
 }
 
@@ -328,6 +413,18 @@ PK_RES pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_
         pk_try(pk_cmp_patch_byte(c, patch_2, jump_from_t));
         
         *is_special = PK_TRUE;
+    } else if (symbol == c->lisp->cache.quasiquote) {
+        PKAtomCons *cons = NULL;
+        pk_try(pk_atom_cast_cons(c->lisp, args, &cons));
+        pk_try(pk_atom_assert_nil(c->lisp, cons->cdr));
+
+        pk_try(pk_compile_quasiquote(c, cons->car));
+
+        *is_special = PK_TRUE;
+    } else if (symbol == c->lisp->cache.unquote) {
+        
+        return pk_error(c->lisp);
+        
     } else if (symbol == c->lisp->cache.let_sym) {
         pk_try(pk_compile_let(c, args, PKEnvTy_Var));
         
