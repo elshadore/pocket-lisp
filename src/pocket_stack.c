@@ -58,6 +58,10 @@ PK_RES pk_pop(Pocket lisp) {
     return PK_OK;
 }
 
+void pk_pop_unchecked(Pocket lisp, size_t n) {
+    lisp->stack.count -= n;
+}
+
 PK_RES pk_popn(Pocket lisp, int n) {
     if (n < 0) {
         return pk_error(lisp);
@@ -127,7 +131,7 @@ PK_RES pk_stack_slice_down(Pocket lisp, size_t depth, PKAtomSlice *output) {
     PKAtomSlice slice = pk_stack_slice(lisp);
     size_t offset = 0;
     
-    if (slice.length > depth) {
+    if (depth > slice.length) {
         return pk_error(lisp);
     }
     

@@ -176,7 +176,7 @@ PK_RES pk_vm_exec(PKVM *vm) {
                 
                 pk_try(pk_stack_slice_down(vm->lisp, value, &slice));
                 pk_try(pk_slice_list(vm->lisp, slice, &result));
-                pk_try(pk_popn(vm->lisp, value));
+                pk_pop_unchecked(vm->lisp, value);
 
                 pk_try(pk_push(vm->lisp, result));
                 
@@ -193,7 +193,24 @@ PK_RES pk_vm_exec(PKVM *vm) {
                 
                 pk_try(pk_stack_slice_down(vm->lisp, value, &slice));
                 pk_try(pk_slice_list_tailed(vm->lisp, slice, &result));
-                pk_try(pk_popn(vm->lisp, value));
+                pk_pop_unchecked(vm->lisp, value);
+
+                pk_try(pk_push(vm->lisp, result));
+                
+                pk_try(pk_vm_inc(vm));
+                break;
+            }
+            case PK_OP_MERGE_LISTS: {
+                PKAtomSlice slice;
+                pk_u8 value = 0;
+                PKAtom *result = NULL;
+                
+                pk_try(pk_vm_inc(vm));
+                value = pk_vat(vm);
+                
+                pk_try(pk_stack_slice_down(vm->lisp, value, &slice));
+                pk_try(pk_merge_lists(vm->lisp, slice, &result));
+                pk_pop_unchecked(vm->lisp, value);
 
                 pk_try(pk_push(vm->lisp, result));
                 

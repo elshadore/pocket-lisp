@@ -214,6 +214,7 @@ typedef struct PKAtoms_ {
 #define PK_OP_LOOKUP_FUN (14)
 #define PK_OP_MAKE_LIST (15)
 #define PK_OP_MAKE_LIST_PACKED (16)
+#define PK_OP_MERGE_LISTS (17)
 
 typedef enum PK_OPCODE_TY_ {
     PK_OPCODE_TY_NORMAL = 0,
@@ -570,6 +571,7 @@ PK_RES pk_bind_lambda_list(Pocket lisp, PKAtom *symbols, PKAtomSlice values);
 PK_RES pk_slice_list(Pocket lisp, PKAtomSlice atoms, PKAtom **output);
 PK_RES pk_slice_list_rev(Pocket lisp, PKAtomSlice atoms, PKAtom **output);
 PK_RES pk_slice_list_tailed(Pocket lisp, PKAtomSlice atoms, PKAtom **output);
+PK_RES pk_merge_lists(Pocket lisp, PKAtomSlice lists, PKAtom **output);
 
 PK_RES pk_return_push(Pocket lisp);
 PK_RES pk_return_insert(Pocket lisp);
@@ -609,4 +611,6 @@ PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
     
 PK_RES pk_dump_hex_atom(PKWriter *w, PKAtomLFunc *lfunc);
 PK_RES pk_dump_hex_string(Pocket lisp, PKAtomLFunc *lfunc, PKAtomString **output);
+
+void pk_pop_unchecked(Pocket lisp, size_t n);
 #endif

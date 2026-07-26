@@ -251,80 +251,113 @@ PK_RES pk_compile_let_star(PKCompiler *c, PKAtom *args, PKEnvTy env) {
     return PK_OK;
 }
 
-typedef struct PKQuasiqouter_ {
-    PKCompiler *c;
-    Pocket lisp;
-    size_t count;
-    pk_bool packed_cons;
-} PKQuasiqouter;
-
 PK_RES pk_compile_quasiquote(PKCompiler *c, PKAtom *value);
-    
-PK_RES pk_compile_quasiquote_value(PKQuasiqouter *qq, PKAtom *value) {
+PK_RES pk_compile_quasiquote_list(PKCompiler *c, PKAtomCons *list);
+PK_RES pk_compile_quasiquote_value(PKCompiler *c, PKAtom *value, PKAtom **spliced);
+
+PK_RES pk_compile_quasiquote_value(PKCompiler *c, PKAtom *value, PKAtom **spliced) {
     switch (value->tag.ty) {
         case PKAtomTy_Cons: {
             PKAtomCons *cons = (PKAtomCons *)value;
-            PKAtom *iter = NULL;
-
             if (pk_atom_is_symbol(cons->car)) {
-                if ((PKAtomSymbol *)cons->car == qq->lisp->cache.unquote) {
+                if ((PKAtomSymbol *)cons->car == c->lisp->cache.unquote) {
                     PKAtomCons *unquote = NULL;
-                    pk_try(pk_atom_cast_cons(qq->lisp, cons->cdr, &unquote));
-                    pk_try(pk_atom_assert_nil(qq->lisp, unquote->cdr));
-                    pk_try(pk_compile_value(qq->c, unquote->car));
-                    qq->count += 1;
+                    pk_try(pk_atom_cast_cons(c->lisp, cons->cdr, &unquote));
+                    pk_try(pk_atom_assert_nil(c->lisp, unquote->cdr));
+                    pk_try(pk_compile_value(c, unquote->car));
                     return PK_OK;
-                } else if ((PKAtomSymbol *)cons->car == qq->lisp->cache.unquote_splice) {
+                } else if ((PKAtomSymbol *)cons->car == c->lisp->cache.unquote_splice) {
                     PKAtomCons *unquote = NULL;
-                    pk_try(pk_atom_cast_cons(qq->lisp, cons->cdr, &unquote));
-                    pk_try(pk_atom_assert_nil(qq->lisp, unquote->cdr));
-                    pk_try(pk_compile_value(qq->c, unquote->car));
-                    qq->count += 1;
+                    pk_try(pk_atom_cast_cons(c->lisp, cons->cdr, &unquote));
+                    pk_try(pk_atom_assert_nil(c->lisp, unquote->cdr));
+                    
+                    *spliced = unquote->car;
                     return PK_OK;
                 }
             }
-            
-            iter = value;
-            while (!pk_atom_is_nil(iter)) {
-                if (pk_atom_is_cons(iter)) {
-                    PKAtomCons *cons = (PKAtomCons *)iter;
-                    pk_try(pk_compile_quasiquote_value(qq, cons->car));
-                    iter = cons->cdr;
-                } else {
-                    pk_try(pk_compile_quasiquote_value(qq, iter));
-                    qq->packed_cons = PK_TRUE;
-                    break;
-                }
-            }
-            
+            pk_try(pk_compile_quasiquote_list(c, cons));
             return PK_OK;
         }
         default: {
-            pk_try(pk_cmp_load(qq->c, value));
-            qq->count += 1;
+            pk_try(pk_cmp_load(c, value));
             return PK_OK;
         }
     }
 }
 
-PK_RES pk_compile_quasiquote(PKCompiler *c, PKAtom *value) {
-    PKQuasiqouter qq;
-    qq.c = c;
+typedef struct PKQQ_ {
+    size_t count;
+    size_t spliced_count;
+    pk_bool spliced;
+    pk_bool spliced_last;
+    pk_bool packed_cons;
+} PKQQ;
+
+PK_RES pk_compile_qqlist(PKCompiler *c, PKQQ *qq) {
+    if (qq->packed_cons) {
+        pk_try(pk_cmp_push_byte(c, PK_OP_MAKE_LIST_PACKED));
+    } else {
+        pk_try(pk_cmp_push_byte(c, PK_OP_MAKE_LIST));
+    }
+    pk_try(pk_cmp_push_any(c, qq->count));
+    
+    qq->packed_cons = PK_FALSE;
+    qq->count = 0;
+    qq->spliced_count += 1;
+
+    return PK_OK;
+}
+
+PK_RES pk_compile_quasiquote_list(PKCompiler *c, PKAtomCons *list) {
+    PKAtom *iter = NULL;
+    PKQQ qq;
     qq.count = 0;
     qq.packed_cons = PK_FALSE;
-    
-    if (pk_atom_is_cons(value)) {
-        pk_try(pk_compile_quasiquote_value(&qq, value));
-        if (qq.packed_cons) {
-            pk_try(pk_cmp_push_byte(c, PK_OP_MAKE_LIST_PACKED));
+    qq.spliced = PK_FALSE;
+    qq.spliced_last = PK_FALSE;
+    qq.spliced_count = 0;
+
+    iter = (PKAtom *)list;
+    while (!pk_atom_is_nil(iter)) {
+        PKAtom *spliced = NULL;
+        if (pk_atom_is_cons(iter)) {
+            PKAtomCons *cons = (PKAtomCons *)iter;
+            pk_try(pk_compile_quasiquote_value(c, cons->car, &spliced));
+            iter = cons->cdr;
         } else {
-            pk_try(pk_cmp_push_byte(c, PK_OP_MAKE_LIST));
+            pk_try(pk_compile_quasiquote_value(c, iter, &spliced));
+            qq.packed_cons = PK_TRUE;
+            iter = pk_atom_nil(c->lisp);
         }
-        pk_try(pk_cmp_push_any(c, qq.count));
-    } else {
-        pk_try(pk_cmp_load(c, value));
+        if (spliced != NULL) {
+            qq.spliced = PK_TRUE;
+            qq.spliced_last = PK_TRUE;
+            pk_try(pk_compile_qqlist(c, &qq));
+            pk_try(pk_compile_value(c, spliced));
+        } else {
+            qq.spliced_last = PK_FALSE;
+            qq.count += 1;
+        }
     }
 
+    if (!qq.spliced_last) {
+        pk_try(pk_compile_qqlist(c, &qq));
+    }
+    
+    if (qq.spliced) {
+        pk_try(pk_cmp_push_byte(c, PK_OP_MERGE_LISTS));
+        pk_try(pk_cmp_push_any(c, qq.spliced_count + 1));
+    }
+    
+    return PK_OK;
+}
+
+PK_RES pk_compile_quasiquote(PKCompiler *c, PKAtom *value) {
+    PKAtom *spliced = NULL;
+    pk_try(pk_compile_quasiquote_value(c, value, &spliced));
+    if (spliced != NULL) {
+        return pk_error(c->lisp);
+    }
     return PK_OK;
 }
 

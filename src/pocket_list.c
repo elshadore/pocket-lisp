@@ -114,6 +114,39 @@ PK_RES pk_slice_list_tailed(Pocket lisp, PKAtomSlice atoms, PKAtom **output) {
     return PK_OK;
 }
 
+PKAtomCons *pk_list_tail(PKAtomCons *head) {
+    PKAtomCons *iter = head;
+    while (pk_atom_is_cons(iter->cdr)) {
+        iter = (PKAtomCons *)iter->cdr;
+    }
+    return iter;
+}
+
+PK_RES pk_merge_lists(Pocket lisp, PKAtomSlice lists, PKAtom **output) {
+    PKAtomCons *head = NULL;
+    PKAtomCons *tail = NULL;
+    size_t i = 0;
+    
+    if (lists.length == 0) {
+        *output = pk_atom_nil(lisp);
+        return PK_OK;
+    }
+    pk_try(pk_atom_cast_cons(lisp, lists.e[0], &head));
+    tail = pk_list_tail(head);
+
+    for (i = 1; i < lists.length; ++i) {
+        PKAtomCons *cons = NULL;
+        PKAtomCons *new_tail = NULL;
+        pk_try(pk_atom_cast_cons(lisp, lists.e[i], &cons));
+        new_tail = pk_list_tail(cons);
+        tail->cdr = (PKAtom *)cons;
+        tail = new_tail;
+    }
+    
+    *output = (PKAtom *)head;
+    return PK_OK;
+}
+
 pk_bool pk_atom_is_cons(PKAtom *atom) {
     if (atom->tag.ty == PKAtomTy_Cons) {
         return PK_TRUE;
