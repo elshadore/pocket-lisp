@@ -390,8 +390,14 @@ PK_RES pk_funcall(Pocket lisp, int arity) {
 }
 
 PK_RES pk_clone(Pocket lisp, int stack_pointer) {
-    (void)stack_pointer;
-    return pk_error(lisp);
+    PKAtom *atom = NULL;
+    PKAtom *dupe = NULL;
+    
+    pk_try(pk_stack_get(lisp, stack_pointer, &atom));
+    pk_try(pk_atom_clone(lisp, atom, &dupe));
+    pk_try(pk_push(lisp, dupe));
+
+    return PK_OK;
 }
 
 PK_RES pk_typeof(Pocket lisp, int stack_pointer, PK_TYPE *output) {

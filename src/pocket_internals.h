@@ -636,4 +636,8 @@ void pk_pop_unchecked(Pocket lisp, size_t n);
 PK_RES pk_stack_op_list(Pocket lisp, size_t depth);
 PK_RES pk_stack_op_list_tailed(Pocket lisp, size_t depth);
 PK_RES pk_stack_op_list_merge(Pocket lisp, size_t depth);
+
+PK_RES pk_atom_clone(Pocket lisp, PKAtom *input, PKAtom **output);
+PK_RES pk_atom_circular(Pocket lisp, PKAtom *atom, pk_u8 *output);
+PK_RES pk_atom_assert_non_circular(Pocket lisp, PKAtom *atom);
 #endif
