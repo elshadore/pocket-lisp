@@ -5,6 +5,10 @@ PK_RES pk_init2(Pocket lisp) {
     
     pk_try(pk_atom_nil_new(lisp, &lisp->cache.nil));
     
+    pk_try(pk_atom_symbol_interned(lisp, "error", &lisp->cache.error));
+    /* Reset throwing state */
+    pk_catch_all(lisp);
+    
     pk_try(pk_atom_symbol_interned(lisp, "t", &lisp->cache.t));
     pk_try(pk_atom_symbol_interned(lisp, "nil", &lisp->cache.nil_sym));
     pk_try(pk_atom_symbol_interned(lisp, "lambda", &lisp->cache.lambda));
@@ -24,6 +28,7 @@ PK_RES pk_init2(Pocket lisp) {
     
     pk_try(pk_atom_stringn_nomemcpy(lisp, "", 0, &lisp->cache.empty_string));
 
+    
     pk_try(pk_env_set(lisp, PKEnvTy_Var, lisp->cache.t, (PKAtom *)lisp->cache.t, &ignore));
     pk_try(pk_env_set(lisp, PKEnvTy_Var, lisp->cache.nil_sym, lisp->cache.nil, &ignore));
 

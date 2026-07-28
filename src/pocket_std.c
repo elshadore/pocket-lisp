@@ -38,7 +38,7 @@ PK_RES pk_fn_mul(void *user_closure, Pocket lisp) {
     top = pk_get_top(lisp);
     pk_try(pk_dupe(lisp, 1));
     for (i = 2; i <= top; ++i) {
-        pk_try(pk_add(lisp, -1, i));
+        pk_try(pk_mul(lisp, -1, i));
         pk_try(pk_swap(lisp, -1, -2));
         pk_try(pk_pop(lisp));
     }
@@ -53,7 +53,7 @@ PK_RES pk_fn_div(void *user_closure, Pocket lisp) {
     top = pk_get_top(lisp);
     pk_try(pk_dupe(lisp, 1));
     for (i = 2; i <= top; ++i) {
-        pk_try(pk_add(lisp, -1, i));
+        pk_try(pk_div(lisp, -1, i));
         pk_try(pk_swap(lisp, -1, -2));
         pk_try(pk_pop(lisp));
     }
@@ -415,11 +415,40 @@ PK_RES pk_fn_circular(void *user_closure, Pocket lisp) {
     return PK_OK;
 }
 
+PK_RES pk_fn_throw(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_try(pk_throw(lisp, 1));
+    return PK_YIELD;
+}
+
+PK_RES pk_fn_catch(void *user_closure, Pocket lisp) {
+    PK_RES result = PK_OK;
+    PKAtom *atom = NULL;
+    PKAtomSymbol *symbol = NULL;
+    
+    (void)user_closure;
+    
+    pk_try(pk_stack_get(lisp, 1, &atom));
+    pk_try(pk_atom_cast_symbol(lisp, atom, &symbol));
+    
+    result = pk_funcall(lisp, 0);
+    
+    if (result == PK_YIELD) {
+        if (pk_atom_is_throwing(lisp, symbol)) {
+            pk_catch_all(lisp);
+            return PK_OK;
+        } else {
+            return PK_YIELD;
+        }
+    } else {
+        return result;
+    }
+}
 
 PK_RES pk_load_std(Pocket lisp) {
     size_t i = 0;
     
-    #define PK_STD_LIB_COUNT (41)
+    #define PK_STD_LIB_COUNT (43)
     PKFuncRecord lib[PK_STD_LIB_COUNT] = {
         {"+", pk_fn_add, 2, PK_ARITY_VARIADIC, NULL},
         {"-", pk_fn_sub, 2, PK_ARITY_VARIADIC, NULL},
@@ -463,9 +492,10 @@ PK_RES pk_load_std(Pocket lisp) {
         {"circular?", pk_fn_circular, 1, PK_ARITY_NORMAL, NULL},
         
         {"error", pk_fn_error, 0, PK_ARITY_NORMAL, NULL},
+        {"throw", pk_fn_throw, 1, PK_ARITY_NORMAL, NULL},
+        {"catch", pk_fn_catch, 2, PK_ARITY_NORMAL, NULL},
         
         {"hexdump", pk_fn_hexdump, 1, PK_ARITY_NORMAL, NULL},
-        
     };
 
     for (i = 0; i < PK_STD_LIB_COUNT; ++i) {

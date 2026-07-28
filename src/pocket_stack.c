@@ -250,11 +250,13 @@ PK_RES pk_frame_pop(Pocket lisp) {
     return PK_OK;
 }
 
-void pk_frame_force_unwind(Pocket lisp, size_t i) {
-    fprintf(stderr, "ALERT: FORCE UNWIND => %zu => %zu\n", lisp->frames.count, i);
+PK_RES pk_frame_unwind(Pocket lisp, size_t i) {
+    /* fprintf(stderr, "ALERT: FORCE UNWIND => %zu => %zu\n", lisp->frames.count, i); */
+    PK_RES result = PK_OK;
     while (lisp->frames.count > i) {
-        (void)pk_frame_pop(lisp);
+        result &= pk_frame_pop(lisp);
     }
+    return result;
 }
 
 PK_RES pk_return_push(Pocket lisp) {

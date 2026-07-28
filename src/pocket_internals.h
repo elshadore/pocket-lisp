@@ -191,6 +191,8 @@ typedef struct PKVM_ {
     Pocket lisp;
     PKAtomLFunc *lfunc;
     size_t curr;
+    size_t save;
+    PK_RES result;
     pk_u8 op;
 } PKVM;
 
@@ -290,6 +292,7 @@ typedef struct PKFrame_ {
     size_t stack_offset;
     size_t arity;
     size_t lets_offset;
+    PKAtomSymbol *catch_symbol;
 } PKFrame;
 
 typedef struct PKFrames_ {
@@ -360,11 +363,6 @@ typedef struct PKCache_ {
     PKAtomString *empty_string;
 } PKCache;
 
-typedef struct PKThrow_ {
-    PKAtomSymbol *throw_sym;
-    pk_bool throwing;
-} PKThrow;
-
 struct PocketLispMachine_ {
     void *user_env;
     PKAllocFn alloc;
@@ -376,6 +374,8 @@ struct PocketLispMachine_ {
     PKLets lets;
     PKFrames frames;
     PKFrame current_frame;
+
+    PKAtomSymbol *throwing;
     
     PKSymTable vars;
     PKSymTable funs;
@@ -406,6 +406,8 @@ pk_realloc(lisp_, ptr_, sizeof(type_) * old_count_, sizeof(type_) * new_count_, 
 
 #define pk_string_free(lisp_, c_, length_) \
 pk_free(lisp_, c_, length_)
+
+#define pk_atom_throwing(lisp_) ((lisp_)->throwing)
 
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);
 size_t pk_next_pow2(size_t value);
@@ -491,6 +493,9 @@ PK_RES pk_stack_slice_by(Pocket lisp, int a, int b, PKStackSlice *output);
 PK_RES pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *atom);
 
 PK_RES pk_error_impl(Pocket lisp, const char *file, int line);
+void pk_atom_throw(Pocket lisp, PKAtomSymbol *symbol);
+pk_bool pk_atom_is_throwing(Pocket lisp, PKAtomSymbol *symbol);
+void pk_abort(Pocket lisp, const char *message);
 
 PK_RES pk_number_add(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs, PKAtomNumber **output);
 PK_RES pk_number_sub(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs, PKAtomNumber **output);
@@ -543,8 +548,7 @@ PK_RES pk_frame_push(Pocket lisp, size_t arity);
 PK_RES pk_frame_pop(Pocket lisp);
 /* Clear the current frame of all stack allocated variables. */
 void pk_frame_clear(Pocket lisp);
-/* TODO: detail the mechanics of this function */
-void pk_frame_force_unwind(Pocket lisp, size_t i);
+PK_RES pk_frame_unwind(Pocket lisp, size_t i);
 PKAtomSlice pk_frame_slice(Pocket lisp, PKFrame *frame, size_t length);
 PK_RES pk_let_push(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value);
 PK_RES pk_let_pop(Pocket lisp, size_t n);
@@ -620,7 +624,7 @@ PK_RES pk_compile_compile(PKCompiler *c, size_t arity, pk_u8 arity_mode, PKAtomL
 PK_RES pk_compile_lambda(Pocket lisp, PKAtom *args, PKAtom *body, PKAtomLFunc **output);
 PK_RES pk_compile_atom(Pocket lisp, PKAtom *value, PKAtomLFunc **output);
 
-PK_RES pk_lfunc_exec(Pocket lisp, PKAtomLFunc *lfunc);
+PK_RES pk_lfunc_exec(Pocket lisp, PKAtomLFunc *lfunc, size_t save);
 
 const char *pk_ident_opcode(pk_u8 op);
 const char *pk_ident_atomty(PKAtomTy ty);

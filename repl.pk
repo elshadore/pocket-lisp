@@ -14,14 +14,16 @@
       (lambda ()
         (while repl/running
           (puts ">> ")
-          (print (format (eval (read (read-user-input))))))))
+          (catch 'error
+              (lambda ()
+                  (print (format (eval (read (read-user-input)))))))
+          )))
 
 (fset 'fib
       (lambda (n)
         (if (<= n 1)
             n
           (+ (fib (- n 1)) (fib (- n 2))))))
-
 
 (fset 'last-cons-1
       (lambda (a b)
@@ -54,7 +56,6 @@
 
 (fset 'test (lambda ()
       (print (hexdump 'test-fun))))
-
 
 (if (nil? (cdr argv))
     nil

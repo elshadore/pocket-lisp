@@ -132,7 +132,7 @@ PK_RES pk_call(Pocket lisp, PKCallConv *conv) {
     size_t i = 0;
     size_t start = 0;
     PK_RES result = PK_YIELD;
-    
+
     pk_try(pk_frame_push(lisp, conv->final_arity));
     start = lisp->frames.count;
     
@@ -154,7 +154,7 @@ PK_RES pk_call(Pocket lisp, PKCallConv *conv) {
             break;
         }
         case PK_CALLTY_LFUNC: {
-            pk_defer(pk_lfunc_exec(lisp, conv->as.lisp));
+            pk_defer(pk_lfunc_exec(lisp, conv->as.lisp, start));
             break;
         }
         default: {
@@ -168,14 +168,20 @@ PK_RES pk_call(Pocket lisp, PKCallConv *conv) {
     DEFER:
 
     if (lisp->frames.count != start) {
-        pk_frame_force_unwind(lisp, start);
-        result = PK_YIELD;
+        pk_abort(lisp, "pk_call(): frame not correctly reset");
     }
-        
+
     if (conv->insert_result) {
         pk_try(pk_return_insert(lisp));
     } else {
         pk_try(pk_return_push(lisp));
+    }
+
+    if (lisp->current_frame.catch_symbol != NULL) {
+        if (lisp->current_frame.catch_symbol == lisp->throwing) {
+            pk_catch_all(lisp);
+            return PK_OK;
+        }
     }
 
     return result;

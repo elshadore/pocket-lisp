@@ -99,6 +99,11 @@ PK_RES pk_set_cdr(Pocket lisp, int cons, int new_cdr);
 PK_RES pk_car(Pocket lisp, int cons);
 PK_RES pk_cdr(Pocket lisp, int cons);
 
+void pk_catch_all(Pocket lisp);
+PK_RES pk_catch(Pocket lisp, int symbol);
+PK_RES pk_throw(Pocket lisp, int symbol);
+PK_RES pk_throwing(Pocket lisp);
+
 PK_RES pk_read(Pocket lisp, int stack_pointer, PK_READ mode);
 PK_RES pk_slurp(Pocket lisp, int file_path);
 PK_RES pk_format(Pocket lisp, int stack_pointer);

@@ -4,12 +4,15 @@
 
 #define pk_vm_error(vm_) pk_error((vm_)->lisp)
 
-PKVM pk_vm_init(Pocket lisp, PKAtomLFunc *lfunc) {
+PKVM pk_vm_init(Pocket lisp, PKAtomLFunc *lfunc, size_t save) {
     PKVM vm;
     vm.lisp = lisp;
     vm.lfunc = lfunc;
     vm.curr = 0;
+    vm.save = save;
+    vm.result = PK_YIELD;
     vm.op = lfunc->bc.e[0];
+    
     return vm;
 }
 
@@ -90,111 +93,116 @@ PK_RES pk_vm_exec(PKVM *vm) {
     for (;;) {
         switch (pk_vat(vm)) {
             case PK_OP_ILLEGAL: {
-                return pk_vm_error(vm);
+                pk_defer(pk_vm_error(vm));
+                break;
             }
             case PK_OP_NOP: {
-                pk_try(pk_vm_inc(vm));
+                pk_defer(pk_vm_inc(vm));
                 break;
             }
             case PK_OP_LOAD: {
                 PKAtom *atom = NULL;
-                pk_try(pk_vm_inc(vm));
-                pk_try(pk_vm_get_atom(vm, pk_vat(vm), &atom));
-                pk_try(pk_push(vm->lisp, atom));
-                pk_try(pk_vm_inc(vm));
+                pk_defer(pk_vm_inc(vm));
+                pk_defer(pk_vm_get_atom(vm, pk_vat(vm), &atom));
+                pk_defer(pk_push(vm->lisp, atom));
+                pk_defer(pk_vm_inc(vm));
                 break;
             }
             case PK_OP_LOAD_NIL: {
-                pk_try(pk_push_nil(vm->lisp));
-                pk_try(pk_vm_inc(vm));
+                pk_defer(pk_push_nil(vm->lisp));
+                pk_defer(pk_vm_inc(vm));
                 break;
             }
             case PK_OP_CALL: {
                 pk_u8 args = 0;
-                pk_try(pk_vm_inc(vm));
+                pk_defer(pk_vm_inc(vm));
                 args = pk_vat(vm);
-                pk_try(pk_funcall(vm->lisp, args));
-                pk_try(pk_vm_inc(vm));
+                pk_defer(pk_funcall(vm->lisp, args));
+                pk_defer(pk_vm_inc(vm));
                 break;
             }
             case PK_OP_BLOCK_BEGIN: {
-                pk_try(pk_frame_push(vm->lisp, 0));
-                pk_try(pk_vm_inc(vm));
+                pk_defer(pk_frame_push(vm->lisp, 0));
+                pk_defer(pk_vm_inc(vm));
                 break;
             }
             case PK_OP_BLOCK_END: {
-                pk_try(pk_return_push(vm->lisp));
-                pk_try(pk_vm_inc(vm));
+                pk_defer(pk_return_push(vm->lisp));
+                pk_defer(pk_vm_inc(vm));
                 break;
             }
             case PK_OP_JMP_IF_NIL: {
                 PKAtom *atom = NULL;
                 
-                pk_try(pk_vm_inc(vm));
-                pk_try(pk_stack_head(vm->lisp, &atom));
+                pk_defer(pk_vm_inc(vm));
+                pk_defer(pk_stack_head(vm->lisp, &atom));
                 
                 if (pk_atom_is_nil(atom)){
-                    pk_try(pk_vm_jmp(vm, pk_vat(vm)));
+                    pk_defer(pk_vm_jmp(vm, pk_vat(vm)));
                 } else {
-                    pk_try(pk_vm_inc(vm));
+                    pk_defer(pk_vm_inc(vm));
                 }
                 break;
             }
             case PK_OP_JMP: {
-                pk_try(pk_vm_inc(vm));
-                pk_try(pk_vm_jmp(vm, pk_vat(vm)));
+                pk_defer(pk_vm_inc(vm));
+                pk_defer(pk_vm_jmp(vm, pk_vat(vm)));
                 break;
             }
             case PK_OP_JMP_BACK: {
-                pk_try(pk_vm_inc(vm));
-                pk_try(pk_vm_jmp_back(vm, pk_vat(vm)));
+                pk_defer(pk_vm_inc(vm));
+                pk_defer(pk_vm_jmp_back(vm, pk_vat(vm)));
                 break;
             }
             case PK_OP_LET_VAR: {
-                pk_try(pk_vm_op_let(vm, PKEnvTy_Var));
+                pk_defer(pk_vm_op_let(vm, PKEnvTy_Var));
                 break;
             }
             case PK_OP_LET_FUN: {
-                pk_try(pk_vm_op_let(vm, PKEnvTy_Fun));
+                pk_defer(pk_vm_op_let(vm, PKEnvTy_Fun));
                 break;
             }
             case PK_OP_LOOKUP_VAR: {
-                pk_try(pk_vm_op_lookup(vm, PKEnvTy_Var));
+                pk_defer(pk_vm_op_lookup(vm, PKEnvTy_Var));
                 break;
             }
             case PK_OP_LOOKUP_FUN: {
-                pk_try(pk_vm_op_lookup(vm, PKEnvTy_Fun));
+                pk_defer(pk_vm_op_lookup(vm, PKEnvTy_Fun));
                 break;
             }
             case PK_OP_MAKE_LIST: {
-                pk_try(pk_stack_op_list(vm->lisp, pk_vat(vm)));
-                pk_try(pk_vm_inc(vm));
+                pk_defer(pk_stack_op_list(vm->lisp, pk_vat(vm)));
+                pk_defer(pk_vm_inc(vm));
                 break;
             }
             case PK_OP_MAKE_LIST_PACKED: {
-                pk_try(pk_vm_inc(vm));
-                pk_try(pk_stack_op_list_tailed(vm->lisp, pk_vat(vm)));
-                pk_try(pk_vm_inc(vm));
+                pk_defer(pk_vm_inc(vm));
+                pk_defer(pk_stack_op_list_tailed(vm->lisp, pk_vat(vm)));
+                pk_defer(pk_vm_inc(vm));
                 break;
             }
             case PK_OP_MERGE_LISTS: {
-                pk_try(pk_vm_inc(vm));
-                pk_try(pk_stack_op_list_merge(vm->lisp, pk_vat(vm)));
-                pk_try(pk_vm_inc(vm));
+                pk_defer(pk_vm_inc(vm));
+                pk_defer(pk_stack_op_list_merge(vm->lisp, pk_vat(vm)));
+                pk_defer(pk_vm_inc(vm));
                 break;
             }
             case PK_OP_RET: {
-                return PK_OK;
+                vm->result = PK_OK;
+                goto DEFER;
             }
             default: {
-                return pk_vm_error(vm);
+                pk_defer(pk_vm_error(vm));
+                break;
             }
         }
     }
+    DEFER:
+    vm->result &= pk_frame_unwind(vm->lisp, vm->save);
+    return vm->result;
 }
 
-PK_RES pk_lfunc_exec(Pocket lisp, PKAtomLFunc *lfunc) {
-    PKVM vm = pk_vm_init(lisp, lfunc);
+PK_RES pk_lfunc_exec(Pocket lisp, PKAtomLFunc *lfunc, size_t save) {
+    PKVM vm = pk_vm_init(lisp, lfunc, save);
     return pk_vm_exec(&vm);
 }
-

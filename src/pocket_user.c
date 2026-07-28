@@ -447,3 +447,29 @@ PK_RES pk_is_string(Pocket lisp, int stack_pointer, int *output) {
 PK_RES pk_is_cons(Pocket lisp, int stack_pointer, int *output) {
     PK_TYPEOF_TEMPLATE(PKAtomTy_Cons)
 }
+
+PK_RES pk_throw(Pocket lisp, int symbol) {
+    PKAtom *atom = NULL;
+    PKAtomSymbol *result = NULL;
+    pk_try(pk_stack_get(lisp, symbol, &atom));
+    pk_try(pk_atom_cast_symbol(lisp, atom, &result));
+    pk_atom_throw(lisp, result);
+    return PK_YIELD;
+}
+
+PK_RES pk_throwing(Pocket lisp) {
+    pk_try(pk_push(lisp, (PKAtom *)pk_atom_throwing(lisp)));
+    return PK_OK;
+}
+
+PK_RES pk_catch(Pocket lisp, int symbol) {
+    PKAtom *atom = NULL;
+    PKAtomSymbol *result = NULL;
+    pk_try(pk_stack_get(lisp, symbol, &atom));
+    pk_try(pk_atom_cast_symbol(lisp, atom, &result));
+    if (result == pk_atom_throwing(lisp)) {
+        return PK_OK;
+    } else {
+        return PK_YIELD;
+    }
+}

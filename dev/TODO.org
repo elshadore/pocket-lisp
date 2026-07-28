@@ -1,6 +1,7 @@
-* The Great TODO List [1/18]
+* The Great TODO List [3/22]
 ** TODO Macros
-** TODO Recursive Cloning
+** DONE Recursive Cloning
+CLOSED: [2026-07-26 Sun 07:53]
 ** DONE Recursive Printing
 CLOSED: [2026-07-26 Sun 05:42]
 ** TODO Pretty Printing
@@ -40,7 +41,7 @@ CLOSED: [2026-07-26 Sun 05:42]
 &!(+ 1 2)
 
 #+END_SRC
-** TODO Object References
+** TODO Readable Object References
 #+BEGIN_SRC pocket-lisp
 object-var
 
@@ -64,4 +65,11 @@ A lisp interpetter object.
 ** TODO Binary Blobs
 ** TODO Byte Type
 ** TODO Reimplement Basic Garbage Collection
-** TODO Keywords
+** DONE Keywords
+CLOSED: [2026-07-27 Mon 02:27]
+** TODO Async Core
+Green threads.
+Async dynamic scope.
+** TODO Emacs Mode
+*** TODO Syntax Highlighting
+*** TODO REPL
