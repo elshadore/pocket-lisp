@@ -191,7 +191,7 @@ PK_RES pk_atom_eval(Pocket lisp, PKAtom *atom) {
     PKCallConv call;
     PKAtomLFunc *function = NULL;
        
-    pk_try(pk_compile_atom(lisp, atom, &function));
+    pk_try(pk_compile_atom(lisp, atom, PK_FUN_FUNCTION, &function));
     pk_try(pk_callconv(lisp, (PKAtom *)function, 0, PK_FALSE, &call));
 
     pk_try(pk_call(lisp, &call));

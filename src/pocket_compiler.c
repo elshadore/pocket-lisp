@@ -4,13 +4,14 @@
 
 #define pk_compiler_error(c_) pk_error((c_)->lisp)
 
-PKCompiler pk_compiler_new(Pocket lisp) {
+PKCompiler pk_compiler_new(Pocket lisp, PK_FUN ty) {
     PKCompiler c;
     
     c.lisp = lisp;
     
     c.atoms = pk_atoms_init();
     c.bc = pk_bytes_init();
+    c.ty = ty;
 
     c.addr = 0;
     
@@ -372,7 +373,21 @@ PK_RES pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_
         lambda_args = cons->car;
         body = cons->cdr;
 
-        pk_try(pk_compile_lambda(c->lisp, lambda_args, body, &lfunc));
+        pk_try(pk_compile_lambda(c->lisp, PK_FUN_FUNCTION, lambda_args, body, &lfunc));
+        pk_try(pk_cmp_load(c, (PKAtom *)lfunc));
+        
+        *is_special = PK_TRUE;
+    } else if (symbol == c->lisp->cache.macro) {
+        PKAtomCons *cons = NULL;
+        PKAtom *lambda_args = NULL;
+        PKAtom *body = NULL;
+        PKAtomLFunc *lfunc = NULL;
+        
+        pk_try(pk_atom_cast_cons(c->lisp, args, &cons));
+        lambda_args = cons->car;
+        body = cons->cdr;
+
+        pk_try(pk_compile_lambda(c->lisp, PK_FUN_MACRO, lambda_args, body, &lfunc));
         pk_try(pk_cmp_load(c, (PKAtom *)lfunc));
         
         *is_special = PK_TRUE;
@@ -550,8 +565,12 @@ PK_RES pk_compile_compile(PKCompiler *c, size_t arity, pk_u8 arity_mode, PKAtomL
     for (i = c->bc.count; i < c->bc.capacity; ++i) {
         c->bc.e[i] = PK_OP_ILLEGAL;
     }
-    
-    a->tag.ty = PKAtomTy_LFunc;
+
+    if (c->ty == PK_FUN_MACRO) {
+        a->tag.ty = PKAtomTy_LMacro;
+    } else {
+        a->tag.ty = PKAtomTy_LFunc;
+    }
     a->lfunc.atoms.e = c->atoms.e;
     a->lfunc.atoms.length = c->atoms.capacity;
     a->lfunc.bc.e = c->bc.e;
@@ -573,14 +592,14 @@ PK_RES pk_compile_compile(PKCompiler *c, size_t arity, pk_u8 arity_mode, PKAtomL
     return result;
 }
 
-PK_RES pk_compile_lambda(Pocket lisp, PKAtom *args, PKAtom *body, PKAtomLFunc **output) {
+PK_RES pk_compile_lambda(Pocket lisp, PK_FUN fun, PKAtom *args, PKAtom *body, PKAtomLFunc **output) {
     PKCompiler c;
     size_t arity = 0;
     PKAtom *iter = args;
     pk_u8 arity_mode = PK_ARITY_NORMAL;
     pk_bool expected_final = PK_FALSE;
 
-    c = pk_compiler_new(lisp);
+    c = pk_compiler_new(lisp, fun);
     
     while (!pk_atom_is_nil(iter)) {
         PKAtomCons *cons = NULL;
@@ -634,10 +653,10 @@ PK_RES pk_compile_lambda(Pocket lisp, PKAtom *args, PKAtom *body, PKAtomLFunc **
     return PK_OK;
 }
 
-PK_RES pk_compile_atom(Pocket lisp, PKAtom *value, PKAtomLFunc **output) {
+PK_RES pk_compile_atom(Pocket lisp, PKAtom *value, PK_FUN ty, PKAtomLFunc **output) {
     PKCompiler c;
 
-    c = pk_compiler_new(lisp);
+    c = pk_compiler_new(lisp, ty);
 
     pk_try(pk_compile_value(&c, value));
     pk_try(pk_cmp_push_byte(&c, PK_OP_RET));

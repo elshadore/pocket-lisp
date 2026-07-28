@@ -45,6 +45,7 @@ const char *pk_ident_atomty(PKAtomTy ty) {
         case PKAtomTy_Number: return "NUMBER";
         case PKAtomTy_CFunc: return "CFUNC";
         case PKAtomTy_LFunc: return "LFUNC";
+        case PKAtomTy_LMacro: return "LMACRO";
         case PKAtomTy_Keyword: return "KEYWORD";
     }
 }

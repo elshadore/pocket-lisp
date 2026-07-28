@@ -46,7 +46,8 @@ typedef enum PKAtomTy_ {
     PKAtomTy_String,
     PKAtomTy_Cons,
     PKAtomTy_CFunc,
-    PKAtomTy_LFunc
+    PKAtomTy_LFunc,
+    PKAtomTy_LMacro
 } PKAtomTy;
 
 typedef enum PKEnvTy_ {
@@ -148,6 +149,7 @@ union PKAtom_ {
     PKAtomCons cons;
     PKAtomCFunc cfunc;
     PKAtomLFunc lfunc;
+    PKAtomLFunc lmacro;
 };
 
 #define PK_CALLTY_QUICK (0)
@@ -237,6 +239,7 @@ typedef struct PKCompiler_ {
     Pocket lisp;
     PKBytes bc;
     PKAtoms atoms;
+    PK_FUN ty;
     pk_u8 addr;
 } PKCompiler;
 
@@ -456,6 +459,7 @@ PK_RES pk_atom_cast_symbol(Pocket lisp, PKAtom *atom, PKAtomSymbol **output);
 PK_RES pk_atom_cast_cons(Pocket lisp, PKAtom *atom, PKAtomCons **output);
 PK_RES pk_atom_cast_cfunc(Pocket lisp, PKAtom *atom, PKAtomCFunc **output);
 PK_RES pk_atom_cast_lfunc(Pocket lisp, PKAtom *atom, PKAtomLFunc **output);
+PK_RES pk_atom_cast_lmacro(Pocket lisp, PKAtom *atom, PKAtomLFunc **output);
 PK_RES pk_atom_cast_keyword(Pocket lisp, PKAtom *atom, PKAtomKeyword **output);
 PK_RES pk_atom_assert_nil(Pocket lisp, PKAtom *atom);
 
@@ -621,8 +625,8 @@ PK_RES pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_
 PK_RES pk_compile_expression(PKCompiler *c, PKAtomCons *expr);
 PK_RES pk_compile_value(PKCompiler *c, PKAtom *value);
 PK_RES pk_compile_compile(PKCompiler *c, size_t arity, pk_u8 arity_mode, PKAtomLFunc **output);
-PK_RES pk_compile_lambda(Pocket lisp, PKAtom *args, PKAtom *body, PKAtomLFunc **output);
-PK_RES pk_compile_atom(Pocket lisp, PKAtom *value, PKAtomLFunc **output);
+PK_RES pk_compile_lambda(Pocket lisp, PK_FUN fun, PKAtom *args, PKAtom *body, PKAtomLFunc **output);
+PK_RES pk_compile_atom(Pocket lisp, PKAtom *value, PK_FUN ty, PKAtomLFunc **output);
 
 PK_RES pk_lfunc_exec(Pocket lisp, PKAtomLFunc *lfunc, size_t save);
 

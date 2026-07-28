@@ -43,6 +43,12 @@ PK_RES pk_atom_cast_lfunc(Pocket lisp, PKAtom *atom, PKAtomLFunc **output) {
     return PK_OK;
 }
 
+PK_RES pk_atom_cast_lmacro(Pocket lisp, PKAtom *atom, PKAtomLFunc **output) {
+    if (atom->tag.ty != PKAtomTy_LMacro) return pk_error(lisp);
+    *output = (PKAtomLFunc *)atom;
+    return PK_OK;
+}
+
 pk_bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
     if (lhs == rhs) return PK_TRUE;
     if (lhs->tag.ty != rhs->tag.ty) return PK_FALSE;

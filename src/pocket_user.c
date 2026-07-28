@@ -340,12 +340,12 @@ PK_RES pk_list(Pocket lisp, int head, int tail) {
     return PK_OK;
 }
 
-PK_RES pk_compile(Pocket lisp, int stack_pointer) {
+PK_RES pk_compile(Pocket lisp, int stack_pointer, PK_FUN fun) {
     PKAtom *atom = NULL;
     PKAtomLFunc *result = NULL;
     
     pk_try(pk_stack_get(lisp, stack_pointer, &atom));
-    pk_try(pk_compile_atom(lisp, atom, &result));
+    pk_try(pk_compile_atom(lisp, atom, fun, &result));
     pk_try(pk_push(lisp, (PKAtom *)result));
     return PK_OK;
 }

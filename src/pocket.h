@@ -53,6 +53,11 @@ typedef enum PK_READ_ {
     PK_READ_LISTED = 1
 } PK_READ;
 
+typedef enum PK_FUN_ {
+    PK_FUN_FUNCTION = 0,
+    PK_FUN_MACRO = 1
+} PK_FUN;
+
 PK_RES pk_pop(Pocket lisp);
 PK_RES pk_popn(Pocket lisp, int n);
 PK_RES pk_dupe(Pocket lisp, int stack_pointer);
@@ -103,13 +108,18 @@ void pk_catch_all(Pocket lisp);
 PK_RES pk_catch(Pocket lisp, int symbol);
 PK_RES pk_throw(Pocket lisp, int symbol);
 PK_RES pk_throwing(Pocket lisp);
+PK_RES pk_errore(Pocket lisp, int error_message);
+PK_RES pk_errorc(Pocket lisp, const char *cmessage);
+PK_RES pk_errorcn(Pocket lisp, const char *message, size_t length);
 
 PK_RES pk_read(Pocket lisp, int stack_pointer, PK_READ mode);
 PK_RES pk_slurp(Pocket lisp, int file_path);
 PK_RES pk_format(Pocket lisp, int stack_pointer);
 PK_RES pk_clone(Pocket lisp, int stack_pointer);
 PK_RES pk_eval(Pocket lisp, int stack_pointer);
-PK_RES pk_compile(Pocket lisp, int stack_pointer);
+PK_RES pk_macroexpand(Pocket lisp, int stack_pointer);
+PK_RES pk_macroexpand_1(Pocket lisp, int stack_pointer);
+PK_RES pk_compile(Pocket lisp, int stack_pointer, PK_FUN fun);
 PK_RES pk_evlist(Pocket lisp, int stack_pointer);
 PK_RES pk_apply(Pocket lisp, int function, int args);
 PK_RES pk_funcall(Pocket lisp, int arity);

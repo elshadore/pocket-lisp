@@ -1,5 +1,8 @@
 ## Code for the Pocket Lisp REPL
 
+(fset 'setq (macro (symbol value)
+  `(set ',symbol ,value)))
+
 (fset 'square
       (lambda (x)
         (* x x)))
