@@ -131,6 +131,11 @@ PK_RES pk_vm_exec(PKVM *vm) {
                 pk_defer(pk_vm_inc(vm));
                 break;
             }
+            case PK_OP_BLOCK_CLEAR: {
+                pk_frame_clear(vm->lisp);
+                pk_defer(pk_vm_inc(vm));
+                break;
+            }
             case PK_OP_JMP_IF_NIL: {
                 PKAtom *atom = NULL;
                 
@@ -184,6 +189,12 @@ PK_RES pk_vm_exec(PKVM *vm) {
             case PK_OP_MERGE_LISTS: {
                 pk_defer(pk_vm_inc(vm));
                 pk_defer(pk_stack_op_list_merge(vm->lisp, pk_vat(vm)));
+                pk_defer(pk_vm_inc(vm));
+                break;
+            }
+            case PK_OP_STRCAT: {
+                pk_defer(pk_vm_inc(vm));
+                pk_defer(pk_stack_op_strcat(vm->lisp, pk_vat(vm)));
                 pk_defer(pk_vm_inc(vm));
                 break;
             }

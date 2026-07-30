@@ -21,6 +21,7 @@ const char *pk_ident_opcode(pk_u8 op) {
         case PK_OP_CALL: return "CALL";
         case PK_OP_BLOCK_BEGIN: return "BLOCK_BEGIN";
         case PK_OP_BLOCK_END: return "BLOCK_END";
+        case PK_OP_BLOCK_CLEAR: return "BLOCK_CLEAR";
         case PK_OP_JMP_IF_NIL: return "JMP_IF_NIL";
         case PK_OP_JMP: return "JMP";
         case PK_OP_JMP_BACK: return "JMP_BACK";
@@ -31,6 +32,7 @@ const char *pk_ident_opcode(pk_u8 op) {
         case PK_OP_MAKE_LIST: return "MAKE_LIST";
         case PK_OP_MAKE_LIST_PACKED: return "MAKE_LIST_PACKED";
         case PK_OP_MERGE_LISTS: return "MERGE_LISTS";
+        case PK_OP_STRCAT: return "STRCAT";
         default: return "UNKNOWN";
     }
 }
@@ -75,6 +77,7 @@ PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
         case PK_OP_MAKE_LIST: return PK_OPCODE_TY_LIT;
         case PK_OP_MAKE_LIST_PACKED: return PK_OPCODE_TY_LIT;
         case PK_OP_MERGE_LISTS: return PK_OPCODE_TY_LIT;
+        case PK_OP_STRCAT: return PK_OPCODE_TY_LIT;
         
         default: return PK_OPCODE_TY_NORMAL;
     }

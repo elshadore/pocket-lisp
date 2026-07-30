@@ -92,6 +92,24 @@ PK_RES pk_fn_evlist(void *user_closure, Pocket lisp) {
     return PK_OK;
 }
 
+PK_RES pk_fn_apply(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_try(pk_apply(lisp, 1, 2));
+    return PK_OK;
+}
+
+PK_RES pk_fn_macroexpand(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_try(pk_macroexpand(lisp, 1));
+    return PK_OK;
+}
+
+PK_RES pk_fn_macroexpand_1(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_try(pk_macroexpand_1(lisp, 1));
+    return PK_OK;
+}
+
 PK_RES pk_fn_format(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_try(pk_format(lisp, 1));
@@ -448,7 +466,7 @@ PK_RES pk_fn_catch(void *user_closure, Pocket lisp) {
 PK_RES pk_load_std(Pocket lisp) {
     size_t i = 0;
     
-    #define PK_STD_LIB_COUNT (43)
+    #define PK_STD_LIB_COUNT (46)
     PKFuncRecord lib[PK_STD_LIB_COUNT] = {
         {"+", pk_fn_add, 2, PK_ARITY_VARIADIC, NULL},
         {"-", pk_fn_sub, 2, PK_ARITY_VARIADIC, NULL},
@@ -460,6 +478,9 @@ PK_RES pk_load_std(Pocket lisp) {
         {"read", pk_fn_read, 1, PK_ARITY_OPTIONAL, NULL},
         {"eval", pk_fn_eval, 1, PK_ARITY_NORMAL, NULL},
         {"evlist", pk_fn_evlist, 1, PK_ARITY_NORMAL, NULL},
+        {"apply", pk_fn_apply, 2, PK_ARITY_NORMAL, NULL},
+        {"macroexpand", pk_fn_macroexpand, 1, PK_ARITY_NORMAL, NULL},
+        {"macroexpand-1", pk_fn_macroexpand_1, 1, PK_ARITY_NORMAL, NULL},
         {"print", pk_fn_print, 1, PK_ARITY_NORMAL, NULL},
         {"puts", pk_fn_puts, 1, PK_ARITY_NORMAL, NULL},
         {"format", pk_fn_format, 1, PK_ARITY_NORMAL, NULL},

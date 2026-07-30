@@ -83,3 +83,10 @@ pk_bool pk_atom_is_true(PKAtom *atom) {
     return !pk_atom_is_nil(atom);
 }
 
+pk_bool pk_atom_is_lfunc(PKAtom *atom) {
+    return atom->tag.ty == PKAtomTy_LFunc;
+}
+
+pk_bool pk_atom_is_lmacro(PKAtom *atom) {
+    return atom->tag.ty == PKAtomTy_LMacro;
+}

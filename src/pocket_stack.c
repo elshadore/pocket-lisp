@@ -210,6 +210,19 @@ PK_RES pk_stack_op_list_merge(Pocket lisp, size_t depth) {
     return PK_OK;
 }
 
+PK_RES pk_stack_op_strcat(Pocket lisp, size_t depth) {
+    PKAtomSlice slice;
+    PKAtomString *result = NULL;
+    if (depth == 0) {
+        return PK_OK;
+    }
+    pk_try(pk_stack_slice_down(lisp, depth, &slice));
+    pk_try(pk_atom_string_concat(lisp, slice, &result));
+    pk_pop_unchecked(lisp, depth - 1);
+    lisp->stack.e[lisp->stack.count - 1] = (PKAtom *)result;
+    return PK_OK;
+}
+
 PK_RES pk_frame_push(Pocket lisp, size_t arity) {
     PKFrames *frames = &lisp->frames;
     size_t stack_offset = pk_stack_length_total(lisp) - arity;
@@ -257,6 +270,10 @@ PK_RES pk_frame_unwind(Pocket lisp, size_t i) {
         result &= pk_frame_pop(lisp);
     }
     return result;
+}
+
+void pk_frame_clear(Pocket lisp) {
+    lisp->stack.count = lisp->current_frame.stack_offset;
 }
 
 PK_RES pk_return_push(Pocket lisp) {

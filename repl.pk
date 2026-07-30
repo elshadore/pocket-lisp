@@ -1,7 +1,7 @@
 ## Code for the Pocket Lisp REPL
 
 (fset 'setq (macro (symbol value)
-  `(set ',symbol ,value)))
+     `(set ',symbol ,value)))
 
 (fset 'square
       (lambda (x)
@@ -53,9 +53,10 @@
 
 (fset 'foopy (lambda (value) "foopy"))
 
-(fset 'test-fun (lambda (a :rest b)
-      (print a)
-      (print b)))
+(fset 'test-fun (lambda ()
+      (let ((foo 34)
+            (bar "henlo word!"))
+            (print $"Foo: {(+ foo 35)}, Bar: {bar}, and other things..."))))
 
 (fset 'test (lambda ()
       (print (hexdump 'test-fun))))

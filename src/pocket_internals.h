@@ -152,6 +152,12 @@ union PKAtom_ {
     PKAtomLFunc lmacro;
 };
 
+typedef enum PK_CALLFLAG_ {
+    PK_CALLFLAG_NONE = 0,
+    PK_CALLFLAG_INSERT_RESULT = 1 << 0,
+    PK_CALLFLAG_MACRO_CALL = 1 << 1
+} PK_CALLFLAG;
+
 #define PK_CALLTY_QUICK (0)
 #define PK_CALLTY_CFUNC (1)
 #define PK_CALLTY_LFUNC (2)
@@ -218,16 +224,18 @@ typedef struct PKAtoms_ {
 #define PK_OP_CALL (5)
 #define PK_OP_BLOCK_BEGIN (6)
 #define PK_OP_BLOCK_END (7)
-#define PK_OP_JMP_IF_NIL (8)
-#define PK_OP_JMP (9)
-#define PK_OP_JMP_BACK (10)
-#define PK_OP_LET_VAR (11)
-#define PK_OP_LET_FUN (12)
-#define PK_OP_LOOKUP_VAR (13)
-#define PK_OP_LOOKUP_FUN (14)
-#define PK_OP_MAKE_LIST (15)
-#define PK_OP_MAKE_LIST_PACKED (16)
-#define PK_OP_MERGE_LISTS (17)
+#define PK_OP_BLOCK_CLEAR (8)
+#define PK_OP_JMP_IF_NIL (9)
+#define PK_OP_JMP (10)
+#define PK_OP_JMP_BACK (11)
+#define PK_OP_LET_VAR (12)
+#define PK_OP_LET_FUN (13)
+#define PK_OP_LOOKUP_VAR (14)
+#define PK_OP_LOOKUP_FUN (15)
+#define PK_OP_MAKE_LIST (16)
+#define PK_OP_MAKE_LIST_PACKED (17)
+#define PK_OP_MERGE_LISTS (18)
+#define PK_OP_STRCAT (19)
 
 typedef enum PK_OPCODE_TY_ {
     PK_OPCODE_TY_NORMAL = 0,
@@ -430,7 +438,7 @@ PK_RES pk_atom_float(Pocket lisp, float value, PKAtomNumber **output);
 PK_RES pk_atom_string(Pocket lisp, const char *cstr, PKAtomString **output);
 PK_RES pk_atom_stringn(Pocket lisp, const char *string, size_t length, PKAtomString **output);
 PK_RES pk_atom_stringn_nomemcpy(Pocket lisp, char *string, size_t length, PKAtomString **output);
-PK_RES pk_atom_string_concat(Pocket lisp, PKAtomSlice strings, PKAtomString **output);
+PK_RES pk_atom_string_concat(Pocket lisp, PKAtomSlice atoms, PKAtomString **output);
 PK_RES pk_atom_string_slurp(Pocket lisp, PKAtomString *file_path, PKAtomString **output);
 
 PK_RES pk_atom_symbol_uninterned(Pocket lisp, const char *cstr, PKAtomSymbol **output);
@@ -471,8 +479,11 @@ pk_bool pk_atom_keyword_eq(Pocket lisp, PKAtomKeyword *lhs, PKAtomKeyword *rhs);
 pk_bool pk_atom_is_true(PKAtom *atom);
 pk_bool pk_atom_is_nil(PKAtom *atom);
 pk_bool pk_atom_is_symbol(PKAtom *atom);
+pk_bool pk_atom_is_string(PKAtom *atom);
 pk_bool pk_atom_is_cons(PKAtom *atom);
 pk_bool pk_atom_is_keyword(PKAtom *atom);
+pk_bool pk_atom_is_lfunc(PKAtom *atom);
+pk_bool pk_atom_is_lmacro(PKAtom *atom);
 
 PK_RES pk_string_dupe(Pocket lisp, const char *c, size_t length, char **output);
 pk_bool pk_string_eq(const char *a, size_t a_length, const char *b, size_t b_length);
@@ -532,6 +543,7 @@ PK_RES pk_writer_reset(PKWriter *w);
 void pk_writer_print(PKWriter *w);
 void pk_writer_puts(PKWriter *w);
 PK_RES pk_writer_address(PKWriter *w, size_t address);
+PK_RES pk_writer_to_string(PKWriter *w, PKAtomString **output);
 
 pk_u8 pk_char_to_digit(char c);
 pk_bool pk_char_is_hex(char c);
@@ -576,6 +588,7 @@ void pk_hashtable_deinit(Pocket lisp, PKHashTable *ht);
 
 PK_RES pk_env_set(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom *value, PKAtom **output);
 PK_RES pk_env_get(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom **output);
+pk_bool pk_env_query(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom **output);
 PK_RES pk_env_unbind(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom **output);
 
 PK_RES pk_gc_collect(Pocket lisp);
@@ -585,11 +598,12 @@ PK_RES pk_util_slurp(Pocket lisp, const char *file_path, char **out_buffer, size
 PK_RES pk_util_slurpn(Pocket lisp, const char *file_path, size_t length, char **out_c, size_t *out_length);
 
 PK_RES pk_atom_eval(Pocket lisp, PKAtom *atom);
+PK_RES pk_atom_apply(Pocket lisp, PKAtom *function, PKAtom *args);
 PK_RES pk_atom_evlist(Pocket lisp, PKAtom *atom);
 
 PK_RES pk_call(Pocket lisp, PKCallConv *conv);
 PK_RES pk_arity_convert(Pocket lisp, int arity, size_t *output);
-PK_RES pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, pk_bool insert_result, PKCallConv *output);
+PK_RES pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PK_CALLFLAG flags, PKCallConv *output);
 void pk_callconv_quick(void *user_closure, PKFn fn, size_t arity, PKCallConv *output);
 PK_RES pk_bind_lambda_list(Pocket lisp, PKAtom *symbols, PKAtomSlice values);
 
@@ -620,6 +634,15 @@ PKBytes pk_bytes_init(void);
 PK_RES pk_bytes_push(Pocket lisp, PKBytes *bytes, pk_u8 byte, size_t init);
 void pk_bytes_free(Pocket lisp, PKBytes *bytes);
 
+PK_RES pk_cmp_patch_byte(PKCompiler *c, pk_u8 addr, pk_u8 byte);
+PK_RES pk_cmp_push_byte(PKCompiler *c, pk_u8 byte);
+PK_RES pk_cmp_push_any(PKCompiler *c, size_t value);
+PK_RES pk_cmp_push_atom(PKCompiler *c, PKAtom *atom);
+PK_RES pk_cmp_load_nil(PKCompiler *c);
+PK_RES pk_cmp_load(PKCompiler *c, PKAtom *atom);
+PK_RES pk_cmp_lookup(PKCompiler *c, PKAtomSymbol *symbol, PKEnvTy env);
+
+PK_RES pk_compile_strsub(PKCompiler *c, char *string, size_t length);
 PK_RES pk_compile_evlist(PKCompiler *c, PKAtom *args);
 PK_RES pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_bool *is_special);
 PK_RES pk_compile_expression(PKCompiler *c, PKAtomCons *expr);
@@ -644,8 +667,12 @@ void pk_pop_unchecked(Pocket lisp, size_t n);
 PK_RES pk_stack_op_list(Pocket lisp, size_t depth);
 PK_RES pk_stack_op_list_tailed(Pocket lisp, size_t depth);
 PK_RES pk_stack_op_list_merge(Pocket lisp, size_t depth);
+PK_RES pk_stack_op_strcat(Pocket lisp, size_t depth);
 
 PK_RES pk_atom_clone(Pocket lisp, PKAtom *input, PKAtom **output);
 PK_RES pk_atom_circular(Pocket lisp, PKAtom *atom, pk_u8 *output);
 PK_RES pk_atom_assert_non_circular(Pocket lisp, PKAtom *atom);
+
+PK_RES pk_atom_macroexpand_1(Pocket lisp, PKAtom *atom, PKAtom **output);
+PK_RES pk_atom_macroexpand(Pocket lisp, PKAtom *atom, PKAtom **output);
 #endif

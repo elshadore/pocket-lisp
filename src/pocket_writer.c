@@ -275,3 +275,7 @@ PK_RES pk_writer_cons_loop(PKWriter *w, PKHashTable *ht, PKAtomCons *cons) {
     
     return PK_OK;
 }
+
+PK_RES pk_writer_to_string(PKWriter *w, PKAtomString **output) {
+    return pk_atom_stringn(w->lisp, w->c, w->count, output);
+}

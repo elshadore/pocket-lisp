@@ -80,18 +80,27 @@ PK_RES pk_callconv_handle_arity(Pocket lisp, size_t arity, pk_bool variadic_list
     return PK_OK;
 }
 
-PK_RES pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, pk_bool insert_result, PKCallConv *output) {
+PK_RES pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PK_CALLFLAG flags, PKCallConv *output) {
     PKAtom *function = NULL;
+    pk_bool insert_result = PK_FALSE;
+    pk_bool macro_call = PK_FALSE;
     
     if (atom->tag.ty == PKAtomTy_Symbol) {
         pk_try(pk_env_get(lisp, PKEnvTy_Fun, (PKAtomSymbol *)atom, &function));
     } else {
         function = atom;
     }
-    
+
+    insert_result = (flags & PK_CALLFLAG_INSERT_RESULT);
+    macro_call = (flags & PK_CALLFLAG_MACRO_CALL);
+
     switch (function->tag.ty) {
         case PKAtomTy_CFunc: {
             PKAtomCFunc *cfunc = (PKAtomCFunc *)function;
+            
+            if (macro_call) {
+                return pk_error(lisp);
+            }
             
             pk_try(pk_callconv_handle_arity(lisp, arity, PK_FALSE, cfunc->arity, output));
             
@@ -103,6 +112,25 @@ PK_RES pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, pk_bool insert_resul
         }
         case PKAtomTy_LFunc: {
             PKAtomLFunc *lfunc = (PKAtomLFunc *)function;
+            
+            if (macro_call) {
+                return pk_error(lisp);
+            }
+            
+            pk_try(pk_callconv_handle_arity(lisp, arity, PK_TRUE, lfunc->arity, output));
+            
+            output->ty = PK_CALLTY_LFUNC;
+            output->as.lisp = lfunc;
+            output->insert_result = insert_result;
+            
+            return PK_OK;
+        }
+        case PKAtomTy_LMacro: {
+            PKAtomLFunc *lfunc = (PKAtomLFunc *)function;
+            
+            if (!macro_call) {
+                return pk_error(lisp);
+            }
             
             pk_try(pk_callconv_handle_arity(lisp, arity, PK_TRUE, lfunc->arity, output));
             
@@ -187,15 +215,50 @@ PK_RES pk_call(Pocket lisp, PKCallConv *conv) {
     return result;
 }
 
+PK_RES pk_atom_apply(Pocket lisp, PKAtom *function, PKAtom *args) {
+    size_t acc = 0;
+    PKAtom *iter = args;
+    PK_RES result = PK_YIELD;
+    PKCallConv call;
+    
+    pk_try(pk_frame_push(lisp, 0));
+    
+    pk_defer(pk_push(lisp, function));
+    
+    while (!pk_atom_is_nil(iter)) {
+        PKAtomCons *cons = NULL;
+        pk_defer(pk_atom_cast_cons(lisp, iter, &cons));
+        pk_defer(pk_push(lisp, cons->car));
+        acc += 1;
+        iter = cons->cdr;
+    }
+    
+    pk_defer(pk_callconv(lisp, function, acc, PK_CALLFLAG_INSERT_RESULT, &call));
+
+    pk_defer(pk_call(lisp, &call));
+
+    result = PK_OK;
+    
+    DEFER:
+    
+    pk_try(pk_return_push(lisp));
+        
+    return result;
+}
+
 PK_RES pk_atom_eval(Pocket lisp, PKAtom *atom) {
     PKCallConv call;
+    PKAtom *expanded = NULL;
     PKAtomLFunc *function = NULL;
+
+    /* pk_try(pk_atom_macroexpand(lisp, atom, &expanded)); */
+    expanded = atom;
        
-    pk_try(pk_compile_atom(lisp, atom, PK_FUN_FUNCTION, &function));
-    pk_try(pk_callconv(lisp, (PKAtom *)function, 0, PK_FALSE, &call));
+    pk_try(pk_compile_atom(lisp, expanded, PK_FUN_FUNCTION, &function));
+    
+    pk_try(pk_callconv(lisp, (PKAtom *)function, 0, PK_CALLFLAG_NONE, &call));
 
     pk_try(pk_call(lisp, &call));
-    
     
     return PK_OK;
 }

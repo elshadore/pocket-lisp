@@ -46,7 +46,7 @@ PK_RES pk_cmp_push_any(PKCompiler *c, size_t value) {
 
 PK_RES pk_cmp_push_atom(PKCompiler *c, PKAtom *atom) {
     size_t i = 0;
-    
+
     if (c->atoms.count >= UCHAR_MAX) {
         return pk_compiler_error(c);
     }
@@ -80,6 +80,7 @@ PK_RES pk_cmp_load(PKCompiler *c, PKAtom *atom) {
     
     pk_try(pk_cmp_push_byte(c, PK_OP_LOAD));
     pk_try(pk_cmp_push_byte(c, addr));
+    
     
     return PK_OK;
 }
@@ -412,7 +413,11 @@ PK_RES pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_
         predicate = cons->car;
         body = cons->cdr;
 
+        pk_try(pk_cmp_push_byte(c, PK_OP_BLOCK_BEGIN));
+        pk_try(pk_cmp_push_byte(c, PK_OP_BLOCK_CLEAR));
+        
         start = pk_cmp_addr(c);
+        
         pk_try(pk_compile_value(c, predicate));
         pk_try(pk_cmp_push_byte(c, PK_OP_JMP_IF_NIL));
         pk_try(pk_cmp_push_byte(c, 0));
@@ -422,6 +427,8 @@ PK_RES pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_
         pk_try(pk_cmp_push_byte(c, PK_OP_JMP_BACK));
         pk_try(pk_cmp_push_byte(c, pk_cmp_addr(c) - start + 1));
         pk_try(pk_cmp_patch_byte(c, patch, pk_cmp_addr(c) + 1 - patch));
+        
+        pk_try(pk_cmp_push_byte(c, PK_OP_BLOCK_END));
         
         *is_special = PK_TRUE;
     } else if (symbol == c->lisp->cache.if_sym) {
@@ -493,6 +500,17 @@ PK_RES pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, pk_
         pk_try(pk_cmp_push_byte(c, PK_OP_BLOCK_BEGIN));
         pk_try(pk_compile_evlist(c, args));
         pk_try(pk_cmp_push_byte(c, PK_OP_BLOCK_END));
+        
+        *is_special = PK_TRUE;
+    } else if (symbol == c->lisp->cache.string_substitute) {
+        PKAtomCons *cons = NULL;
+        PKAtomString *string = NULL;
+        
+        pk_try(pk_atom_cast_cons(c->lisp, args, &cons));
+        pk_try(pk_atom_assert_nil(c->lisp, cons->cdr));
+        pk_try(pk_atom_cast_string(c->lisp, cons->car, &string));
+
+        pk_try(pk_compile_strsub(c, string->c, string->length));
         
         *is_special = PK_TRUE;
     } else {

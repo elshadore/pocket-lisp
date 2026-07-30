@@ -34,7 +34,11 @@ PK_RES pk_atom_stringn_nomemcpy(Pocket lisp, char *c, size_t length, PKAtomStrin
     return PK_OK;
 }
 
-PK_RES pk_atom_string_concat(Pocket lisp, PKAtomSlice strings, PKAtomString **output) {
+/*
+This function purely concats a list of strings, and does so in a memory efficient way.
+Iterating over the list twice. We are not currently using this function for anything.
+*/
+PK_RES pk_atom_string_concat_old(Pocket lisp, PKAtomSlice strings, PKAtomString **output) {
     size_t length = 0;
     size_t i = 0;
     size_t acc = 0;
@@ -72,6 +76,28 @@ PK_RES pk_atom_string_concat(Pocket lisp, PKAtomSlice strings, PKAtomString **ou
     return result;
 }
 
+PK_RES pk_atom_string_concat(Pocket lisp, PKAtomSlice atoms, PKAtomString **output) {
+    PKWriter w = pk_writer_init(lisp);
+    PK_RES result = PK_YIELD;
+    size_t i = 0;
+    
+    for (i = 0; i < atoms.length; ++i) {
+        PKAtom *atom = atoms.e[i];
+        if (pk_atom_is_string(atoms.e[i])) {
+            pk_defer(pk_writer_stringn(&w, atom->string.c, atom->string.length));
+        } else {
+            pk_defer(pk_writer_atom(&w, atom));
+        }
+    }
+    
+    pk_defer(pk_writer_to_string(&w, output));
+    
+    result = PK_OK;
+    DEFER:
+    pk_writer_deinit(&w);
+    return result;
+}
+
 PK_RES pk_atom_cast_string(Pocket lisp, PKAtom *atom, PKAtomString **output) {
     if (atom->tag.ty != PKAtomTy_String) return pk_error(lisp);
     *output = (PKAtomString *)atom;
@@ -95,4 +121,8 @@ PK_RES pk_atom_string_slurp(Pocket lisp, PKAtomString *file_path, PKAtomString *
     }
     
     return PK_OK;
+}
+
+pk_bool pk_atom_is_string(PKAtom *atom) {
+    return atom->tag.ty == PKAtomTy_String;
 }
