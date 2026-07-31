@@ -2,6 +2,8 @@
 #include "./lib/stb_leakcheck.h"
 
 #include "./src/pocket.h"
+#include "./src/pocket_all.c"
+
 #include <string.h>
 #include <stdio.h>
 

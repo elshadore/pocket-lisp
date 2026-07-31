@@ -1,17 +1,19 @@
-* The Great TODO List [3/22]
-** TODO Macros
+* The Great TODO List [4/22]
+** DONE Macros
+CLOSED: [2026-07-31 Fri 06:47]
 ** DONE Recursive Cloning
 CLOSED: [2026-07-26 Sun 07:53]
 ** DONE Recursive Printing
 CLOSED: [2026-07-26 Sun 05:42]
 ** TODO Pretty Printing
 ** TODO Throwing, Catching, Errors, and Unwind Protect
-** TODO Basic Special Forms [11/13]
+** TODO Basic Special Forms [13/13]
 *** DONE if
 CLOSED: [2026-07-23 Thu 22:03]
 *** DONE lambda
 CLOSED: [2026-07-25 Sat 01:44]
-*** TODO macro
+*** DONE macro
+CLOSED: [2026-07-31 Fri 06:47]
 *** DONE let
 CLOSED: [2026-07-25 Sat 01:44]
 *** DONE let*
@@ -30,7 +32,8 @@ CLOSED: [2026-07-26 Sun 05:42]
 CLOSED: [2026-07-26 Sun 05:42]
 *** DONE unquote-splice
 CLOSED: [2026-07-26 Sun 05:42]
-*** TODO string-substitute
+*** DONE string-substitute
+CLOSED: [2026-07-31 Fri 06:47]
 ** TODO Comptime
 #+BEGIN_SRC pocket-lisp
 
