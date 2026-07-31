@@ -61,6 +61,14 @@ const char *pk_ident_arity(pk_u8 arity) {
     }
 }
 
+const char *pk_ident_env(PKEnvTy env) {
+    switch (env) {
+        case PKEnvTy_Var: return "VAR";
+        case PKEnvTy_Fun: return "FUN";
+        default: return "UNKNOWN";
+    }
+}
+
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
     switch (op) {
     

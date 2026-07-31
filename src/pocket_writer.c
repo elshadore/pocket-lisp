@@ -237,6 +237,11 @@ PK_RES pk_writer_atom_rec(PKWriter *w, PKHashTable *ht, PKAtom *atom) {
             pk_try(pk_writer_atom_function(w, atom, "LFUNC", lfunc->arity));
             break;
         }
+        case PKAtomTy_LMacro: {
+            PKAtomLFunc *lmacro = (PKAtomLFunc *)atom;
+            pk_try(pk_writer_atom_function(w, atom, "LMACRO", lmacro->arity));
+            break;
+        }
         default: {
             pk_try(pk_writer_atom_object(w, atom));
             break;

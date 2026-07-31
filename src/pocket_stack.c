@@ -223,7 +223,7 @@ PK_RES pk_stack_op_strcat(Pocket lisp, size_t depth) {
     return PK_OK;
 }
 
-PK_RES pk_frame_push(Pocket lisp, size_t arity) {
+PK_RES pk_frame_push(Pocket lisp, PKAtom *ident, size_t arity) {
     PKFrames *frames = &lisp->frames;
     size_t stack_offset = pk_stack_length_total(lisp) - arity;
     size_t lets_offset = lisp->lets.count;
@@ -241,6 +241,7 @@ PK_RES pk_frame_push(Pocket lisp, size_t arity) {
     }
     frames->e[frames->count++] = lisp->current_frame;
 
+    lisp->current_frame.ident = ident;
     lisp->current_frame.stack_offset = stack_offset;
     lisp->current_frame.lets_offset = lets_offset;
     lisp->current_frame.arity = arity;

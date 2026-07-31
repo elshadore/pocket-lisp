@@ -35,7 +35,7 @@ PK_RES pk_dump_stack(Pocket lisp, const char *tag) {
     return result;
 }
 
-PK_RES pk_dump_hex_atom(PKWriter *w, PKAtomLFunc *lfunc) {
+PK_RES pk_dump_hex_writer(PKWriter *w, PKAtomLFunc *lfunc) {
     PK_RES result = PK_YIELD;
     size_t i = 0;
     
@@ -105,7 +105,7 @@ PK_RES pk_dump_hex_string(Pocket lisp, PKAtomLFunc *lfunc, PKAtomString **output
     PKWriter w = pk_writer_init(lisp);
     PK_RES result = PK_YIELD;
     
-    pk_defer(pk_dump_hex_atom(&w, lfunc));
+    pk_defer(pk_dump_hex_writer(&w, lfunc));
     
     result = PK_OK;
     
@@ -113,6 +113,21 @@ PK_RES pk_dump_hex_string(Pocket lisp, PKAtomLFunc *lfunc, PKAtomString **output
     if (result == PK_OK) {
         result = pk_atom_stringn(lisp, w.c, w.count, output);
     }
+    pk_writer_deinit(&w);
+    
+    return result;
+}
+
+PK_RES pk_dump_hex_atom(Pocket lisp, PKAtomLFunc *lfunc) {
+    PKWriter w = pk_writer_init(lisp);
+    PK_RES result = PK_YIELD;
+    
+    pk_defer(pk_dump_hex_writer(&w, lfunc));
+    pk_writer_print(&w);
+    
+    result = PK_OK;
+    
+    DEFER:
     pk_writer_deinit(&w);
     
     return result;
@@ -126,7 +141,7 @@ PK_RES pk_dump_hex(Pocket lisp, int stack_pointer) {
 
     pk_try(pk_stack_get(lisp, stack_pointer, &atom));
     pk_try(pk_atom_cast_lfunc(lisp, atom, &lfunc));
-    pk_defer(pk_dump_hex_atom(&w, lfunc));
+    pk_defer(pk_dump_hex_writer(&w, lfunc));
 
     result = PK_OK;
     DEFER:
@@ -189,7 +204,9 @@ PK_RES pk_dump_frame__(Pocket lisp, PKWriter *w, PKFrame *frame, size_t length, 
     
     pk_try(pk_writer_string(w, "FRAME: ["));
     pk_try(pk_writer_int(w, (int)index));
-    pk_try(pk_writer_string(w, "]\n"));
+    pk_try(pk_writer_string(w, "] => "));
+    pk_try(pk_writer_atom(w, frame->ident));
+    pk_try(pk_writer_newline(w));
     
     atoms = pk_frame_slice(lisp, frame, length);
     for (i = 0; i < atoms.length; ++i) {

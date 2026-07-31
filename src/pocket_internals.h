@@ -176,6 +176,7 @@ typedef struct PKCallConv_ {
     size_t final_arity;
     size_t extra_nils;
     size_t variadic_list;
+    PKAtom *ident;
 } PKCallConv;
 
 typedef struct PKWriter_ {
@@ -300,10 +301,11 @@ typedef struct PKHashTable_ {
 } PKHashTable;
 
 typedef struct PKFrame_ {
+    PKAtom *ident;
+    PKAtomSymbol *catch_symbol;
     size_t stack_offset;
     size_t arity;
     size_t lets_offset;
-    PKAtomSymbol *catch_symbol;
 } PKFrame;
 
 typedef struct PKFrames_ {
@@ -371,6 +373,10 @@ typedef struct PKCache_ {
     PKAtomSymbol *let_star;
     PKAtomSymbol *flet_sym;
     PKAtomSymbol *flet_star;
+    PKAtomSymbol *fast;
+    PKAtomSymbol *block;
+    PKAtomSymbol *apply;
+    PKAtomSymbol *macro_apply;
     PKAtomString *empty_string;
 } PKCache;
 
@@ -559,7 +565,7 @@ pk_bool pk_char_is_symbol(char c);
 Push a frame to the stack, the *arity* param refers to the number of variables to take
 from the previous frame.
 */
-PK_RES pk_frame_push(Pocket lisp, size_t arity);
+PK_RES pk_frame_push(Pocket lisp, PKAtom *ident, size_t arity);
 /* Pop the current frame, clearing all stack allocated variables. */
 PK_RES pk_frame_pop(Pocket lisp);
 /* Clear the current frame of all stack allocated variables. */
@@ -604,7 +610,7 @@ PK_RES pk_atom_evlist(Pocket lisp, PKAtom *atom);
 PK_RES pk_call(Pocket lisp, PKCallConv *conv);
 PK_RES pk_arity_convert(Pocket lisp, int arity, size_t *output);
 PK_RES pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PK_CALLFLAG flags, PKCallConv *output);
-void pk_callconv_quick(void *user_closure, PKFn fn, size_t arity, PKCallConv *output);
+void pk_callconv_quick(Pocket lisp, void *user_closure, PKFn fn, size_t arity, PKCallConv *output);
 PK_RES pk_bind_lambda_list(Pocket lisp, PKAtom *symbols, PKAtomSlice values);
 
 PK_RES pk_slice_list(Pocket lisp, PKAtomSlice atoms, PKAtom **output);
@@ -656,11 +662,13 @@ PK_RES pk_lfunc_exec(Pocket lisp, PKAtomLFunc *lfunc, size_t save);
 const char *pk_ident_opcode(pk_u8 op);
 const char *pk_ident_atomty(PKAtomTy ty);
 const char *pk_ident_arity(pk_u8 arity);
+const char *pk_ident_env(PKEnvTy env);
 
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
     
-PK_RES pk_dump_hex_atom(PKWriter *w, PKAtomLFunc *lfunc);
+PK_RES pk_dump_hex_writer(PKWriter *w, PKAtomLFunc *lfunc);
 PK_RES pk_dump_hex_string(Pocket lisp, PKAtomLFunc *lfunc, PKAtomString **output);
+PK_RES pk_dump_hex_atom(Pocket lisp, PKAtomLFunc *lfunc);
 
 void pk_pop_unchecked(Pocket lisp, size_t n);
 
@@ -673,6 +681,6 @@ PK_RES pk_atom_clone(Pocket lisp, PKAtom *input, PKAtom **output);
 PK_RES pk_atom_circular(Pocket lisp, PKAtom *atom, pk_u8 *output);
 PK_RES pk_atom_assert_non_circular(Pocket lisp, PKAtom *atom);
 
-PK_RES pk_atom_macroexpand_1(Pocket lisp, PKAtom *atom, PKAtom **output);
+PK_RES pk_atom_macroexpand_1(Pocket lisp, PKAtom *atom, PKAtom **output, pk_bool *expanded);
 PK_RES pk_atom_macroexpand(Pocket lisp, PKAtom *atom, PKAtom **output);
 #endif

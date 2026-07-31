@@ -10,6 +10,9 @@ PK_RES pk_init2(Pocket lisp) {
     pk_catch_all(lisp);
     
     pk_try(pk_atom_symbol_interned(lisp, "t", &lisp->cache.t));
+    
+    lisp->current_frame.ident = (PKAtom *)lisp->cache.t;
+    
     pk_try(pk_atom_symbol_interned(lisp, "nil", &lisp->cache.nil_sym));
     pk_try(pk_atom_symbol_interned(lisp, "lambda", &lisp->cache.lambda));
     pk_try(pk_atom_symbol_interned(lisp, "macro", &lisp->cache.macro));
@@ -25,9 +28,12 @@ PK_RES pk_init2(Pocket lisp) {
     pk_try(pk_atom_symbol_interned(lisp, "let*", &lisp->cache.let_star));
     pk_try(pk_atom_symbol_interned(lisp, "flet", &lisp->cache.flet_sym));
     pk_try(pk_atom_symbol_interned(lisp, "flet*", &lisp->cache.flet_star));
+    pk_try(pk_atom_symbol_interned(lisp, "fast", &lisp->cache.fast));
+    pk_try(pk_atom_symbol_interned(lisp, "block", &lisp->cache.block));
+    pk_try(pk_atom_symbol_interned(lisp, "apply", &lisp->cache.apply));
+    pk_try(pk_atom_symbol_interned(lisp, "macro-apply", &lisp->cache.macro_apply));
     
     pk_try(pk_atom_stringn_nomemcpy(lisp, "", 0, &lisp->cache.empty_string));
-
     
     pk_try(pk_env_set(lisp, PKEnvTy_Var, lisp->cache.t, (PKAtom *)lisp->cache.t, &ignore));
     pk_try(pk_env_set(lisp, PKEnvTy_Var, lisp->cache.nil_sym, lisp->cache.nil, &ignore));

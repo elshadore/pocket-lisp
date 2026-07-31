@@ -306,6 +306,12 @@ PK_RES pk_fn_eq(void *user_closure, Pocket lisp) {
     return PK_OK;
 }
 
+PK_RES pk_fn_cons(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_try(pk_push_cons(lisp, 1, 2));
+    return PK_OK;
+}
+
 PK_RES pk_fn_list(void *user_closure, Pocket lisp) {
     PKAtomSlice slice;
     PKAtom *result = NULL;
@@ -466,8 +472,8 @@ PK_RES pk_fn_catch(void *user_closure, Pocket lisp) {
 PK_RES pk_load_std(Pocket lisp) {
     size_t i = 0;
     
-    #define PK_STD_LIB_COUNT (46)
-    PKFuncRecord lib[PK_STD_LIB_COUNT] = {
+    #define PK_STD_COUNT_C (47)
+    PKFuncRecord lib_c[PK_STD_COUNT_C] = {
         {"+", pk_fn_add, 2, PK_ARITY_VARIADIC, NULL},
         {"-", pk_fn_sub, 2, PK_ARITY_VARIADIC, NULL},
         {"*", pk_fn_mul, 2, PK_ARITY_VARIADIC, NULL},
@@ -500,6 +506,7 @@ PK_RES pk_load_std(Pocket lisp) {
         {"<=", pk_fn_lte, 2, PK_ARITY_VARIADIC, NULL},
         {"=", pk_fn_eq, 2, PK_ARITY_VARIADIC, NULL},
         {"eq?", pk_fn_eq, 2, PK_ARITY_VARIADIC, NULL},
+        {"cons", pk_fn_cons, 2, PK_ARITY_NORMAL, NULL},
         {"list", pk_fn_list, 0, PK_ARITY_VARIADIC, NULL},
         {"list-rev", pk_fn_list_reversed, 0, PK_ARITY_VARIADIC, NULL},
         {"cat", pk_fn_cat, 0, PK_ARITY_VARIADIC, NULL},
@@ -518,13 +525,40 @@ PK_RES pk_load_std(Pocket lisp) {
         
         {"hexdump", pk_fn_hexdump, 1, PK_ARITY_NORMAL, NULL},
     };
+    
+    #define PK_STD_COUNT_LISP (23)
+    const char *lib_lisp[PK_STD_COUNT_LISP] = {
+        "(fset 'defmacro (macro (symbol args :rest body) `(fset ',symbol (macro ,args ,@body))))",
+        "(defmacro defun (symbol args :rest body) `(fset ',symbol (lambda ,args ,@body)))",
+        "(defmacro defvar (symbol :optional value) `(set ',symbol ,value))",
+        "(defmacro setq (symbol value) `(set ',symbol ,value))",
+        "(defmacro getq (symbol) `(get ',symbol))",
+        "(defmacro fsetq (symbol value) `(fset ',symbol ,value))",
+        "(defmacro fgetq (symbol) `(fget ',symbol ,value))",
+        "(defmacro push (location el) `(setq ,location (cons ,el ,location)))",
+        "(defvar -swap-temp)",
+        "(defmacro swap (lhs rhs) `(let ((-swap-temp ,lhs)) (setq ,lhs ,rhs) (setq ,rhs -swap-temp)))",
+        "(defmacro block (symbol :rest block) `(catch ',symbol ,@block))",
+        "(defmacro escape (symbol value) `(throw ',symbol ,value))",
+        "(defun square (x) (* x x))",
+        "(defun cube (x) (* x x x))",
+        "(defun lerp (start end time) (+ (* (- end start) time) start))",
+        "(defun fib (n) (if (<= n 1) n (+ (fib (- n 1)) (fib (- n 2)))))",
+        "(defun -last-cons-1 (a b) (if (nil? b) a (-last-cons-1 (cdr a) (cdr b))))",
+        "(defun last-cons (list) (-last-cons-1 list (cdr list)))",
+        "(defun make-circular-list (list) (let ((foo (last-cons list))) (set-cdr foo list) list))",
+        "(defun cadr (list) (car (cdr list)))",
+        "(defun cdar (list) (cdr (car list)))",
+        "(defun gubby (value) 'gubby)",
+        "(defun hexdumpr (function) (print (hexdump function)))",
+    };
 
-    for (i = 0; i < PK_STD_LIB_COUNT; ++i) {
+    for (i = 0; i < PK_STD_COUNT_C; ++i) {
         PKAtomCFunc *cfunc = NULL;
         PKAtomSymbol *sym = NULL;
         PKAtom *_ignored = NULL;
         PKFuncArity arity;
-        PKFuncRecord *rec = &lib[i];
+        PKFuncRecord *rec = &lib_c[i];
 
         arity.args = rec->args;
         arity.mode = rec->mode;
@@ -533,5 +567,14 @@ PK_RES pk_load_std(Pocket lisp) {
         pk_try(pk_atom_symbol_interned(lisp, rec->sym, &sym));
         pk_try(pk_env_set(lisp, PKEnvTy_Fun, sym, (PKAtom *)cfunc, &_ignored));
     }
+    
+    for (i = 0; i < PK_STD_COUNT_LISP; ++i) {
+        const char *code = lib_lisp[i];
+        pk_try(pk_push_string(lisp, code));
+        pk_try(pk_read(lisp, -1, PK_READ_EXPRESSION));
+        pk_try(pk_eval(lisp, -1));
+        pk_try(pk_popn(lisp, 3));
+    }
+    
     return PK_OK;
 }

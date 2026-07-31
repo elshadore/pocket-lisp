@@ -1,66 +1,18 @@
 ## Code for the Pocket Lisp REPL
 
-(fset 'setq (macro (symbol value)
-     `(set ',symbol ,value)))
+(defvar repl/running t)
 
-(fset 'square
-      (lambda (x)
-        (* x x)))
+(defun repl/quit ()
+    (setq repl/running nil))
 
-(set 'repl/running t)
+(defun repl ()
+    (while repl/running
+        (puts ">> ")
+        (catch 'error
+          (lambda ()
+              (print (format (eval (read (read-user-input)))))))))
 
-(fset 'repl/quit
-      (lambda ()
-        (set 'repl/running nil)))
-
-(fset 'repl
-      (lambda ()
-        (while repl/running
-          (puts ">> ")
-          (catch 'error
-              (lambda ()
-                  (print (format (eval (read (read-user-input)))))))
-          )))
-
-(fset 'fib
-      (lambda (n)
-        (if (<= n 1)
-            n
-          (+ (fib (- n 1)) (fib (- n 2))))))
-
-(fset 'last-cons-1
-      (lambda (a b)
-        (if (nil? b)
-            a
-          (last-cons-1 (cdr a) (cdr b)))))
-
-(fset 'last-cons
-      (lambda (list) (last-cons-1 list (cdr list))))
-
-(fset 'make-circular-list
-      (lambda (list)
-        (let ((foo (last-cons list)))
-          (set-cdr foo list)
-          list)))
-
-(fset 'cadr
-      (lambda (list)
-        (car (cdr list))))
-
-(fset 'cdar
-      (lambda (list)
-        (cdr (car list))))
-
-(fset 'foopy (lambda (value) "foopy"))
-
-(fset 'test-fun (lambda ()
-      (let ((foo 34)
-            (bar "henlo word!"))
-            (print $"Foo: {(+ foo 35)}, Bar: {bar}, and other things..."))))
-
-(fset 'test (lambda ()
-      (print (hexdump 'test-fun))))
-
+    
 (if (nil? (cdr argv))
     nil
   (progn

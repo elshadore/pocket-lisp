@@ -70,7 +70,6 @@ PK_RES repl_cmd_args(Pocket lisp, int argc, char **argv) {
     return PK_OK;
 }
 
-
 PK_RES repl(Pocket lisp, int argc, char **argv) {
     pk_try(repl_cmd_args(lisp, argc, argv));
     pk_try(pk_push_cfunc(lisp, NULL, repl_read_user_input, 0, PK_ARITY_NORMAL));

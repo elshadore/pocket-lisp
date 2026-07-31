@@ -107,6 +107,7 @@ PK_RES pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PK_CALLFLAG flags, P
             output->ty = PK_CALLTY_CFUNC;
             output->as.c = cfunc;
             output->insert_result = insert_result;
+            output->ident = atom;
 
             return PK_OK;
         }
@@ -122,6 +123,7 @@ PK_RES pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PK_CALLFLAG flags, P
             output->ty = PK_CALLTY_LFUNC;
             output->as.lisp = lfunc;
             output->insert_result = insert_result;
+            output->ident = atom;
             
             return PK_OK;
         }
@@ -137,6 +139,7 @@ PK_RES pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PK_CALLFLAG flags, P
             output->ty = PK_CALLTY_LFUNC;
             output->as.lisp = lfunc;
             output->insert_result = insert_result;
+            output->ident = atom;
             
             return PK_OK;
         }
@@ -146,7 +149,7 @@ PK_RES pk_callconv(Pocket lisp, PKAtom *atom, size_t arity, PK_CALLFLAG flags, P
     }
 }
 
-void pk_callconv_quick(void *user_closure, PKFn fn, size_t arity, PKCallConv *output) {
+void pk_callconv_quick(Pocket lisp, void *user_closure, PKFn fn, size_t arity, PKCallConv *output) {
     output->ty = PK_CALLTY_QUICK;
     output->as.quick.user_closure = user_closure;
     output->as.quick.fn = fn;
@@ -154,6 +157,7 @@ void pk_callconv_quick(void *user_closure, PKFn fn, size_t arity, PKCallConv *ou
     output->extra_nils = 0;
     output->insert_result = PK_FALSE;
     output->variadic_list = 0;
+    output->ident = (PKAtom *)lisp->cache.fast;
 }
 
 PK_RES pk_call(Pocket lisp, PKCallConv *conv) {
@@ -161,7 +165,7 @@ PK_RES pk_call(Pocket lisp, PKCallConv *conv) {
     size_t start = 0;
     PK_RES result = PK_YIELD;
 
-    pk_try(pk_frame_push(lisp, conv->final_arity));
+    pk_try(pk_frame_push(lisp, conv->ident, conv->final_arity));
     start = lisp->frames.count;
     
     if (conv->variadic_list > 0) {
@@ -221,7 +225,7 @@ PK_RES pk_atom_apply(Pocket lisp, PKAtom *function, PKAtom *args) {
     PK_RES result = PK_YIELD;
     PKCallConv call;
     
-    pk_try(pk_frame_push(lisp, 0));
+    pk_try(pk_frame_push(lisp, (PKAtom *)lisp->cache.apply, 0));
     
     pk_defer(pk_push(lisp, function));
     
@@ -251,9 +255,8 @@ PK_RES pk_atom_eval(Pocket lisp, PKAtom *atom) {
     PKAtom *expanded = NULL;
     PKAtomLFunc *function = NULL;
 
-    /* pk_try(pk_atom_macroexpand(lisp, atom, &expanded)); */
-    expanded = atom;
-       
+    pk_try(pk_atom_macroexpand(lisp, atom, &expanded));
+
     pk_try(pk_compile_atom(lisp, expanded, PK_FUN_FUNCTION, &function));
     
     pk_try(pk_callconv(lisp, (PKAtom *)function, 0, PK_CALLFLAG_NONE, &call));

@@ -122,7 +122,7 @@ PK_RES pk_vm_exec(PKVM *vm) {
                 break;
             }
             case PK_OP_BLOCK_BEGIN: {
-                pk_defer(pk_frame_push(vm->lisp, 0));
+                pk_defer(pk_frame_push(vm->lisp, (PKAtom *)vm->lisp->cache.block, 0));
                 pk_defer(pk_vm_inc(vm));
                 break;
             }
@@ -176,6 +176,7 @@ PK_RES pk_vm_exec(PKVM *vm) {
                 break;
             }
             case PK_OP_MAKE_LIST: {
+                pk_defer(pk_vm_inc(vm));
                 pk_defer(pk_stack_op_list(vm->lisp, pk_vat(vm)));
                 pk_defer(pk_vm_inc(vm));
                 break;

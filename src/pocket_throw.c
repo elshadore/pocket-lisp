@@ -3,7 +3,7 @@
 PK_RES pk_error_impl(Pocket lisp, const char *file, int line) {
     fprintf(stderr, "ERROR: %s:%d\n\n", file, line);
     (void)pk_dump_trace(lisp, "error");
-    /* (void)pk_dump_env(lisp, "error"); */
+    (void)pk_dump_env(lisp, "error");
     pk_atom_throw(lisp, lisp->cache.error);
     return PK_YIELD;
 }

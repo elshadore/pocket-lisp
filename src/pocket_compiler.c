@@ -534,7 +534,8 @@ PK_RES pk_compile_expression(PKCompiler *c, PKAtomCons *expr) {
         return PK_OK;
     }
     
-    pk_try(pk_cmp_lookup(c, symbol, PKEnvTy_Fun));
+    /* pk_try(pk_cmp_lookup(c, symbol, PKEnvTy_Fun)); */
+    pk_try(pk_cmp_load(c, (PKAtom *)symbol));
     
     while (!pk_atom_is_nil(iter)) {
         PKAtomCons *cons = NULL;

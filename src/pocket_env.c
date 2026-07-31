@@ -19,6 +19,12 @@ pk_bool pk_env_query(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom **output
 
 PK_RES pk_env_get(Pocket lisp, PKEnvTy ty, PKAtomSymbol *sym, PKAtom **output) {
     if (!pk_symtable_get(lisp, pk_environment(lisp, ty), sym, output)) {
+        printf(
+            "DEBUG: env => %s, symbol => %.*s, not found!\n",
+            pk_ident_env(ty),
+            (int)sym->id->length,
+            sym->id->c
+        );
         return pk_error(lisp);
     } else {
         return PK_OK;

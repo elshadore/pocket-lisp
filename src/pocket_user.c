@@ -387,8 +387,9 @@ PK_RES pk_macroexpand(Pocket lisp, int stack_pointer) {
 PK_RES pk_macroexpand_1(Pocket lisp, int stack_pointer) {
     PKAtom *atom = NULL;
     PKAtom *result = NULL;
+    pk_bool ignore = PK_FALSE;
     pk_try(pk_stack_get(lisp, stack_pointer, &atom));
-    pk_try(pk_atom_macroexpand_1(lisp, atom, &result));
+    pk_try(pk_atom_macroexpand_1(lisp, atom, &result, &ignore));
     pk_try(pk_push(lisp, result));
     return PK_OK;
 }
@@ -398,7 +399,7 @@ PK_RES pk_fastcall(void *user_closure, Pocket lisp, PKFn fn, int arity) {
     size_t carity = 0;
     
     pk_try(pk_arity_convert(lisp, arity, &carity));
-    pk_callconv_quick(user_closure, fn, carity, &call);
+    pk_callconv_quick(lisp, user_closure, fn, carity, &call);
 
     pk_try(pk_call(lisp, &call));
 
