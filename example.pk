@@ -1,0 +1,42 @@
+(in-namespace :map)
+
+(defclass map (irect)
+   (width :init 0)
+   (height :init 0)
+   (tiles :init nil))
+
+(defun new-map (width height &opt fill)
+     (new 'map
+          'width width
+          'height height
+          'tiles (array (* width height) fill)))
+
+(defmethod get-x ((self map)) 0)
+(defmethod get-y ((self map)) 0)
+(defmethod-accessor get-width map 'width)
+(defmethod-accessor get-height map 'height)
+
+(defmethod get-area ((self map)
+      (* (get-width self) (get-height self))))
+
+(defvar *current-map* nil)
+
+(defmacro with-current-map (map &rest body)
+      `(let ((*current-map* ,map)) ,@body))
+
+(with-current-map (new-map 20 20 'wall)
+      (setf (map-tile 1 1) 'grass)
+      (setf (map-tile 2 2) 'wall))
+
+(coroutine:yield)
+
+(defvar-scene foo foo 69)
+(defvar-scene foo bar 420)
+
+(define-actorscript example (jimmy timmy billy)
+     (:seq
+         (:move jimmy north 10 :speed 20)
+         (:anim jimmy laugh))
+     (:lisp
+        (print "this is fine!")
+        (setf (map-tile 2 2) 'grass)))

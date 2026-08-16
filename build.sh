@@ -5,6 +5,9 @@ set -e
 mkdir -p out
 
 CC="clang"
-CFLAGS="-std=c89 -ggdb -Wall -Wextra -Werror -pedantic"
+CFLAGS="-std=c89 -Wextra -Werror -pedantic"
+DEBUG="-ggdb -O0"
+RELEASE="-O3"
 
-$CC $CFLAGS repl.c -o ./out/repl
+
+$CC $CFLAGS $RELEASE repl.c -o ./out/repl

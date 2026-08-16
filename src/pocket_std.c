@@ -521,12 +521,12 @@ PK_RES pk_load_std(Pocket lisp) {
         
         {"error", pk_fn_error, 0, PK_ARITY_NORMAL, NULL},
         {"throw", pk_fn_throw, 1, PK_ARITY_NORMAL, NULL},
-        {"catch", pk_fn_catch, 2, PK_ARITY_NORMAL, NULL},
+        {"catch-fun", pk_fn_catch, 2, PK_ARITY_NORMAL, NULL},
         
         {"hexdump", pk_fn_hexdump, 1, PK_ARITY_NORMAL, NULL},
     };
     
-    #define PK_STD_COUNT_LISP (23)
+    #define PK_STD_COUNT_LISP (24)
     const char *lib_lisp[PK_STD_COUNT_LISP] = {
         "(fset 'defmacro (macro (symbol args :rest body) `(fset ',symbol (macro ,args ,@body))))",
         "(defmacro defun (symbol args :rest body) `(fset ',symbol (lambda ,args ,@body)))",
@@ -538,6 +538,7 @@ PK_RES pk_load_std(Pocket lisp) {
         "(defmacro push (location el) `(setq ,location (cons ,el ,location)))",
         "(defvar -swap-temp)",
         "(defmacro swap (lhs rhs) `(let ((-swap-temp ,lhs)) (setq ,lhs ,rhs) (setq ,rhs -swap-temp)))",
+        "(defmacro catch (symbol :rest body) `(catch-fun ,symbol (lambda () ,@body)))",
         "(defmacro block (symbol :rest block) `(catch ',symbol ,@block))",
         "(defmacro escape (symbol value) `(throw ',symbol ,value))",
         "(defun square (x) (* x x))",

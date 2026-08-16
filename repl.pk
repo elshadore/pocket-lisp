@@ -2,17 +2,25 @@
 
 (defvar repl/running t)
 
+(defmacro when (cond :rest body)
+     `(if ,cond (progn ,@body) nil))
+          
+(defmacro unless (cond :rest body)
+     `(if ,cond nil (progn ,@body)))
+
 (defun repl/quit ()
     (setq repl/running nil))
+
+(defvar repl/history nil)
 
 (defun repl ()
     (while repl/running
         (puts ">> ")
         (catch 'error
-          (lambda ()
-              (print (format (eval (read (read-user-input)))))))))
+            (let ((result (eval (read (read-user-input)))))
+                 (push repl/history result)
+                 (print (format result))))))
 
-    
 (if (nil? (cdr argv))
     nil
   (progn
