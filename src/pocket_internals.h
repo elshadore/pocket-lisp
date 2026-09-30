@@ -13,9 +13,6 @@ typedef uint16_t pk_u16;
 typedef uint32_t pk_u32;
 typedef uint64_t pk_u64;
 
-typedef size_t pk_usize;
-typedef ssize_t pk_isize;
-
 #define PK_ATOMTY_ILLEGAL (0)
 #define PK_ATOMTY_TYPE (1)
 #define PK_ATOMTY_FREE (2)
@@ -32,7 +29,7 @@ typedef ssize_t pk_isize;
 
 typedef struct PKAtomHeader_ {
     pk_u8 type;
-    pk_usize refcount;
+    size_t refcount;
 } PKAtomHeader;
 
 typedef struct PKAtomFree_ PKAtomFree;
