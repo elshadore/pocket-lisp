@@ -1,110 +1,64 @@
 #include "pocket_internals.h"
 
-PK_RES pk_pool_expand(Pocket lisp) {
-    PKPool *pool;
-    PKAtomFree *free;
-    size_t i = 0;
-
-    pk_try(pk_talloc(PKPool, lisp, &pool));
-
-    pool->next = lisp->pool;
-    for (i = 0; i < (PK_POOL_MAX - 1); ++i) {
-        PKAtom *a = &pool->e[i];
-        PKAtom *b = &pool->e[i + 1];
-        
-        a->tag.ty = PKAtomTy_Free;
-        a->tag.marked = PK_FALSE;
-        a->free.next = (PKAtomFree *)b;
-    }
-    
-    free = (PKAtomFree *)&pool->e[PK_POOL_MAX - 1];
-    
-    free->tag.ty = PKAtomTy_Free;
-    free->tag.marked = PK_FALSE;
-    free->next = lisp->free;
-    
-    lisp->free = (PKAtomFree *)&pool->e[0];
-    lisp->pool = pool;
-    return PK_OK;
+void *pk_malloc(size_t size) {
+    return malloc(size);
 }
 
-PK_RES pk_atom_alloc(Pocket lisp, PKAtom **output) {
-    PKAtomFree *result = NULL;
-    
-    if (lisp->free == NULL) {
-        pk_try(pk_pool_expand(lisp));
-    }
-    
-    result = lisp->free;
-    lisp->free = result->next;
-    
-    *output = (PKAtom *)result;
-    return PK_OK;
+void *pk_realloc(void *ptr, size_t new_size) {
+    return realloc(ptr, new_size);
 }
 
-void pk_atom_free(Pocket lisp, PKAtom *atom) {
-    PKAtomFree *free = NULL;
-    /* const char *ident = pk_ident_atomty(atom->tag.ty); */
-    /* printf("FREEING: %s\n", ident); */
-    switch (atom->tag.ty) {
-        case PKAtomTy_Free: {
-            return;
-        }
-        case PKAtomTy_Keyword: {
-            pk_string_free(lisp, atom->keyword.c, atom->keyword.length);
-            break;
-        }
-        case PKAtomTy_String: {
-            pk_string_free(lisp, atom->string.c, atom->string.length);
-            break;
-        }
-        case PKAtomTy_LFunc:
-        case PKAtomTy_LMacro: {
-            PKAtomLFunc *lfunc = (PKAtomLFunc *)atom;
-            pk_free(lisp, lfunc->atoms.e, lfunc->atoms.length * sizeof(PKAtom *));
-            pk_free(lisp, lfunc->bc.e, lfunc->bc.length * sizeof(pk_u8));
-            break;
-        }
-        default: {
-            break;
+void pk_free(void *ptr) {
+    free(ptr);
+}
+
+bool pk_pool_expand(void) {
+    if (!PK_CORE.initialized) {
+        if (!pk_init()) {
+            return false;
         }
     }
     
-    free = (PKAtomFree *)atom;
-    free->tag.ty = PKAtomTy_Free;
-    free->tag.marked = PK_FALSE;
-    free->next = lisp->free;
+    PKPool *pool = (PKPool *)pk_malloc(sizeof(PKPool));
+    if (pool == NULL) {
+        return false;
+    }
+
+    for (size_t i = 0; i < (PK_POOL_MAX - 1); ++i) {
+        PKAtom a = &pool->e[i];
+        PKAtom b = &pool->e[i + 1];
+        a->free = (PKAtomFree) {
+            .header = (PKAtomHeader) {
+                .type = PK_ATOMTY_FREE,
+                .refcount = 0,
+            },
+            .next = (PKAtomFree *)b,
+        };
+    }
+
+    (pool->e[PK_POOL_MAX - 1]).free = (PKAtomFree) {
+        .header = (PKAtomHeader) {
+            .type = PK_ATOMTY_FREE,
+            .refcount = 0,
+        },
+        .next = NULL,
+    };
+
+    pool->next = PK_CORE.pool;
+    PK_CORE.pool = pool;
+    PK_CORE.free = (PKAtomFree *)&pool->e[0];
     
-    lisp->free = free;
+    return true;
 }
 
-size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity) {
-    if (old_capacity == 0) {
-        return init_capacity;
-    } else {
-        return old_capacity * 2;
+PKAtom pk_atom_alloc(void) {
+    if (PK_CORE.free == NULL) {
+        if (!pk_pool_expand()) {
+            // Out of Memory
+            abort();
+        }
     }
+    PKAtomFree *free = PK_CORE.free;
+    PK_CORE.free = free->next;
+    return (PKAtom)free;
 }
-
-PK_RES pk_malloc(Pocket lisp, size_t size, void **output) {
-    void *result = (lisp->alloc)(lisp->user_env, NULL, 0, size);
-    if (result == NULL) {
-        return pk_error(lisp);
-    }
-    *output = result;
-    return PK_OK;
-}
-
-PK_RES pk_realloc(Pocket lisp, void *ptr, size_t old_size, size_t new_size, void **output) {
-    void *result = (lisp->alloc)(lisp->user_env, ptr, old_size, new_size);
-    if ((new_size > 0) && (result == NULL)) {
-        return pk_error(lisp);
-    }
-    *output = result;
-    return PK_OK;
-}
-
-void pk_free(Pocket lisp, void *ptr, size_t size) {
-    (void)(lisp->alloc)(lisp->user_env, ptr, size, 0);
-}
-
