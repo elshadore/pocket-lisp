@@ -1,0 +1,30 @@
+(in-mod :foo)
+
+(defmod :game)
+
+(import :foo)
+
+*current-mod*
+
+(import :foo
+        :from :bar:baz)
+
+(list-all-funs)
+(list-all-vars)
+(list-all-mods)
+(list-all-types)
+
+(rl:draw-2d
+    (rl:draw-quad 0 0 256 256 rl:+ray-white+)
+    (var foo (result-of-some-calculation)))
+
+(cl:loop :for i
+         :in '(1 2 3 4 5)
+         :do
+         (print i))
+
+(block foo
+     (break foo 69)
+     420)
+
+

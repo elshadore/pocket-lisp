@@ -1,5 +1,13 @@
 #include "pocket_internals.h"
 
+size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity) {
+    if (old_capacity == 0) {
+        return init_capacity;
+    } else {
+        return old_capacity * 2;
+    }
+}
+
 void *pk_malloc(size_t size) {
     return malloc(size);
 }
@@ -12,16 +20,26 @@ void pk_free(void *ptr) {
     free(ptr);
 }
 
-bool pk_pool_expand(void) {
+PKAtom pk_error(void) {
+    abort();
+    return NULL;
+}
+    
+PKAtom pk_error_oom(void) {
+    abort();
+    return NULL;
+}
+
+PKAtom pk_pool_expand(void) {
     if (!PK_CORE.initialized) {
         if (!pk_init()) {
-            return false;
+            return pk_error_oom();
         }
     }
     
     PKPool *pool = (PKPool *)pk_malloc(sizeof(PKPool));
     if (pool == NULL) {
-        return false;
+        return pk_error_oom();
     }
 
     for (size_t i = 0; i < (PK_POOL_MAX - 1); ++i) {
@@ -48,15 +66,12 @@ bool pk_pool_expand(void) {
     PK_CORE.pool = pool;
     PK_CORE.free = (PKAtomFree *)&pool->e[0];
     
-    return true;
+    return pk_true();
 }
 
 PKAtom pk_atom_alloc(void) {
     if (PK_CORE.free == NULL) {
-        if (!pk_pool_expand()) {
-            // Out of Memory
-            abort();
-        }
+        pk_propagate(pk_pool_expand());
     }
     PKAtomFree *free = PK_CORE.free;
     PK_CORE.free = free->next;
