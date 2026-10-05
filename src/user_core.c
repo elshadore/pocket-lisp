@@ -1,6 +1,6 @@
-#include "pocket_internals.h"
+#include "user_internals.h"
 
-PocketCore PK_CORE = (PocketCore) {
+ULCore UL_CORE = (ULCore) {
     .pool = NULL,
     .free = NULL,
     .initialized = false,

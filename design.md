@@ -1,17 +1,4 @@
-# Notes on ??? Lisp
-
-- Names
-  - Pocket Lisp
-  - *Zombie Lisp*
-    - zlisp, zldex, .zld, zombie, zmach, zli
-  - Hyper Lisp
-  - Power Lisp
-  - Turbo Lisp
-  - Delta Lisp
-  - Proto Lisp
-  - *Ultra Lisp*
-    - ulisp, ultra dex, .uld, .ulc, ultra, ultra machine, uli
-    
+# Notes on USER LISP
 
 - Simple Namespace System
   - Global Namespace `(in-namespace nil)`
