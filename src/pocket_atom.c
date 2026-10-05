@@ -97,6 +97,14 @@ PKAtom pk_cons(PKAtom car, PKAtom cdr) {
     return atom;
 }
 
+PKAtom pk_list2(PKAtom first, PKAtom second) {
+    PKAtom b = pk_cons(second, pk_nil());
+    pk_propagate(b);
+    PKAtom a = pk_cons(first, b);
+    pk_propagate(a);
+    return a;
+}
+
 bool pk_is_nil(PKAtom atom) {
     return atom->header.type == PK_ATOMTY_NIL;
 }
@@ -105,6 +113,19 @@ bool pk_is_number(PKAtom atom) {
     return atom->header.type == PK_ATOMTY_NUMBER;
 }
 
+bool pk_is_string(PKAtom atom) {
+    return atom->header.type == PK_ATOMTY_STRING;
+}
+
+bool pk_is_symbol(PKAtom atom) {
+    return atom->header.type == PK_ATOMTY_SYMBOL;
+}
+
+bool pk_is_cons(PKAtom atom) {
+    return atom->header.type == PK_ATOMTY_CONS;
+}
+
 bool pk_is_error(PKAtom atom) {
     return atom->header.type == PK_ATOMTY_ERROR;
 }
+

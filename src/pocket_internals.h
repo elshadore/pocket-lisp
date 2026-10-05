@@ -1,5 +1,5 @@
-#ifndef USER_LISP_INTERNALS_H
-#define USER_LISP_INTERNALS_H
+#ifndef POCKET_LISP_INTERNALS_H
+#define POCKET_LISP_INTERNALS_H
 
 #include "pocket.h"
 
@@ -20,6 +20,19 @@ typedef struct PKWriter_ {
     size_t count;
     size_t capacity;
 } PKWriter;
+
+typedef struct PKReader_ {
+    PKStr str;
+    size_t curr;
+    size_t line;
+    size_t bol;
+    char c;
+} PKReader;
+
+typedef struct PKAccum_ {
+    PKAtom head;
+    PKAtom tail;
+} PKAccum;
 
 #define PK_ATOMTY_ILLEGAL (0)
 #define PK_ATOMTY_TYPE (1)
@@ -103,13 +116,22 @@ struct PKPool_ {
     PKPool *next;
 };
 
-typedef struct PKCore_ {
+typedef struct PKCache_ {
+    PKAtom quote;
+    PKAtom quasiquote;
+    PKAtom unquote;
+    PKAtom unquote_splice;
+    PKAtom string_substitute;
+} PKCache;
+
+typedef struct PocketLispMachine_ {
     PKPool *pool;
     PKAtomFree *free;
+    PKCache cache;
     bool initialized;
-} PKCore;
+} PocketLispMachine;
 
-extern PKCore PK_CORE;
+extern PocketLispMachine PK_CORE;
 
 PKAtom pk_error(void);
 PKAtom pk_error_oom(void);
@@ -123,6 +145,8 @@ void pk_free(void *ptr);
 PKAtom pk_pool_expand(void);
 PKAtom pk_atom_alloc(void);
 
+PKAtom pk_read_atom(PKReader *r);
+    
 void pk_writer_deinit(PKWriter *w);
 PKAtom pk_writer_expand(PKWriter *w, size_t needed);
 PKAtom pk_writer_char(PKWriter *w, char c);
@@ -150,6 +174,8 @@ char pk_char_from_hex(pk_u8 byte);
 bool pk_char_is_hex(char c);
 pk_u8 pk_char_to_hex(char c);
 
+PKAccum pk_accum_new(void);
+PKAtom pk_accum_push(PKAccum *acc, PKAtom atom);
 size_t pk_hash_djb2(const char *c, size_t length);
     
-#endif // USER_LISP_INTERNALS_H
+#endif // POCKET_LISP_INTERNALS_H

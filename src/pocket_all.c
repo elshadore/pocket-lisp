@@ -3,5 +3,6 @@
 #include "pocket_math.c"
 #include "pocket_mem.c"
 #include "pocket_print.c"
+#include "pocket_read.c"
 #include "pocket_utils.c"
 #include "pocket_writer.c"

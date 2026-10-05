@@ -1,5 +1,28 @@
 #include "pocket_internals.h"
 
+PKAccum pk_accum_new(void) {
+    return (PKAccum) {
+        .head = pk_nil(),
+        .tail = pk_nil(),
+    };
+}
+
+PKAtom pk_accum_push(PKAccum *acc, PKAtom atom) {
+    PKAtom cons = pk_cons(atom, pk_nil());
+
+    pk_propagate(cons);
+    
+    if (pk_is_nil(acc->head)) {
+        acc->head = cons;
+        acc->tail = cons;
+    } else {
+        acc->tail->cons.cdr = cons;
+        acc->tail = cons;
+    }
+
+    return cons;
+}
+
 PKAtom pk_str_dupe(PKStr input, PKStr *output) {
     if (input.length == 0) {
         *output = PK_STR_EMPTY;

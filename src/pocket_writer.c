@@ -171,7 +171,29 @@ PKAtom pk_writer_atom(PKWriter *w, PKAtom atom) {
             pk_propagate(pk_writer_string(w, atom->symbol.name->string.str));
             break;
         }
+        case PK_ATOMTY_CONS: {
+            pk_propagate(pk_writer_char(w, '('));
+            
+            pk_propagate(pk_writer_atom(w, atom->cons.car));
+            
+            PKAtom iter = atom->cons.cdr;
+            while (pk_is_cons(iter)) {
+                pk_propagate(pk_writer_char(w, ' '));
+                pk_propagate(pk_writer_atom(w, iter->cons.car));
+                iter = iter->cons.cdr;
+            }
+            if (!pk_is_nil(iter)) {
+                pk_propagate(pk_writer_string(w, pk_str(" . ")));
+                pk_propagate(pk_writer_atom(w, iter));
+            }
+            
+            pk_propagate(pk_writer_char(w, ')'));
+            break;
+        }
         default: {
+            pk_propagate(pk_writer_string(w, pk_str("&<UNKNOWN::")));
+            pk_propagate(pk_writer_address(w, (size_t)atom));
+            pk_propagate(pk_writer_char(w, '>'));
             break;
         }
     }

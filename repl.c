@@ -5,17 +5,11 @@ PKAtom run(void) {
     if (!pk_init()) {
         return pk_error();
     }
+
+    PKAtom a = pk_string(pk_str("(+ 1 2 3)"));
+    PKAtom b = pk_read(a, PK_READ_EXPRESSION);
     
-    PKAtom a = pk_int(35);
-    pk_propagate(a);
-    
-    PKAtom b = pk_int(34);
-    pk_propagate(b);
-    
-    PKAtom c = pk_add(a, b);
-    pk_propagate(c);
-    
-    pk_print(c);
+    pk_print(b);
     
     return pk_true();
 }

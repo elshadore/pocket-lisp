@@ -1,7 +1,6 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] Rename to POCKET LISP
 - [ ] Reader
 - [ ] Environment
   - let
