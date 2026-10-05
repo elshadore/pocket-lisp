@@ -1,0 +1,7 @@
+#include "pocket_atom.c"
+#include "pocket_core.c"
+#include "pocket_math.c"
+#include "pocket_mem.c"
+#include "pocket_print.c"
+#include "pocket_utils.c"
+#include "pocket_writer.c"

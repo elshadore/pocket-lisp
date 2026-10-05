@@ -1,30 +1,30 @@
-#include "ulisp_internals.h"
+#include "pocket_internals.h"
 
-ULAtom ul_str_dupe(ULStr input, ULStr *output) {
+PKAtom pk_str_dupe(PKStr input, PKStr *output) {
     if (input.length == 0) {
-        *output = UL_STR_EMPTY;
-        return ul_true();
+        *output = PK_STR_EMPTY;
+        return pk_true();
     }
-    char *buffer = ul_malloc(input.length * sizeof(char));
+    char *buffer = pk_malloc(input.length * sizeof(char));
     if (buffer == NULL) {
-        return ul_error_oom();
+        return pk_error_oom();
     }
     
     (void)memcpy(buffer, input.c, input.length);
-    *output = (ULStr) {
+    *output = (PKStr) {
         .c = buffer,
         .length = input.length,
     };
 
-    return ul_true();
+    return pk_true();
 }
 
-bool ul_str_eq(ULStr a, ULStr b) {
+bool pk_str_eq(PKStr a, PKStr b) {
     if (a.length != b.length) return false;
     return (bool)(memcmp(a.c, b.c, a.length) == 0);
 }
 
-void ul_str_reverse_mut(char *c, size_t length) {
+void pk_str_reverse_mut(char *c, size_t length) {
     if (length <= 1) return;
     
     for (size_t i = 0, j = length - 1; i < j; i++, j--) {
@@ -34,7 +34,7 @@ void ul_str_reverse_mut(char *c, size_t length) {
     }
 }
 
-ul_u8 ul_char_to_digit(char c) {
+pk_u8 pk_char_to_digit(char c) {
     switch (c) {
         case '0': return 0;
         case '1': return 1;
@@ -50,7 +50,7 @@ ul_u8 ul_char_to_digit(char c) {
     }
 }
 
-char ul_char_from_digit(ul_u8 integer) {
+char pk_char_from_digit(pk_u8 integer) {
     switch (integer) {
         case 0: return '0';
         case 1: return '1';
@@ -66,7 +66,7 @@ char ul_char_from_digit(ul_u8 integer) {
     }
 }
 
-bool ul_char_is_digit(char c) {
+bool pk_char_is_digit(char c) {
     switch (c) {
         case '0': return true;
         case '1': return true;
@@ -82,7 +82,7 @@ bool ul_char_is_digit(char c) {
     }
 }
 
-bool ul_char_is_whitespace(char c) {
+bool pk_char_is_whitespace(char c) {
     switch (c) {
         case '\0': return true;
         case ' ': return true;
@@ -95,13 +95,13 @@ bool ul_char_is_whitespace(char c) {
     }
 }
 
-bool ul_char_is_alphabet(char c) {
+bool pk_char_is_alphabet(char c) {
     if (c >= 'A' && c <= 'Z') return true;
     if (c >= 'a' && c <= 'z') return true;
     return false;
 }
 
-bool ul_char_is_symbol(char c) {
+bool pk_char_is_symbol(char c) {
     switch (c) {
         case '+': return true;
         case '-': return true;
@@ -115,14 +115,14 @@ bool ul_char_is_symbol(char c) {
         case '_': return true;
         case '%': return true;
         default: {
-            if (ul_char_is_alphabet(c)) return true;
-            if (ul_char_is_digit(c)) return true;
+            if (pk_char_is_alphabet(c)) return true;
+            if (pk_char_is_digit(c)) return true;
             return false;
         }
     }
 }
 
-char ul_char_from_hex(ul_u8 byte) {
+char pk_char_from_hex(pk_u8 byte) {
     switch (byte) {
         case 0: return '0';
         case 1: return '1';
@@ -143,7 +143,7 @@ char ul_char_from_hex(ul_u8 byte) {
     }
 }
 
-bool ul_char_is_hex(char c) {
+bool pk_char_is_hex(char c) {
     switch (c) {
         case '0': return true;
         case '1': return true;
@@ -171,7 +171,7 @@ bool ul_char_is_hex(char c) {
     }
 }
 
-ul_u8 ul_char_to_hex(char c) {
+pk_u8 pk_char_to_hex(char c) {
     switch (c) {
         case '0': return 0;
         case '1': return 1;
@@ -199,7 +199,7 @@ ul_u8 ul_char_to_hex(char c) {
     }
 }
 
-size_t ul_hash_djb2(const char *c, size_t length) {
+size_t pk_hash_djb2(const char *c, size_t length) {
     size_t hash = 5381;
     size_t i = 0;
     for (i = 0; i < length; ++i) {

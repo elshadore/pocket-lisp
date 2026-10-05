@@ -1,27 +1,27 @@
-#include "./src/user_lisp.h"
-#include "./src/user_lisp_all.c"
+#include "./src/pocket.h"
+#include "./src/pocket_all.c"
 
-ULAtom run(void) {
-    if (!ul_init()) {
-        return ul_error();
+PKAtom run(void) {
+    if (!pk_init()) {
+        return pk_error();
     }
     
-    ULAtom a = ul_int(35);
-    ul_propagate(a);
+    PKAtom a = pk_int(35);
+    pk_propagate(a);
     
-    ULAtom b = ul_int(34);
-    ul_propagate(b);
+    PKAtom b = pk_int(34);
+    pk_propagate(b);
     
-    ULAtom c = ul_add(a, b);
-    ul_propagate(c);
+    PKAtom c = pk_add(a, b);
+    pk_propagate(c);
     
-    ul_print(c);
+    pk_print(c);
     
-    return ul_true();
+    return pk_true();
 }
 
 int main(void) {
-    if (ul_is_error(run())) {
+    if (pk_is_error(run())) {
         return 1;
     }
     return 0;
