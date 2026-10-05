@@ -1,4 +1,4 @@
-#include "user_internals.h"
+#include "ulisp_internals.h"
 
 ULAtom ul_print(ULAtom atom) {
     ULWriter w = UL_WRITER_EMPTY;

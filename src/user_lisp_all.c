@@ -1,0 +1,7 @@
+#include "ulisp_atom.c"
+#include "ulisp_core.c"
+#include "ulisp_math.c"
+#include "ulisp_mem.c"
+#include "ulisp_print.c"
+#include "ulisp_utils.c"
+#include "ulisp_writer.c"

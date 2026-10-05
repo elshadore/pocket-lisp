@@ -1,7 +1,7 @@
-#ifndef ULISP_INTERNALS_H
-#define ULISP_INTERNALS_H
+#ifndef USER_LISP_INTERNALS_H
+#define USER_LISP_INTERNALS_H
 
-#include "user.h"
+#include "user_lisp.h"
 
 typedef int8_t ul_i8;
 typedef int16_t ul_i16;
@@ -36,9 +36,13 @@ typedef struct ULWriter_ {
 #define UL_ATOMTY_TABLE (12)
 #define UL_ATOMTY_INTERPRETTER (13)
 
+#define UL_ATOMFLAG_NONE (0)
+#define UL_ATOMFLAG_IMMORTAL (1 << 0)
+
 typedef struct ULAtomHeader_ {
     ul_u8 type;
-    size_t refcount;
+    ul_u8 flags;
+    ul_u8 refcount;
 } ULAtomHeader;
 
 typedef struct ULAtomFree_ ULAtomFree;
@@ -70,7 +74,9 @@ typedef struct ULAtomString_ {
 
 typedef struct ULAtomSymbol_ {
     ULAtomHeader header;
-    ULStr id;
+    ULAtom var;
+    ULAtom fun;
+    ULAtom name;
 } ULAtomSymbol;
 
 typedef struct ULAtomCons_ {
@@ -146,4 +152,4 @@ ul_u8 ul_char_to_hex(char c);
 
 size_t ul_hash_djb2(const char *c, size_t length);
     
-#endif // ULISP_INTERNALS_H
+#endif // USER_LISP_INTERNALS_H

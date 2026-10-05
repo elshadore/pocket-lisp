@@ -1,4 +1,4 @@
-#include "user_internals.h"
+#include "ulisp_internals.h"
 
 ULAtom ul_str_dupe(ULStr input, ULStr *output) {
     if (input.length == 0) {

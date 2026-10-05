@@ -1,4 +1,4 @@
-#include "user_internals.h"
+#include "ulisp_internals.h"
 
 void ul_writer_deinit(ULWriter *w) {
     ul_free(w->c);
@@ -14,8 +14,9 @@ ULAtom ul_writer_expand(ULWriter *w, size_t needed) {
         }
         char *new_c = ul_realloc(w->c, new_capacity * sizeof(char));
         if (new_c == NULL) {
-            return false;
+            return ul_error_oom();
         }
+        w->c = new_c;
         w->capacity = new_capacity;
     }
     return ul_true();
@@ -167,7 +168,7 @@ ULAtom ul_writer_atom(ULWriter *w, ULAtom atom) {
             break;
         }
         case UL_ATOMTY_SYMBOL: {
-            ul_propagate(ul_writer_string(w, atom->symbol.id));
+            ul_propagate(ul_writer_string(w, atom->symbol.name->string.str));
             break;
         }
         default: {

@@ -1,7 +1,0 @@
-#include "user_atom.c"
-#include "user_core.c"
-#include "user_math.c"
-#include "user_mem.c"
-#include "user_print.c"
-#include "user_utils.c"
-#include "user_writer.c"

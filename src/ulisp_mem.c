@@ -1,4 +1,4 @@
-#include "user_internals.h"
+#include "ulisp_internals.h"
 
 size_t ul_grow_capacity(size_t old_capacity, size_t init_capacity) {
     if (old_capacity == 0) {
@@ -20,16 +20,6 @@ void ul_free(void *ptr) {
     free(ptr);
 }
 
-ULAtom ul_error(void) {
-    abort();
-    return NULL;
-}
-    
-ULAtom ul_error_oom(void) {
-    abort();
-    return NULL;
-}
-
 ULAtom ul_pool_expand(void) {
     if (!UL_CORE.initialized) {
         if (!ul_init()) {
@@ -48,6 +38,7 @@ ULAtom ul_pool_expand(void) {
         a->free = (ULAtomFree) {
             .header = (ULAtomHeader) {
                 .type = UL_ATOMTY_FREE,
+                .flags = UL_ATOMFLAG_NONE,
                 .refcount = 0,
             },
             .next = (ULAtomFree *)b,

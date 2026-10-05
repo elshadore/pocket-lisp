@@ -1,5 +1,5 @@
-#ifndef ULISP_H
-#define ULISP_H
+#ifndef USER_LISP_H
+#define USER_LISP_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -24,6 +24,12 @@ typedef struct ULAtoms_ {
     size_t length;
 } ULAtoms;
 
+typedef enum UL_ENV_ {
+    UL_ENV_VAR = 0,
+    UL_ENV_FUN,
+    UL_ENV_PROP,
+} UL_ENV;
+
 #define ul_str(text_) (ULStr) {.c = (text_), .length = (sizeof(text_) - 1)}
 #define UL_STR_EMPTY (ULStr){.c = NULL, .length = 0}
 
@@ -40,7 +46,6 @@ void ul_deinit(void);
 ULAtom ul_ref_inc(ULAtom atom);
 ULAtom ul_ref_dec(ULAtom atom);
 
-ULAtom ul_env(void *user_env);
 ULAtom ul_true(void);
 ULAtom ul_nil(void);
 ULAtom ul_int(int integer);
@@ -56,6 +61,11 @@ ULAtom ul_sub(ULAtom lhs, ULAtom rhs);
 ULAtom ul_mul(ULAtom lhs, ULAtom rhs);
 ULAtom ul_div(ULAtom lhs, ULAtom rhs);
 
+ULAtom ul_set(UL_ENV env, ULAtom symbol, ULAtom value);
+ULAtom ul_get(UL_ENV env, ULAtom symbol);
+bool ul_is_bound(UL_ENV env, ULAtom symbol);
+ULAtom ul_unbind(UL_ENV env, ULAtom symbol);
+
 ULAtom ul_print(ULAtom atom);
 ULAtom ul_read(ULAtom src);
 ULAtom ul_format(ULAtom atom);
@@ -69,4 +79,4 @@ ULAtom ul_map(void *user_closure, ULAtom seq, ULFn fn);
 ULAtom ul_fap(void *user_closure, ULAtom seq, ULFn fn);
 ULAtom ul_filter(void *user_closure, ULAtom seq, ULFn fn);
 
-#endif // ULISP_H
+#endif // USER_LISP_H
