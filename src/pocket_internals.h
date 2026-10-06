@@ -13,6 +13,22 @@ typedef uint16_t pk_u16;
 typedef uint32_t pk_u32;
 typedef uint64_t pk_u64;
 
+#define PK_ARRAY_EMPTY (PKArray){.e = NULL, .count = 0, .capacity = 0}
+
+typedef struct PKArray_ {
+    PKAtom *e;
+    size_t count;
+    size_t capacity;
+} PKArray;
+
+#define PK_BYTES_EMPTY (PKBytes){.e = NULL, .count = 0, .capacity = 0}
+
+typedef struct PKBytes_ {
+    pk_u8 *e;
+    size_t count;
+    size_t capacity;
+} PKBytes;
+
 #define PK_WRITER_EMPTY (PKWriter){.c = NULL, .count = 0, .capacity = 0}
 
 typedef struct PKWriter_ {
@@ -29,6 +45,18 @@ typedef struct PKReader_ {
     char c;
 } PKReader;
 
+#define PK_COMPILER_EMPTY (PKCompiler) { \
+    .bc = PK_BYTES_EMPTY, \
+    .atoms = PK_ARRAY_EMPTY, \
+    .addr = 0, \
+}
+
+typedef struct PKCompiler_ {
+    PKBytes bc;
+    PKArray atoms;
+    pk_u8 addr;
+} PKCompiler;
+
 typedef struct PKAccum_ {
     PKAtom head;
     PKAtom tail;
@@ -38,16 +66,18 @@ typedef struct PKAccum_ {
 #define PK_ATOMTY_TYPE (1)
 #define PK_ATOMTY_FREE (2)
 #define PK_ATOMTY_ERROR (3)
-#define PK_ATOMTY_NIL (4)
-#define PK_ATOMTY_TRUE (5)
-#define PK_ATOMTY_NUMBER (6)
-#define PK_ATOMTY_STRING (7)
-#define PK_ATOMTY_SYMBOL (8)
-#define PK_ATOMTY_KEYWORD (9)
-#define PK_ATOMTY_CONS (10)
-#define PK_ATOMTY_ARRAY (11)
-#define PK_ATOMTY_TABLE (12)
-#define PK_ATOMTY_INTERPRETTER (13)
+#define PK_ATOMTY_UNDEFINED (4)
+#define PK_ATOMTY_NIL (5)
+#define PK_ATOMTY_TRUE (6)
+#define PK_ATOMTY_NUMBER (7)
+#define PK_ATOMTY_STRING (8)
+#define PK_ATOMTY_SYMBOL (9)
+#define PK_ATOMTY_KEYWORD (10)
+#define PK_ATOMTY_CONS (11)
+#define PK_ATOMTY_ARRAY (12)
+#define PK_ATOMTY_TABLE (13)
+#define PK_ATOMTY_CFUN (14)
+#define PK_ATOMTY_LFUN (15)
 
 #define PK_ATOMFLAG_NONE (0)
 #define PK_ATOMFLAG_IMMORTAL (1 << 0)
@@ -89,14 +119,90 @@ typedef struct PKAtomSymbol_ {
     PKAtomHeader header;
     PKAtom var;
     PKAtom fun;
+    PKAtom prop;
     PKAtom name;
 } PKAtomSymbol;
+
+typedef struct PKAtomKeyword_ {
+    PKAtomHeader header;
+    PKStr id;
+} PKAtomKeyword;
 
 typedef struct PKAtomCons_ {
     PKAtomHeader header;
     PKAtom car;
     PKAtom cdr;
 } PKAtomCons;
+
+#define PK_INT_ARITY_NORMAL (0)
+#define PK_INT_ARITY_OPTIONAL (1)
+#define PK_INT_ARITY_VARIADIC (2)
+
+#define PK_CFUNC_ARG_0 (0)
+#define PK_CFUNC_ARG_1 (1)
+#define PK_CFUNC_ARG_2 (2)
+#define PK_CFUNC_ARG_3 (3)
+
+typedef struct PKAtomCFun_ {
+    PKAtomHeader header;
+    pk_u8 arity;
+    pk_u8 args;
+    void *user_closure;
+    union {
+        void *opaque;
+        PKFun0 *fun0;
+        PKFun1 *fun1;
+        PKFun2 *fun2;
+        PKFun3 *fun3;
+    } as;
+} PKAtomCFun;
+
+#define PK_OP_ILLEGAL (0)
+#define PK_OP_NOP (1)
+#define PK_OP_RET (2)
+#define PK_OP_LOAD (3)
+#define PK_OP_LOAD_NIL (4)
+#define PK_OP_LOAD_TRUE (5)
+#define PK_OP_CALL (6)
+#define PK_OP_BLOCK_BEGIN (7)
+#define PK_OP_BLOCK_END (8)
+#define PK_OP_BLOCK_CLEAR (9)
+#define PK_OP_JMP_IF_NIL (10)
+#define PK_OP_JMP (11)
+#define PK_OP_JMP_BACK (12)
+#define PK_OP_SET_VAR (13)
+#define PK_OP_SET_FUN (14)
+#define PK_OP_SET_PROP (15)
+#define PK_OP_LET_VAR (16)
+#define PK_OP_LET_FUN (17)
+#define PK_OP_LET_PROP (18)
+#define PK_OP_GET_VAR (19)
+#define PK_OP_GET_FUN (20)
+#define PK_OP_GET_PROP (21)
+#define PK_OP_MAKE_LIST (22)
+#define PK_OP_MAKE_LIST_PACKED (23)
+#define PK_OP_MERGE_LISTS (24)
+#define PK_OP_STRCAT (25)
+
+typedef enum PK_OPCODE_TY_ {
+    PK_OPCODE_TY_NORMAL = 0,
+    PK_OPCODE_TY_LOAD,
+    PK_OPCODE_TY_LIT
+} PK_OPCODE_TY;
+
+typedef struct PKAtomLFun_ {
+    PKAtomHeader header;
+    pk_u8 args;
+    pk_u8 arity;
+    struct {
+        pk_u8 *e;
+        size_t length;
+    } bc;
+    struct {
+        PKAtom *e;
+        size_t length;
+    } atoms;
+} PKAtomLFun;
 
 typedef union PKAtomData_ {
     PKAtomHeader header;
@@ -105,8 +211,23 @@ typedef union PKAtomData_ {
     PKAtomNumber number;
     PKAtomString string;
     PKAtomSymbol symbol;
+    PKAtomKeyword keyword;
     PKAtomCons cons;
+    PKAtomCFun cfun;
+    PKAtomLFun lfun;
 } PKAtomData;
+
+typedef struct PKLet_ {
+    PK_ENV env;
+    PKAtom symbol;
+    PKAtom restore;
+} PKLet;
+
+typedef struct PKLets_ {
+    PKLet *e;
+    size_t count;
+    size_t capacity;
+} PKLets;
 
 #define PK_POOL_MAX (1024)
 typedef struct PKPool_ PKPool;
@@ -116,15 +237,64 @@ struct PKPool_ {
     PKPool *next;
 };
 
+#define PK_CACHE_EMPTY (PKCache) { \
+    .lambda = NULL, \
+    .macro = NULL, \
+    \
+    .progn = NULL, \
+    .sym_if = NULL, \
+    .sym_while = NULL, \
+    .error = NULL, \
+    .let = NULL, \
+    .let_star = NULL, \
+    .flet = NULL, \
+    .flet_star = NULL, \
+    .block = NULL, \
+    .apply = NULL, \
+    .macro_apply = NULL, \
+    \
+    .quote = NULL, \
+    .quasiquote = NULL, \
+    .unquote = NULL, \
+    .unquote_splice = NULL, \
+    .string_substitute = NULL, \
+}
+
 typedef struct PKCache_ {
+    PKAtom lambda;
+    PKAtom macro;
+    
+    PKAtom progn;
+    PKAtom sym_if;
+    PKAtom sym_while;
+    PKAtom error;
+    PKAtom let;
+    PKAtom let_star;
+    PKAtom flet;
+    PKAtom flet_star;
+    PKAtom block;
+    PKAtom apply;
+    PKAtom macro_apply;
+    
     PKAtom quote;
     PKAtom quasiquote;
     PKAtom unquote;
     PKAtom unquote_splice;
     PKAtom string_substitute;
+    
 } PKCache;
 
+#define POCKET_LISP_MACHINE_EMPTY (PocketLispMachine) { \
+    .lets = (PKLets){.e = NULL, .count = 0, .capacity = 0}, \
+    .pool = NULL, \
+    .free = NULL, \
+    .cache = PK_CACHE_EMPTY, \
+    .initialized = false, \
+}
+
 typedef struct PocketLispMachine_ {
+    PKArray stack;
+    PKLets lets;
     PKPool *pool;
     PKAtomFree *free;
     PKCache cache;
@@ -145,6 +315,13 @@ void pk_free(void *ptr);
 PKAtom pk_pool_expand(void);
 PKAtom pk_atom_alloc(void);
 
+PKAtom pk_undefined(void);
+bool pk_is_undefined(PKAtom atom);
+bool pk_is_cfun(PKAtom atom);
+
+PKAtom pk_stack_push(PKAtom atom);
+PKAtom pk_let_unwind(size_t n);
+    
 PKAtom pk_read_atom(PKReader *r);
     
 void pk_writer_deinit(PKWriter *w);
@@ -176,6 +353,14 @@ pk_u8 pk_char_to_hex(char c);
 
 PKAccum pk_accum_new(void);
 PKAtom pk_accum_push(PKAccum *acc, PKAtom atom);
+
+PKAtom pk_array_push(PKArray *array, PKAtom atom, size_t init_capacity);
+PKAtom pk_bytes_push(PKBytes *bytes, pk_u8 byte, size_t init_capacity);
+    
 size_t pk_hash_djb2(const char *c, size_t length);
+    
+PKAtom pk_compile_value(PKCompiler *c, PKAtom value);
+PKAtom pk_compile_lambda(PKAtom args, PKAtom body);
+PKAtom pk_compile_atom(PKAtom value);
     
 #endif // POCKET_LISP_INTERNALS_H

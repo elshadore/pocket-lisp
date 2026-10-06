@@ -1,4 +1,6 @@
 #include "pocket_atom.c"
+#include "pocket_call.c"
+#include "pocket_compiler.c"
 #include "pocket_core.c"
 #include "pocket_math.c"
 #include "pocket_mem.c"

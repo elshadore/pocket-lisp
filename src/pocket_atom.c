@@ -1,5 +1,13 @@
 #include "pocket_internals.h"
 
+PKAtomData PK_ATOM_UNDEFINED = (PKAtomData) {
+    .header = (PKAtomHeader) {
+        .type = PK_ATOMTY_UNDEFINED,
+        .flags = PK_ATOMFLAG_IMMORTAL,
+        .refcount = 0,
+    }
+};
+
 PKAtomData PK_ATOM_NIL = (PKAtomData) {
     .header = (PKAtomHeader) {
         .type = PK_ATOMTY_NIL,
@@ -23,6 +31,10 @@ PKAtomData PK_ATOM_ERROR = (PKAtomData) {
         .refcount = 0,
     }
 };
+
+PKAtom pk_undefined(void) {
+    return &PK_ATOM_UNDEFINED;
+}
 
 PKAtom pk_nil() {
     return &PK_ATOM_NIL;
@@ -81,6 +93,7 @@ PKAtom pk_symbol(PKStr string) {
     atom->header.type = PK_ATOMTY_SYMBOL;
     atom->symbol.var = pk_nil();
     atom->symbol.fun = pk_nil();
+    atom->symbol.prop = pk_nil();
     atom->symbol.name = name;
     
     return atom;
@@ -105,8 +118,70 @@ PKAtom pk_list2(PKAtom first, PKAtom second) {
     return a;
 }
 
+PKAtom pk_cfun_cons(void *user_closure, void *opaque_fun, pk_u8 args, pk_u8 arity) {
+    PKAtom atom = pk_atom_alloc();
+    pk_propagate(atom);
+
+    atom->header.type = PK_ATOMTY_CFUN;
+    atom->cfun.user_closure = user_closure;
+    atom->cfun.args = args;
+    atom->cfun.arity = arity;
+    atom->cfun.as.opaque = opaque_fun;
+    return atom;
+}
+
+pk_u8 pk_cfun_arity_conv(PK_ARITY arity) {
+    switch (arity) {
+        case PK_ARITY_NORMAL: return PK_INT_ARITY_NORMAL;
+        case PK_ARITY_OPTIONAL: return PK_INT_ARITY_OPTIONAL;
+        case PK_ARITY_VARIADIC: return PK_INT_ARITY_VARIADIC;
+        default: return PK_INT_ARITY_NORMAL;
+    }
+}
+
+PKAtom pk_cfun0(void *user_closure, PKFun0 fun) {
+    return pk_cfun_cons(user_closure, (void *)fun, 0, PK_INT_ARITY_NORMAL);
+}
+
+PKAtom pk_cfun1(void *user_closure, PKFun1 fun, PK_ARITY arity) {
+    return pk_cfun_cons(user_closure, (void *)fun, 0, pk_cfun_arity_conv(arity));
+}
+
+PKAtom pk_cfun2(void *user_closure, PKFun2 fun, PK_ARITY arity) {
+    return pk_cfun_cons(user_closure, (void *)fun, 0, pk_cfun_arity_conv(arity));
+}
+
+PKAtom pk_cfun3(void *user_closure, PKFun3 fun, PK_ARITY arity) {
+    return pk_cfun_cons(user_closure, (void *)fun, 0, pk_cfun_arity_conv(arity));
+}
+
+bool pk_string_qeq(PKAtom string, PKStr comp) {
+    if (!pk_is_string(string)) {
+        return false;
+    }
+    return pk_str_eq(string->string.str, comp);
+}
+
+bool pk_symbol_qeq(PKAtom symbol, PKStr comp) {
+    if (!pk_is_symbol(symbol)) {
+        return false;
+    }
+    return pk_str_eq(symbol->symbol.name->string.str, comp);
+}
+
+bool pk_keyword_qeq(PKAtom keyword, PKStr comp) {
+    if (!pk_is_keyword(keyword)) {
+        return false;
+    }
+    return pk_str_eq(keyword->keyword.id, comp);
+}
+
 bool pk_is_nil(PKAtom atom) {
     return atom->header.type == PK_ATOMTY_NIL;
+}
+
+bool pk_is_true(PKAtom atom) {
+    return atom->header.type != PK_ATOMTY_NIL;
 }
 
 bool pk_is_number(PKAtom atom) {
@@ -121,6 +196,10 @@ bool pk_is_symbol(PKAtom atom) {
     return atom->header.type == PK_ATOMTY_SYMBOL;
 }
 
+bool pk_is_keyword(PKAtom atom) {
+    return atom->header.type == PK_ATOMTY_KEYWORD;
+}
+
 bool pk_is_cons(PKAtom atom) {
     return atom->header.type == PK_ATOMTY_CONS;
 }
@@ -128,4 +207,61 @@ bool pk_is_cons(PKAtom atom) {
 bool pk_is_error(PKAtom atom) {
     return atom->header.type == PK_ATOMTY_ERROR;
 }
+
+bool pk_is_undefined(PKAtom atom) {
+    return atom->header.type == PK_ATOMTY_UNDEFINED;
+}
+
+bool pk_is_cfun(PKAtom atom) {
+    return atom->header.type == PK_ATOMTY_CFUN;
+}
+
+PKAtom pk_typecheck_nil(PKAtom atom) {
+    if (pk_is_nil(atom)) {
+        return pk_true();
+    } else {
+        return pk_error();
+    }
+}
+
+PKAtom pk_typecheck_number(PKAtom atom) {
+    if (pk_is_number(atom)) {
+        return pk_true();
+    } else {
+        return pk_error();
+    }
+}
+
+PKAtom pk_typecheck_string(PKAtom atom) {
+    if (pk_is_string(atom)) {
+        return pk_true();
+    } else {
+        return pk_error();
+    }
+}
+
+PKAtom pk_typecheck_symbol(PKAtom atom) {
+    if (pk_is_symbol(atom)) {
+        return pk_true();
+    } else {
+        return pk_error();
+    }
+}
+
+PKAtom pk_typecheck_keyword(PKAtom atom) {
+    if (pk_is_keyword(atom)) {
+        return pk_true();
+    } else {
+        return pk_error();
+    }
+}
+
+PKAtom pk_typecheck_cons(PKAtom atom) {
+    if (pk_is_cons(atom)) {
+        return pk_true();
+    } else {
+        return pk_error();
+    }
+}
+
 

@@ -1,13 +1,47 @@
 #include "pocket_internals.h"
 
-PocketLispMachine PK_CORE = (PocketLispMachine) {
-    .pool = NULL,
-    .free = NULL,
-    .cache = (PKCache){0},
-    .initialized = false,
-};
+PocketLispMachine PK_CORE = POCKET_LISP_MACHINE_EMPTY;
 
 PKAtom pk_init2(void) {
+    PK_CORE.cache.quote = pk_symbol(pk_str("lambda"));
+    pk_propagate(PK_CORE.cache.lambda);
+    
+    PK_CORE.cache.quote = pk_symbol(pk_str("macro"));
+    pk_propagate(PK_CORE.cache.macro);
+    
+    PK_CORE.cache.quote = pk_symbol(pk_str("progn"));
+    pk_propagate(PK_CORE.cache.progn);
+    
+    PK_CORE.cache.quote = pk_symbol(pk_str("if"));
+    pk_propagate(PK_CORE.cache.sym_if);
+    
+    PK_CORE.cache.quote = pk_symbol(pk_str("while"));
+    pk_propagate(PK_CORE.cache.sym_while);
+    
+    PK_CORE.cache.quote = pk_symbol(pk_str("error"));
+    pk_propagate(PK_CORE.cache.error);
+    
+    PK_CORE.cache.quote = pk_symbol(pk_str("let"));
+    pk_propagate(PK_CORE.cache.let);
+    
+    PK_CORE.cache.quote = pk_symbol(pk_str("let*"));
+    pk_propagate(PK_CORE.cache.let_star);
+    
+    PK_CORE.cache.quote = pk_symbol(pk_str("flet"));
+    pk_propagate(PK_CORE.cache.flet);
+    
+    PK_CORE.cache.quote = pk_symbol(pk_str("flet*"));
+    pk_propagate(PK_CORE.cache.flet_star);
+    
+    PK_CORE.cache.quote = pk_symbol(pk_str("block"));
+    pk_propagate(PK_CORE.cache.block);
+    
+    PK_CORE.cache.quote = pk_symbol(pk_str("apply"));
+    pk_propagate(PK_CORE.cache.apply);
+    
+    PK_CORE.cache.quote = pk_symbol(pk_str("macro-apply"));
+    pk_propagate(PK_CORE.cache.macro_apply);
+    
     PK_CORE.cache.quote = pk_symbol(pk_str("quote"));
     pk_propagate(PK_CORE.cache.quote);
     
@@ -44,4 +78,10 @@ void pk_deinit(void) {
     if (!PK_CORE.initialized) {
         return;
     }
+    
+    PK_CORE = POCKET_LISP_MACHINE_EMPTY;
+}
+
+PKAtom pk_stack_push(PKAtom atom) {
+    return pk_array_push(&PK_CORE.stack, atom, 128);
 }

@@ -23,6 +23,34 @@ PKAtom pk_accum_push(PKAccum *acc, PKAtom atom) {
     return cons;
 }
 
+PKAtom pk_array_push(PKArray *array, PKAtom atom, size_t init_capacity) {
+    if (array->count >= array->capacity) {
+        size_t new_capacity = pk_grow_capacity(array->capacity, init_capacity);
+        PKAtom *new_e = pk_realloc(array->e, new_capacity * sizeof(PKAtom));
+        if (new_e == NULL) {
+            return pk_error_oom();
+        }
+        array->e = new_e;
+        array->capacity = new_capacity;
+    }
+    array->e[array->count++] = atom;
+    return pk_true();
+}
+
+PKAtom pk_bytes_push(PKBytes *bytes, pk_u8 byte, size_t init_capacity) {
+    if (bytes->count >= bytes->capacity) {
+        size_t new_capacity = pk_grow_capacity(bytes->capacity, init_capacity);
+        pk_u8 *new_e = pk_realloc(bytes->e, new_capacity * sizeof(pk_u8));
+        if (new_e == NULL) {
+            return pk_error_oom();
+        }
+        bytes->e = new_e;
+        bytes->capacity = new_capacity;
+    }
+    bytes->e[bytes->count++] = byte;
+    return pk_true();
+}
+
 PKAtom pk_str_dupe(PKStr input, PKStr *output) {
     if (input.length == 0) {
         *output = PK_STR_EMPTY;

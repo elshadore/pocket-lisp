@@ -7,10 +7,14 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include <string.h>
+#include <limits.h>
 
 typedef union PKAtomData_ *PKAtom;
 
-typedef PKAtom (PKFn)(void *user_closure, PKAtom atom);
+typedef PKAtom (PKFun0)(void *user_closure);
+typedef PKAtom (PKFun1)(void *user_closure, PKAtom arg1);
+typedef PKAtom (PKFun2)(void *user_closure, PKAtom arg1, PKAtom arg2);
+typedef PKAtom (PKFun3)(void *user_closure, PKAtom arg1, PKAtom arg2, PKAtom arg3);
 
 #define PK_PRINTF_FMT(fmt_, vargs_) __attribute__((format (printf, fmt_, vargs_)))
 
@@ -24,7 +28,7 @@ typedef struct PKAtoms_ {
     size_t length;
 } PKAtoms;
 
-#define PK_ARRAY_EMPTY (PKAtoms){.e = NULL, .length = 0}
+#define PK_ATOMS_EMPTY (PKAtoms){.e = NULL, .length = 0}
 
 typedef enum PK_ENV_ {
     PK_ENV_VAR = 0,
@@ -36,6 +40,12 @@ typedef enum PK_READ_ {
     PK_READ_EXPRESSION = 0,
     PK_READ_EXPRLIST,
 } PK_READ;
+
+typedef enum PK_ARITY_ {
+    PK_ARITY_NORMAL = 0,
+    PK_ARITY_OPTIONAL,
+    PK_ARITY_VARIADIC,
+} PK_ARITY;
 
 #define pk_str(text_) (PKStr) {.c = (text_), .length = (sizeof(text_) - 1)}
 #define PK_STR_EMPTY (PKStr){.c = NULL, .length = 0}
@@ -50,7 +60,7 @@ typedef enum PK_READ_ {
 #define pk_deferc(atom_, label_) do { \
     PKAtom temp_ = (atom_); \
     if (pk_is_error(temp_)) { \
-        goto label_; \
+        goto label; \
     } \
 } while(0)
 
@@ -75,12 +85,20 @@ PKAtom pk_list2(PKAtom first, PKAtom second);
 PKAtom pk_array(PKAtoms atoms);
 PKAtom pk_table(void);
 
+PKAtom pk_cfun0(void *user_closure, PKFun0 fun);
+PKAtom pk_cfun1(void *user_closure, PKFun1 fun, PK_ARITY arity);
+PKAtom pk_cfun2(void *user_closure, PKFun2 fun, PK_ARITY arity);
+PKAtom pk_cfun3(void *user_closure, PKFun3 fun, PK_ARITY arity);
+
 PKAtom pk_add(PKAtom lhs, PKAtom rhs);
 PKAtom pk_sub(PKAtom lhs, PKAtom rhs);
 PKAtom pk_mul(PKAtom lhs, PKAtom rhs);
 PKAtom pk_div(PKAtom lhs, PKAtom rhs);
 
+bool pk_eq(PKAtom lhs, PKAtom rhs);
+
 PKAtom pk_set(PK_ENV env, PKAtom symbol, PKAtom value);
+PKAtom pk_let(PK_ENV env, PKAtom symbol, PKAtom value);
 PKAtom pk_get(PK_ENV env, PKAtom symbol);
 bool pk_is_bound(PK_ENV env, PKAtom symbol);
 PKAtom pk_unbind(PK_ENV env, PKAtom symbol);
@@ -93,11 +111,34 @@ PKAtom pk_eval(PKAtom expr);
 PKAtom pk_compile(PKAtom expr);
 PKAtom pk_evlist(PKAtom exprlist);
 
+PKAtom pk_funcall0(PKAtom fn);
+PKAtom pk_funcall1(PKAtom fn, PKAtom arg1);
+PKAtom pk_funcall2(PKAtom fn, PKAtom arg1, PKAtom arg2);
+PKAtom pk_funcall3(PKAtom fn, PKAtom arg1, PKAtom arg2, PKAtom arg3);
+
 bool pk_is_nil(PKAtom atom);
+bool pk_is_true(PKAtom atom);
 bool pk_is_error(PKAtom atom);
 bool pk_is_number(PKAtom atom);
 bool pk_is_string(PKAtom atom);
 bool pk_is_symbol(PKAtom atom);
+bool pk_is_keyword(PKAtom atom);
 bool pk_is_cons(PKAtom atom);
 
+PKAtom pk_typecheck_nil(PKAtom atom);
+PKAtom pk_typecheck_number(PKAtom atom);
+PKAtom pk_typecheck_string(PKAtom atom);
+PKAtom pk_typecheck_symbol(PKAtom atom);
+PKAtom pk_typecheck_keyword(PKAtom atom);
+PKAtom pk_typecheck_cons(PKAtom atom);
+    
+PKStr pk_to_string(PKAtom atom);
+int pk_to_int(PKAtom atom);
+float pk_to_float(PKAtom atom);
+
+bool pk_string_qeq(PKAtom string, PKStr comp);
+bool pk_symbol_qeq(PKAtom symbol, PKStr comp);
+bool pk_keyword_qeq(PKAtom keyword, PKStr comp);
+
 #endif // POCKET_LISP_H
+,
