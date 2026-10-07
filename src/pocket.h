@@ -85,6 +85,8 @@ PKAtom pk_keyword(PKStr keyword);
 PKAtom pk_cons(PKAtom car, PKAtom cdr);
 PKAtom pk_list(PKAtoms atoms);
 PKAtom pk_list2(PKAtom first, PKAtom second);
+PKAtom pk_list_packed(PKAtoms atoms);
+PKAtom pk_list_flatten(PKAtoms lists);
 PKAtom pk_array(PKAtoms atoms);
 PKAtom pk_table(void);
 
@@ -101,8 +103,8 @@ PKAtom pk_div(PKAtom lhs, PKAtom rhs);
 bool pk_eq(PKAtom lhs, PKAtom rhs);
 
 PKAtom pk_set(PK_ENV env, PKAtom symbol, PKAtom value);
-void pk_let_unwind(size_t n);
 PKAtom pk_get(PK_ENV env, PKAtom symbol);
+PKAtom pk_let(PK_ENV env, PKAtom symbol, PKAtom value);
 bool pk_is_bound(PK_ENV env, PKAtom symbol);
 PKAtom pk_unbind(PK_ENV env, PKAtom symbol);
 

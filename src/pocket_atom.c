@@ -116,25 +116,6 @@ PKAtom pk_symbol(PKStr string) {
     return atom;
 }
 
-PKAtom pk_cons(PKAtom car, PKAtom cdr) {
-    PKAtom atom = pk_atom_alloc();
-    pk_propagate(atom);
-    
-    atom->header.type = PK_ATOMTY_CONS;
-    atom->cons.car = car;
-    atom->cons.cdr = cdr;
-    
-    return atom;
-}
-
-PKAtom pk_list2(PKAtom first, PKAtom second) {
-    PKAtom b = pk_cons(second, pk_nil());
-    pk_propagate(b);
-    PKAtom a = pk_cons(first, b);
-    pk_propagate(a);
-    return a;
-}
-
 PKAtom pk_cfun_cons(void *user_closure, void *opaque_fun, pk_u8 args, pk_u8 arity) {
     PKAtom atom = pk_atom_alloc();
     pk_propagate(atom);

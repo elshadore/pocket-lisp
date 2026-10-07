@@ -1,6 +1,9 @@
 #include "pocket_internals.h"
 
 PKAtom pk_ref_inc(PKAtom atom) {
+    if ((atom->header.flags & PK_ATOMFLAG_IMMORTAL) != 0) {
+        return pk_true();
+    }
     if (atom->header.refcount == UINT8_MAX) {
         return pk_error();
     }
@@ -9,6 +12,9 @@ PKAtom pk_ref_inc(PKAtom atom) {
 }
 
 void pk_ref_dec(PKAtom atom) {
+    if ((atom->header.flags & PK_ATOMFLAG_IMMORTAL) != 0) {
+        return;
+    }
     if (atom->header.refcount == 0) {
         return;
     }

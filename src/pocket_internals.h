@@ -57,6 +57,14 @@ typedef struct PKCompiler_ {
     pk_u8 addr;
 } PKCompiler;
 
+typedef struct PKVM_ {
+    PKAtom lfun;
+    size_t curr;
+    size_t save;
+    pk_u8 op;
+    bool finished;
+} PKVM;
+
 typedef struct PKAccum_ {
     PKAtom head;
     PKAtom tail;
@@ -347,10 +355,24 @@ bool pk_is_cfun(PKAtom atom);
 
 PKAtom pk_frame_push(size_t arity);
 PKAtom pk_frame_pushc(PKAtoms atoms);
+void pk_frame_return_head(void);
+void pk_frame_return(PKAtom atom);
+void pk_frame_clear(void);
 void pk_frame_unwind(void);
+
 PKAtom pk_stack_push(PKAtom atom);
-void pk_let_unwind(size_t n);
+PKAtom pk_stack_funcall(pk_u8 arity);
+PKAtom pk_stack_head();
+PKAtom pk_stack_pop();
+PKAtoms pk_stack_slice();
+PKAtom pk_stack_slice_down(size_t depth, PKAtoms *output);
+PKAtom pk_stack_op_list(size_t depth);
+PKAtom pk_stack_op_list_packed(size_t depth);
+PKAtom pk_stack_op_list_merge(size_t depth);
+PKAtom pk_stack_op_strcat(size_t depth);
     
+void pk_let_unwind(size_t n);
+
 PKAtom pk_read_atom(PKReader *r);
     
 void pk_writer_deinit(PKWriter *w);

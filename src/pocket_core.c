@@ -124,12 +124,24 @@ void pk_frame_unwind(void) {
     size_t stack_count = unwind.stack_offset + diff;
     size_t lets_unwind = PK_CORE.lets.count - PK_CORE.current_frame.let_offset;
     pk_let_unwind(lets_unwind);
+    
+    for (size_t i = 0; i < diff; ++i) {
+        size_t index = PK_CORE.stack.count - i - 1;
+        pk_ref_dec(PK_CORE.stack.e[index]);
+    }
+    
     PK_CORE.stack.count = stack_count;
     PK_CORE.frames.count -= 1;
     PK_CORE.current_frame = unwind;
 }
 
 PKAtom pk_stack_push(PKAtom atom) {
-    return pk_array_push(&PK_CORE.stack, atom, 128);
+    pk_propagate(pk_array_push(&PK_CORE.stack, atom, 128));
+    
+    PKAtom result = pk_ref_inc(atom);
+    if (pk_is_error(result)) {
+        PK_CORE.stack.count -= 1;
+    }
+    return result;
 }
 
