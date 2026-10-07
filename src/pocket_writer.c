@@ -143,6 +143,10 @@ PKStr pk_writer_slice(PKWriter *w) {
     };
 }
 
+void pk_writer_reset(PKWriter *w) {
+    w->count = 0;
+}
+
 PKAtom pk_writer_atom(PKWriter *w, PKAtom atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_NIL: {

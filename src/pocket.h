@@ -66,11 +66,14 @@ typedef enum PK_ARITY_ {
 
 #define pk_defer(atom_) pk_deferc(atom_, DEFER)
 
+#define pk_alen(array_) (sizeof(array_) / sizeof(*array_))
+
 bool pk_init(void);
 void pk_deinit(void);
 
 PKAtom pk_ref_inc(PKAtom atom);
-PKAtom pk_ref_dec(PKAtom atom);
+PKAtom pk_ref_inc_many(PKAtoms atoms);
+void pk_ref_dec(PKAtom atom);
 
 PKAtom pk_true(void);
 PKAtom pk_nil(void);
@@ -98,7 +101,7 @@ PKAtom pk_div(PKAtom lhs, PKAtom rhs);
 bool pk_eq(PKAtom lhs, PKAtom rhs);
 
 PKAtom pk_set(PK_ENV env, PKAtom symbol, PKAtom value);
-PKAtom pk_let(PK_ENV env, PKAtom symbol, PKAtom value);
+void pk_let_unwind(size_t n);
 PKAtom pk_get(PK_ENV env, PKAtom symbol);
 bool pk_is_bound(PK_ENV env, PKAtom symbol);
 PKAtom pk_unbind(PK_ENV env, PKAtom symbol);
@@ -141,4 +144,3 @@ bool pk_symbol_qeq(PKAtom symbol, PKStr comp);
 bool pk_keyword_qeq(PKAtom keyword, PKStr comp);
 
 #endif // POCKET_LISP_H
-,

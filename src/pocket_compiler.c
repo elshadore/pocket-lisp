@@ -64,10 +64,17 @@ PKAtom pk_cmp_push_atom(PKCompiler *c, PKAtom atom) {
 PKAtom pk_cmp_load_nil(PKCompiler *c) {
     return pk_cmp_push_byte(c, PK_OP_LOAD_NIL);
 }
+
+PKAtom pk_cmp_load_true(PKCompiler *c) {
+    return pk_cmp_push_byte(c, PK_OP_LOAD_TRUE);
+}
     
 PKAtom pk_cmp_load(PKCompiler *c, PKAtom atom) {
     if (pk_is_nil(atom)) {
         return pk_cmp_load_nil(c);
+    }
+    if (atom->header.type == PK_ATOMTY_TRUE) {
+        return pk_cmp_load_true(c);
     }
     
     pk_propagate(pk_cmp_push_atom(c, atom));

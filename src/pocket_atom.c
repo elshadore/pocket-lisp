@@ -32,6 +32,15 @@ PKAtomData PK_ATOM_ERROR = (PKAtomData) {
     }
 };
 
+PKAtomData PK_ATOM_STRING_EMPTY = (PKAtomData) {
+    .string = (PKAtomString) {
+        .header.type = PK_ATOMTY_STRING,
+        .header.flags = PK_ATOMFLAG_IMMORTAL,
+        .header.refcount = 0,
+        .str = PK_STR_EMPTY,
+    }
+};
+
 PKAtom pk_undefined(void) {
     return &PK_ATOM_UNDEFINED;
 }
@@ -50,6 +59,10 @@ PKAtom pk_error(void) {
     
 PKAtom pk_error_oom(void) {
     return &PK_ATOM_ERROR;
+}
+
+PKAtom pk_string_empty(void) {
+    return &PK_ATOM_STRING_EMPTY;
 }
 
 PKAtom pk_int(int integer) {
@@ -71,6 +84,10 @@ PKAtom pk_float(float floater) {
 }
 
 PKAtom pk_string(PKStr string) {
+    if (string.length == 0) {
+        return pk_string_empty();
+    }
+
     PKAtom atom = pk_atom_alloc();
     pk_propagate(atom);
     
@@ -264,4 +281,34 @@ PKAtom pk_typecheck_cons(PKAtom atom) {
     }
 }
 
-
+bool pk_eq(PKAtom lhs, PKAtom rhs) {
+    if (lhs == rhs) {
+        return true;
+    }
+    if (lhs->header.type != rhs->header.type) {
+        return false;
+    }
+    switch (lhs->header.type) {
+        case PK_ATOMTY_NUMBER: {
+            if (lhs->number.num_type != rhs->number.num_type) {
+                return false;
+            }
+            switch (lhs->number.num_type) {
+                case PK_NUMTY_INT: {
+                    return lhs->number.as.i == rhs->number.as.i;
+                }
+                case PK_NUMTY_FLOAT: {
+                    return lhs->number.as.f == rhs->number.as.f;
+                }
+                default: return false;
+            }
+        }
+        case PK_ATOMTY_KEYWORD: {
+            return pk_str_eq(lhs->keyword.id, rhs->keyword.id);
+        }
+        case PK_ATOMTY_STRING: {
+            return pk_str_eq(lhs->string.str, rhs->string.str);
+        }
+        default: return false;
+    }
+}

@@ -5,11 +5,11 @@ The todo list for POCKET LISP
 - [x] Environment
   - let
 - [x] Function Calling
-  - Call Stack
-- [ ] Compilation
+  - [ ] Call Stack
+- [x] Compilation
+- [ ] VM
 - [ ] Macros
 - [ ] Referance Counting
-- [ ] VM
 - [ ] Debug Stuff
   - [ ] Memory Leak Detection
 - [ ] Object System

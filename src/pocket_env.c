@@ -148,12 +148,13 @@ PKAtom pk_let(PK_ENV env, PKAtom symbol, PKAtom value) {
     return restore;
 }
 
-PKAtom pk_let_unwind(size_t n) {
+void pk_let_unwind(size_t n) {
     for (size_t i = 0; i < n; ++i) {
         size_t index = PK_CORE.lets.count - i - 1;
         PKLet unwind = PK_CORE.lets.e[index];
-        pk_propagate(pk_set(unwind.env, unwind.symbol, unwind.restore));
+        // The only error that can occur is a type error on the symbol input.
+        // So it's okay to skip errors here.
+        (void)pk_set(unwind.env, unwind.symbol, unwind.restore);
     }
     PK_CORE.lets.count -= 1;
-    return pk_true();
 }
