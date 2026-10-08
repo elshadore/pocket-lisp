@@ -5,6 +5,7 @@ PKAtom function(void *user_closure, PKAtom a, PKAtom b) {
     (void)user_closure;
     PKAtom c = pk_add(a, b);
     PKAtom d = pk_add(c, pk_int(1000));
+    pk_propagate(pk_debug_dump("function"));
     return d;
 }
 

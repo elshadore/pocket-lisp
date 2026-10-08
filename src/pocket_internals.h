@@ -336,6 +336,9 @@ extern PocketLispMachine PK_CORE;
 #define pk_frame_length() \
     ((PK_CORE.stack.count) - (PK_CORE.current_frame.stack_offset))
 
+#define pk_writer_str(w_, string_) \
+    pk_writer_string(w_, pk_str(string_))
+
 PKAtom pk_error(void);
 PKAtom pk_error_oom(void);
     
@@ -352,6 +355,8 @@ PKAtom pk_string_empty(void);
 PKAtom pk_undefined(void);
 bool pk_is_undefined(PKAtom atom);
 bool pk_is_cfun(PKAtom atom);
+
+void pk_print_str(PKStr string);
 
 PKAtom pk_frame_push(size_t arity);
 PKAtom pk_frame_pushc(PKAtoms atoms);
@@ -378,6 +383,7 @@ PKAtom pk_read_atom(PKReader *r);
 void pk_writer_deinit(PKWriter *w);
 PKAtom pk_writer_expand(PKWriter *w, size_t needed);
 PKAtom pk_writer_char(PKWriter *w, char c);
+PKAtom pk_writer_cstr(PKWriter *w, const char *cstr);
 PKAtom pk_writer_string(PKWriter *w, PKStr string);
 PKAtom pk_writer_string_escaped(PKWriter *w, PKStr string);
 PK_PRINTF_FMT(2, 3) PKAtom pk_writer_fmt(PKWriter *w, const char *fmt, ...);
@@ -390,6 +396,7 @@ void pk_writer_reset(PKWriter *w);
 PKAtom pk_writer_atom(PKWriter *w, PKAtom atom);
     
 PKAtom pk_str_dupe(PKStr input, PKStr *output);
+PKStr pk_str_from_cstr(char *cstr);
 bool pk_str_eq(PKStr a, PKStr b);
 void pk_str_reverse_mut(char *c, size_t length);
 

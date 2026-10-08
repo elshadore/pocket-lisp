@@ -70,6 +70,14 @@ PKAtom pk_str_dupe(PKStr input, PKStr *output) {
     return pk_true();
 }
 
+PKStr pk_str_from_cstr(char *cstr) {
+    size_t length = strlen(cstr);
+    return (PKStr) {
+        .c = cstr,
+        .length = length,
+    };
+}
+
 bool pk_str_eq(PKStr a, PKStr b) {
     if (a.length != b.length) return false;
     return (bool)(memcmp(a.c, b.c, a.length) == 0);

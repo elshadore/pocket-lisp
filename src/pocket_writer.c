@@ -28,6 +28,18 @@ PKAtom pk_writer_char(PKWriter *w, char c) {
     return pk_true();
 }
 
+PKAtom pk_writer_cstr(PKWriter *w, const char *cstr) {
+    size_t length = strlen(cstr);
+    if (length == 0) {
+        return pk_true();
+    }
+    pk_propagate(pk_writer_expand(w, length));
+    memcpy(w->c + w->count, cstr, length);
+    w->count += length;
+    return pk_true();
+}
+    
+
 PKAtom pk_writer_string(PKWriter *w, PKStr string) {
     pk_propagate(pk_writer_expand(w, string.length));
     memcpy(w->c + w->count, string.c, string.length);

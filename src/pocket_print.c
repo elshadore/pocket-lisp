@@ -1,10 +1,14 @@
 #include "pocket_internals.h"
 
+void pk_print_str(PKStr string) {
+    fprintf(stderr, "%.*s\n", (int)string.length, string.c);
+}
+
 PKAtom pk_print(PKAtom atom) {
     PKWriter w = PK_WRITER_EMPTY;
     PKAtom result = pk_writer_atom(&w, atom);
     if (!pk_is_error(atom)) {
-        fprintf(stderr, "%.*s\n", (int)w.count, w.c);
+        pk_print_str(pk_writer_slice(&w));
     }
     pk_writer_deinit(&w);
     return result;
