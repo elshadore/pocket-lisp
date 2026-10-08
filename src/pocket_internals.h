@@ -352,16 +352,24 @@ PKAtom pk_pool_expand(void);
 PKAtom pk_atom_alloc(void);
 
 PKAtom pk_string_empty(void);
+PKAtom pk_string_alloc(size_t length);
+PKAtom pk_string_cat(PKAtoms strings);
+
 PKAtom pk_undefined(void);
 bool pk_is_undefined(PKAtom atom);
+
+PKAtom pk_lfun_exec(PKAtom lfun, size_t save);
+    
 bool pk_is_cfun(PKAtom atom);
+bool pk_is_lfun(PKAtom atom);
+bool pk_is_function(PKAtom atom);
 
 void pk_print_str(PKStr string);
 
 PKAtom pk_frame_push(size_t arity);
 PKAtom pk_frame_pushc(PKAtoms atoms);
-void pk_frame_return_head(void);
-void pk_frame_return(PKAtom atom);
+PKAtom pk_frame_return_head(void);
+PKAtom pk_frame_return(PKAtom atom);
 void pk_frame_clear(void);
 void pk_frame_unwind(void);
 
@@ -370,6 +378,7 @@ PKAtom pk_stack_funcall(pk_u8 arity);
 PKAtom pk_stack_head();
 PKAtom pk_stack_pop();
 PKAtoms pk_stack_slice();
+
 PKAtom pk_stack_slice_down(size_t depth, PKAtoms *output);
 PKAtom pk_stack_op_list(size_t depth);
 PKAtom pk_stack_op_list_packed(size_t depth);
@@ -395,6 +404,7 @@ PKStr pk_writer_slice(PKWriter *w);
 void pk_writer_reset(PKWriter *w);
 PKAtom pk_writer_atom(PKWriter *w, PKAtom atom);
     
+PKAtom pk_str_alloc(size_t length, PKStr *output);
 PKAtom pk_str_dupe(PKStr input, PKStr *output);
 PKStr pk_str_from_cstr(char *cstr);
 bool pk_str_eq(PKStr a, PKStr b);
@@ -430,5 +440,11 @@ PKAtom pk_compile_value(PKCompiler *c, PKAtom value);
 PKAtom pk_compile_lambda(PKAtom args, PKAtom body);
 PKAtom pk_compile_atom(PKAtom value);
 PKAtom pk_compile_strsub(PKCompiler *c, PKStr string);
+
+PKStr pk_ident_opcode(pk_u8 op);
+PKStr pk_ident_atomty(pk_u8 ty);
+PKStr pk_ident_arity(pk_u8 arity);
+PKStr pk_ident_env(PK_ENV env);
+PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
     
 #endif // POCKET_LISP_INTERNALS_H

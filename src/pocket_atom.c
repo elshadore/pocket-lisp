@@ -100,6 +100,47 @@ PKAtom pk_string(PKStr string) {
     return atom;
 }
 
+PKAtom pk_string_alloc(size_t length) {
+    if (length == 0) {
+        return pk_string_empty();
+    }
+
+    PKAtom atom = pk_atom_alloc();
+    pk_propagate(atom);
+    
+    PKStr buffer = PK_STR_EMPTY;
+    pk_propagate(pk_str_alloc(length, &buffer));
+    
+    atom->header.type = PK_ATOMTY_STRING;
+    atom->string.str = buffer;
+    
+    return atom;
+}
+
+PKAtom pk_string_cat(PKAtoms strings) {
+    size_t length = 0;
+    for (size_t i = 0; i < strings.length; ++i) {
+        PKAtom string = strings.e[i];
+        if (!pk_is_string(string)) {
+            return pk_error();
+        }
+        length += string->string.str.length;
+    }
+    PKAtom atom = pk_string_alloc(length);
+    
+    pk_propagate(atom);
+
+    {
+        size_t offset = 0;
+        for (size_t i = 0; i < strings.length; ++i) {
+            PKAtom string = strings.e[i];
+            memcpy(atom->string.str.c + offset, string->string.str.c, string->string.str.length);
+            offset += string->string.str.length;
+        }
+    }
+    return atom;
+}
+
 PKAtom pk_symbol(PKStr string) {
     PKAtom atom = pk_atom_alloc();
     pk_propagate(atom);
@@ -142,15 +183,15 @@ PKAtom pk_cfun0(void *user_closure, PKFun0 fun) {
 }
 
 PKAtom pk_cfun1(void *user_closure, PKFun1 fun, PK_ARITY arity) {
-    return pk_cfun_cons(user_closure, (void *)fun, 0, pk_cfun_arity_conv(arity));
+    return pk_cfun_cons(user_closure, (void *)fun, 1, pk_cfun_arity_conv(arity));
 }
 
 PKAtom pk_cfun2(void *user_closure, PKFun2 fun, PK_ARITY arity) {
-    return pk_cfun_cons(user_closure, (void *)fun, 0, pk_cfun_arity_conv(arity));
+    return pk_cfun_cons(user_closure, (void *)fun, 2, pk_cfun_arity_conv(arity));
 }
 
 PKAtom pk_cfun3(void *user_closure, PKFun3 fun, PK_ARITY arity) {
-    return pk_cfun_cons(user_closure, (void *)fun, 0, pk_cfun_arity_conv(arity));
+    return pk_cfun_cons(user_closure, (void *)fun, 3, pk_cfun_arity_conv(arity));
 }
 
 bool pk_string_qeq(PKAtom string, PKStr comp) {
@@ -212,6 +253,14 @@ bool pk_is_undefined(PKAtom atom) {
 
 bool pk_is_cfun(PKAtom atom) {
     return atom->header.type == PK_ATOMTY_CFUN;
+}
+
+bool pk_is_lfun(PKAtom atom) {
+    return atom->header.type == PK_ATOMTY_LFUN;
+}
+
+bool pk_is_function(PKAtom atom) {
+    return pk_is_cfun(atom) || pk_is_lfun(atom);
 }
 
 PKAtom pk_typecheck_nil(PKAtom atom) {

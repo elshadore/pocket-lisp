@@ -51,6 +51,23 @@ PKAtom pk_bytes_push(PKBytes *bytes, pk_u8 byte, size_t init_capacity) {
     return pk_true();
 }
 
+PKAtom pk_str_alloc(size_t length, PKStr *output) {
+    if (length == 0) {
+        *output = PK_STR_EMPTY;
+        return pk_true();
+    }
+    char *buffer = pk_malloc(length * sizeof(char));
+    if (buffer == NULL) {
+        return pk_error_oom();
+    }
+    *output = (PKStr) {
+        .c = buffer,
+        .length = length,
+    };
+
+    return pk_true();
+}
+
 PKAtom pk_str_dupe(PKStr input, PKStr *output) {
     if (input.length == 0) {
         *output = PK_STR_EMPTY;

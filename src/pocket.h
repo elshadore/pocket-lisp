@@ -146,5 +146,6 @@ bool pk_symbol_qeq(PKAtom symbol, PKStr comp);
 bool pk_keyword_qeq(PKAtom keyword, PKStr comp);
 
 PKAtom pk_debug_dump(const char *tag);
+PKAtom pk_hexdump(PKAtom lfun);
 
 #endif // POCKET_LISP_H

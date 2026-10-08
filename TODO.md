@@ -7,7 +7,7 @@ The todo list for POCKET LISP
 - [x] Function Calling
   - [ ] Call Stack
 - [x] Compilation
-- [ ] VM
+- [x] VM
 - [ ] Macros
 - [ ] Referance Counting
 - [ ] Debug Stuff
