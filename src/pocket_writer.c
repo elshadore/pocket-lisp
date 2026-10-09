@@ -159,8 +159,38 @@ void pk_writer_reset(PKWriter *w) {
     w->count = 0;
 }
 
+PKAtom pk_writer_simple_object(PKWriter *w, void *obj, PKStr name) {
+    pk_propagate(pk_writer_string(w, pk_str("&<")));
+    pk_propagate(pk_writer_string(w, name));
+    pk_propagate(pk_writer_string(w, pk_str("::")));
+    pk_propagate(pk_writer_address(w, (size_t)obj));
+    pk_propagate(pk_writer_char(w, '>'));
+    return pk_true();
+}
+
+PKAtom pk_writer_simple_function(PKWriter *w, void *obj, PKStr type, pk_u8 args, pk_u8 arity) {
+    pk_propagate(pk_writer_string(w, pk_str("&<")));
+    pk_propagate(pk_writer_string(w, type));
+    pk_propagate(pk_writer_string(w, pk_str("::")));
+    pk_propagate(pk_writer_fmt(w, "%u", args));
+    pk_propagate(pk_writer_string(w, pk_str(":")));
+    pk_propagate(pk_writer_string(w, pk_ident_arity(arity)));
+    pk_propagate(pk_writer_string(w, pk_str("::")));
+    pk_propagate(pk_writer_address(w, (size_t)obj));
+    pk_propagate(pk_writer_char(w, '>'));
+    return pk_true();
+}
+
 PKAtom pk_writer_atom(PKWriter *w, PKAtom atom) {
     switch (atom->header.type) {
+        case PK_ATOMTY_ERROR: { 
+            pk_propagate(pk_writer_simple_object(w, atom, pk_str("ERROR")));
+            break;
+        }
+        case PK_ATOMTY_UNDEFINED: {
+            pk_propagate(pk_writer_string(w, pk_str("&<UNDEFINED>")));
+            break;
+        }
         case PK_ATOMTY_NIL: {
             pk_propagate(pk_writer_string(w, pk_str("nil")));
             break;
@@ -206,10 +236,20 @@ PKAtom pk_writer_atom(PKWriter *w, PKAtom atom) {
             pk_propagate(pk_writer_char(w, ')'));
             break;
         }
+        case PK_ATOMTY_CFUN: {
+            pk_propagate(
+                pk_writer_simple_function(w, atom, pk_str("CFUN"), atom->cfun.args, atom->cfun.arity)
+            );
+            break;
+        }
+        case PK_ATOMTY_LFUN: {
+            pk_propagate(
+                pk_writer_simple_function(w, atom, pk_str("LFUN"), atom->lfun.args, atom->lfun.arity)
+            );
+            break;
+        }
         default: {
-            pk_propagate(pk_writer_string(w, pk_str("&<UNKNOWN::")));
-            pk_propagate(pk_writer_address(w, (size_t)atom));
-            pk_propagate(pk_writer_char(w, '>'));
+            pk_propagate(pk_writer_simple_object(w, atom, pk_str("UNKNOWN")));
             break;
         }
     }

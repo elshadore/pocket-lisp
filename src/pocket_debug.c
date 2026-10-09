@@ -1,6 +1,6 @@
 #include "pocket_internals.h"
 
-PKAtom pk_debug_dump_(PKWriter *w, const char *tag) {
+PKAtom pk_debug_dump_(PKWriter *w, const char *tag, PK_DUMP opt) {
     pk_propagate(pk_writer_string(w, pk_str("*~DEBUG-DUMP~*")));
     if (tag != NULL) {
         pk_propagate(pk_writer_string(w, pk_str(" (tag = ")));
@@ -10,20 +10,21 @@ PKAtom pk_debug_dump_(PKWriter *w, const char *tag) {
     
     pk_propagate(pk_writer_newline(w));
 
-    pk_propagate(pk_writer_string(w, pk_str("STACK:")));
-    pk_propagate(pk_writer_newline(w));
-    
-    for (size_t i = 0; i < PK_CORE.stack.count; ++i) {
-        size_t index = PK_CORE.stack.count - i - 1;
-        pk_propagate(pk_writer_string(w, pk_str("    [")));
-        pk_propagate(pk_writer_fmt(w, "%zu", i));
-        pk_propagate(pk_writer_string(w, pk_str("] => ")));
-        PKAtom atom = PK_CORE.stack.e[index];
-        pk_propagate(pk_writer_atom(w, atom));
+    if ((opt & PK_DUMP_STACK) != 0) {
+        pk_propagate(pk_writer_string(w, pk_str("STACK:")));
         pk_propagate(pk_writer_newline(w));
-    }
 
-    {
+        for (size_t i = 0; i < PK_CORE.stack.count; ++i) {
+            size_t index = PK_CORE.stack.count - i - 1;
+            pk_propagate(pk_writer_string(w, pk_str("    [")));
+            pk_propagate(pk_writer_fmt(w, "%zu", i));
+            pk_propagate(pk_writer_string(w, pk_str("] => ")));
+            PKAtom atom = PK_CORE.stack.e[index];
+            pk_propagate(pk_writer_atom(w, atom));
+            pk_propagate(pk_writer_newline(w));
+        }
+    }
+    if ((opt & PK_DUMP_ENV) != 0){
         pk_propagate(pk_writer_string(w, pk_str("ENV:")));
         pk_propagate(pk_writer_newline(w));
         size_t acc = 0;
@@ -56,9 +57,9 @@ PKAtom pk_debug_dump_(PKWriter *w, const char *tag) {
     return pk_true();
 }
     
-PKAtom pk_debug_dump(const char *tag) {
+PKAtom pk_debug_dump(const char *tag, PK_DUMP opt) {
     PKWriter w = PK_WRITER_EMPTY;
-    PKAtom result = pk_debug_dump_(&w, tag);
+    PKAtom result = pk_debug_dump_(&w, tag, opt);
     pk_writer_deinit(&w);
     return result;
 }

@@ -47,6 +47,13 @@ typedef enum PK_ARITY_ {
     PK_ARITY_VARIADIC,
 } PK_ARITY;
 
+typedef enum PK_DUMP_ {
+    PK_DUMP_NONE = 0,
+    PK_DUMP_STACK = (1 << 0),
+    PK_DUMP_ENV = (1 << 1),
+    PK_DUMP_ALL = PK_DUMP_STACK | PK_DUMP_ENV,
+} PK_DUMP;
+
 #define pk_str(text_) (PKStr) {.c = (text_), .length = (sizeof(text_) - 1)}
 #define PK_STR_EMPTY (PKStr){.c = NULL, .length = 0}
 
@@ -145,7 +152,7 @@ bool pk_string_qeq(PKAtom string, PKStr comp);
 bool pk_symbol_qeq(PKAtom symbol, PKStr comp);
 bool pk_keyword_qeq(PKAtom keyword, PKStr comp);
 
-PKAtom pk_debug_dump(const char *tag);
+PKAtom pk_debug_dump(const char *tag, PK_DUMP opt);
 PKAtom pk_hexdump(PKAtom lfun);
 
 #endif // POCKET_LISP_H

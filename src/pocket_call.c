@@ -1,6 +1,6 @@
 #include "pocket_internals.h"
 
-PKAtom pk_call(PKAtom function, pk_u8 arity) {
+PKAtom pk_stack_funcall_(PKAtom function, pk_u8 arity) {
     PKAtoms stack = pk_stack_slice();
     if (stack.length != arity) {
         return pk_error();
@@ -36,29 +36,38 @@ PKAtom pk_stack_funcall(pk_u8 arity) {
     }
     PKAtom function = stack.e[stack.length - uarity - 1];
     pk_propagate(pk_frame_push(arity));
-    PKAtom result = pk_call(function, arity);
-    pk_frame_unwind();
+    PKAtom result = pk_stack_funcall_(function, arity);
+    pk_frame_return_head();
     return result;
 }
 
-PKAtom pk_funcall0(PKAtom fn) {
-    if (!pk_is_function(fn)) {
-        return pk_error();
-    }
-    
-    pk_propagate(pk_frame_push(0));
-    PKAtom result = pk_call(fn, 0);
-    pk_frame_unwind();
-    
-    return result;
-}
-
-PKAtom pk_funcall1(PKAtom fn, PKAtom arg1) {
-    if (!pk_is_function(fn)) {
+PKAtom pk_funcall0(PKAtom fun) {
+    if (!pk_is_function(fun)) {
         return pk_error();
     }
     
     PKAtom e[] = {
+        fun,
+    };
+    PKAtoms atoms = (PKAtoms){
+        .e = e,
+        .length = pk_alen(e)
+    };
+    
+    pk_propagate(pk_frame_pushc(atoms));
+    PKAtom result = pk_stack_funcall(0);
+    pk_stack_pop_unchecked(1);
+    
+    return result;
+}
+
+PKAtom pk_funcall1(PKAtom fun, PKAtom arg1) {
+    if (!pk_is_function(fun)) {
+        return pk_error();
+    }
+    
+    PKAtom e[] = {
+        fun,
         arg1,
     };
     PKAtoms atoms = (PKAtoms){
@@ -67,18 +76,19 @@ PKAtom pk_funcall1(PKAtom fn, PKAtom arg1) {
     };
     
     pk_propagate(pk_frame_pushc(atoms));
-    PKAtom result = pk_call(fn, 1);
-    pk_frame_unwind();
-    
+    PKAtom result = pk_stack_funcall(1);
+    pk_stack_pop_unchecked(1);
+
     return result;
 }
 
-PKAtom pk_funcall2(PKAtom fn, PKAtom arg1, PKAtom arg2) {
-    if (!pk_is_function(fn)) {
+PKAtom pk_funcall2(PKAtom fun, PKAtom arg1, PKAtom arg2) {
+    if (!pk_is_function(fun)) {
         return pk_error();
     }
     
     PKAtom e[] = {
+        fun,
         arg1,
         arg2,
     };
@@ -88,18 +98,19 @@ PKAtom pk_funcall2(PKAtom fn, PKAtom arg1, PKAtom arg2) {
     };
     
     pk_propagate(pk_frame_pushc(atoms));
-    PKAtom result = pk_call(fn, 2);
-    pk_frame_unwind();
+    PKAtom result = pk_stack_funcall(2);
+    pk_stack_pop_unchecked(1);
     
     return result;
 }
 
-PKAtom pk_funcall3(PKAtom fn, PKAtom arg1, PKAtom arg2, PKAtom arg3) {
-    if (!pk_is_function(fn)) {
+PKAtom pk_funcall3(PKAtom fun, PKAtom arg1, PKAtom arg2, PKAtom arg3) {
+    if (!pk_is_function(fun)) {
         return pk_error();
     }
     
     PKAtom e[] = {
+        fun,
         arg1,
         arg2,
         arg3,
@@ -110,8 +121,8 @@ PKAtom pk_funcall3(PKAtom fn, PKAtom arg1, PKAtom arg2, PKAtom arg3) {
     };
     
     pk_propagate(pk_frame_pushc(atoms));
-    PKAtom result = pk_call(fn, 3);
-    pk_frame_unwind();
+    PKAtom result = pk_stack_funcall(3);
+    pk_stack_pop_unchecked(1);
     
     return result;
 }

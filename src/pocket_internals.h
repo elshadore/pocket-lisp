@@ -358,8 +358,7 @@ PKAtom pk_string_cat(PKAtoms strings);
 PKAtom pk_undefined(void);
 bool pk_is_undefined(PKAtom atom);
 
-PKAtom pk_lfun_exec(PKAtom lfun, size_t save);
-    
+PKAtom pk_lfun_exec(PKAtom lfun, size_t save);    
 bool pk_is_cfun(PKAtom atom);
 bool pk_is_lfun(PKAtom atom);
 bool pk_is_function(PKAtom atom);
@@ -368,8 +367,12 @@ void pk_print_str(PKStr string);
 
 PKAtom pk_frame_push(size_t arity);
 PKAtom pk_frame_pushc(PKAtoms atoms);
-PKAtom pk_frame_return_head(void);
-PKAtom pk_frame_return(PKAtom atom);
+// We should always call a function with the function object on the stack.
+// That way we guarantee that we have enough memory that this function will not panic on return.
+// As we just replace the function object in the stack with the return object.
+// This changes if we want to implement multiple value returns.
+void pk_frame_return(PKAtom atom);
+void pk_frame_return_head(void);
 void pk_frame_clear(void);
 void pk_frame_unwind(void);
 
@@ -377,6 +380,7 @@ PKAtom pk_stack_push(PKAtom atom);
 PKAtom pk_stack_funcall(pk_u8 arity);
 PKAtom pk_stack_head();
 PKAtom pk_stack_pop();
+void pk_stack_pop_unchecked(size_t n);
 PKAtoms pk_stack_slice();
 
 PKAtom pk_stack_slice_down(size_t depth, PKAtoms *output);
@@ -438,7 +442,7 @@ PKAtom pk_cmp_load(PKCompiler *c, PKAtom atom);
     
 PKAtom pk_compile_value(PKCompiler *c, PKAtom value);
 PKAtom pk_compile_lambda(PKAtom args, PKAtom body);
-PKAtom pk_compile_atom(PKAtom value);
+PKAtom pk_compile_atom(PKCompiler *c, PKAtom value);
 PKAtom pk_compile_strsub(PKCompiler *c, PKStr string);
 
 PKStr pk_ident_opcode(pk_u8 op);

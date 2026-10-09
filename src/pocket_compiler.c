@@ -551,6 +551,8 @@ PKAtom pk_compile_compile(PKCompiler *c, pk_u8 args, pk_u8 arity) {
     result->lfun.args = args;
     result->lfun.arity = arity;
 
+    pk_propagate(pk_hexdump(result));
+
     return result;
 }
 
@@ -604,7 +606,7 @@ PKAtom pk_compile_lambda_(PKCompiler *c, PKAtom args, PKAtom body) {
     
     pk_propagate(pk_compile_evlist(c, body));
     pk_propagate(pk_cmp_push_byte(c, PK_OP_RET));
-    
+
     return pk_compile_compile(c, nargs, arity);
 }
     
@@ -617,16 +619,16 @@ PKAtom pk_compile_lambda(PKAtom args, PKAtom body) {
     return result;
 }
 
-PKAtom pk_compile_atom_(PKCompiler *c, PKAtom value) {
+PKAtom pk_compile_atom(PKCompiler *c, PKAtom value) {
     pk_propagate(pk_compile_value(c, value));
     pk_propagate(pk_cmp_push_byte(c, PK_OP_RET));
     
     return pk_compile_compile(c, 0, PK_INT_ARITY_NORMAL);
 }
     
-PKAtom pk_compile_atom(PKAtom value) {
+PKAtom pk_compile(PKAtom value) {
     PKCompiler c = PK_COMPILER_EMPTY;
-    PKAtom result = pk_compile_atom_(&c, value);
+    PKAtom result = pk_compile_atom(&c, value);
     if (pk_is_error(result)) {
         pk_cmp_deinit(&c);
     }
