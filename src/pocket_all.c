@@ -5,6 +5,7 @@
 #include "pocket_debug.c"
 #include "pocket_env.c"
 #include "pocket_eval.c"
+#include "pocket_hashmap.c"
 #include "pocket_list.c"
 #include "pocket_ident.c"
 #include "pocket_math.c"

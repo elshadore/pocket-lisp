@@ -342,3 +342,31 @@ bool pk_eq(PKAtom lhs, PKAtom rhs) {
         default: return false;
     }
 }
+
+size_t pk_hash(PKAtom atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_STRING: {
+            PKStr str = atom->string.str;
+            return pk_hash_djb2(str.c, str.length);
+        }
+        case PK_ATOMTY_KEYWORD: {
+            PKStr id = atom->keyword.id;
+            return pk_hash_djb2(id.c, id.length);
+        }
+        case PK_ATOMTY_NUMBER: {
+            if (atom->number.num_type == PK_NUMTY_FLOAT) {
+                pk_u32 bits = 0;
+                memcpy(&bits, &atom->number.as.f, sizeof(pk_u32));
+                if (atom->number.as.f == 0.0f) {
+                    bits = 0;
+                }
+                return pk_hash_djb2((const char *)&bits, sizeof(pk_u32));
+            } else {
+                return pk_hash_djb2((const char *)&atom->number.as.i, sizeof(int));
+            }
+        }
+        default: {
+            return pk_hash_pointer(atom);
+        }
+    }
+}

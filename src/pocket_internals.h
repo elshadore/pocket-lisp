@@ -15,6 +15,8 @@ typedef uint64_t pk_u64;
 
 #define PK_ARRAY_EMPTY (PKArray){.e = NULL, .count = 0, .capacity = 0}
 
+#define PK_HASHMAP_EMPTY (PKHashmap){.e = NULL, .count = 0, .capacity = 0}
+
 typedef struct PKArray_ {
     PKAtom *e;
     size_t count;
@@ -446,7 +448,14 @@ PKAtom pk_accum_push(PKAccum *acc, PKAtom atom);
 PKAtom pk_array_push(PKArray *array, PKAtom atom, size_t init_capacity);
 PKAtom pk_bytes_push(PKBytes *bytes, pk_u8 byte, size_t init_capacity);
     
+PKAtom pk_hashmap_insert(PKHashmap *map, PKAtom key, PKAtom value);
+PKAtom pk_hashmap_get(PKHashmap *map, PKAtom key);
+PKAtom pk_hashmap_remove(PKHashmap *map, PKAtom key);
+void pk_hashmap_deinit(PKHashmap *map);
+    
 size_t pk_hash_djb2(const char *c, size_t length);
+size_t pk_hash_pointer(void *ptr);
+size_t pk_hash(PKAtom atom);
 
 PKAtom pk_cmp_patch_byte(PKCompiler *c, pk_u8 addr, pk_u8 byte);
 PKAtom pk_cmp_push_byte(PKCompiler *c, pk_u8 byte);
