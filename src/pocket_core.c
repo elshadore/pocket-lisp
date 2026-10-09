@@ -2,7 +2,7 @@
 
 PocketLispMachine PK_CORE = POCKET_LISP_MACHINE_EMPTY;
 
-PKAtom pk_init2(void) {
+PKAtom pk_init_symbols(void) {
     PK_CORE.cache.lambda = pk_symbol(pk_str("lambda"));
     pk_propagate(PK_CORE.cache.lambda);
     
@@ -56,7 +56,13 @@ PKAtom pk_init2(void) {
     
     PK_CORE.cache.string_substitute = pk_symbol(pk_str("string-substitute"));
     pk_propagate(PK_CORE.cache.string_substitute);
+    
+    return pk_true();
+}
 
+PKAtom pk_init2(void) {
+    pk_propagate(pk_init_symbols());
+    pk_propagate(pk_std_load());
     return pk_true();
 }
 

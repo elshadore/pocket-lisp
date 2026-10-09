@@ -27,7 +27,8 @@ PKAtom run(void) {
     pk_propagate(pk_debug_dump("function", PK_DUMP_STACK));
 
     pk_print(d);
-    
+
+    pk_propagate(pk_debug_dump("env", PK_DUMP_ENV));
     return pk_true();
 }
 

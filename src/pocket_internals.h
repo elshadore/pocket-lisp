@@ -70,6 +70,22 @@ typedef struct PKAccum_ {
     PKAtom tail;
 } PKAccum;
 
+#define PK_HASHMAP_SLOT_UNOCCUPIED (0)
+#define PK_HASHMAP_SLOT_OCCUPIED (1)
+#define PK_HASHMAP_SLOT_DELETED (2)
+
+typedef struct PKHashmapSlot_ {
+    PKAtom key;
+    PKAtom value;
+    pk_u8 state;
+} PKHashmapSlot;
+
+typedef struct PKHashmap_ {
+    PKHashmapSlot *e;
+    size_t count;
+    size_t capacity;
+} PKHashmap;
+
 #define PK_ATOMTY_ILLEGAL (0)
 #define PK_ATOMTY_TYPE (1)
 #define PK_ATOMTY_FREE (2)
@@ -450,5 +466,7 @@ PKStr pk_ident_atomty(pk_u8 ty);
 PKStr pk_ident_arity(pk_u8 arity);
 PKStr pk_ident_env(PK_ENV env);
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
+    
+PKAtom pk_std_load(void);
     
 #endif // POCKET_LISP_INTERNALS_H

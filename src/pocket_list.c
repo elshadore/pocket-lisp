@@ -11,6 +11,30 @@ PKAtom pk_cons(PKAtom car, PKAtom cdr) {
     return atom;
 }
 
+PKAtom pk_car(PKAtom cons) {
+    pk_propagate(pk_typecheck_cons(cons));
+    return cons->cons.car;
+}
+
+PKAtom pk_cdr(PKAtom cons) {
+    pk_propagate(pk_typecheck_cons(cons));
+    return cons->cons.cdr;
+}
+
+PKAtom pk_set_car(PKAtom cons, PKAtom new_car) {
+    pk_propagate(pk_typecheck_cons(cons));
+    PKAtom result = cons->cons.car;
+    cons->cons.car = new_car;
+    return result;
+}
+
+PKAtom pk_set_cdr(PKAtom cons, PKAtom new_cdr) {
+    pk_propagate(pk_typecheck_cons(cons));
+    PKAtom result = cons->cons.cdr;
+    cons->cons.cdr = new_cdr;
+    return result;
+}
+
 PKAtom pk_list2(PKAtom first, PKAtom second) {
     PKAtom b = pk_cons(second, pk_nil());
     pk_propagate(b);

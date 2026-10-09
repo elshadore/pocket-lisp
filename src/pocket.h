@@ -97,6 +97,12 @@ PKAtom pk_list_flatten(PKAtoms lists);
 PKAtom pk_array(PKAtoms atoms);
 PKAtom pk_table(void);
 
+PKAtom pk_car(PKAtom cons);
+PKAtom pk_cdr(PKAtom cons);
+
+PKAtom pk_set_car(PKAtom cons, PKAtom new_car);
+PKAtom pk_set_cdr(PKAtom cons, PKAtom new_cdr);
+
 PKAtom pk_cfun0(void *user_closure, PKFun0 fun);
 PKAtom pk_cfun1(void *user_closure, PKFun1 fun, PK_ARITY arity);
 PKAtom pk_cfun2(void *user_closure, PKFun2 fun, PK_ARITY arity);
