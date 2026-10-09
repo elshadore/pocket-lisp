@@ -58,7 +58,7 @@ PKHashmapSlot *pk_hashmap_find(PKHashmap *map, PKAtom key, bool *found, size_t *
     size_t index = pk_hashmap_index(map, key);
     size_t first_vacancy = SIZE_MAX;
     
-    for (size_t probe = 0; probe < map->capacity; ++probe) {
+    for (size_t i = 0; i < map->capacity; ++i) {
         PKHashmapSlot *slot = &map->e[index];
         switch (slot->state) {
             case PK_HASHMAP_SLOT_OCCUPIED: {
@@ -128,6 +128,30 @@ PKAtom pk_hashmap_insert(PKHashmap *map, PKAtom key, PKAtom value) {
         .state = PK_HASHMAP_SLOT_OCCUPIED,
     };
     map->count += 1;
+    
+    return pk_undefined();
+}
+
+PKAtom pk_hashmap_get_str(PKHashmap *map, PKStr key) {
+    if (map->capacity == 0) {
+        return pk_undefined();
+    }
+    
+    size_t index = pk_hash_djb2(key.c, key.length) & (map->capacity - 1);
+    
+    for (size_t i = 0; i < map->capacity; ++i) {
+        PKHashmapSlot *slot = &map->e[index];
+        if (slot->state == PK_HASHMAP_SLOT_UNOCCUPIED) {
+            return pk_undefined();
+        }
+        if ((slot->state == PK_HASHMAP_SLOT_OCCUPIED) && pk_is_string(slot->key)) {
+            PKStr name = slot->key->string.str;
+            if (pk_str_eq(name, key)) {
+                return slot->value;
+            }
+        }
+        index = (index + 1) & (map->capacity - 1);
+    }
     
     return pk_undefined();
 }

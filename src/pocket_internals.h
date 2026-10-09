@@ -331,6 +331,7 @@ typedef struct PKCache_ {
     .stack = PK_ARRAY_EMPTY, \
     .lets = PK_LETS_EMPTY, \
     .frames = PK_FRAMES_EMPTY, \
+    .symbolizer = PK_HASHMAP_EMPTY, \
     .current_frame = PK_FRAME_EMPTY, \
     .pool = NULL, \
     .free = NULL, \
@@ -343,6 +344,7 @@ typedef struct PocketLispMachine_ {
     PKLets lets;
     PKFrames frames;
     PKFrame current_frame;
+    PKHashmap symbolizer;
     PKPool *pool;
     PKAtomFree *free;
     PKCache cache;
@@ -449,6 +451,7 @@ PKAtom pk_array_push(PKArray *array, PKAtom atom, size_t init_capacity);
 PKAtom pk_bytes_push(PKBytes *bytes, pk_u8 byte, size_t init_capacity);
     
 PKAtom pk_hashmap_insert(PKHashmap *map, PKAtom key, PKAtom value);
+PKAtom pk_hashmap_get_str(PKHashmap *map, PKStr key);
 PKAtom pk_hashmap_get(PKHashmap *map, PKAtom key);
 PKAtom pk_hashmap_remove(PKHashmap *map, PKAtom key);
 void pk_hashmap_deinit(PKHashmap *map);

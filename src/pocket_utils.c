@@ -97,6 +97,7 @@ PKStr pk_str_from_cstr(char *cstr) {
 
 bool pk_str_eq(PKStr a, PKStr b) {
     if (a.length != b.length) return false;
+    if (a.length == 0) return true;
     return (bool)(memcmp(a.c, b.c, a.length) == 0);
 }
 
