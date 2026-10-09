@@ -480,5 +480,7 @@ PKStr pk_ident_env(PK_ENV env);
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
     
 PKAtom pk_std_load(void);
+
+PKAtom pk_fs_slurp(PKStr file_path);
     
 #endif // POCKET_LISP_INTERNALS_H

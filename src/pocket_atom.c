@@ -142,6 +142,11 @@ PKAtom pk_string_cat(PKAtoms strings) {
 }
 
 PKAtom pk_symbol(PKStr string) {
+    PKAtom interned = pk_hashmap_get_str(&PK_CORE.symbolizer, string);
+    if (!pk_is_undefined(interned)) {
+        return interned;
+    }
+    
     PKAtom atom = pk_atom_alloc();
     pk_propagate(atom);
 
@@ -153,6 +158,8 @@ PKAtom pk_symbol(PKStr string) {
     atom->symbol.fun = pk_nil();
     atom->symbol.prop = pk_nil();
     atom->symbol.name = name;
+
+    pk_propagate(pk_hashmap_insert(&PK_CORE.symbolizer, name, atom));
     
     return atom;
 }

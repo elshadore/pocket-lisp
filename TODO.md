@@ -5,7 +5,7 @@ The todo list for POCKET LISP
 - [x] Environment
   - let
 - [x] Function Calling
-  - [ ] Call Stack
+  - [x] Call Stack
 - [x] Compilation
 - [x] VM
 - [ ] Macros
@@ -17,13 +17,13 @@ The todo list for POCKET LISP
   - [ ] Table
   - [ ] Slots
   - [ ] Methods
-- [ ] Special Forms
-  - [ ] let, let-star, flet, flet-star
-  - [ ] var, fvar
-  - [ ] if
-  - [ ] quote
-  - [ ] quasiquote, unquote
-  - [ ] string-substitute
-  - [ ] progn
+- [x] Special Forms
+  - [x] let, let-star, flet, flet-star
+  - [x] var, fvar
+  - [x] if
+  - [x] quote
+  - [x] quasiquote, unquote
+  - [x] string-substitute
+  - [x] progn
   - [ ] bind
   
