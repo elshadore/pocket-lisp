@@ -53,16 +53,16 @@ pk_make_fun1(pk_fun_compile, pk_compile)
 } while(0)
 
 PKAtom pk_std_load(void) {
-    pk_load_fun(pk_str("+"), pk_cfun3(NULL, pk_fun_add, PK_ARITY_VARIADIC));
+    pk_load_fun(pk_str("+"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_add, PK_ARITY_VARIADIC));
     
-    pk_load_fun(pk_str("cons"), pk_cfun2(NULL, pk_fun_cons, PK_ARITY_NORMAL));
-    pk_load_fun(pk_str("car"), pk_cfun1(NULL, pk_fun_car, PK_ARITY_NORMAL));
-    pk_load_fun(pk_str("cdr"), pk_cfun1(NULL, pk_fun_cdr, PK_ARITY_NORMAL));
-    pk_load_fun(pk_str("set_car"), pk_cfun2(NULL, pk_fun_set_car, PK_ARITY_NORMAL));
-    pk_load_fun(pk_str("set_cdr"), pk_cfun2(NULL, pk_fun_set_cdr, PK_ARITY_NORMAL));
+    pk_load_fun(pk_str("cons"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_cons, PK_ARITY_NORMAL));
+    pk_load_fun(pk_str("car"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_car, PK_ARITY_NORMAL));
+    pk_load_fun(pk_str("cdr"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_cdr, PK_ARITY_NORMAL));
+    pk_load_fun(pk_str("set_car"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set_car, PK_ARITY_NORMAL));
+    pk_load_fun(pk_str("set_cdr"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set_cdr, PK_ARITY_NORMAL));
     
-    pk_load_fun(pk_str("print"), pk_cfun1(NULL, pk_fun_print, PK_ARITY_NORMAL));
-    pk_load_fun(pk_str("eval"), pk_cfun1(NULL, pk_fun_eval, PK_ARITY_NORMAL));
-    pk_load_fun(pk_str("format"), pk_cfun1(NULL, pk_fun_format, PK_ARITY_NORMAL));
+    pk_load_fun(pk_str("print"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_print, PK_ARITY_NORMAL));
+    pk_load_fun(pk_str("eval"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_eval, PK_ARITY_NORMAL));
+    pk_load_fun(pk_str("format"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_format, PK_ARITY_NORMAL));
     return pk_true();
 }

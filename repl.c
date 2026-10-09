@@ -21,9 +21,9 @@ PKAtom run(void) {
     
     pk_print(e);
     
-    PKAtom c = pk_cfun2(NULL, function, PK_ARITY_NORMAL);
+    PKAtom c = pk_cfun2(NULL, PK_CALL_FUN, function, PK_ARITY_NORMAL);
 
-    PKAtom d = pk_funcall2(c, pk_int(34), pk_int(35));
+    PKAtom d = pk_funcall2(PK_CALL_FUN, c, pk_int(34), pk_int(35));
     pk_propagate(pk_debug_dump("function", PK_DUMP_STACK));
 
     pk_print(d);

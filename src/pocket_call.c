@@ -28,7 +28,8 @@ PKAtom pk_stack_funcall_(PKAtom function, pk_u8 arity) {
     }
 }
 
-PKAtom pk_stack_funcall(pk_u8 arity) {
+PKAtom pk_stack_funcall(PK_CALL call, pk_u8 arity) {
+    (void)call;
     PKAtoms stack = pk_stack_slice();
     size_t uarity = (size_t)arity;
     if (stack.length < (uarity + 1)) {
@@ -41,7 +42,7 @@ PKAtom pk_stack_funcall(pk_u8 arity) {
     return result;
 }
 
-PKAtom pk_funcall0(PKAtom fun) {
+PKAtom pk_funcall0(PK_CALL call, PKAtom fun) {
     if (!pk_is_function(fun)) {
         return pk_error();
     }
@@ -55,13 +56,13 @@ PKAtom pk_funcall0(PKAtom fun) {
     };
     
     pk_propagate(pk_frame_pushc(atoms));
-    PKAtom result = pk_stack_funcall(0);
+    PKAtom result = pk_stack_funcall(call, 0);
     pk_stack_pop_unchecked(1);
     
     return result;
 }
 
-PKAtom pk_funcall1(PKAtom fun, PKAtom arg1) {
+PKAtom pk_funcall1(PK_CALL call, PKAtom fun, PKAtom arg1) {
     if (!pk_is_function(fun)) {
         return pk_error();
     }
@@ -76,13 +77,13 @@ PKAtom pk_funcall1(PKAtom fun, PKAtom arg1) {
     };
     
     pk_propagate(pk_frame_pushc(atoms));
-    PKAtom result = pk_stack_funcall(1);
+    PKAtom result = pk_stack_funcall(call, 1);
     pk_stack_pop_unchecked(1);
 
     return result;
 }
 
-PKAtom pk_funcall2(PKAtom fun, PKAtom arg1, PKAtom arg2) {
+PKAtom pk_funcall2(PK_CALL call, PKAtom fun, PKAtom arg1, PKAtom arg2) {
     if (!pk_is_function(fun)) {
         return pk_error();
     }
@@ -98,13 +99,13 @@ PKAtom pk_funcall2(PKAtom fun, PKAtom arg1, PKAtom arg2) {
     };
     
     pk_propagate(pk_frame_pushc(atoms));
-    PKAtom result = pk_stack_funcall(2);
+    PKAtom result = pk_stack_funcall(call, 2);
     pk_stack_pop_unchecked(1);
     
     return result;
 }
 
-PKAtom pk_funcall3(PKAtom fun, PKAtom arg1, PKAtom arg2, PKAtom arg3) {
+PKAtom pk_funcall3(PK_CALL call, PKAtom fun, PKAtom arg1, PKAtom arg2, PKAtom arg3) {
     if (!pk_is_function(fun)) {
         return pk_error();
     }
@@ -121,7 +122,7 @@ PKAtom pk_funcall3(PKAtom fun, PKAtom arg1, PKAtom arg2, PKAtom arg3) {
     };
     
     pk_propagate(pk_frame_pushc(atoms));
-    PKAtom result = pk_stack_funcall(3);
+    PKAtom result = pk_stack_funcall(call, 3);
     pk_stack_pop_unchecked(1);
     
     return result;

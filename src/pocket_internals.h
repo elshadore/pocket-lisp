@@ -104,6 +104,8 @@ typedef struct PKHashmap_ {
 #define PK_ATOMTY_TABLE (13)
 #define PK_ATOMTY_CFUN (14)
 #define PK_ATOMTY_LFUN (15)
+#define PK_ATOMTY_CMACRO (16)
+#define PK_ATOMTY_LMACRO (17)
 
 #define PK_ATOMFLAG_NONE (0)
 #define PK_ATOMFLAG_IMMORTAL (1 << 0)
@@ -241,6 +243,8 @@ typedef union PKAtomData_ {
     PKAtomCons cons;
     PKAtomCFun cfun;
     PKAtomLFun lfun;
+    PKAtomCFun cmacro;
+    PKAtomLFun lmacro;
 } PKAtomData;
 
 #define PK_FRAME_EMPTY (PKFrame){0}
@@ -397,7 +401,7 @@ void pk_frame_clear(void);
 void pk_frame_unwind(void);
 
 PKAtom pk_stack_push(PKAtom atom);
-PKAtom pk_stack_funcall(pk_u8 arity);
+PKAtom pk_stack_funcall(PK_CALL call, pk_u8 arity);
 PKAtom pk_stack_head();
 PKAtom pk_stack_pop();
 void pk_stack_pop_unchecked(size_t n);

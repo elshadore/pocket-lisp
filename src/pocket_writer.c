@@ -248,6 +248,18 @@ PKAtom pk_writer_atom(PKWriter *w, PKAtom atom) {
             );
             break;
         }
+        case PK_ATOMTY_CMACRO: {
+            pk_propagate(
+                pk_writer_simple_function(w, atom, pk_str("CMACRO"), atom->cmacro.args, atom->cmacro.arity)
+            );
+            break;
+        }
+        case PK_ATOMTY_LMACRO: {
+            pk_propagate(
+                pk_writer_simple_function(w, atom, pk_str("LMACRO"), atom->lmacro.args, atom->lmacro.arity)
+            );
+            break;
+        }
         default: {
             pk_propagate(pk_writer_simple_object(w, atom, pk_str("UNKNOWN")));
             break;

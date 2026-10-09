@@ -54,6 +54,11 @@ typedef enum PK_DUMP_ {
     PK_DUMP_ALL = PK_DUMP_STACK | PK_DUMP_ENV,
 } PK_DUMP;
 
+typedef enum PK_CALL_ {
+    PK_CALL_FUN = 0,
+    PK_CALL_MACRO,
+} PK_CALL;
+
 #define pk_str(text_) (PKStr) {.c = (text_), .length = (sizeof(text_) - 1)}
 #define PK_STR_EMPTY (PKStr){.c = NULL, .length = 0}
 
@@ -103,10 +108,10 @@ PKAtom pk_cdr(PKAtom cons);
 PKAtom pk_set_car(PKAtom cons, PKAtom new_car);
 PKAtom pk_set_cdr(PKAtom cons, PKAtom new_cdr);
 
-PKAtom pk_cfun0(void *user_closure, PKFun0 fun);
-PKAtom pk_cfun1(void *user_closure, PKFun1 fun, PK_ARITY arity);
-PKAtom pk_cfun2(void *user_closure, PKFun2 fun, PK_ARITY arity);
-PKAtom pk_cfun3(void *user_closure, PKFun3 fun, PK_ARITY arity);
+PKAtom pk_cfun0(void *user_closure, PK_CALL call, PKFun0 fun);
+PKAtom pk_cfun1(void *user_closure, PK_CALL call, PKFun1 fun, PK_ARITY arity);
+PKAtom pk_cfun2(void *user_closure, PK_CALL call, PKFun2 fun, PK_ARITY arity);
+PKAtom pk_cfun3(void *user_closure, PK_CALL call, PKFun3 fun, PK_ARITY arity);
 
 PKAtom pk_add(PKAtom lhs, PKAtom rhs);
 PKAtom pk_sub(PKAtom lhs, PKAtom rhs);
@@ -129,10 +134,10 @@ PKAtom pk_eval(PKAtom expr);
 PKAtom pk_compile(PKAtom expr);
 PKAtom pk_evlist(PKAtom exprlist);
 
-PKAtom pk_funcall0(PKAtom fn);
-PKAtom pk_funcall1(PKAtom fn, PKAtom arg1);
-PKAtom pk_funcall2(PKAtom fn, PKAtom arg1, PKAtom arg2);
-PKAtom pk_funcall3(PKAtom fn, PKAtom arg1, PKAtom arg2, PKAtom arg3);
+PKAtom pk_funcall0(PK_CALL call, PKAtom fn);
+PKAtom pk_funcall1(PK_CALL call, PKAtom fn, PKAtom arg1);
+PKAtom pk_funcall2(PK_CALL call, PKAtom fn, PKAtom arg1, PKAtom arg2);
+PKAtom pk_funcall3(PK_CALL call, PKAtom fn, PKAtom arg1, PKAtom arg2, PKAtom arg3);
 
 bool pk_is_nil(PKAtom atom);
 bool pk_is_true(PKAtom atom);
