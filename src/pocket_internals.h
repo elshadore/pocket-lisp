@@ -391,12 +391,6 @@ void pk_print_str(PKStr string);
 
 PKAtom pk_frame_push(size_t arity);
 PKAtom pk_frame_pushc(PKAtoms atoms);
-// We should always call a function with the function object on the stack.
-// That way we guarantee that we have enough memory that this function will not panic on return.
-// As we just replace the function object in the stack with the return object.
-// This changes if we want to implement multiple value returns.
-void pk_frame_return(PKAtom atom);
-void pk_frame_return_head(void);
 void pk_frame_clear(void);
 void pk_frame_unwind(void);
 
@@ -483,6 +477,8 @@ PKStr pk_ident_arity(pk_u8 arity);
 PKStr pk_ident_env(PK_ENV env);
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
     
+PKAtom pk_macroexpand1_(PKAtom atom, bool *expanded);
+
 PKAtom pk_std_load(void);
 
 PKAtom pk_fs_slurp(PKStr file_path);

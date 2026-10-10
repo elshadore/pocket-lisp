@@ -118,7 +118,9 @@ PKAtom pk_vm_op_exec(PKVM *vm) {
             break;
         }
         case PK_OP_BLOCK_END: {
-            pk_frame_return_head();
+            PKAtom result = pk_stack_head();
+            pk_frame_unwind();
+            pk_propagate(pk_stack_push(result));
             pk_propagate(pk_vm_inc(vm));
             break;
         }
@@ -210,8 +212,7 @@ PKAtom pk_vm_exec(PKVM *vm) {
             return atom;
         }
     }
-    pk_frame_return_head();
-    return pk_true();
+    return pk_stack_head();
 }
 
 PKAtom pk_lfun_exec(PKAtom lfun, size_t save) {

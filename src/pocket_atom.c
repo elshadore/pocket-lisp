@@ -274,6 +274,10 @@ bool pk_is_function(PKAtom atom) {
     return pk_is_cfun(atom) || pk_is_lfun(atom);
 }
 
+bool pk_is_macro(PKAtom atom) {
+    return atom->header.type == PK_ATOMTY_CMACRO || atom->header.type == PK_ATOMTY_LMACRO;
+}
+
 PKAtom pk_typecheck_nil(PKAtom atom) {
     if (pk_is_nil(atom)) {
         return pk_true();

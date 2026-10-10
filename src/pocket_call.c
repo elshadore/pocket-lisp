@@ -1,35 +1,57 @@
 #include "pocket_internals.h"
 
-PKAtom pk_stack_funcall_(PKAtom function, pk_u8 arity) {
+PKAtom pk_cfun_exec(PKAtomCFun *cfun, pk_u8 arity, PKAtoms stack) {
+    if (cfun->args != arity) {
+        return pk_error();
+    }
+    switch (cfun->args) {
+        case 0: return (cfun->as.fun0)(cfun->user_closure);
+        case 1: return (cfun->as.fun1)(cfun->user_closure, stack.e[0]);
+        case 2: return (cfun->as.fun2)(cfun->user_closure, stack.e[1], stack.e[0]);
+        case 3: return (cfun->as.fun3)(cfun->user_closure, stack.e[2], stack.e[1], stack.e[0]);
+        default: return pk_error();
+    }
+}
+
+PKAtom pk_stack_funcall_(PK_CALL call, PKAtom function, pk_u8 arity) {
     PKAtoms stack = pk_stack_slice();
     if (stack.length != arity) {
         return pk_error();
     }
-    switch (function->header.type) {
-        case PK_ATOMTY_CFUN: {
-            if (function->cfun.args != arity) {
-                return pk_error();
-            }
-            switch (function->cfun.args) {
-                case 0: return (function->cfun.as.fun0)(function->cfun.user_closure);
-                case 1: return (function->cfun.as.fun1)(function->cfun.user_closure, stack.e[0]);
-                case 2: return (function->cfun.as.fun2)(function->cfun.user_closure, stack.e[1], stack.e[0]);
-                case 3: return (function->cfun.as.fun3)(function->cfun.user_closure, stack.e[2], stack.e[1], stack.e[0]);
+    switch (call) {
+        case PK_CALL_FUN: {
+            switch (function->header.type) {
+                case PK_ATOMTY_CFUN: {
+                    return pk_cfun_exec((PKAtomCFun *)function, arity, stack);
+                }
+                case PK_ATOMTY_LFUN: {
+                    if (function->lfun.args != arity) {
+                        return pk_error();
+                    }
+                    return pk_lfun_exec(function, 0);
+                }
                 default: return pk_error();
             }
         }
-        case PK_ATOMTY_LFUN: {
-            if (function->lfun.args != arity) {
-                return pk_error();
+        case PK_CALL_MACRO: {
+            switch (function->header.type) {
+                case PK_ATOMTY_CMACRO: {
+                    return pk_cfun_exec((PKAtomCFun *)function, arity, stack);
+                }
+                case PK_ATOMTY_LMACRO: {
+                    if (function->lfun.args != arity) {
+                        return pk_error();
+                    }
+                    return pk_lfun_exec(function, 0);
+                }
+                default: return pk_error();
             }
-            return pk_lfun_exec(function, 0);
         }
         default: return pk_error();
     }
 }
 
 PKAtom pk_stack_funcall(PK_CALL call, pk_u8 arity) {
-    (void)call;
     PKAtoms stack = pk_stack_slice();
     size_t uarity = (size_t)arity;
     if (stack.length < (uarity + 1)) {
@@ -37,8 +59,8 @@ PKAtom pk_stack_funcall(PK_CALL call, pk_u8 arity) {
     }
     PKAtom function = stack.e[stack.length - uarity - 1];
     pk_propagate(pk_frame_push(arity));
-    PKAtom result = pk_stack_funcall_(function, arity);
-    pk_frame_return_head();
+    PKAtom result = pk_stack_funcall_(call, function, arity);
+    pk_frame_unwind();
     return result;
 }
 

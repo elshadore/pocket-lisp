@@ -8,6 +8,7 @@
 #include "pocket_hashmap.c"
 #include "pocket_list.c"
 #include "pocket_ident.c"
+#include "pocket_macro.c"
 #include "pocket_math.c"
 #include "pocket_mem.c"
 #include "pocket_print.c"

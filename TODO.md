@@ -17,13 +17,7 @@ The todo list for POCKET LISP
   - [ ] Table
   - [ ] Slots
   - [ ] Methods
-- [x] Special Forms
-  - [x] let, let-star, flet, flet-star
-  - [x] var, fvar
-  - [x] if
-  - [x] quote
-  - [x] quasiquote, unquote
-  - [x] string-substitute
-  - [x] progn
+- [ ] Special Forms
+  - [ ] var, fvar
   - [ ] bind
-  
+- [ ] Compiling Non Special Variables

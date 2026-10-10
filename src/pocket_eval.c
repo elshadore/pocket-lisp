@@ -1,7 +1,42 @@
 #include "pocket_internals.h"
 
+PKAtom pk_apply_(PK_CALL call, PKAtom fun, PKAtom args) {
+    pk_propagate(pk_stack_push(fun));
+    pk_u8 arity = 0;
+    {
+        PKAtom iter = args;
+        while (pk_is_cons(args)) {
+            if (arity == UINT8_MAX) {
+                return pk_error();
+            }
+            pk_propagate(pk_stack_push(iter->cons.car));
+            arity += 1;
+            iter = args->cons.cdr;
+        }
+    }
+    return pk_stack_funcall(call, arity);
+}
+    
+PKAtom pk_apply(PK_CALL call, PKAtom fun, PKAtom args) {
+    pk_propagate(pk_frame_push(0));
+    PKAtom result = pk_apply_(call, fun, args);
+    pk_frame_unwind();
+    return result;
+}
+
 PKAtom pk_eval(PKAtom expr) {
     PKAtom fun = pk_compile(expr);
     pk_propagate(fun);
     return pk_funcall0(PK_CALL_FUN, fun);
+}
+
+PKAtom pk_evlist(PKAtom exprlist) {
+    PKAtom iter = exprlist;
+    PKAtom result = pk_nil();
+    while (pk_is_cons(iter)) {
+        result = pk_eval(iter->cons.car);
+        pk_propagate(result);
+        iter = iter->cons.cdr;
+    }
+    return result;
 }

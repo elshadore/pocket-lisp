@@ -1,190 +1,90 @@
 
 #include "pocket_internals.h"
 
-PKAtom pk_atom_macro_apply(PKAtom function, PKAtom args, PKAtom *output) {
-    size_t acc = 0;
-    PKAtom iter = args;
-    PKAtom result = PK_YIELD;
-    PKCallConv call;
+PKAtom pk_macroexpand_list(PKAtom list, bool *expanded) {
+    PKAccum acc = pk_accum_new();
 
-    pk_propagate(pk_frame_push(lisp, (PKAtom )lisp->cache.macro_apply, 0));
-    
-    pk_propagate(pk_push(lisp, function));
-
-    while (!pk_atom_is_nil(iter)) {
-        PKAtomCons *cons = NULL;
-        pk_propagate(pk_atom_cast_cons(lisp, iter, &cons));
-        pk_propagate(pk_push(lisp, cons->car));
-        acc += 1;
-        iter = cons->cdr;
+    PKAtom iter = list;
+    while (pk_is_cons(iter)) {
+        PKAtom atom = pk_macroexpand1_(iter->cons.car, expanded);
+        pk_propagate(pk_accum_push(&acc, atom));
+        iter = iter->cons.cdr;
     }
 
-    pk_propagate(pk_callconv(lisp, function, acc, PK_CALLFLAG_INSERT_RESULT | PK_CALLFLAG_MACRO_CALL, &call));
+    return acc.head;
+}
 
-    pk_propagate(pk_call(lisp, &call));
-
-    *output = pk_stack_result(lisp);
-
-    result = PK_OK;
+PKAtom pk_macroexpand_let_args(PKAtom args, bool *expanded) {
+    PKAccum acc = pk_accum_new();
     
-    DEFER:
-    
-    pk_propagate(pk_frame_pop(lisp));
+    PKAtom iter = args;
+    while (pk_is_cons(iter)) {
+        PKAtom a = iter->cons.car;
+        pk_propagate(pk_typecheck_cons(a));
+        PKAtom b = a->cons.cdr;
+        pk_propagate(pk_typecheck_cons(b));
+        pk_propagate(pk_typecheck_nil(b->cons.cdr));
         
+        PKAtom atom = pk_macroexpand1_(b->cons.car, expanded);
+        pk_propagate(atom);
+
+        PKAtom result = pk_list2(a->cons.car, atom);
+        
+        pk_propagate(result);
+        pk_propagate(pk_accum_push(&acc, result));
+        
+        iter = iter->cons.cdr;
+    }
+
+    return acc.head;
+}
+    
+PKAtom pk_macroexpand_let(PKAtom let, PKAtom body, bool *expanded) {
+    PKAtom args = pk_macroexpand_let_args(body->cons.car, expanded);
+    pk_propagate(args);
+    PKAtom rbody = pk_macroexpand_list(body->cons.cdr, expanded);
+    pk_propagate(rbody);
+    PKAtom result = pk_list3(let, args, rbody);
+    pk_propagate(result);
     return result;
 }
-
-PKAtom pk_atom_macroexpand_list(PKAtomCons *list, PKAtom *output, pk_bool *expanded) {
-    PKAtom iter = NULL;
-    PKAtomCons *head = NULL;
-    PKAtomCons *tail = NULL;
-    PKAtom result = NULL;
-
-    pk_propagate(pk_atom_macroexpand_1(lisp, list->car, &result, expanded));
-    pk_propagate(pk_atom_cons_car(lisp, result, &head));
-    tail = head;
-    iter = list->cdr;
-
-    while (!pk_atom_is_nil(iter)) {
-        PKAtomCons *cons = NULL;
-        PKAtomCons *new_cons = NULL;
-        PKAtom result = NULL;
-        
-        pk_propagate(pk_atom_cast_cons(lisp, iter, &cons));
-        pk_propagate(pk_atom_macroexpand_1(lisp, cons->car, &result, expanded));
-        pk_propagate(pk_atom_cons_car(lisp, result, &new_cons));
-        
-        tail->cdr = (PKAtom )new_cons;
-        tail = new_cons;
-        
-        iter = cons->cdr;
+    
+PKAtom pk_macroexpand1_(PKAtom atom, bool *expanded) {
+    if (!pk_is_cons(atom)) {
+        return atom;
     }
-
-    *output = (PKAtom )head;
-    return PK_OK;
-}
-
-PKAtom pk_atom_macroexpand_let_args(PKAtom args, PKAtom *output, pk_bool *expanded) {
-    PKAtom iter = args;
-    
-    PKAtomCons *head = NULL;
-    PKAtomCons *tail = NULL;
-    
-    while (!pk_atom_is_nil(iter)) {
-        PKAtomCons *a = NULL;
-        PKAtomCons *b = NULL;
-        PKAtomCons *c = NULL;
-        PKAtomCons *d = NULL;
-        PKAtomCons *e = NULL;
-        PKAtomCons *next = NULL;
-        PKAtom result = NULL;
-        
-        pk_propagate(pk_atom_cast_cons(lisp, iter, &a));
-        pk_propagate(pk_atom_cast_cons(lisp, a->car, &b));
-        pk_propagate(pk_atom_cast_cons(lisp, b->cdr, &c));
-
-        pk_propagate(pk_atom_assert_nil(lisp, c->cdr));
-        
-        pk_propagate(pk_atom_macroexpand_1(lisp, c->car, &result, expanded));
-        pk_propagate(pk_atom_cons_car(lisp, result, &d));
-        
-        pk_propagate(pk_atom_cons(lisp, b->car, (PKAtom )d, &e));
-        pk_propagate(pk_atom_cons_car(lisp, (PKAtom )e, &next));
-        
-        if (head == NULL) {
-            head = next;
-            tail = next;
-        } else {
-            tail->cdr = (PKAtom )next;
-            tail = next;
+    PKAtom head = atom->cons.car;
+    if (pk_is_symbol(head)) {
+        if ((head == PK_CORE.cache.let) ||
+            (head == PK_CORE.cache.let_star) ||
+            (head == PK_CORE.cache.flet) ||
+            (head == PK_CORE.cache.flet_star)
+        ) {
+            return pk_macroexpand_let(head, atom->cons.cdr, expanded);
         }
-                
-        iter = a->cdr;
-    }
-
-    if (head == NULL) {
-        *output = pk_atom_nil(lisp);
-    } else {
-        *output = (PKAtom )head;
-    }
-
-    return PK_OK;
-}
-    
-PKAtom pk_atom_macroexpand_let(PKAtomSymbol *let, PKAtom body, PKAtom *output, pk_bool *expanded) {
-    PKAtomCons *a = NULL;
-    PKAtomCons *b = NULL;
-    PKAtomCons *c = NULL;
-    PKAtomCons *d = NULL;
-    PKAtom r_args = NULL;
-    PKAtom r_body = NULL;
-
-    pk_propagate(pk_atom_cast_cons(lisp, body, &a));
-    pk_propagate(pk_atom_cast_cons(lisp, a->cdr, &b));
-    
-    pk_propagate(pk_atom_macroexpand_let_args(lisp, a->car, &r_args, expanded));
-    pk_propagate(pk_atom_macroexpand_list(lisp, b, &r_body, expanded));
-    
-    pk_propagate(pk_atom_cons(lisp, r_args, r_body, &c));
-    pk_propagate(pk_atom_cons(lisp, (PKAtom )let, (PKAtom )c, &d));
-
-    *output = (PKAtom )d;
-    
-    return PK_OK;
-}
-    
-PKAtom pk_atom_macroexpand_1(PKAtom atom, PKAtom *output, pk_bool *expanded) {
-    switch (atom->tag.ty) {
-        case PKAtomTy_Cons: {
-            PKAtomCons *cons = (PKAtomCons *)atom;
-            if (pk_atom_is_symbol(cons->car)) {
-                PKAtom lookup = NULL;
-                PKAtomSymbol *symbol = (PKAtomSymbol *)cons->car;
-                if ((symbol == lisp->cache.let_sym) ||
-                    (symbol == lisp->cache.let_star) ||
-                    (symbol == lisp->cache.flet_sym) ||
-                    (symbol == lisp->cache.flet_star)
-                ) {
-                    pk_propagate(pk_atom_macroexpand_let(lisp, symbol, cons->cdr, output, expanded));
-                    return PK_OK;
-                } else if (pk_env_query(lisp, PKEnvTy_Fun, symbol, &lookup)) {
-                    if (pk_atom_is_lmacro(lookup)) {
-                        pk_propagate(pk_atom_macro_apply(lisp, lookup, cons->cdr, output));
-                        *expanded = PK_TRUE;
-                        return PK_OK;
-                    }
-                }
-            }
-            
-            pk_propagate(pk_atom_macroexpand_list(lisp, cons, output, expanded));
-            
-            return PK_OK;
-        }
-        default: {
-            *output = atom;
-            return PK_OK;
+        PKAtom get = pk_get(PK_ENV_FUN, head);
+        if (pk_is_macro(get)) {
+            *expanded = true;
+            return pk_apply(PK_CALL_MACRO, get, atom->cons.cdr);
         }
     }
+    
+    return pk_macroexpand_list(atom, expanded);
 }
 
-PKAtom pk_atom_macroexpand(PKAtom atom, PKAtom *output) {
-    pk_bool expanded = PK_FALSE;
+PKAtom pk_macroexpand1(PKAtom atom) {
+    bool ignore = false;
+    return pk_macroexpand1_(atom, &ignore);
+}
+    
+PKAtom pk_macroexpand(PKAtom atom) {
     PKAtom result = atom;
-    
-    do {
-        expanded = PK_FALSE;
-        pk_propagate(pk_atom_macroexpand_1(lisp, result, &result, &expanded));
-    } while (expanded);
-
-
-    /*
-    printf("MACRO-EXPAND: ");
-    pk_propagate(pk_print_atom(lisp, atom));
-    printf("MACRO-EXPAND-RESULT: ");
-    pk_propagate(pk_print_atom(lisp, result));
-    */
-    
-    *output = result;
-    
-    return PK_OK;
+    for(;;) {
+        bool expanded = false;
+        result = pk_macroexpand1_(result, &expanded);
+        if (!expanded) {
+            break;
+        }
+    }
+    return result;
 }

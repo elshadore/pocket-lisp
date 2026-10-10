@@ -53,15 +53,6 @@ void pk_frame_unwind(void) {
     PK_CORE.current_frame = unwind;
 }
 
-void pk_frame_return(PKAtom atom) {
-    pk_frame_unwind();
-    PK_CORE.stack.e[PK_CORE.stack.count++] = atom;
-}
-
-void pk_frame_return_head(void) {
-    return pk_frame_return(pk_stack_head());
-}
-
 void pk_frame_clear(void) {
     PK_CORE.stack.count = PK_CORE.current_frame.stack_offset;
 }
