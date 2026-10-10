@@ -88,6 +88,15 @@ typedef struct PKHashmap_ {
     size_t capacity;
 } PKHashmap;
 
+#define PK_CALLCONV_EMPTY (PKCallConv){.args = 0, .variadic_count = 0, .variadic = false, .push_extra_nil = false}
+
+typedef struct PKCallConv_ {
+    pk_u8 args;
+    pk_u8 variadic_count;
+    bool variadic;
+    bool push_extra_nil;
+} PKCallConv;
+
 #define PK_ATOMTY_ILLEGAL (0)
 #define PK_ATOMTY_TYPE (1)
 #define PK_ATOMTY_FREE (2)

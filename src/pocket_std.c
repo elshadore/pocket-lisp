@@ -14,13 +14,18 @@
 
 PKAtom pk_fun_add(void *user_closure, PKAtom arg1, PKAtom arg2, PKAtom argn) {
     (void)user_closure;
+    
     PKAtom result = pk_add(arg1, arg2);
+    pk_propagate(result);
+        
     PKAtom iter = argn;
     while (pk_is_cons(iter)) {
         PKAtom atom = pk_car(iter);
         result = pk_add(result, atom);
+        pk_propagate(result);
         iter = pk_cdr(iter);
     }
+    
     return result;
 }
 

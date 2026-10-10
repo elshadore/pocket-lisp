@@ -6,7 +6,7 @@ PKAtom run(void) {
         return pk_error();
     }
 
-    PKAtom a = pk_string(pk_str("(print \"henlo word!\")"));
+    PKAtom a = pk_string(pk_str("(+ 34 35)"));
     pk_propagate(a);
     
     PKAtom b = pk_read(a, PK_READ_EXPRESSION);
