@@ -1,5 +1,17 @@
 #include "pocket_internals.h"
 
+PKAtomData PK_ATOM_NIL = (PKAtomData) {
+    .header = (PKAtomHeader) {
+        .type = PK_ATOMTY_NIL,
+        .flags = PK_ATOMFLAG_IMMORTAL,
+        .refcount = 0,
+    }
+};
+
+PKAtom pk_nil() {
+    return &PK_ATOM_NIL;
+}
+
 PKAtom pk_cons(PKAtom car, PKAtom cdr) {
     PKAtom atom = pk_atom_alloc();
     pk_propagate(atom);
@@ -100,4 +112,28 @@ PKAtom pk_list_flatten(PKAtoms lists) {
         }
     }
     return acc.head;
+}
+
+bool pk_is_nil(PKAtom atom) {
+    return atom->header.type == PK_ATOMTY_NIL;
+}
+
+bool pk_is_cons(PKAtom atom) {
+    return atom->header.type == PK_ATOMTY_CONS;
+}
+
+PKAtom pk_typecheck_nil(PKAtom atom) {
+    if (pk_is_nil(atom)) {
+        return pk_true();
+    } else {
+        return pk_error();
+    }
+}
+
+PKAtom pk_typecheck_cons(PKAtom atom) {
+    if (pk_is_cons(atom)) {
+        return pk_true();
+    } else {
+        return pk_error();
+    }
 }

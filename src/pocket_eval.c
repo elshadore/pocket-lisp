@@ -25,9 +25,11 @@ PKAtom pk_apply(PK_CALL call, PKAtom fun, PKAtom args) {
 }
 
 PKAtom pk_eval(PKAtom expr) {
-    PKAtom fun = pk_compile(expr);
-    pk_propagate(fun);
-    return pk_funcall0(PK_CALL_FUN, fun);
+    PKAtom a = pk_macroexpand(expr);
+    pk_propagate(a);
+    PKAtom b = pk_compile(expr);
+    pk_propagate(b);
+    return pk_funcall0(PK_CALL_FUN, b);
 }
 
 PKAtom pk_evlist(PKAtom exprlist) {

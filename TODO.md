@@ -8,8 +8,9 @@ The todo list for POCKET LISP
   - [x] Call Stack
 - [x] Compilation
 - [x] VM
-- [ ] Macros
+- [x] Macros
 - [ ] Referance Counting
+- [ ] Throwing
 - [ ] Debug Stuff
   - [ ] Memory Leak Detection
 - [ ] Object System

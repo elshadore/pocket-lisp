@@ -108,7 +108,9 @@ PKAtom pk_vm_op_exec(PKVM *vm) {
             pk_u8 args = 0;
             pk_propagate(pk_vm_inc(vm));
             args = pk_vat(vm);
-            pk_propagate(pk_stack_funcall(PK_CALL_FUN, args));
+            PKAtom result = pk_stack_funcall(PK_CALL_FUN, args);
+            pk_propagate(result);
+            pk_propagate(pk_stack_push(result));
             pk_propagate(pk_vm_inc(vm));
             break;
         }

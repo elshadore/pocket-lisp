@@ -89,6 +89,7 @@ void pk_ref_dec(PKAtom atom);
 
 PKAtom pk_true(void);
 PKAtom pk_nil(void);
+PKAtom pk_bool(bool boolean);
 PKAtom pk_int(int integer);
 PKAtom pk_float(float floater);
 PKAtom pk_string(PKStr string);
@@ -119,7 +120,12 @@ PKAtom pk_add(PKAtom lhs, PKAtom rhs);
 PKAtom pk_sub(PKAtom lhs, PKAtom rhs);
 PKAtom pk_mul(PKAtom lhs, PKAtom rhs);
 PKAtom pk_div(PKAtom lhs, PKAtom rhs);
-
+PKAtom pk_mod(PKAtom lhs, PKAtom rhs);
+    
+PKAtom pk_lt(PKAtom lhs, PKAtom rhs);
+PKAtom pk_lte(PKAtom lhs, PKAtom rhs);
+PKAtom pk_gt(PKAtom lhs, PKAtom rhs);
+PKAtom pk_gte(PKAtom lhs, PKAtom rhs);
 bool pk_eq(PKAtom lhs, PKAtom rhs);
 
 PKAtom pk_set(PK_ENV env, PKAtom symbol, PKAtom value);
@@ -147,6 +153,8 @@ PKAtom pk_funcall3(PK_CALL call, PKAtom fn, PKAtom arg1, PKAtom arg2, PKAtom arg
 bool pk_is_nil(PKAtom atom);
 bool pk_is_true(PKAtom atom);
 bool pk_is_error(PKAtom atom);
+bool pk_is_int(PKAtom atom);
+bool pk_is_float(PKAtom atom);
 bool pk_is_number(PKAtom atom);
 bool pk_is_string(PKAtom atom);
 bool pk_is_symbol(PKAtom atom);

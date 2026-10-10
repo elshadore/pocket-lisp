@@ -8,14 +8,6 @@ PKAtomData PK_ATOM_UNDEFINED = (PKAtomData) {
     }
 };
 
-PKAtomData PK_ATOM_NIL = (PKAtomData) {
-    .header = (PKAtomHeader) {
-        .type = PK_ATOMTY_NIL,
-        .flags = PK_ATOMFLAG_IMMORTAL,
-        .refcount = 0,
-    }
-};
-
 PKAtomData PK_ATOM_TRUE = (PKAtomData) {
     .header = (PKAtomHeader) {
         .type = PK_ATOMTY_TRUE,
@@ -32,21 +24,8 @@ PKAtomData PK_ATOM_ERROR = (PKAtomData) {
     }
 };
 
-PKAtomData PK_ATOM_STRING_EMPTY = (PKAtomData) {
-    .string = (PKAtomString) {
-        .header.type = PK_ATOMTY_STRING,
-        .header.flags = PK_ATOMFLAG_IMMORTAL,
-        .header.refcount = 0,
-        .str = PK_STR_EMPTY,
-    }
-};
-
 PKAtom pk_undefined(void) {
     return &PK_ATOM_UNDEFINED;
-}
-
-PKAtom pk_nil() {
-    return &PK_ATOM_NIL;
 }
 
 PKAtom pk_true() {
@@ -61,84 +40,12 @@ PKAtom pk_error_oom(void) {
     return &PK_ATOM_ERROR;
 }
 
-PKAtom pk_string_empty(void) {
-    return &PK_ATOM_STRING_EMPTY;
-}
-
-PKAtom pk_int(int integer) {
-    PKAtom atom = pk_atom_alloc();
-    pk_propagate(atom);
-    atom->header.type = PK_ATOMTY_NUMBER;
-    atom->number.num_type = PK_NUMTY_INT;
-    atom->number.as.i = integer;
-    return atom;
-}
-
-PKAtom pk_float(float floater) {
-    PKAtom atom = pk_atom_alloc();
-    pk_propagate(atom);
-    atom->header.type = PK_ATOMTY_NUMBER;
-    atom->number.num_type = PK_NUMTY_FLOAT;
-    atom->number.as.f = floater;
-    return atom;
-}
-
-PKAtom pk_string(PKStr string) {
-    if (string.length == 0) {
-        return pk_string_empty();
+PKAtom pk_bool(bool boolean) {
+    if (boolean) {
+        return pk_true();
+    } else {
+        return pk_nil();
     }
-
-    PKAtom atom = pk_atom_alloc();
-    pk_propagate(atom);
-    
-    PKStr dupe = PK_STR_EMPTY;
-    pk_propagate(pk_str_dupe(string, &dupe));
-    
-    atom->header.type = PK_ATOMTY_STRING;
-    atom->string.str = dupe;
-    
-    return atom;
-}
-
-PKAtom pk_string_alloc(size_t length) {
-    if (length == 0) {
-        return pk_string_empty();
-    }
-
-    PKAtom atom = pk_atom_alloc();
-    pk_propagate(atom);
-    
-    PKStr buffer = PK_STR_EMPTY;
-    pk_propagate(pk_str_alloc(length, &buffer));
-    
-    atom->header.type = PK_ATOMTY_STRING;
-    atom->string.str = buffer;
-    
-    return atom;
-}
-
-PKAtom pk_string_cat(PKAtoms strings) {
-    size_t length = 0;
-    for (size_t i = 0; i < strings.length; ++i) {
-        PKAtom string = strings.e[i];
-        if (!pk_is_string(string)) {
-            return pk_error();
-        }
-        length += string->string.str.length;
-    }
-    PKAtom atom = pk_string_alloc(length);
-    
-    pk_propagate(atom);
-
-    {
-        size_t offset = 0;
-        for (size_t i = 0; i < strings.length; ++i) {
-            PKAtom string = strings.e[i];
-            memcpy(atom->string.str.c + offset, string->string.str.c, string->string.str.length);
-            offset += string->string.str.length;
-        }
-    }
-    return atom;
 }
 
 PKAtom pk_symbol(PKStr string) {
@@ -205,13 +112,6 @@ PKAtom pk_cfun3(void *user_closure, PK_CALL call, PKFun3 fun, PK_ARITY arity) {
     return pk_cfun_cons(user_closure, call, (void *)fun, 3, pk_cfun_arity_conv(arity));
 }
 
-bool pk_string_qeq(PKAtom string, PKStr comp) {
-    if (!pk_is_string(string)) {
-        return false;
-    }
-    return pk_str_eq(string->string.str, comp);
-}
-
 bool pk_symbol_qeq(PKAtom symbol, PKStr comp) {
     if (!pk_is_symbol(symbol)) {
         return false;
@@ -226,20 +126,8 @@ bool pk_keyword_qeq(PKAtom keyword, PKStr comp) {
     return pk_str_eq(keyword->keyword.id, comp);
 }
 
-bool pk_is_nil(PKAtom atom) {
-    return atom->header.type == PK_ATOMTY_NIL;
-}
-
 bool pk_is_true(PKAtom atom) {
     return atom->header.type != PK_ATOMTY_NIL;
-}
-
-bool pk_is_number(PKAtom atom) {
-    return atom->header.type == PK_ATOMTY_NUMBER;
-}
-
-bool pk_is_string(PKAtom atom) {
-    return atom->header.type == PK_ATOMTY_STRING;
 }
 
 bool pk_is_symbol(PKAtom atom) {
@@ -248,10 +136,6 @@ bool pk_is_symbol(PKAtom atom) {
 
 bool pk_is_keyword(PKAtom atom) {
     return atom->header.type == PK_ATOMTY_KEYWORD;
-}
-
-bool pk_is_cons(PKAtom atom) {
-    return atom->header.type == PK_ATOMTY_CONS;
 }
 
 bool pk_is_error(PKAtom atom) {
@@ -278,30 +162,6 @@ bool pk_is_macro(PKAtom atom) {
     return atom->header.type == PK_ATOMTY_CMACRO || atom->header.type == PK_ATOMTY_LMACRO;
 }
 
-PKAtom pk_typecheck_nil(PKAtom atom) {
-    if (pk_is_nil(atom)) {
-        return pk_true();
-    } else {
-        return pk_error();
-    }
-}
-
-PKAtom pk_typecheck_number(PKAtom atom) {
-    if (pk_is_number(atom)) {
-        return pk_true();
-    } else {
-        return pk_error();
-    }
-}
-
-PKAtom pk_typecheck_string(PKAtom atom) {
-    if (pk_is_string(atom)) {
-        return pk_true();
-    } else {
-        return pk_error();
-    }
-}
-
 PKAtom pk_typecheck_symbol(PKAtom atom) {
     if (pk_is_symbol(atom)) {
         return pk_true();
@@ -312,14 +172,6 @@ PKAtom pk_typecheck_symbol(PKAtom atom) {
 
 PKAtom pk_typecheck_keyword(PKAtom atom) {
     if (pk_is_keyword(atom)) {
-        return pk_true();
-    } else {
-        return pk_error();
-    }
-}
-
-PKAtom pk_typecheck_cons(PKAtom atom) {
-    if (pk_is_cons(atom)) {
         return pk_true();
     } else {
         return pk_error();
