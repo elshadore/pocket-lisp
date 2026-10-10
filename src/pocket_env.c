@@ -156,5 +156,5 @@ void pk_let_unwind(size_t n) {
         // So it's okay to skip errors here.
         (void)pk_set(unwind.env, unwind.symbol, unwind.restore);
     }
-    PK_CORE.lets.count -= 1;
+    PK_CORE.lets.count -= n;
 }

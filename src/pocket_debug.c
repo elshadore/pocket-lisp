@@ -11,13 +11,14 @@ PKAtom pk_debug_dump_(PKWriter *w, const char *tag, PK_DUMP opt) {
     pk_propagate(pk_writer_newline(w));
 
     if ((opt & PK_DUMP_STACK) != 0) {
-        pk_propagate(pk_writer_string(w, pk_str("STACK:")));
+        pk_propagate(pk_writer_string(w, pk_str("STACK: ")));
+        pk_propagate(pk_writer_fmt(w, "%zu", PK_CORE.current_frame.stack_offset));
         pk_propagate(pk_writer_newline(w));
 
         for (size_t i = 0; i < PK_CORE.stack.count; ++i) {
             size_t index = PK_CORE.stack.count - i - 1;
             pk_propagate(pk_writer_string(w, pk_str("    [")));
-            pk_propagate(pk_writer_fmt(w, "%zu", i));
+            pk_propagate(pk_writer_fmt(w, "%zu", index));
             pk_propagate(pk_writer_string(w, pk_str("] => ")));
             PKAtom atom = PK_CORE.stack.e[index];
             pk_propagate(pk_writer_atom(w, atom));

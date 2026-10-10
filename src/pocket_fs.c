@@ -1,6 +1,6 @@
 #include "pocket_internals.h"
 
-PKAtom pk_fs_slurp(PKStr file_path) {
+PKAtom pk_fs_slurp_str(PKStr file_path) {
     if (file_path.length == 0) {
         return pk_error();
     }
@@ -36,4 +36,9 @@ PKAtom pk_fs_slurp(PKStr file_path) {
     }
     
     return result;
+}
+
+PKAtom pk_fs_slurp(PKAtom file_path) {
+    pk_propagate(pk_typecheck_string(file_path));
+    return pk_fs_slurp_str(file_path->string.str);
 }

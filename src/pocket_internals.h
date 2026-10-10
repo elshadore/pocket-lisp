@@ -481,6 +481,7 @@ PKAtom pk_macroexpand1_(PKAtom atom, bool *expanded);
 
 PKAtom pk_std_load(void);
 
-PKAtom pk_fs_slurp(PKStr file_path);
+PKAtom pk_fs_slurp_str(PKStr file_path);
+PKAtom pk_fs_slurp(PKAtom file_path);
     
 #endif // POCKET_LISP_INTERNALS_H

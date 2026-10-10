@@ -1,4 +1,3 @@
-
 #include "pocket_internals.h"
 
 PKAtom pk_macroexpand_list(PKAtom list, bool *expanded) {

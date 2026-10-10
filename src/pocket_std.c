@@ -43,6 +43,8 @@ pk_make_fun1(pk_fun_print, pk_print)
 pk_make_fun1(pk_fun_eval, pk_eval)
 pk_make_fun1(pk_fun_format, pk_format)
 pk_make_fun1(pk_fun_compile, pk_compile)
+    
+pk_make_fun1(pk_fun_fs_slurp, pk_fs_slurp)
 
 #define pk_load_fun(name_, fun_) do { \
     PKAtom name = pk_symbol(name_); \
@@ -64,5 +66,7 @@ PKAtom pk_std_load(void) {
     pk_load_fun(pk_str("print"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_print, PK_ARITY_NORMAL));
     pk_load_fun(pk_str("eval"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_eval, PK_ARITY_NORMAL));
     pk_load_fun(pk_str("format"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_format, PK_ARITY_NORMAL));
+    
+    pk_load_fun(pk_str("fs/slurp"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_fs_slurp, PK_ARITY_NORMAL));
     return pk_true();
 }

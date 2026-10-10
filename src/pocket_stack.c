@@ -11,7 +11,7 @@ PKAtom pk_frame_push(size_t arity) {
         PK_CORE.frames.capacity = new_capacity;
     }
     
-    size_t stack_offset = pk_frame_length() - arity;
+    size_t stack_offset = PK_CORE.stack.count - arity;
     size_t lets_offset = PK_CORE.lets.count;
     
     PK_CORE.frames.e[PK_CORE.frames.count++] = PK_CORE.current_frame;
@@ -89,11 +89,10 @@ void pk_stack_pop_unchecked(size_t n) {
 }
 
 PKAtoms pk_stack_slice() {
-    size_t total = PK_CORE.stack.count;
     size_t offset = PK_CORE.current_frame.stack_offset;
     return (PKAtoms) {
         .e = PK_CORE.stack.e + offset,
-        .length = total - offset,
+        .length = PK_CORE.stack.count - offset,
     };
 }
 

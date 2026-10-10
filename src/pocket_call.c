@@ -57,10 +57,19 @@ PKAtom pk_stack_funcall(PK_CALL call, pk_u8 arity) {
     if (stack.length < (uarity + 1)) {
         return pk_error();
     }
+    
     PKAtom function = stack.e[stack.length - uarity - 1];
+    
+    if (pk_is_symbol(function)) {
+        function = pk_get(PK_ENV_FUN, function);
+        if (pk_is_undefined(function)) {
+            return pk_error();
+        }
+    }
     pk_propagate(pk_frame_push(arity));
     PKAtom result = pk_stack_funcall_(call, function, arity);
     pk_frame_unwind();
+    pk_stack_pop_unchecked(1);
     return result;
 }
 
@@ -79,7 +88,6 @@ PKAtom pk_funcall0(PK_CALL call, PKAtom fun) {
     
     pk_propagate(pk_frame_pushc(atoms));
     PKAtom result = pk_stack_funcall(call, 0);
-    pk_stack_pop_unchecked(1);
     
     return result;
 }
@@ -100,7 +108,6 @@ PKAtom pk_funcall1(PK_CALL call, PKAtom fun, PKAtom arg1) {
     
     pk_propagate(pk_frame_pushc(atoms));
     PKAtom result = pk_stack_funcall(call, 1);
-    pk_stack_pop_unchecked(1);
 
     return result;
 }
@@ -122,7 +129,6 @@ PKAtom pk_funcall2(PK_CALL call, PKAtom fun, PKAtom arg1, PKAtom arg2) {
     
     pk_propagate(pk_frame_pushc(atoms));
     PKAtom result = pk_stack_funcall(call, 2);
-    pk_stack_pop_unchecked(1);
     
     return result;
 }
@@ -145,7 +151,6 @@ PKAtom pk_funcall3(PK_CALL call, PKAtom fun, PKAtom arg1, PKAtom arg2, PKAtom ar
     
     pk_propagate(pk_frame_pushc(atoms));
     PKAtom result = pk_stack_funcall(call, 3);
-    pk_stack_pop_unchecked(1);
     
     return result;
 }
