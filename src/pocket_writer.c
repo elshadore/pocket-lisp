@@ -126,14 +126,6 @@ PKAtom pk_writer_int(PKWriter *w, int integer) {
     return pk_true();
 }
 
-PKAtom pk_writer_float(PKWriter *w, float floater) {
-    // (void)floater;
-    // pk_propagate(pk_writer_string(w, pk_str("[TODO: writing floats]")));
-    // return pk_true();
-    pk_propagate(pk_writer_fmt(w, "%f", floater));
-    return pk_true();
-}
-
 PKAtom pk_writer_address(PKWriter *w, size_t address) {
     int i = 0;
     
