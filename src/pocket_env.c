@@ -104,14 +104,8 @@ PKAtom pk_let(PK_ENV env, PKAtom symbol, PKAtom value) {
         PK_CORE.lets.capacity = new_capacity;
     }
 
-    bool was_bound = pk_is_bound(env, symbol);
-
-    PKAtom restore = pk_set(env, symbol, value);
+    PKAtom restore = pk_set_raw(env, symbol, value);
     pk_propagate(restore);
-
-    if (!was_bound) {
-        restore = pk_undefined();
-    }
 
     PK_CORE.lets.e[PK_CORE.lets.count++] = (PKLet) {
         .env = env,
