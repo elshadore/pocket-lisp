@@ -245,10 +245,36 @@ PKAtom pk_read_number(PKReader *r) {
         acc *= 10;
         acc += a;
     }
+
+    if (pk_rat(r) == '.') {
+        char peek = '\0';
+        if (!pk_reader_peek(r, &peek) || !pk_char_is_digit(peek)) {
+            return pk_reader_error(r, "expected digit character after decimal point in number");
+        }
+
+        pk_propagate(pk_reader_ince(r));
+
+        double dbl = acc;
+        double divisor = 1;
+
+        do {
+            dbl = (dbl * 10) + pk_char_to_digit(pk_rat(r));
+            divisor *= 10;
+        } while (pk_reader_inc(r) && pk_char_is_digit(pk_rat(r)));
+
+        dbl /= divisor;
+
+        if (negetive) {
+            dbl = -dbl;
+        }
+
+        return pk_float((float)dbl);
+    }
+
     if (negetive) {
         acc = -acc;
     }
-    
+
     return pk_int(acc);
 }
 

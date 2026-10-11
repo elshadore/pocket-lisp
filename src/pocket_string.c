@@ -13,7 +13,7 @@ PKAtom pk_string_empty(void) {
     return &PK_ATOM_STRING_EMPTY;
 }
 
-PKAtom pk_string(PKStr string) {
+PKAtom pk_string_nomemcpy(PKStr string) {
     if (string.length == 0) {
         return pk_string_empty();
     }
@@ -21,13 +21,21 @@ PKAtom pk_string(PKStr string) {
     PKAtom atom = pk_atom_alloc();
     pk_propagate(atom);
     
+    atom->header.type = PK_ATOMTY_STRING;
+    atom->string.str = string;
+    
+    return atom;
+}
+
+PKAtom pk_string(PKStr string) {
+    if (string.length == 0) {
+        return pk_string_empty();
+    }
+
     PKStr dupe = PK_STR_EMPTY;
     pk_propagate(pk_str_dupe(string, &dupe));
     
-    atom->header.type = PK_ATOMTY_STRING;
-    atom->string.str = dupe;
-    
-    return atom;
+    return pk_string_nomemcpy(dupe);
 }
 
 PKAtom pk_string_alloc(size_t length) {
@@ -45,6 +53,11 @@ PKAtom pk_string_alloc(size_t length) {
     atom->string.str = buffer;
     
     return atom;
+}
+
+PKAtom pk_stringc(char *cstring) {
+    PKStr string = pk_str_from_cstr(cstring);
+    return pk_string(string);
 }
 
 PKAtom pk_string_cat(PKAtoms strings) {

@@ -116,8 +116,12 @@ PKAtom pk_writer_int(PKWriter *w, int integer) {
         pk_propagate(pk_writer_char(w, pk_char_from_digit((pk_u8)digit)));
         
     } while ((dec /= 10) > 0);
-    
-    pk_str_reverse_mut(w->c + save, w->count - save);
+
+    PKStr str = (PKStr){
+        .c = w->c + save,
+        .length = w->count - save
+    };
+    pk_str_reverse_mut(str);
     
     return pk_true();
 }

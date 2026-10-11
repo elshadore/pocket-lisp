@@ -101,13 +101,13 @@ bool pk_str_eq(PKStr a, PKStr b) {
     return (bool)(memcmp(a.c, b.c, a.length) == 0);
 }
 
-void pk_str_reverse_mut(char *c, size_t length) {
-    if (length <= 1) return;
+void pk_str_reverse_mut(PKStr string) {
+    if (string.length <= 1) return;
     
-    for (size_t i = 0, j = length - 1; i < j; i++, j--) {
-        char temp = c[i];
-        c[i] = c[j];
-        c[j] = temp;
+    for (size_t i = 0, j = string.length - 1; i < j; i++, j--) {
+        char temp = string.c[i];
+        string.c[i] = string.c[j];
+        string.c[j] = temp;
     }
 }
 

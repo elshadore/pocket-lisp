@@ -385,6 +385,7 @@ PKAtom pk_atom_alloc(void);
 
 PKAtom pk_string_empty(void);
 PKAtom pk_string_alloc(size_t length);
+PKAtom pk_string_nomemcpy(PKStr string);
 PKAtom pk_string_cat(PKAtoms strings);
 
 PKAtom pk_undefined(void);
@@ -437,7 +438,7 @@ PKAtom pk_str_alloc(size_t length, PKStr *output);
 PKAtom pk_str_dupe(PKStr input, PKStr *output);
 PKStr pk_str_from_cstr(char *cstr);
 bool pk_str_eq(PKStr a, PKStr b);
-void pk_str_reverse_mut(char *c, size_t length);
+void pk_str_reverse_mut(PKStr string);
 
 pk_u8 pk_char_to_digit(char c);
 char pk_char_from_digit(pk_u8 integer);

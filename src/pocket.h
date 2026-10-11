@@ -93,7 +93,9 @@ PKAtom pk_bool(bool boolean);
 PKAtom pk_int(int integer);
 PKAtom pk_float(float floater);
 PKAtom pk_string(PKStr string);
+PKAtom pk_stringc(char *cstring);
 PKAtom pk_symbol(PKStr symbol);
+PKAtom pk_symbolc(char *csymbol);
 PKAtom pk_gensym(void);
 PKAtom pk_keyword(PKStr keyword);
 PKAtom pk_cons(PKAtom car, PKAtom cdr);
@@ -152,6 +154,8 @@ PKAtom pk_funcall1(PK_CALL call, PKAtom fn, PKAtom arg1);
 PKAtom pk_funcall2(PK_CALL call, PKAtom fn, PKAtom arg1, PKAtom arg2);
 PKAtom pk_funcall3(PK_CALL call, PKAtom fn, PKAtom arg1, PKAtom arg2, PKAtom arg3);
 
+PKAtom pk_reverse(PKAtom atom);
+    
 bool pk_is_nil(PKAtom atom);
 bool pk_is_undefined(PKAtom atom);
 bool pk_is_true(PKAtom atom);

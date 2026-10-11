@@ -71,6 +71,11 @@ PKAtom pk_symbol(PKStr string) {
     return atom;
 }
 
+PKAtom pk_symbolc(char *csymbol) {
+    PKStr symbol = pk_str_from_cstr(csymbol);
+    return pk_symbol(symbol);
+}
+
 PKAtom pk_keyword(PKStr keyword) {
     PKAtom atom = pk_atom_alloc();
     pk_propagate(atom);
@@ -188,6 +193,30 @@ PKAtom pk_typecheck_keyword(PKAtom atom) {
         return pk_true();
     } else {
         return pk_error();
+    }
+}
+
+PKAtom pk_reverse(PKAtom atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_STRING: {
+            PKStr dupe = PK_STR_EMPTY;
+            pk_propagate(pk_str_dupe(atom->string.str, &dupe));
+            pk_str_reverse_mut(dupe);
+            return pk_string_nomemcpy(dupe);
+        }
+        case PK_ATOMTY_CONS: {
+            PKAtom acc = pk_nil();
+            PKAtom iter = atom;
+            while (pk_is_cons(iter)) {
+                PKAtom a = pk_cons(iter->cons.car, acc);
+                pk_propagate(a);
+                acc = a;
+                iter = iter->cons.cdr;
+            }
+            return acc;
+        }
+        case PK_ATOMTY_NIL: return pk_nil();
+        default: return pk_error();
     }
 }
 
