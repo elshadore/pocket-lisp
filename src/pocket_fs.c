@@ -42,3 +42,25 @@ PKAtom pk_fs_slurp(PKAtom file_path) {
     pk_propagate(pk_typecheck_string(file_path));
     return pk_fs_slurp_str(file_path->string.str);
 }
+
+#define READ_BUFFER_MAX (1024)
+
+char READ_BUFFER[READ_BUFFER_MAX];
+
+PKAtom pk_fs_read_user_input(void) {
+    size_t i = 0;
+    for (;;) {
+        char c = getc(stdin);
+        if (c == '\n') {
+            PKStr slice = (PKStr){
+                .c = READ_BUFFER,
+                .length = i,
+            };
+            return pk_string(slice);
+        }
+        if (i == READ_BUFFER_MAX) {
+            return pk_error();
+        }
+        READ_BUFFER[i++] = c;
+    }
+}

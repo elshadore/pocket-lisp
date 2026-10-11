@@ -1,20 +1,25 @@
 #include "./src/pocket.h"
 #include "./src/pocket_all.c"
 
+#define REPL_CODE \
+" (set 'repl/running true) " \
+" (while repl/running " \
+"     (print (eval (read (fs/read-user-input))))) "
+
 PKAtom run(void) {
     if (!pk_init()) {
         return pk_error();
     }
 
-    PKAtom a = pk_string(pk_str("(+ 34 35)"));
+    PKAtom a = pk_string(pk_str(REPL_CODE));
     pk_propagate(a);
     
-    PKAtom b = pk_read(a, PK_READ_EXPRESSION);
+    PKAtom b = pk_read(a, PK_MODE_EXPRLIST);
     pk_propagate(b);
     
     pk_print(b);
     
-    PKAtom e = pk_compile(b);
+    PKAtom e = pk_compile(b, PK_MODE_EXPRLIST);
     pk_propagate(e);
 
     PKAtom f = pk_funcall0(PK_CALL_FUN, e);

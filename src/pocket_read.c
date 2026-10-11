@@ -396,7 +396,7 @@ PKAtom pk_read_atom(PKReader *r) {
     }
 }
 
-PKAtom pk_read_str(PKStr string, PK_READ mode) {
+PKAtom pk_read_str(PKStr string, PK_MODE mode) {
     if (string.length == 0) {
         return pk_nil();
     }
@@ -411,7 +411,7 @@ PKAtom pk_read_str(PKStr string, PK_READ mode) {
     pk_propagate(first);
     (void)pk_reader_trim_whitespace(&r);
 
-    if (mode == PK_READ_EXPRESSION) {
+    if (mode == PK_MODE_EXPRESSION) {
         if (!pk_reader_is_finished(&r)) {
             return pk_error();
         }
@@ -432,7 +432,7 @@ PKAtom pk_read_str(PKStr string, PK_READ mode) {
     return acc.head;
 }
     
-PKAtom pk_read(PKAtom string, PK_READ mode) {
+PKAtom pk_read(PKAtom string, PK_MODE mode) {
     if (!pk_is_string(string)) {
         return pk_error();
     }

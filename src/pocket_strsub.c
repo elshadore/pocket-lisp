@@ -34,7 +34,7 @@ void pk_strsub_mark(PKStrSub *sub) {
 }
 
 PKAtom pk_compile_strsub_value(PKStrSub *sub, PKStr string) {
-    PKAtom read = pk_read_str(string, PK_READ_EXPRESSION);
+    PKAtom read = pk_read_str(string, PK_MODE_EXPRESSION);
     pk_propagate(read);
     pk_propagate(pk_compile_value(sub->cmp, read));
     return pk_true();

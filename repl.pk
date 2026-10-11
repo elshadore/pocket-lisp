@@ -1,0 +1,4 @@
+(set 'repl/running true)
+
+(while repl/running
+     (print (eval (read (fs/read-user-input)))))

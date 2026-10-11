@@ -492,5 +492,6 @@ PKAtom pk_std_load(void);
 
 PKAtom pk_fs_slurp_str(PKStr file_path);
 PKAtom pk_fs_slurp(PKAtom file_path);
+PKAtom pk_fs_read_user_input(void);
     
 #endif // POCKET_LISP_INTERNALS_H

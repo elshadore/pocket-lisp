@@ -1,5 +1,11 @@
 #include "pocket_internals.h"
 
+#define PK_TEMPLATE_FUN0(fun_name_, bind_name_) \
+    PKAtom fun_name_(void *user_closure) { \
+        (void)user_closure; \
+        return bind_name_(); \
+    }
+
 #define PK_TEMPLATE_FUN1(fun_name_, bind_name_) \
     PKAtom fun_name_(void *user_closure, PKAtom arg1) { \
         (void)user_closure; \
@@ -46,12 +52,12 @@ PK_TEMPLATE_FUN2(pk_fun_set_cdr, pk_set_cdr)
     
 PKAtom pk_fun_read(void *user_closure, PKAtom arg1) {
     (void)user_closure;
-    return pk_read(arg1, PK_READ_EXPRESSION);
+    return pk_read(arg1, PK_MODE_EXPRESSION);
 }
 
-PKAtom pk_fun_read_exprlist(void *user_closure, PKAtom arg1) {
+PKAtom pk_fun_read_list(void *user_closure, PKAtom arg1) {
     (void)user_closure;
-    return pk_read(arg1, PK_READ_EXPRLIST);
+    return pk_read(arg1, PK_MODE_EXPRLIST);
 }
 
 PKAtom pk_fun_apply(void *user_closure, PKAtom arg1, PKAtom arg2) {
@@ -69,14 +75,28 @@ PKAtom pk_fun_funcall(void *user_closure, PKAtom arg1, PKAtom argn) {
     return pk_apply(PK_CALL_FUN, arg1, argn);
 }
 
+PKAtom pk_fun_eval(void *user_closure, PKAtom arg1) {
+    (void)user_closure;
+    return pk_eval(arg1, PK_MODE_EXPRESSION);
+}
+
+PKAtom pk_fun_evlist(void *user_closure, PKAtom arg1) {
+    (void)user_closure;
+    return pk_eval(arg1, PK_MODE_EXPRLIST);
+}
+
+PKAtom pk_fun_compile(void *user_closure, PKAtom arg1) {
+    (void)user_closure;
+    return pk_compile(arg1, PK_MODE_EXPRESSION);
+}
+
 PK_TEMPLATE_FUN1(pk_fun_print, pk_print)
-PK_TEMPLATE_FUN1(pk_fun_eval, pk_eval)
 PK_TEMPLATE_FUN1(pk_fun_format, pk_format)
-PK_TEMPLATE_FUN1(pk_fun_compile, pk_compile)
 PK_TEMPLATE_FUN1(pk_fun_macroexpand1, pk_macroexpand1)
 PK_TEMPLATE_FUN1(pk_fun_macroexpand, pk_macroexpand)
     
 PK_TEMPLATE_FUN1(pk_fun_fs_slurp, pk_fs_slurp)
+PK_TEMPLATE_FUN0(pk_fun_fs_read_user_input, pk_fs_read_user_input)
 
 #define PK_FLOAD(name_, fun_) do { \
     PKAtom name = pk_symbol(name_); \
@@ -100,17 +120,19 @@ PKAtom pk_std_load(void) {
     PK_FLOAD(pk_str("set_cdr"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set_cdr, PK_ARITY_NORMAL));
     
     PK_FLOAD(pk_str("read"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_read, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("read-exprlist"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_read_exprlist, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("read-list"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_read_list, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("apply"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_apply, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("macro-apply"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_macro_apply, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("funcall"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_funcall, PK_ARITY_VARIADIC));
     PK_FLOAD(pk_str("print"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_print, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("eval"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_eval, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("evlist"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_evlist, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("format"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_format, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("compile"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_compile, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("macroexpand1"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_macroexpand1, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("macroexpand"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_macroexpand, PK_ARITY_NORMAL));
     
     PK_FLOAD(pk_str("fs/slurp"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_fs_slurp, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("fs/read-user-input"), pk_cfun0(NULL, PK_CALL_FUN, pk_fun_fs_read_user_input));
     return pk_true();
 }

@@ -36,10 +36,10 @@ typedef enum PK_ENV_ {
     PK_ENV_PROP,
 } PK_ENV;
 
-typedef enum PK_READ_ {
-    PK_READ_EXPRESSION = 0,
-    PK_READ_EXPRLIST,
-} PK_READ;
+typedef enum PK_MODE_ {
+    PK_MODE_EXPRESSION = 0,
+    PK_MODE_EXPRLIST,
+} PK_MODE;
 
 typedef enum PK_ARITY_ {
     PK_ARITY_NORMAL = 0,
@@ -136,12 +136,11 @@ PKAtom pk_unbind(PK_ENV env, PKAtom symbol);
 
 PKAtom pk_print(PKAtom atom);
 PKAtom pk_format(PKAtom atom);
-PKAtom pk_read(PKAtom string, PK_READ mode);
-PKAtom pk_read_str(PKStr string, PK_READ mode);
-PKAtom pk_eval(PKAtom expr);
+PKAtom pk_read(PKAtom string, PK_MODE mode);
+PKAtom pk_read_str(PKStr string, PK_MODE mode);
+PKAtom pk_eval(PKAtom expr, PK_MODE mode);
 PKAtom pk_apply(PK_CALL call, PKAtom fun, PKAtom args);
-PKAtom pk_compile(PKAtom expr);
-PKAtom pk_evlist(PKAtom exprlist);
+PKAtom pk_compile(PKAtom expr, PK_MODE mode);
 PKAtom pk_macroexpand1(PKAtom atom);
 PKAtom pk_macroexpand(PKAtom atom);
 

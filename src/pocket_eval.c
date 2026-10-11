@@ -24,21 +24,30 @@ PKAtom pk_apply(PK_CALL call, PKAtom fun, PKAtom args) {
     return result;
 }
 
-PKAtom pk_eval(PKAtom expr) {
+PKAtom pk_eval_(PKAtom expr) {
     PKAtom a = pk_macroexpand(expr);
     pk_propagate(a);
-    PKAtom b = pk_compile(expr);
+    PKAtom b = pk_compile(expr, PK_MODE_EXPRESSION);
     pk_propagate(b);
     return pk_funcall0(PK_CALL_FUN, b);
 }
-
-PKAtom pk_evlist(PKAtom exprlist) {
+    
+PKAtom pk_evlist_(PKAtom exprlist) {
     PKAtom iter = exprlist;
     PKAtom result = pk_nil();
     while (pk_is_cons(iter)) {
-        result = pk_eval(iter->cons.car);
+        result = pk_eval_(iter->cons.car);
         pk_propagate(result);
         iter = iter->cons.cdr;
     }
     return result;
 }
+
+PKAtom pk_eval(PKAtom expr, PK_MODE mode) {
+    if (mode == PK_MODE_EXPRESSION) {
+        return pk_eval_(expr);
+    } else {
+        return pk_evlist_(expr);
+    }
+}
+

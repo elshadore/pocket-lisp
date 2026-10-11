@@ -11,6 +11,10 @@ The todo list for POCKET LISP
 - [x] Macros
 - [ ] Referance Counting
 - [ ] Throwing
+- [ ] Float Parsing
+- [ ] Float Printing
+- [ ] Better Symbol Parsing
+  - [ ] Enable `:` in symbols, `foo:bar-baz`.
 - [ ] Debug Stuff
   - [ ] Memory Leak Detection
 - [ ] Object System

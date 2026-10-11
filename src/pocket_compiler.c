@@ -362,6 +362,13 @@ PKAtom pk_compile_quasiquote(PKCompiler *c, PKAtom value) {
     return pk_true();
 }
 
+PKAtom pk_compile_progn(PKCompiler *c, PKAtom atom) {
+    pk_propagate(pk_cmp_push_byte(c, PK_OP_BLOCK_BEGIN));
+    pk_propagate(pk_compile_evlist(c, atom));
+    pk_propagate(pk_cmp_push_byte(c, PK_OP_BLOCK_END));
+    return pk_true();
+}
+
 PKAtom pk_compile_special(PKCompiler *c, PKAtom symbol, PKAtom args, bool *is_special) {
     if (symbol == PK_CORE.cache.lambda) {
         pk_propagate(pk_typecheck_cons(args));
@@ -463,9 +470,7 @@ PKAtom pk_compile_special(PKCompiler *c, PKAtom symbol, PKAtom args, bool *is_sp
         
         *is_special = true;
     } else if (symbol == PK_CORE.cache.progn) {
-        pk_propagate(pk_cmp_push_byte(c, PK_OP_BLOCK_BEGIN));
-        pk_propagate(pk_compile_evlist(c, args));
-        pk_propagate(pk_cmp_push_byte(c, PK_OP_BLOCK_END));
+        pk_propagate(pk_compile_progn(c, args));
         
         *is_special = true;
     } else if (symbol == PK_CORE.cache.string_substitute) {
@@ -626,9 +631,16 @@ PKAtom pk_compile_atom(PKCompiler *c, PKAtom value) {
     return pk_compile_compile(c, 0, PK_INT_ARITY_NORMAL);
 }
     
-PKAtom pk_compile(PKAtom value) {
+PKAtom pk_compile(PKAtom value, PK_MODE mode) {
     PKCompiler c = PK_COMPILER_EMPTY;
-    PKAtom result = pk_compile_atom(&c, value);
+    PKAtom result = pk_nil();
+    
+    if (mode == PK_MODE_EXPRESSION) {
+        result = pk_compile_atom(&c, value);
+    } else {
+        result = pk_compile_progn(&c, value);
+    }
+    
     if (pk_is_error(result)) {
         pk_cmp_deinit(&c);
     }
