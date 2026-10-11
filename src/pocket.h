@@ -130,6 +130,8 @@ bool pk_eq(PKAtom lhs, PKAtom rhs);
 
 PKAtom pk_set(PK_ENV env, PKAtom symbol, PKAtom value);
 PKAtom pk_get(PK_ENV env, PKAtom symbol);
+PKAtom pk_set_raw(PK_ENV env, PKAtom symbol, PKAtom value);
+PKAtom pk_get_raw(PK_ENV env, PKAtom symbol);
 PKAtom pk_let(PK_ENV env, PKAtom symbol, PKAtom value);
 bool pk_is_bound(PK_ENV env, PKAtom symbol);
 PKAtom pk_unbind(PK_ENV env, PKAtom symbol);
@@ -151,6 +153,7 @@ PKAtom pk_funcall2(PK_CALL call, PKAtom fn, PKAtom arg1, PKAtom arg2);
 PKAtom pk_funcall3(PK_CALL call, PKAtom fn, PKAtom arg1, PKAtom arg2, PKAtom arg3);
 
 bool pk_is_nil(PKAtom atom);
+bool pk_is_undefined(PKAtom atom);
 bool pk_is_true(PKAtom atom);
 bool pk_is_error(PKAtom atom);
 bool pk_is_int(PKAtom atom);

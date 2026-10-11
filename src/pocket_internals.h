@@ -389,7 +389,6 @@ PKAtom pk_string_alloc(size_t length);
 PKAtom pk_string_cat(PKAtoms strings);
 
 PKAtom pk_undefined(void);
-bool pk_is_undefined(PKAtom atom);
 
 PKAtom pk_lfun_exec(PKAtom lfun, size_t save);    
 bool pk_is_cfun(PKAtom atom);

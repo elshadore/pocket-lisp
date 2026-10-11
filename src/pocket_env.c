@@ -1,12 +1,34 @@
 #include "pocket_internals.h"
 
-PKAtom pk_set(PK_ENV env, PKAtom symbol, PKAtom value) {
+PKAtom pk_get_raw(PK_ENV env, PKAtom symbol) {
     if (!pk_is_symbol(symbol)) {
         return pk_error();
     }
-    
-    PKAtom temp = pk_nil();
-    
+
+    switch (env) {
+        case PK_ENV_VAR: {
+            return symbol->symbol.var;
+        }
+        case PK_ENV_FUN: {
+            return symbol->symbol.fun;
+        }
+        case PK_ENV_PROP: {
+            return symbol->symbol.prop;
+        }
+        default: break;
+    }
+
+    return pk_error();
+}
+
+// Storing pk_undefined() unlinks the slot, which is what pk_unbind does.
+PKAtom pk_set_raw(PK_ENV env, PKAtom symbol, PKAtom value) {
+    if (!pk_is_symbol(symbol)) {
+        return pk_error();
+    }
+
+    PKAtom temp = pk_undefined();
+
     switch (env) {
         case PK_ENV_VAR: {
             temp = symbol->symbol.var;
@@ -23,9 +45,16 @@ PKAtom pk_set(PK_ENV env, PKAtom symbol, PKAtom value) {
             symbol->symbol.prop = value;
             break;
         }
-        default: break;
+        default: return pk_error();
     }
-    
+
+    return temp;
+}
+
+PKAtom pk_set(PK_ENV env, PKAtom symbol, PKAtom value) {
+    PKAtom temp = pk_set_raw(env, symbol, value);
+    pk_propagate(temp);
+
     if (pk_is_undefined(temp)) {
         return pk_nil();
     } else {
@@ -34,28 +63,9 @@ PKAtom pk_set(PK_ENV env, PKAtom symbol, PKAtom value) {
 }
 
 PKAtom pk_get(PK_ENV env, PKAtom symbol) {
-    if (!pk_is_symbol(symbol)) {
-        return pk_error();
-    }
-    
-    PKAtom result = pk_nil();
-    
-    switch (env) {
-        case PK_ENV_VAR: {
-            result = symbol->symbol.var;
-            break;
-        }
-        case PK_ENV_FUN: {
-            result = symbol->symbol.fun;
-            break;
-        }
-        case PK_ENV_PROP: {
-            result = symbol->symbol.prop;
-            break;
-        }
-        default: break;
-    }
-    
+    PKAtom result = pk_get_raw(env, symbol);
+    pk_propagate(result);
+
     if (pk_is_undefined(result)) {
         return pk_nil();
     } else {
@@ -64,59 +74,17 @@ PKAtom pk_get(PK_ENV env, PKAtom symbol) {
 }
 
 bool pk_is_bound(PK_ENV env, PKAtom symbol) {
-    if (!pk_is_symbol(symbol)) {
+    PKAtom fetch = pk_get_raw(env, symbol);
+    if (pk_is_error(fetch)) {
         return false;
     }
 
-    PKAtom fetch = pk_nil();
-    switch (env) {
-        case PK_ENV_VAR: {
-            fetch = symbol->symbol.var;
-            break;
-        }
-        case PK_ENV_FUN: {
-            fetch = symbol->symbol.fun;
-            break;
-        }
-        case PK_ENV_PROP: {
-            fetch = symbol->symbol.prop;
-            break;
-        }
-        default: break;
-    }
-    
-    if (pk_is_undefined(fetch)) {
-        return false;
-    } else {
-        return true;
-    }
+    return !pk_is_undefined(fetch);
 }
 
 PKAtom pk_unbind(PK_ENV env, PKAtom symbol) {
-    if (!pk_is_symbol(symbol)) {
-        return pk_error();
-    }
-
-    PKAtom result = pk_nil();
-
-    switch (env) {
-        case PK_ENV_VAR: {
-            result = symbol->symbol.var;
-            symbol->symbol.var = pk_undefined();
-            break;
-        }
-        case PK_ENV_FUN: {
-            result = symbol->symbol.fun;
-            symbol->symbol.fun = pk_undefined();
-            break;
-        }
-        case PK_ENV_PROP: {
-            result = symbol->symbol.prop;
-            symbol->symbol.prop = pk_undefined();
-            break;
-        }
-        default: break;
-    }
+    PKAtom result = pk_set_raw(env, symbol, pk_undefined());
+    pk_propagate(result);
 
     if (pk_is_undefined(result)) {
         return pk_nil();
