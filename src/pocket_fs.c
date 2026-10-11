@@ -50,17 +50,26 @@ char READ_BUFFER[READ_BUFFER_MAX];
 PKAtom pk_fs_read_user_input(void) {
     size_t i = 0;
     for (;;) {
-        char c = getc(stdin);
+        int c = getc(stdin);
+        if (c == EOF) {
+            if (i == 0) {
+                return pk_nil();
+            }
+            break;
+        }
         if (c == '\n') {
-            PKStr slice = (PKStr){
-                .c = READ_BUFFER,
-                .length = i,
-            };
-            return pk_string(slice);
+            break;
         }
         if (i == READ_BUFFER_MAX) {
             return pk_error();
         }
-        READ_BUFFER[i++] = c;
+        READ_BUFFER[i] = (char)c;
+        i += 1;
     }
+
+    PKStr slice = (PKStr){
+        .c = READ_BUFFER,
+        .length = i,
+    };
+    return pk_string(slice);
 }
