@@ -2,12 +2,12 @@
 #include "./src/pocket_all.c"
 
 #define REPL_CODE \
-"(set 'repl/running true)" \
-"(fset 'repl/quit (lambda ()" \
-      "(set 'repl/running nil)))" \
+"(setq repl/running true)" \
+"(defun repl/quit ()" \
+"     (setq repl/running nil))" \
 "(while repl/running " \
-     "(puts \"LISP>> \")" \
-     "(print (eval (read (fs/read-user-input)))))"
+"     (puts \"LISP>> \") " \
+"     (print (eval (read (fs/read-user-input)))))" 
 
 PKAtom run(void) {
     if (!pk_init()) {
@@ -20,13 +20,10 @@ PKAtom run(void) {
     PKAtom b = pk_read(a, PK_MODE_EXPRLIST);
     pk_propagate(b);
     
-    PKAtom e = pk_compile(PK_CALL_FUN, b, PK_MODE_EXPRLIST);
-    pk_propagate(e);
+    PKAtom c = pk_eval(b, PK_MODE_EXPRLIST);
+    pk_propagate(c);
 
-    PKAtom f = pk_funcall0(PK_CALL_FUN, e);
-    pk_propagate(f);
-
-    pk_print(f);
+    pk_print(c);
     
     return pk_true();
 }

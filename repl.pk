@@ -1,7 +1,7 @@
-(set 'repl/running true)
+(setq repl/running true)
 
-(fset 'repl/quit (lambda ()
-      (set 'repl/running nil)))
+(defun repl/quit ()
+     (setq repl/running nil))
 
 (while repl/running
      (puts "LISP>> ")
