@@ -1,23 +1,19 @@
 # TODO
 The todo list for POCKET LISP
 
-- [x] Reader
-- [x] Environment
-  - let
-- [x] Function Calling
-  - [x] Call Stack
-- [x] Compilation
-- [x] VM
-- [x] Macros
-- [ ] Referance Counting
-- [ ] Throwing
-- [ ] Lexical Capture
-- [ ] Float Parsing
-- [ ] Float Printing
-- [ ] Immutable Vector Update
-  - Move from cons cells to immutable vectors.
+## TODAY
 - [ ] Better Symbol Parsing
   - [ ] Enable `:` in symbols, `foo:bar-baz`.
+- [ ] Full Float Parsing and Printing
+  - [ ] Parsing
+  - [ ] Printing
+- [ ] Immutable Vector Update
+  - Move from cons cells to immutable vectors.
+- [ ] Throwing
+
+## TODO
+- [ ] Referance Counting
+- [ ] Lexical Capture
 - [ ] Debug Stuff
   - [ ] Memory Leak Detection
 - [ ] Object System
@@ -26,6 +22,11 @@ The todo list for POCKET LISP
   - [ ] Slots
   - [ ] Methods
 - [ ] Special Forms
-  - [ ] var, fvar
+  - [x] var, fvar
   - [ ] bind
+  - [ ] throw
+  - [ ] catch
+  - [ ] unwind-protect
 - [ ] Compiling Non Special Variables
+- [ ] Modules / Namespaces / Packages
+  - `foo:bar-baz`
