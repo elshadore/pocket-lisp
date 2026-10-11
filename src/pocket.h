@@ -135,6 +135,7 @@ bool pk_is_bound(PK_ENV env, PKAtom symbol);
 PKAtom pk_unbind(PK_ENV env, PKAtom symbol);
 
 PKAtom pk_print(PKAtom atom);
+PKAtom pk_puts(PKAtom atom);
 PKAtom pk_format(PKAtom atom);
 PKAtom pk_read(PKAtom string, PK_MODE mode);
 PKAtom pk_read_str(PKStr string, PK_MODE mode);

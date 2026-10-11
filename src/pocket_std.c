@@ -135,6 +135,7 @@ PKAtom pk_fun_compile(void *user_closure, PKAtom arg1) {
 }
 
 PK_TEMPLATE_FUN1(pk_fun_print, pk_print)
+PK_TEMPLATE_FUN1(pk_fun_puts, pk_puts)
 PK_TEMPLATE_FUN1(pk_fun_format, pk_format)
 PK_TEMPLATE_FUN1(pk_fun_macroexpand1, pk_macroexpand1)
 PK_TEMPLATE_FUN1(pk_fun_macroexpand, pk_macroexpand)
@@ -185,6 +186,7 @@ PKAtom pk_std_load(void) {
     PK_FLOAD(pk_str("macro-apply"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_macro_apply, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("funcall"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_funcall, PK_ARITY_VARIADIC));
     PK_FLOAD(pk_str("print"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_print, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("puts"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_puts, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("eval"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_eval, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("evlist"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_evlist, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("format"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_format, PK_ARITY_NORMAL));

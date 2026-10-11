@@ -4,6 +4,7 @@
 #define REPL_CODE \
 " (set 'repl/running true) " \
 " (while repl/running " \
+"     (puts \"LISP>> \") " \
 "     (print (eval (read (fs/read-user-input))))) "
 
 PKAtom run(void) {

@@ -556,7 +556,7 @@ PKAtom pk_compile_compile(PKCompiler *c, pk_u8 args, pk_u8 arity) {
     result->lfun.args = args;
     result->lfun.arity = arity;
 
-    pk_propagate(pk_hexdump(result));
+    // pk_propagate(pk_hexdump(result));
 
     return result;
 }
