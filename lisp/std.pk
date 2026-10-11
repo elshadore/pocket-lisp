@@ -2,7 +2,7 @@
    `(fset ',symbol (macro ,args ,@body))))
 
 (defmacro defun (symbol args :rest body)
-   `(set ',symbol (lambda ,args ,@body)))
+   `(fset ',symbol (lambda ,args ,@body)))
 
 (defmacro defvar (symbol :opt value)
    `(set ',symbol ,value))

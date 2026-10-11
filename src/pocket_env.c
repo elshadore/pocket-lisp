@@ -21,7 +21,6 @@ PKAtom pk_get_raw(PK_ENV env, PKAtom symbol) {
     return pk_error();
 }
 
-// Storing pk_undefined() unlinks the slot, which is what pk_unbind does.
 PKAtom pk_set_raw(PK_ENV env, PKAtom symbol, PKAtom value) {
     if (!pk_is_symbol(symbol)) {
         return pk_error();

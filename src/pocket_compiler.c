@@ -16,6 +16,15 @@ typedef struct PKQQ_ {
     bool packed_cons;
 } PKQQ;
 
+PKCompiler pk_cmp_new(PK_CALL type) {
+    return (PKCompiler) {
+        .atoms = PK_ARRAY_EMPTY,
+        .bc = PK_BYTES_EMPTY,
+        .type = type,
+        .addr = 0,
+    };
+}
+
 #define pk_cmp_addr(c_) ((c_)->addr)
 
 PKAtom pk_cmp_patch_byte(PKCompiler *c, pk_u8 addr, pk_u8 byte) {
@@ -114,7 +123,7 @@ PKAtom pk_cmp_lookup(PKCompiler *c, PKAtom symbol, PK_ENV env) {
 void pk_cmp_deinit(PKCompiler *c) {
     pk_free(c->atoms.e);
     pk_free(c->bc.e);
-    *c = PK_COMPILER_EMPTY;
+    *c = pk_cmp_new(c->type);
 }
 
 PKAtom pk_compile_evlist(PKCompiler *c, PKAtom args) {
@@ -149,7 +158,9 @@ PKAtom pk_compile_let(PKCompiler *c, PKAtom args, PK_ENV env) {
                 pk_propagate(pk_typecheck_cons(a));
                 PKAtom b = a->cons.cdr;
                 pk_propagate(pk_typecheck_cons(b));
-                pk_propagate(pk_typecheck_nil(b->cons.cdr));
+                if (!pk_is_nil(b->cons.cdr)) {
+                    return pk_error();
+                }
                 pk_propagate(pk_compile_value(c, b->cons.car));
             }
 
@@ -372,14 +383,14 @@ PKAtom pk_compile_progn(PKCompiler *c, PKAtom atom) {
 PKAtom pk_compile_special(PKCompiler *c, PKAtom symbol, PKAtom args, bool *is_special) {
     if (symbol == PK_CORE.cache.lambda) {
         pk_propagate(pk_typecheck_cons(args));
-        PKAtom lfun = pk_compile_lambda(args->cons.car, args->cons.cdr);
+        PKAtom lfun = pk_compile_lambda(PK_CALL_FUN, args->cons.car, args->cons.cdr);
         pk_propagate(lfun);
         pk_propagate(pk_cmp_load(c, lfun));
         
         *is_special = true;
     } else if (symbol == PK_CORE.cache.macro) {
         pk_propagate(pk_typecheck_cons(args));
-        PKAtom lfun = pk_compile_lambda(args->cons.car, args->cons.cdr);
+        PKAtom lfun = pk_compile_lambda(PK_CALL_MACRO, args->cons.car, args->cons.cdr);
         pk_propagate(lfun);
         pk_propagate(pk_cmp_load(c, lfun));
         
@@ -548,7 +559,11 @@ PKAtom pk_compile_compile(PKCompiler *c, pk_u8 args, pk_u8 arity) {
         c->bc.e[i] = PK_OP_ILLEGAL;
     }
 
-    result->header.type = PK_ATOMTY_LFUN;
+    if (c->type == PK_CALL_FUN) {
+        result->header.type = PK_ATOMTY_LFUN;
+    } else {
+        result->header.type = PK_ATOMTY_LMACRO;
+    }
     result->lfun.atoms.e = c->atoms.e;
     result->lfun.atoms.length = c->atoms.capacity;
     result->lfun.bc.e = c->bc.e;
@@ -615,8 +630,8 @@ PKAtom pk_compile_lambda_(PKCompiler *c, PKAtom args, PKAtom body) {
     return pk_compile_compile(c, nargs, arity);
 }
     
-PKAtom pk_compile_lambda(PKAtom args, PKAtom body) {
-    PKCompiler c = PK_COMPILER_EMPTY;
+PKAtom pk_compile_lambda(PK_CALL type, PKAtom args, PKAtom body) {
+    PKCompiler c = pk_cmp_new(type);
     PKAtom result = pk_compile_lambda_(&c, args, body);
     if (pk_is_error(result)) {
         pk_cmp_deinit(&c);
@@ -637,8 +652,8 @@ PKAtom pk_compile_exprlist(PKCompiler *c, PKAtom exprlist) {
     return pk_compile_compile(c, 0, PK_INT_ARITY_NORMAL);
 }
     
-PKAtom pk_compile(PKAtom value, PK_MODE mode) {
-    PKCompiler c = PK_COMPILER_EMPTY;
+PKAtom pk_compile(PK_CALL type, PKAtom value, PK_MODE mode) {
+    PKCompiler c = pk_cmp_new(type);
     PKAtom result = pk_nil();
     
     if (mode == PK_MODE_EXPRESSION) {

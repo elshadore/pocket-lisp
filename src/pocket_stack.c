@@ -54,6 +54,11 @@ void pk_frame_unwind(void) {
 }
 
 void pk_frame_clear(void) {
+    size_t diff = PK_CORE.stack.count - PK_CORE.current_frame.stack_offset;
+    for (size_t i = 0; i < diff; ++i) {
+        size_t index = PK_CORE.stack.count - i - 1;
+        pk_ref_dec(PK_CORE.stack.e[index]);
+    }
     PK_CORE.stack.count = PK_CORE.current_frame.stack_offset;
 }
 
@@ -112,6 +117,22 @@ PKAtom pk_stack_slice_down(size_t depth, PKAtoms *output) {
     return pk_true();
 }
 
+// Collapses the top `depth` stack slots into `result`, which becomes the sole
+// slot left behind. The consumed slots each owned a reference.
+static PKAtom pk_stack_op_finish(size_t depth, PKAtom result) {
+    PKAtom inc = pk_ref_inc(result);
+    pk_propagate(inc);
+
+    pk_stack_pop_unchecked(depth - 1);
+    for (size_t i = 0; i < depth; ++i) {
+        size_t index = PK_CORE.stack.count - 1 + i;
+        pk_ref_dec(PK_CORE.stack.e[index]);
+    }
+    PK_CORE.stack.e[PK_CORE.stack.count - 1] = result;
+
+    return pk_true();
+}
+
 PKAtom pk_stack_op_list(size_t depth) {
     if (depth == 0) {
         return pk_true();
@@ -123,10 +144,8 @@ PKAtom pk_stack_op_list(size_t depth) {
     if (pk_is_error(result)) {
         return result;
     }
-    pk_stack_pop_unchecked(depth - 1);
-    PK_CORE.stack.e[PK_CORE.stack.count - 1] = result;
     
-    return pk_true();
+    return pk_stack_op_finish(depth, result);
 }
 
 PKAtom pk_stack_op_list_packed(size_t depth) {
@@ -140,10 +159,8 @@ PKAtom pk_stack_op_list_packed(size_t depth) {
     if (pk_is_error(result)) {
         return result;
     }
-    pk_stack_pop_unchecked(depth - 1);
-    PK_CORE.stack.e[PK_CORE.stack.count - 1] = result;
     
-    return pk_true();
+    return pk_stack_op_finish(depth, result);
 }
 
 PKAtom pk_stack_op_list_merge(size_t depth) {
@@ -157,10 +174,8 @@ PKAtom pk_stack_op_list_merge(size_t depth) {
     if (pk_is_error(result)) {
         return result;
     }
-    pk_stack_pop_unchecked(depth - 1);
-    PK_CORE.stack.e[PK_CORE.stack.count - 1] = result;
     
-    return pk_true();
+    return pk_stack_op_finish(depth, result);
 }
 
 PKAtom pk_stack_op_strcat(size_t depth) {
@@ -171,7 +186,6 @@ PKAtom pk_stack_op_strcat(size_t depth) {
     pk_propagate(pk_stack_slice_down(depth, &slice));
     PKAtom result = pk_string_cat(slice);
     pk_propagate(result);
-    pk_stack_pop_unchecked(depth - 1);
-    PK_CORE.stack.e[PK_CORE.stack.count - 1] = result;
-    return pk_true();
+    
+    return pk_stack_op_finish(depth, result);
 }

@@ -53,7 +53,7 @@ PKAtom pk_fs_read_user_input(void) {
         int c = getc(stdin);
         if (c == EOF) {
             if (i == 0) {
-                return pk_nil();
+                return pk_string_empty();
             }
             break;
         }

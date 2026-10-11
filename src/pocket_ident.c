@@ -75,6 +75,8 @@ PKStr pk_ident_env(PK_ENV env) {
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
     switch (op) {
         case PK_OP_LOAD: return PK_OPCODE_TY_LOAD;
+        case PK_OP_LOAD_NIL: return PK_OPCODE_TY_LOAD;
+        case PK_OP_LOAD_TRUE: return PK_OPCODE_TY_LOAD;
         case PK_OP_GET_VAR: return PK_OPCODE_TY_LOAD;
         case PK_OP_GET_FUN: return PK_OPCODE_TY_LOAD;
         case PK_OP_GET_PROP: return PK_OPCODE_TY_LOAD;
@@ -89,6 +91,10 @@ PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
         case PK_OP_MAKE_LIST_PACKED: return PK_OPCODE_TY_LIT;
         case PK_OP_MERGE_LISTS: return PK_OPCODE_TY_LIT;
         case PK_OP_STRCAT: return PK_OPCODE_TY_LIT;
+        case PK_OP_LET_PROP: return PK_OPCODE_TY_LIT;
+        case PK_OP_SET_VAR: return PK_OPCODE_TY_LIT;
+        case PK_OP_SET_FUN: return PK_OPCODE_TY_LIT;
+        case PK_OP_SET_PROP: return PK_OPCODE_TY_LIT;
         
         default: return PK_OPCODE_TY_NORMAL;
     }

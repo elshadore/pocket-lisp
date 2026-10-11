@@ -95,14 +95,14 @@ PKAtom pk_stack_funcall_(PK_CALL call, PKAtom function, pk_u8 args) {
         case PK_CALL_FUN: {
             switch (function->header.type) {
                 case PK_ATOMTY_CFUN: return pk_cfun_exec((PKAtomCFun *)function, stack);
-                case PK_ATOMTY_LFUN: return pk_lfun_exec(function, 0);
+                case PK_ATOMTY_LFUN: return pk_lfun_exec(function, args);
                 default: return pk_error();
             }
         }
         case PK_CALL_MACRO: {
             switch (function->header.type) {
                 case PK_ATOMTY_CMACRO: return pk_cfun_exec((PKAtomCFun *)function, stack);
-                case PK_ATOMTY_LMACRO: return pk_lfun_exec(function, 0);
+                case PK_ATOMTY_LMACRO: return pk_lfun_exec(function, args);
                 default: return pk_error();
             }
         }
@@ -160,6 +160,7 @@ PKAtom pk_funcall0(PK_CALL call, PKAtom fun) {
     
     pk_propagate(pk_frame_pushc(atoms));
     PKAtom result = pk_stack_funcall(call, 0);
+    pk_frame_unwind();
     
     return result;
 }
@@ -180,6 +181,7 @@ PKAtom pk_funcall1(PK_CALL call, PKAtom fun, PKAtom arg1) {
     
     pk_propagate(pk_frame_pushc(atoms));
     PKAtom result = pk_stack_funcall(call, 1);
+    pk_frame_unwind();
 
     return result;
 }
@@ -201,6 +203,7 @@ PKAtom pk_funcall2(PK_CALL call, PKAtom fun, PKAtom arg1, PKAtom arg2) {
     
     pk_propagate(pk_frame_pushc(atoms));
     PKAtom result = pk_stack_funcall(call, 2);
+    pk_frame_unwind();
     
     return result;
 }
@@ -223,6 +226,7 @@ PKAtom pk_funcall3(PK_CALL call, PKAtom fun, PKAtom arg1, PKAtom arg2, PKAtom ar
     
     pk_propagate(pk_frame_pushc(atoms));
     PKAtom result = pk_stack_funcall(call, 3);
+    pk_frame_unwind();
     
     return result;
 }

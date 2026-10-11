@@ -15,7 +15,7 @@ PKAtom pk_print(PKAtom atom) {
     } else {
         PKWriter w = PK_WRITER_EMPTY;
         PKAtom result = pk_writer_atom(&w, atom);
-        if (!pk_is_error(atom)) {
+        if (!pk_is_error(result)) {
             pk_print_str(pk_writer_slice(&w));
         }
         pk_writer_deinit(&w);
@@ -30,7 +30,7 @@ PKAtom pk_puts(PKAtom atom) {
     } else {
         PKWriter w = PK_WRITER_EMPTY;
         PKAtom result = pk_writer_atom(&w, atom);
-        if (!pk_is_error(atom)) {
+        if (!pk_is_error(result)) {
             pk_puts_str(pk_writer_slice(&w));
         }
         pk_writer_deinit(&w);

@@ -131,7 +131,7 @@ PKAtom pk_fun_evlist(void *user_closure, PKAtom arg1) {
 
 PKAtom pk_fun_compile(void *user_closure, PKAtom arg1) {
     (void)user_closure;
-    return pk_compile(arg1, PK_MODE_EXPRESSION);
+    return pk_compile(PK_CALL_FUN, arg1, PK_MODE_EXPRESSION);
 }
 
 PK_TEMPLATE_FUN1(pk_fun_print, pk_print)

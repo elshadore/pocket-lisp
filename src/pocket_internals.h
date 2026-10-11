@@ -47,15 +47,10 @@ typedef struct PKReader_ {
     char c;
 } PKReader;
 
-#define PK_COMPILER_EMPTY (PKCompiler) { \
-    .bc = PK_BYTES_EMPTY, \
-    .atoms = PK_ARRAY_EMPTY, \
-    .addr = 0, \
-}
-
 typedef struct PKCompiler_ {
     PKBytes bc;
     PKArray atoms;
+    PK_CALL type;
     pk_u8 addr;
 } PKCompiler;
 
@@ -475,7 +470,7 @@ PKAtom pk_cmp_load_true(PKCompiler *c);
 PKAtom pk_cmp_load(PKCompiler *c, PKAtom atom);
     
 PKAtom pk_compile_value(PKCompiler *c, PKAtom value);
-PKAtom pk_compile_lambda(PKAtom args, PKAtom body);
+PKAtom pk_compile_lambda(PK_CALL type, PKAtom args, PKAtom body);
 PKAtom pk_compile_atom(PKCompiler *c, PKAtom value);
 PKAtom pk_compile_strsub(PKCompiler *c, PKStr string);
 

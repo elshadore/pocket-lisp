@@ -5,13 +5,13 @@ PKAtom pk_apply_(PK_CALL call, PKAtom fun, PKAtom args) {
     pk_u8 arity = 0;
     {
         PKAtom iter = args;
-        while (pk_is_cons(args)) {
+        while (pk_is_cons(iter)) {
             if (arity == UINT8_MAX) {
                 return pk_error();
             }
             pk_propagate(pk_stack_push(iter->cons.car));
             arity += 1;
-            iter = args->cons.cdr;
+            iter = iter->cons.cdr;
         }
     }
     return pk_stack_funcall(call, arity);
@@ -27,7 +27,7 @@ PKAtom pk_apply(PK_CALL call, PKAtom fun, PKAtom args) {
 PKAtom pk_eval_(PKAtom expr) {
     PKAtom a = pk_macroexpand(expr);
     pk_propagate(a);
-    PKAtom b = pk_compile(expr, PK_MODE_EXPRESSION);
+    PKAtom b = pk_compile(PK_CALL_FUN, expr, PK_MODE_EXPRESSION);
     pk_propagate(b);
     return pk_funcall0(PK_CALL_FUN, b);
 }

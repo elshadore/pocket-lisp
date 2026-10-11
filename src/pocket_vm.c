@@ -82,6 +82,26 @@ PKAtom pk_vm_op_get(PKVM *vm, PK_ENV env) {
     return pk_true();
 }
 
+PKAtom pk_vm_op_set(PKVM *vm, PK_ENV env) {
+    pk_propagate(pk_vm_inc(vm));
+
+    PKAtoms slice = PK_ATOMS_EMPTY;
+    pk_propagate(pk_stack_slice_down(2, &slice));
+
+    PKAtom symbol = slice.e[0];
+    PKAtom value = slice.e[1];
+    pk_propagate(pk_typecheck_symbol(symbol));
+    pk_propagate(pk_set(env, symbol, value));
+
+    PKAtoms popped = PK_ATOMS_EMPTY;
+    pk_propagate(pk_stack_slice_down(2, &popped));
+    pk_stack_pop_unchecked(1);
+    PK_CORE.stack.e[PK_CORE.stack.count - 1] = value;
+    pk_propagate(pk_vm_inc(vm));
+
+    return pk_true();
+}
+
 PKAtom pk_vm_op_exec(PKVM *vm) {
     switch (pk_vat(vm)) {
         case PK_OP_ILLEGAL: {
@@ -166,12 +186,32 @@ PKAtom pk_vm_op_exec(PKVM *vm) {
             pk_propagate(pk_vm_op_let(vm, PK_ENV_FUN));
             break;
         }
+        case PK_OP_LET_PROP: {
+            pk_propagate(pk_vm_op_let(vm, PK_ENV_PROP));
+            break;
+        }
         case PK_OP_GET_VAR: {
             pk_propagate(pk_vm_op_get(vm, PK_ENV_VAR));
             break;
         }
         case PK_OP_GET_FUN: {
             pk_propagate(pk_vm_op_get(vm, PK_ENV_FUN));
+            break;
+        }
+        case PK_OP_GET_PROP: {
+            pk_propagate(pk_vm_op_get(vm, PK_ENV_PROP));
+            break;
+        }
+        case PK_OP_SET_VAR: {
+            pk_propagate(pk_vm_op_set(vm, PK_ENV_VAR));
+            break;
+        }
+        case PK_OP_SET_FUN: {
+            pk_propagate(pk_vm_op_set(vm, PK_ENV_FUN));
+            break;
+        }
+        case PK_OP_SET_PROP: {
+            pk_propagate(pk_vm_op_set(vm, PK_ENV_PROP));
             break;
         }
         case PK_OP_MAKE_LIST: {
@@ -212,7 +252,9 @@ PKAtom pk_vm_op_exec(PKVM *vm) {
 }
 
 PKAtom pk_vm_exec(PKVM *vm) {
-    pk_propagate(pk_frame_push(0));
+    // The frame starts below this lfun's arguments, so that a leading LET_VAR
+    // can see them in the frame's slice.
+    pk_propagate(pk_frame_push(vm->save));
     
     while (!vm->finished) {
         PKAtom atom = pk_vm_op_exec(vm);

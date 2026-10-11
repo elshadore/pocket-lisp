@@ -143,7 +143,7 @@ PKAtom pk_read(PKAtom string, PK_MODE mode);
 PKAtom pk_read_str(PKStr string, PK_MODE mode);
 PKAtom pk_eval(PKAtom expr, PK_MODE mode);
 PKAtom pk_apply(PK_CALL call, PKAtom fun, PKAtom args);
-PKAtom pk_compile(PKAtom expr, PK_MODE mode);
+PKAtom pk_compile(PK_CALL type, PKAtom value, PK_MODE mode);
 PKAtom pk_macroexpand1(PKAtom atom);
 PKAtom pk_macroexpand(PKAtom atom);
 
