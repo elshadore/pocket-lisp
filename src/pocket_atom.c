@@ -61,9 +61,9 @@ PKAtom pk_symbol(PKStr string) {
     pk_propagate(name);
 
     atom->header.type = PK_ATOMTY_SYMBOL;
-    atom->symbol.var = pk_nil();
-    atom->symbol.fun = pk_nil();
-    atom->symbol.prop = pk_nil();
+    atom->symbol.var = pk_undefined();
+    atom->symbol.fun = pk_undefined();
+    atom->symbol.prop = pk_undefined();
     atom->symbol.name = name;
 
     pk_propagate(pk_hashmap_insert(&PK_CORE.symbolizer, name, atom));

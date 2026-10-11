@@ -49,6 +49,50 @@ PK_TEMPLATE_FUN1(pk_fun_car, pk_car)
 PK_TEMPLATE_FUN1(pk_fun_cdr, pk_cdr)
 PK_TEMPLATE_FUN2(pk_fun_set_car, pk_set_car)
 PK_TEMPLATE_FUN2(pk_fun_set_cdr, pk_set_cdr)
+
+#define PK_TEMPLATE_ENV_SET(fun_name_, env_) \
+    PKAtom fun_name_(void *user_closure, PKAtom arg1, PKAtom arg2) { \
+        (void)user_closure; \
+        pk_propagate(pk_typecheck_symbol(arg1)); \
+        return pk_set(env_, arg1, arg2); \
+    }
+
+#define PK_TEMPLATE_ENV_GET(fun_name_, env_) \
+    PKAtom fun_name_(void *user_closure, PKAtom arg1) { \
+        (void)user_closure; \
+        pk_propagate(pk_typecheck_symbol(arg1)); \
+        return pk_get(env_, arg1); \
+    }
+
+#define PK_TEMPLATE_ENV_BOUND(fun_name_, env_) \
+    PKAtom fun_name_(void *user_closure, PKAtom arg1) { \
+        (void)user_closure; \
+        pk_propagate(pk_typecheck_symbol(arg1)); \
+        return pk_bool(pk_is_bound(env_, arg1)); \
+    }
+
+#define PK_TEMPLATE_ENV_UNBIND(fun_name_, env_) \
+    PKAtom fun_name_(void *user_closure, PKAtom arg1) { \
+        (void)user_closure; \
+        pk_propagate(pk_typecheck_symbol(arg1)); \
+        return pk_unbind(env_, arg1); \
+    }
+
+PK_TEMPLATE_ENV_SET(pk_fun_set, PK_ENV_VAR)
+PK_TEMPLATE_ENV_SET(pk_fun_fset, PK_ENV_FUN)
+PK_TEMPLATE_ENV_SET(pk_fun_pset, PK_ENV_PROP)
+
+PK_TEMPLATE_ENV_GET(pk_fun_get, PK_ENV_VAR)
+PK_TEMPLATE_ENV_GET(pk_fun_fget, PK_ENV_FUN)
+PK_TEMPLATE_ENV_GET(pk_fun_pget, PK_ENV_PROP)
+
+PK_TEMPLATE_ENV_BOUND(pk_fun_bound, PK_ENV_VAR)
+PK_TEMPLATE_ENV_BOUND(pk_fun_fbound, PK_ENV_FUN)
+PK_TEMPLATE_ENV_BOUND(pk_fun_pbound, PK_ENV_PROP)
+
+PK_TEMPLATE_ENV_UNBIND(pk_fun_unbind, PK_ENV_VAR)
+PK_TEMPLATE_ENV_UNBIND(pk_fun_funbind, PK_ENV_FUN)
+PK_TEMPLATE_ENV_UNBIND(pk_fun_punbind, PK_ENV_PROP)
     
 PKAtom pk_fun_read(void *user_closure, PKAtom arg1) {
     (void)user_closure;
@@ -118,6 +162,22 @@ PKAtom pk_std_load(void) {
     PK_FLOAD(pk_str("cdr"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_cdr, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("set_car"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set_car, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("set_cdr"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set_cdr, PK_ARITY_NORMAL));
+
+    PK_FLOAD(pk_str("set"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("fset"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_fset, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("pset"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_pset, PK_ARITY_NORMAL));
+
+    PK_FLOAD(pk_str("get"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_get, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("fget"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_fget, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("pget"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_pget, PK_ARITY_NORMAL));
+
+    PK_FLOAD(pk_str("bound"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_bound, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("fbound"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_fbound, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("pbound"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_pbound, PK_ARITY_NORMAL));
+
+    PK_FLOAD(pk_str("unbind"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_unbind, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("funbind"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_funbind, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("punbind"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_punbind, PK_ARITY_NORMAL));
     
     PK_FLOAD(pk_str("read"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_read, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("read-list"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_read_list, PK_ARITY_NORMAL));

@@ -38,8 +38,8 @@ PKAtom pk_frame_pushc(PKAtoms atoms) {
     
 void pk_frame_unwind(void) {
     PKFrame unwind = PK_CORE.frames.e[PK_CORE.frames.count - 1];
-    size_t diff = PK_CORE.current_frame.stack_offset = unwind.stack_offset;
-    size_t stack_count = unwind.stack_offset + diff;
+    size_t stack_count = PK_CORE.current_frame.stack_offset;
+    size_t diff = PK_CORE.stack.count - stack_count;
     size_t lets_unwind = PK_CORE.lets.count - PK_CORE.current_frame.let_offset;
     pk_let_unwind(lets_unwind);
     

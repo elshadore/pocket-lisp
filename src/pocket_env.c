@@ -107,12 +107,12 @@ PKAtom pk_unbind(PK_ENV env, PKAtom symbol) {
         }
         case PK_ENV_FUN: {
             result = symbol->symbol.fun;
-            symbol->symbol.var = pk_undefined();
+            symbol->symbol.fun = pk_undefined();
             break;
         }
         case PK_ENV_PROP: {
             result = symbol->symbol.prop;
-            symbol->symbol.var = pk_undefined();
+            symbol->symbol.prop = pk_undefined();
             break;
         }
         default: break;
@@ -136,8 +136,14 @@ PKAtom pk_let(PK_ENV env, PKAtom symbol, PKAtom value) {
         PK_CORE.lets.capacity = new_capacity;
     }
 
+    bool was_bound = pk_is_bound(env, symbol);
+
     PKAtom restore = pk_set(env, symbol, value);
     pk_propagate(restore);
+
+    if (!was_bound) {
+        restore = pk_undefined();
+    }
 
     PK_CORE.lets.e[PK_CORE.lets.count++] = (PKLet) {
         .env = env,

@@ -83,6 +83,11 @@ PKAtom pk_cfun_exec(PKAtomCFun *cfun, PKAtoms stack) {
 
 PKAtom pk_stack_funcall_(PK_CALL call, PKAtom function, pk_u8 args) {
     PKAtoms stack = pk_stack_slice();
+    if (stack.length < 1) {
+        return pk_error();
+    }
+    stack.e += 1;
+    stack.length -= 1;
     if (stack.length != args) {
         return pk_error();
     }
@@ -116,12 +121,12 @@ PKAtom pk_stack_funcall(PK_CALL call, pk_u8 args) {
     
     if (pk_is_symbol(function)) {
         function = pk_get(PK_ENV_FUN, function);
-        if (pk_is_undefined(function)) {
+        if (pk_is_nil(function)) {
             return pk_error();
         }
     }
     
-    pk_propagate(pk_frame_push(args));
+    pk_propagate(pk_frame_push(args + 1));
     
     PKCallConv cc = PK_CALLCONV_EMPTY;
     {
