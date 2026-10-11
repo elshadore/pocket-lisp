@@ -1,5 +1,21 @@
 #include "pocket_internals.h"
 
+#define PK_LISP_STD \
+"(fset 'defmacro (macro (symbol args :rest body)\n" \
+"   `(fset ',symbol (macro ,args ,@body))))\n" \
+"(defmacro defun (symbol args :rest body)\n" \
+"   `(fset ',symbol (lambda ,args ,@body)))\n" \
+"(defmacro defvar (symbol :opt value)\n" \
+"   `(set ',symbol ,value))\n" \
+"(defmacro fsetq (symbol value)\n" \
+"   `(fset ',symbol ,value))\n" \
+"(defmacro setq (symbol value)\n" \
+"   `(set ',symbol ,value))\n" \
+"(defun square (x)\n" \
+"   (* x x))\n" \
+"(defun cube (x)\n" \
+"   (* x x x))"
+
 #define PK_TEMPLATE_FUN0(fun_name_, bind_name_) \
     PKAtom fun_name_(void *user_closure) { \
         (void)user_closure; \
@@ -156,7 +172,7 @@ PKAtom pk_fun_list(void *user_closure, PKAtom argn) {
     pk_propagate(pk_set(PK_ENV_FUN, name, fun)); \
 } while(0)
 
-PKAtom pk_std_load(void) {
+PKAtom pk_std_load_cfun(void) {
     PK_FLOAD(pk_str("+"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_add, PK_ARITY_VARIADIC));
     PK_FLOAD(pk_str("-"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_sub, PK_ARITY_VARIADIC));
     PK_FLOAD(pk_str("*"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_mul, PK_ARITY_VARIADIC));
@@ -202,5 +218,28 @@ PKAtom pk_std_load(void) {
     
     PK_FLOAD(pk_str("fs/slurp"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_fs_slurp, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("fs/read-user-input"), pk_cfun0(NULL, PK_CALL_FUN, pk_fun_fs_read_user_input));
+    
+    return pk_true();
+}
+
+PKAtom pk_std_load_lfun(void) {
+    PKAtom a = pk_string(pk_str(PK_LISP_STD));
+    pk_propagate(a);
+    
+    PKAtom b = pk_read(a, PK_MODE_EXPRLIST);
+    pk_propagate(b);
+    
+    PKAtom c = pk_compile(PK_CALL_FUN, b, PK_MODE_EXPRLIST);
+    pk_propagate(c);
+
+    PKAtom d = pk_funcall0(PK_CALL_FUN, c);
+    pk_propagate(d);
+    
+    return pk_true();
+}
+    
+PKAtom pk_std_load(void) {
+    pk_propagate(pk_std_load_cfun());
+    pk_propagate(pk_std_load_lfun());
     return pk_true();
 }
