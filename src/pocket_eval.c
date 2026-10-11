@@ -27,7 +27,7 @@ PKAtom pk_apply(PK_CALL call, PKAtom fun, PKAtom args) {
 PKAtom pk_eval_(PKAtom expr) {
     PKAtom a = pk_macroexpand(expr);
     pk_propagate(a);
-    PKAtom b = pk_compile(PK_CALL_FUN, expr, PK_MODE_EXPRESSION);
+    PKAtom b = pk_compile(PK_CALL_FUN, a, PK_MODE_EXPRESSION);
     pk_propagate(b);
     return pk_funcall0(PK_CALL_FUN, b);
 }

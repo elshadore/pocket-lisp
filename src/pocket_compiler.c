@@ -604,7 +604,7 @@ PKAtom pk_compile_lambda_(PKCompiler *c, PKAtom args, PKAtom body) {
                 if (expected_final) {
                     pk_propagate(pk_typecheck_nil(iter->cons.cdr));
                 }
-                
+
                 if (nargs == (UINT8_MAX - 1)) {
                     return pk_error();
                 }
@@ -617,11 +617,7 @@ PKAtom pk_compile_lambda_(PKCompiler *c, PKAtom args, PKAtom body) {
 
     if (nargs > 0) {
         pk_propagate(pk_cmp_push_byte(c, PK_OP_LET_VAR));
-        if (arity != PK_ARITY_NORMAL) {
-            pk_propagate(pk_cmp_push_byte(c, nargs + 1));
-        } else {
-            pk_propagate(pk_cmp_push_byte(c, nargs));
-        }
+        pk_propagate(pk_cmp_push_byte(c, nargs));
     }
     
     pk_propagate(pk_compile_evlist(c, body));

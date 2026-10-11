@@ -43,9 +43,16 @@ PKAtom pk_macroexpand_let(PKAtom let, PKAtom body, bool *expanded) {
     pk_propagate(args);
     PKAtom rbody = pk_macroexpand_list(body->cons.cdr, expanded);
     pk_propagate(rbody);
-    PKAtom result = pk_list3(let, args, rbody);
-    pk_propagate(result);
-    return result;
+    
+    PKAccum acc = pk_accum_new();
+    pk_propagate(pk_accum_push(&acc, let));
+    pk_propagate(pk_accum_push(&acc, args));
+    PKAtom iter = rbody;
+    while (pk_is_cons(iter)) {
+        pk_propagate(pk_accum_push(&acc, iter->cons.car));
+        iter = iter->cons.cdr;
+    }
+    return acc.head;
 }
     
 PKAtom pk_macroexpand1_(PKAtom atom, bool *expanded) {

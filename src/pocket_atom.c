@@ -71,6 +71,19 @@ PKAtom pk_symbol(PKStr string) {
     return atom;
 }
 
+PKAtom pk_keyword(PKStr keyword) {
+    PKAtom atom = pk_atom_alloc();
+    pk_propagate(atom);
+
+    PKStr dupe = PK_STR_EMPTY;
+    pk_propagate(pk_str_dupe(keyword, &dupe));
+
+    atom->header.type = PK_ATOMTY_KEYWORD;
+    atom->keyword.id = dupe;
+
+    return atom;
+}
+
 PKAtom pk_cfun_cons(void *user_closure, PK_CALL call, void *opaque_fun, pk_u8 args, pk_u8 arity) {
     PKAtom atom = pk_atom_alloc();
     pk_propagate(atom);

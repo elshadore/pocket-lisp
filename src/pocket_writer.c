@@ -217,6 +217,11 @@ PKAtom pk_writer_atom(PKWriter *w, PKAtom atom) {
             pk_propagate(pk_writer_string(w, atom->symbol.name->string.str));
             break;
         }
+        case PK_ATOMTY_KEYWORD: {
+            pk_propagate(pk_writer_char(w, ':'));
+            pk_propagate(pk_writer_string(w, atom->keyword.id));
+            break;
+        }
         case PK_ATOMTY_CONS: {
             pk_propagate(pk_writer_char(w, '('));
             

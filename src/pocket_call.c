@@ -135,10 +135,10 @@ PKAtom pk_stack_funcall(PK_CALL call, pk_u8 args) {
             pk_propagate(pk_stack_push(pk_nil()));
         }
         if (cc.variadic) {
-            pk_propagate(pk_stack_op_list(cc.variadic_count));
+            pk_propagate(pk_stack_op_list((size_t)cc.variadic_count + 1));
         }
     }
-    
+
     PKAtom result = pk_stack_funcall_(call, function, cc.args);
     pk_frame_unwind();
     

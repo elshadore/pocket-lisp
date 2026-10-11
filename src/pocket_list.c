@@ -108,7 +108,7 @@ PKAtom pk_list_flatten(PKAtoms lists) {
         PKAtom iter = list;
         while (pk_is_cons(iter)) {
             pk_propagate(pk_accum_push(&acc, iter->cons.car));
-            iter = iter->cons.car;
+            iter = iter->cons.cdr;
         }
     }
     return acc.head;

@@ -119,7 +119,7 @@ PKAtom pk_read_keyword(PKReader *r) {
         .length = r->curr - save,
     };
     
-    return pk_symbol(slice);
+    return pk_keyword(slice);
 }
 
 PKAtom pk_read_string_(PKReader *r, PKWriter *w) {
