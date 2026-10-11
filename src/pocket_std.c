@@ -143,6 +143,11 @@ PK_TEMPLATE_FUN1(pk_fun_macroexpand, pk_macroexpand)
 PK_TEMPLATE_FUN1(pk_fun_fs_slurp, pk_fs_slurp)
 PK_TEMPLATE_FUN0(pk_fun_fs_read_user_input, pk_fs_read_user_input)
 
+PKAtom pk_fun_list(void *user_closure, PKAtom argn) {
+    (void)user_closure;
+    return argn;
+}
+
 #define PK_FLOAD(name_, fun_) do { \
     PKAtom name = pk_symbol(name_); \
     pk_propagate(name); \
@@ -159,10 +164,11 @@ PKAtom pk_std_load(void) {
     PK_FLOAD(pk_str("%"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_mod, PK_ARITY_NORMAL));
     
     PK_FLOAD(pk_str("cons"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_cons, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("list"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_list, PK_ARITY_VARIADIC));
     PK_FLOAD(pk_str("car"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_car, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("cdr"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_cdr, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("set_car"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set_car, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("set_cdr"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set_cdr, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("set-car"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set_car, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("set-cdr"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set_cdr, PK_ARITY_NORMAL));
 
     PK_FLOAD(pk_str("set"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("fset"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_fset, PK_ARITY_NORMAL));
@@ -172,9 +178,9 @@ PKAtom pk_std_load(void) {
     PK_FLOAD(pk_str("fget"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_fget, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("pget"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_pget, PK_ARITY_NORMAL));
 
-    PK_FLOAD(pk_str("bound"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_bound, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("fbound"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_fbound, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("pbound"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_pbound, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("bound?"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_bound, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("fbound?"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_fbound, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("pbound?"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_pbound, PK_ARITY_NORMAL));
 
     PK_FLOAD(pk_str("unbind"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_unbind, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("funbind"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_funbind, PK_ARITY_NORMAL));

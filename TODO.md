@@ -13,6 +13,8 @@ The todo list for POCKET LISP
 - [ ] Throwing
 - [ ] Float Parsing
 - [ ] Float Printing
+- [ ] Immutable Vector Update
+  - Move from cons cells to immutable vectors.
 - [ ] Better Symbol Parsing
   - [ ] Enable `:` in symbols, `foo:bar-baz`.
 - [ ] Debug Stuff
