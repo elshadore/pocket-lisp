@@ -287,6 +287,7 @@ PKAtom pk_read_cons(PKReader *r) {
 
     PKAccum acc = pk_accum_new();
     bool first = true;
+    bool separated = false;
     bool whitespace = pk_reader_trim_whitespace(r);
 
     while (!pk_reader_is_finished(r)) {
@@ -297,7 +298,7 @@ PKAtom pk_read_cons(PKReader *r) {
             } else {
                 return acc.head;
             }
-        } else if (!first && !whitespace) {
+        } else if (!first && !whitespace && !separated) {
             return pk_reader_error(r, "list elements must be seperated with whitespace");
         } else if (pk_rat(r) == '.') {
             if (first) {
@@ -322,6 +323,12 @@ PKAtom pk_read_cons(PKReader *r) {
             pk_propagate(atom);
             pk_accum_push(&acc, atom);
             first = false;
+            char last = r->str.c[r->curr - 1];
+            if (last == ')' || last == '"') {
+                separated = true;
+            } else {
+                separated = false;
+            }
             whitespace = pk_reader_trim_whitespace(r);
         }
     }

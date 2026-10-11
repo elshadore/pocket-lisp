@@ -5,7 +5,7 @@
 "(set 'repl/running true)" \
 "(fset 'repl/quit (lambda ()" \
       "(set 'repl/running nil)))" \
-"(while repl/running" \
+"(while repl/running " \
      "(puts \"LISP>> \")" \
      "(print (eval (read (fs/read-user-input)))))"
 
