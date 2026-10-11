@@ -630,6 +630,12 @@ PKAtom pk_compile_atom(PKCompiler *c, PKAtom value) {
     
     return pk_compile_compile(c, 0, PK_INT_ARITY_NORMAL);
 }
+
+PKAtom pk_compile_exprlist(PKCompiler *c, PKAtom exprlist) {
+    pk_propagate(pk_compile_progn(c, exprlist));
+    pk_propagate(pk_cmp_push_byte(c, PK_OP_RET));
+    return pk_compile_compile(c, 0, PK_INT_ARITY_NORMAL);
+}
     
 PKAtom pk_compile(PKAtom value, PK_MODE mode) {
     PKCompiler c = PK_COMPILER_EMPTY;
@@ -638,7 +644,7 @@ PKAtom pk_compile(PKAtom value, PK_MODE mode) {
     if (mode == PK_MODE_EXPRESSION) {
         result = pk_compile_atom(&c, value);
     } else {
-        result = pk_compile_progn(&c, value);
+        result = pk_compile_exprlist(&c, value);
     }
     
     if (pk_is_error(result)) {

@@ -104,6 +104,11 @@ PKAtom pk_vm_op_exec(PKVM *vm) {
             pk_propagate(pk_vm_inc(vm));
             break;
         }
+        case PK_OP_LOAD_TRUE: {
+            pk_propagate(pk_stack_push(pk_true()));
+            pk_propagate(pk_vm_inc(vm));
+            break;
+        }
         case PK_OP_CALL: {
             pk_u8 args = 0;
             pk_propagate(pk_vm_inc(vm));

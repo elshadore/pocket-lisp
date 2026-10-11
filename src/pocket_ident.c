@@ -7,6 +7,7 @@ PKStr pk_ident_opcode(pk_u8 op) {
         case PK_OP_RET: return pk_str("RET");
         case PK_OP_LOAD: return pk_str("LOAD");
         case PK_OP_LOAD_NIL: return pk_str("LOAD_NIL");
+        case PK_OP_LOAD_TRUE: return pk_str("LOAD_TRUE");
         case PK_OP_CALL: return pk_str("CALL");
         case PK_OP_BLOCK_BEGIN: return pk_str("BLOCK_BEGIN");
         case PK_OP_BLOCK_END: return pk_str("BLOCK_END");
