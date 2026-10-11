@@ -14,7 +14,9 @@
 "(defun square (x)\n" \
 "   (* x x))\n" \
 "(defun cube (x)\n" \
-"   (* x x x))"
+"   (* x x x))\n" \
+"(defun load (file)\n" \
+"   (evlist (read-list (fs/slurp file))))"
 
 #define PK_TEMPLATE_FUN0(fun_name_, bind_name_) \
     PKAtom fun_name_(void *user_closure) { \

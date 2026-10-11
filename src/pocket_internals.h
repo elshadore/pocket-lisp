@@ -296,6 +296,8 @@ struct PKPool_ {
     .sym_if = NULL, \
     .sym_while = NULL, \
     .error = NULL, \
+    .var = NULL, \
+    .fvar = NULL, \
     .let = NULL, \
     .let_star = NULL, \
     .flet = NULL, \
@@ -319,6 +321,8 @@ typedef struct PKCache_ {
     PKAtom sym_if;
     PKAtom sym_while;
     PKAtom error;
+    PKAtom var;
+    PKAtom fvar;
     PKAtom let;
     PKAtom let_star;
     PKAtom flet;

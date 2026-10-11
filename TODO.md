@@ -11,6 +11,7 @@ The todo list for POCKET LISP
 - [x] Macros
 - [ ] Referance Counting
 - [ ] Throwing
+- [ ] Lexical Capture
 - [ ] Float Parsing
 - [ ] Float Printing
 - [ ] Immutable Vector Update

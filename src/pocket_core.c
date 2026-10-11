@@ -21,6 +21,12 @@ PKAtom pk_init_symbols(void) {
     PK_CORE.cache.error = pk_symbol(pk_str("error"));
     pk_propagate(PK_CORE.cache.error);
     
+    PK_CORE.cache.var = pk_symbol(pk_str("var"));
+    pk_propagate(PK_CORE.cache.var);
+    
+    PK_CORE.cache.fvar = pk_symbol(pk_str("fvar"));
+    pk_propagate(PK_CORE.cache.fvar);
+    
     PK_CORE.cache.let = pk_symbol(pk_str("let"));
     pk_propagate(PK_CORE.cache.let);
     

@@ -380,6 +380,34 @@ PKAtom pk_compile_progn(PKCompiler *c, PKAtom atom) {
     return pk_true();
 }
 
+PKAtom pk_compile_var(PKCompiler *c, PKAtom form, PK_ENV env) {
+    PKAtom a = form;
+    pk_propagate(pk_typecheck_cons(a));
+    pk_propagate(pk_typecheck_symbol(a->cons.car));
+    PKAtom b = a->cons.cdr;
+    pk_propagate(pk_typecheck_cons(b));
+    pk_propagate(pk_typecheck_nil(b->cons.cdr));
+    pk_propagate(pk_compile_value(c, b->cons.car));
+    pk_propagate(pk_cmp_load(c, a->cons.car));
+    
+    switch (env) {
+        case PK_ENV_VAR: {
+            pk_propagate(pk_cmp_push_byte(c, PK_OP_LET_VAR));
+            break;
+        }
+        case PK_ENV_FUN: {
+            pk_propagate(pk_cmp_push_byte(c, PK_OP_LET_FUN));
+            break;
+        }
+        case PK_ENV_PROP: {
+            pk_propagate(pk_cmp_push_byte(c, PK_OP_LET_PROP));
+            break;
+        }
+    }
+    
+    return pk_true();
+}
+
 PKAtom pk_compile_special(PKCompiler *c, PKAtom symbol, PKAtom args, bool *is_special) {
     if (symbol == PK_CORE.cache.lambda) {
         pk_propagate(pk_typecheck_cons(args));
@@ -489,6 +517,14 @@ PKAtom pk_compile_special(PKCompiler *c, PKAtom symbol, PKAtom args, bool *is_sp
         pk_propagate(pk_typecheck_string(args->cons.car));
         pk_propagate(pk_typecheck_nil(args->cons.cdr));
         pk_propagate(pk_compile_strsub(c, args->cons.car->string.str));
+        
+        *is_special = true;
+    } else if (symbol == PK_CORE.cache.var) {
+        pk_propagate(pk_compile_var(c, args, PK_ENV_VAR));
+        
+        *is_special = true;
+    } else if (symbol == PK_CORE.cache.fvar) {
+        pk_propagate(pk_compile_var(c, args, PK_ENV_FUN));
         
         *is_special = true;
     } else {
