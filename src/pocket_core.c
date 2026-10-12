@@ -18,8 +18,8 @@ PKAtom pk_init_symbols(void) {
     PK_CORE.cache.sym_while = pk_symbol(pk_str("while"));
     pk_propagate(PK_CORE.cache.sym_while);
     
-    PK_CORE.cache.error = pk_symbol(pk_str("error"));
-    pk_propagate(PK_CORE.cache.error);
+    PK_CORE.cache.throw = pk_symbol(pk_str("throw"));
+    pk_propagate(PK_CORE.cache.throw);
     
     PK_CORE.cache.var = pk_symbol(pk_str("var"));
     pk_propagate(PK_CORE.cache.var);
@@ -79,7 +79,7 @@ bool pk_init(void) {
     
     PK_CORE.initialized = true;
     
-    if (pk_is_error(pk_init2())) {
+    if (pk_is_throwing(pk_init2())) {
         pk_deinit();
         return false;
     }

@@ -54,7 +54,7 @@ PKAtom run(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
-    if (pk_is_error(run(argc, argv))) {
+    if (pk_is_throwing(run(argc, argv))) {
         return 1;
     }
     return 0;

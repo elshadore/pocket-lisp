@@ -27,7 +27,7 @@ void pk_ref_dec(PKAtom atom) {
 PKAtom pk_ref_inc_many(PKAtoms atoms) {
     for (size_t i = 0; i < atoms.length; ++i) {
         PKAtom atom = pk_ref_inc(atoms.e[i]);
-        if (pk_is_error(atom)) {
+        if (pk_is_throwing(atom)) {
             for (size_t j = 0; j < i; ++j) {
                 pk_ref_dec(atoms.e[j]);
             }

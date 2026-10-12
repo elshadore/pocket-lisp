@@ -74,7 +74,7 @@ PKAtom pk_get(PK_ENV env, PKAtom symbol) {
 
 bool pk_is_bound(PK_ENV env, PKAtom symbol) {
     PKAtom fetch = pk_get_raw(env, symbol);
-    if (pk_is_error(fetch)) {
+    if (pk_is_throwing(fetch)) {
         return false;
     }
 

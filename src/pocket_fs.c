@@ -23,7 +23,7 @@ PKAtom pk_fs_slurp_str(PKStr file_path) {
     rewind(file);
     
     PKAtom result = pk_string_alloc(length);
-    if (pk_is_error(result)) {
+    if (pk_is_throwing(result)) {
         fclose(file);
         return result;
     }

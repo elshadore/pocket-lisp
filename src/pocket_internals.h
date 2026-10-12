@@ -95,7 +95,7 @@ typedef struct PKCallConv_ {
 #define PK_ATOMTY_ILLEGAL (0)
 #define PK_ATOMTY_TYPE (1)
 #define PK_ATOMTY_FREE (2)
-#define PK_ATOMTY_ERROR (3)
+#define PK_ATOMTY_THROW (3)
 #define PK_ATOMTY_UNDEFINED (4)
 #define PK_ATOMTY_NIL (5)
 #define PK_ATOMTY_TRUE (6)
@@ -126,9 +126,9 @@ struct PKAtomFree_ {
     PKAtomFree *next;
 };
 
-typedef struct PKAtomError_ {
+typedef struct PKAtomThrow_ {
     PKAtomHeader header;
-} PKAtomError;
+} PKAtomThrow;
 
 #define PK_NUMTY_INT (0)
 #define PK_NUMTY_FLOAT (1)
@@ -239,7 +239,7 @@ typedef struct PKAtomLFun_ {
 typedef union PKAtomData_ {
     PKAtomHeader header;
     PKAtomFree free;
-    PKAtomError error;
+    PKAtomThrow throw;
     PKAtomNumber number;
     PKAtomString string;
     PKAtomSymbol symbol;
@@ -295,7 +295,7 @@ struct PKPool_ {
     .progn = NULL, \
     .sym_if = NULL, \
     .sym_while = NULL, \
-    .error = NULL, \
+    .throw = NULL, \
     .var = NULL, \
     .fvar = NULL, \
     .let = NULL, \
@@ -320,7 +320,7 @@ typedef struct PKCache_ {
     PKAtom progn;
     PKAtom sym_if;
     PKAtom sym_while;
-    PKAtom error;
+    PKAtom throw;
     PKAtom var;
     PKAtom fvar;
     PKAtom let;

@@ -665,7 +665,7 @@ PKAtom pk_compile_lambda_(PKCompiler *c, PKAtom args, PKAtom body) {
 PKAtom pk_compile_lambda(PK_CALL type, PKAtom args, PKAtom body) {
     PKCompiler c = pk_cmp_new(type);
     PKAtom result = pk_compile_lambda_(&c, args, body);
-    if (pk_is_error(result)) {
+    if (pk_is_throwing(result)) {
         pk_cmp_deinit(&c);
     }
     return result;
@@ -694,7 +694,7 @@ PKAtom pk_compile(PK_CALL type, PKAtom value, PK_MODE mode) {
         result = pk_compile_exprlist(&c, value);
     }
     
-    if (pk_is_error(result)) {
+    if (pk_is_throwing(result)) {
         pk_cmp_deinit(&c);
     }
     return result;

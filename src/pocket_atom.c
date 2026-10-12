@@ -16,9 +16,9 @@ PKAtomData PK_ATOM_TRUE = (PKAtomData) {
     }
 };
 
-PKAtomData PK_ATOM_ERROR = (PKAtomData) {
+PKAtomData PK_ATOM_THROW = (PKAtomData) {
     .header = (PKAtomHeader) {
-        .type = PK_ATOMTY_ERROR,
+        .type = PK_ATOMTY_THROW,
         .flags = PK_ATOMFLAG_IMMORTAL,
         .refcount = 0,
     }
@@ -33,11 +33,11 @@ PKAtom pk_true() {
 }
 
 PKAtom pk_error(void) {
-    return &PK_ATOM_ERROR;
+    return &PK_ATOM_THROW;
 }
     
 PKAtom pk_error_oom(void) {
-    return &PK_ATOM_ERROR;
+    return &PK_ATOM_THROW;
 }
 
 PKAtom pk_bool(bool boolean) {
@@ -156,8 +156,8 @@ bool pk_is_keyword(PKAtom atom) {
     return atom->header.type == PK_ATOMTY_KEYWORD;
 }
 
-bool pk_is_error(PKAtom atom) {
-    return atom->header.type == PK_ATOMTY_ERROR;
+bool pk_is_throwing(PKAtom atom) {
+    return atom->header.type == PK_ATOMTY_THROW;
 }
 
 bool pk_is_undefined(PKAtom atom) {

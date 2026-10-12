@@ -258,7 +258,7 @@ PKAtom pk_vm_exec(PKVM *vm) {
     
     while (!vm->finished) {
         PKAtom atom = pk_vm_op_exec(vm);
-        if (pk_is_error(atom)) {
+        if (pk_is_throwing(atom)) {
             pk_frame_unwind();
             return atom;
         }

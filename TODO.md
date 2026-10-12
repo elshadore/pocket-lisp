@@ -7,6 +7,7 @@ The todo list for POCKET LISP
 - [ ] Debug Stuff
   - [ ] Memory Leak Detection
 - [ ] Object System
+  - [ ] CObjects
   - [ ] Array
   - [ ] Table
   - [ ] Slots
