@@ -12,7 +12,13 @@
 
 (defmacro setq (symbol value)
    `(set ',symbol ,value))
-  
+
+(defmacro when (cond :rest body)
+    `(if ,cond (progn ,@body) nil))
+    
+(defmacro unless (cond :rest body)
+    `(if ,cond nil (progn ,@body)))
+
 (defun square (x)
    (* x x))
 
@@ -21,3 +27,39 @@
 
 (defun load (file)
     (evlist (read-list (fs/slurp file))))
+
+(defun caar (x)
+   (car (car x)))
+   
+(defun cadr (x)
+   (car (cdr x)))
+   
+(defun cdar (x)
+   (cdr (car x)))
+   
+(defun cddr (x)
+   (cdr (cdr x)))
+
+(defun caaar (x)
+   (car (car (car x))))
+   
+(defun caadr (x)
+   (car (car (cdr x))))
+   
+(defun cadar (x)
+   (car (cdr (car x))))
+   
+(defun cdaar (x)
+   (cdr (car (car x))))
+   
+(defun caddr (x)
+   (car (cdr (cdr x))))
+   
+(defun cddar (x)
+   (cdr (cdr (car x))))
+   
+(defun cdadr (x)
+   (cdr (car (cdr x))))
+   
+(defun cdddr (x)
+   (cdr (cdr (cdr x))))

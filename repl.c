@@ -2,12 +2,17 @@
 #include "./src/pocket_all.c"
 
 #define REPL_CODE \
-"(setq repl/running true)" \
-"(defun repl/quit ()" \
-"     (setq repl/running nil))" \
-"(while repl/running " \
-"     (puts \"LISP>> \") " \
-"     (print (eval (read (fs/read-user-input)))))" 
+"(defvar repl/running true)\n" \
+"(defun repl/quit ()\n" \
+"     (setq repl/running nil))\n" \
+"(defun read-eval-print (string)\n" \
+"     (print (eval (read string))))\n" \
+"(when (= (cadr args) \"-e\")\n" \
+"    (setq repl/running nil)\n" \
+"    (read-eval-print (caddr args)))\n" \
+"(while repl/running\n" \
+"     (puts \"LISP>> \")\n" \
+"     (read-eval-print (fs/read-user-input)))\n"
 
 PKAtom cargs(int argc, char **argv) {
     PKAtom acc = pk_nil();
@@ -29,7 +34,7 @@ PKAtom run(int argc, char **argv) {
     PKAtom args = cargs(argc, argv);
     pk_propagate(args);
 
-    PKAtom symbol = pk_symbol(pk_str("argv"));
+    PKAtom symbol = pk_symbol(pk_str("args"));
     pk_propagate(symbol);
 
     pk_propagate(pk_set(PK_ENV_VAR, symbol, args));

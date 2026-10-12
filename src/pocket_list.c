@@ -24,13 +24,19 @@ PKAtom pk_cons(PKAtom car, PKAtom cdr) {
 }
 
 PKAtom pk_car(PKAtom cons) {
-    pk_propagate(pk_typecheck_cons(cons));
-    return cons->cons.car;
+    switch (cons->header.type) {
+        case PK_ATOMTY_NIL: return pk_nil();
+        case PK_ATOMTY_CONS: return cons->cons.car;
+        default: return pk_error();
+    }
 }
 
 PKAtom pk_cdr(PKAtom cons) {
-    pk_propagate(pk_typecheck_cons(cons));
-    return cons->cons.cdr;
+    switch (cons->header.type) {
+        case PK_ATOMTY_NIL: return pk_nil();
+        case PK_ATOMTY_CONS: return cons->cons.cdr;
+        default: return pk_error();
+    }
 }
 
 PKAtom pk_set_car(PKAtom cons, PKAtom new_car) {

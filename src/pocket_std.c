@@ -11,12 +11,40 @@
 "   `(fset ',symbol ,value))\n" \
 "(defmacro setq (symbol value)\n" \
 "   `(set ',symbol ,value))\n" \
+"(defmacro when (cond :rest body)\n" \
+"   `(if ,cond (progn ,@body) nil))\n" \
+"(defmacro unless (cond :rest body)\n" \
+"   `(if ,cond nil (progn ,@body)))\n" \
 "(defun square (x)\n" \
 "   (* x x))\n" \
 "(defun cube (x)\n" \
 "   (* x x x))\n" \
 "(defun load (file)\n" \
-"   (evlist (read-list (fs/slurp file))))"
+"   (evlist (read-list (fs/slurp file))))\n"\
+"(defun caar (x)\n" \
+"   (car (car x)))\n" \
+"(defun cadr (x)\n" \
+"   (car (cdr x)))\n" \
+"(defun cdar (x)\n" \
+"   (cdr (car x)))\n" \
+"(defun cddr (x)\n" \
+"   (cdr (cdr x)))\n" \
+"(defun caaar (x)\n" \
+"   (car (car (car x))))\n" \
+"(defun caadr (x)\n" \
+"   (car (car (cdr x))))\n" \
+"(defun cadar (x)\n" \
+"   (car (cdr (car x))))\n" \
+"(defun cdaar (x)\n" \
+"   (cdr (car (car x))))\n" \
+"(defun caddr (x)\n" \
+"   (car (cdr (cdr x))))\n" \
+"(defun cddar (x)\n" \
+"   (cdr (cdr (car x))))\n" \
+"(defun cdadr (x)\n" \
+"   (cdr (car (cdr x))))\n" \
+"(defun cdddr (x)\n" \
+"   (cdr (cdr (cdr x))))\n"
 
 #define PK_TEMPLATE_FUN0(fun_name_, bind_name_) \
     PKAtom fun_name_(void *user_closure) { \
@@ -180,6 +208,9 @@ PKAtom pk_std_load_cfun(void) {
     PK_FLOAD(pk_str("*"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_mul, PK_ARITY_VARIADIC));
     PK_FLOAD(pk_str("/"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_div, PK_ARITY_VARIADIC));
     PK_FLOAD(pk_str("%"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_mod, PK_ARITY_NORMAL));
+    
+    PK_FLOAD(pk_str("="), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_eq, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("eq?"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_eq, PK_ARITY_NORMAL));
     
     PK_FLOAD(pk_str("cons"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_cons, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("list"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_list, PK_ARITY_VARIADIC));
