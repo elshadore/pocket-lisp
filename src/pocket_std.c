@@ -261,7 +261,7 @@ PKAtom pk_std_load_lfun(void) {
     
     PKAtom b = pk_read(a, PK_MODE_EXPRLIST);
     pk_propagate(b);
-    
+
     PKAtom c = pk_eval(b, PK_MODE_EXPRLIST);
     pk_propagate(c);
 

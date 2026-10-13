@@ -59,6 +59,25 @@ typedef enum PK_CALL_ {
     PK_CALL_MACRO,
 } PK_CALL;
 
+typedef enum PK_TYPE_ {
+    PK_TYPE_UNKNOWN = 0,
+    PK_TYPE_THROW,
+    PK_TYPE_NUMBER,
+    PK_TYPE_INTEGER,
+    PK_TYPE_FLOAT,
+    PK_TYPE_STRING,
+    PK_TYPE_SYMBOL,
+    PK_TYPE_KEYWORD,
+    PK_TYPE_CONS,
+    PK_TYPE_SEQ,
+    PK_TYPE_FUNCTION,
+    PK_TYPE_CFUN,
+    PK_TYPE_LFUN,
+    PK_TYPE_MACRO,
+    PK_TYPE_CMACRO,
+    PK_TYPE_LMACRO,
+} PK_TYPE;
+
 #define pk_str(text_) (PKStr) {.c = (text_), .length = (sizeof(text_) - 1)}
 #define PK_STR_EMPTY (PKStr){.c = NULL, .length = 0}
 
@@ -94,10 +113,14 @@ PKAtom pk_int(int integer);
 PKAtom pk_float(float floater);
 PKAtom pk_string(PKStr string);
 PKAtom pk_stringc(char *cstring);
+PK_PRINTF_FMT(1, 2) PKAtom pk_string_fmt(const char *fmt, ...);
 PKAtom pk_symbol(PKStr symbol);
 PKAtom pk_symbolc(char *csymbol);
+PK_PRINTF_FMT(1, 2) PKAtom pk_symbol_fmt(const char *fmt, ...);
 PKAtom pk_gensym(void);
 PKAtom pk_keyword(PKStr keyword);
+PKAtom pk_keywordc(char *ckeyword);
+PK_PRINTF_FMT(1, 2) PKAtom pk_keyword_fmt(const char *fmt, ...);
 PKAtom pk_cons(PKAtom car, PKAtom cdr);
 PKAtom pk_list(PKAtoms atoms);
 PKAtom pk_list2(PKAtom first, PKAtom second);
@@ -155,11 +178,21 @@ PKAtom pk_funcall2(PK_CALL call, PKAtom fn, PKAtom arg1, PKAtom arg2);
 PKAtom pk_funcall3(PK_CALL call, PKAtom fn, PKAtom arg1, PKAtom arg2, PKAtom arg3);
 
 PKAtom pk_reverse(PKAtom atom);
+
+PKAtom pk_throw(PKAtom type, PKAtom contents);
+PKAtom pk_throw_type(PKAtom throw);
+PKAtom pk_throw_contents(PKAtom throw);
+PKAtom pk_error(void);
+PKAtom pk_error_str(PKStr message);
+PK_PRINTF_FMT(1, 2) PKAtom pk_error_fmt(const char *fmt, ...);
+PKAtom pk_error_oom(void);
+PKAtom pk_error_type(PK_TYPE expected, PKAtom found);
     
 bool pk_is_nil(PKAtom atom);
 bool pk_is_undefined(PKAtom atom);
 bool pk_is_true(PKAtom atom);
 bool pk_is_throwing(PKAtom atom);
+bool pk_is_error(PKAtom atom);
 bool pk_is_int(PKAtom atom);
 bool pk_is_float(PKAtom atom);
 bool pk_is_number(PKAtom atom);

@@ -16,14 +16,6 @@ PKAtomData PK_ATOM_TRUE = (PKAtomData) {
     }
 };
 
-PKAtomData PK_ATOM_THROW = (PKAtomData) {
-    .header = (PKAtomHeader) {
-        .type = PK_ATOMTY_THROW,
-        .flags = PK_ATOMFLAG_IMMORTAL,
-        .refcount = 0,
-    }
-};
-
 PKAtom pk_undefined(void) {
     return &PK_ATOM_UNDEFINED;
 }
@@ -31,15 +23,6 @@ PKAtom pk_undefined(void) {
 PKAtom pk_true() {
     return &PK_ATOM_TRUE;
 }
-
-PKAtom pk_error(void) {
-    return &PK_ATOM_THROW;
-}
-    
-PKAtom pk_error_oom(void) {
-    return &PK_ATOM_THROW;
-}
-
 PKAtom pk_bool(bool boolean) {
     if (boolean) {
         return pk_true();
@@ -156,10 +139,6 @@ bool pk_is_keyword(PKAtom atom) {
     return atom->header.type == PK_ATOMTY_KEYWORD;
 }
 
-bool pk_is_throwing(PKAtom atom) {
-    return atom->header.type == PK_ATOMTY_THROW;
-}
-
 bool pk_is_undefined(PKAtom atom) {
     return atom->header.type == PK_ATOMTY_UNDEFINED;
 }
@@ -181,19 +160,11 @@ bool pk_is_macro(PKAtom atom) {
 }
 
 PKAtom pk_typecheck_symbol(PKAtom atom) {
-    if (pk_is_symbol(atom)) {
-        return pk_true();
-    } else {
-        return pk_error();
-    }
+    return pk_error_type(PK_TYPE_SYMBOL, atom);
 }
 
 PKAtom pk_typecheck_keyword(PKAtom atom) {
-    if (pk_is_keyword(atom)) {
-        return pk_true();
-    } else {
-        return pk_error();
-    }
+    return pk_error_type(PK_TYPE_KEYWORD, atom);
 }
 
 PKAtom pk_reverse(PKAtom atom) {
@@ -216,7 +187,7 @@ PKAtom pk_reverse(PKAtom atom) {
             return acc;
         }
         case PK_ATOMTY_NIL: return pk_nil();
-        default: return pk_error();
+        default: return pk_error_type(PK_TYPE_SEQ, atom);
     }
 }
 

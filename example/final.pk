@@ -1,0 +1,42 @@
+# Example Final Syntax
+
+## Objects
+
+(defclass Tilemap (IRectangle)
+     (e :init nil)
+     (width :type Integer :init 0)
+     (height :type Integer :init 0))
+
+(defun tilemap ((width Integer) (height Integer) :key (fill nil))
+     (assert (and (>= width 0) (>= height 0)))
+     (var area (* width height))
+     (var e (array area fill))
+     (new 'Tilemap :e e
+                   :width width
+                   :height height))
+
+(defun xy->index ((x Integer) (y Integer) (width Integer))
+     (+ (* y width) x))
+
+(defmethod get-x ((self Tilemap)) 0)
+(defmethod get-y ((self Tilemap)) 0)
+     
+(defmethod get-width ((self Tilemap))
+     (get-slot self 'width))
+     
+(defmethod get-height ((self Tilemap))
+     (get-slot self 'height))
+
+
+## Throwing Catching
+
+(catch 'foo
+   (throw 'foo 69)
+   420)
+
+(catch 'error
+   (error "this is an error"))
+
+(block foo
+     (break foo 69)
+     420)

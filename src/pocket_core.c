@@ -18,6 +18,9 @@ PKAtom pk_init_symbols(void) {
     PK_CORE.cache.sym_while = pk_symbol(pk_str("while"));
     pk_propagate(PK_CORE.cache.sym_while);
     
+    PK_CORE.cache.error = pk_symbol(pk_str("error"));
+    pk_propagate(PK_CORE.cache.error);
+    
     PK_CORE.cache.throw = pk_symbol(pk_str("throw"));
     pk_propagate(PK_CORE.cache.throw);
     

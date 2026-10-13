@@ -1,10 +1,14 @@
 (defvar repl/running true)
 
+(defvar repl/result nil)
+
 (defun repl/quit ()
      (setq repl/running nil))
 
 (defun read-eval-print (string)
-     (print (eval (read string))))
+     (setq repl/result (eval (read string)))
+     (print repl/result)
+     repl/result)
 
 (when (= (cadr args) "-e")
     (setq repl/running nil)
@@ -13,3 +17,5 @@
 (while repl/running
      (puts "LISP>> ")
      (read-eval-print (fs/read-user-input)))
+
+repl/result

@@ -14,15 +14,19 @@ The todo list for POCKET LISP
   - [ ] Methods
 - [ ] Better Symbol Parsing
   - [ ] Enable `:` in symbols, `foo:bar-baz`.
+  - [ ] Any Character Symbols
+    - `|this is a single symbol|`
 - [ ] Multiple Optional Variables
 - [ ] Special Forms
-  - [ ] setq, fsetq, psetq
-  - [ ] bind
+  - [ ] and
+  - [ ] or
+  - [ ] break
+  - [ ] block
   - [ ] throw
   - [ ] catch
   - [ ] unwind-protect
-  - [ ] break
-  - [ ] block
+  - [ ] setq, fsetq, psetq
+  - [ ] bind
 
 ## TODO
 - [ ] Full Float Parsing and Printing

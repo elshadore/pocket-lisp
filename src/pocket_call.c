@@ -4,7 +4,7 @@ PKAtom pk_callconv_(pk_u8 input_args, pk_u8 args, pk_u8 arity, PKCallConv *outpu
     switch (arity) {
         case PK_INT_ARITY_NORMAL: {
             if (input_args != args) {
-                return pk_error();
+                return pk_error_str(pk_str("TODO: error messages"));
             } else {
                 *output = (PKCallConv) {
                     .args = args,
@@ -33,7 +33,7 @@ PKAtom pk_callconv_(pk_u8 input_args, pk_u8 args, pk_u8 arity, PKCallConv *outpu
                 };
                 return pk_true();
             } else {
-                return pk_error();
+                return pk_error_str(pk_str("TODO: error messages"));
             }
         }
         case PK_INT_ARITY_VARIADIC: {
@@ -54,10 +54,10 @@ PKAtom pk_callconv_(pk_u8 input_args, pk_u8 args, pk_u8 arity, PKCallConv *outpu
                 };
                 return pk_true();
             } else {
-                return pk_error();
+                return pk_error_str(pk_str("TODO: error messages"));
             }
         }
-        default: return pk_error();
+        default: return pk_error_str(pk_str("TODO: error messages"));
     }
 }
     
@@ -67,7 +67,7 @@ PKAtom pk_callconv(PKAtom fun, pk_u8 args, PKCallConv *output) {
         case PK_ATOMTY_LFUN: return pk_callconv_(args, fun->lfun.args, fun->lfun.arity, output);
         case PK_ATOMTY_CMACRO: return pk_callconv_(args, fun->cmacro.args, fun->cmacro.arity, output);
         case PK_ATOMTY_LMACRO: return pk_callconv_(args, fun->lmacro.args, fun->lmacro.arity, output);
-        default: return pk_error();
+        default: return pk_error_str(pk_str("TODO: error messages"));
     }
 }
 
@@ -77,7 +77,7 @@ PKAtom pk_cfun_exec(PKAtomCFun *cfun, PKAtoms stack) {
         case 1: return (cfun->as.fun1)(cfun->user_closure, stack.e[0]);
         case 2: return (cfun->as.fun2)(cfun->user_closure, stack.e[0], stack.e[1]);
         case 3: return (cfun->as.fun3)(cfun->user_closure, stack.e[0], stack.e[1], stack.e[2]);
-        default: return pk_error();
+        default: return pk_error_str(pk_str("TODO: error messages"));
     }
 }
 
@@ -96,14 +96,14 @@ PKAtom pk_stack_funcall_(PK_CALL call, PKAtom function, pk_u8 args) {
             switch (function->header.type) {
                 case PK_ATOMTY_CFUN: return pk_cfun_exec((PKAtomCFun *)function, stack);
                 case PK_ATOMTY_LFUN: return pk_lfun_exec(function, args);
-                default: return pk_error();
+                default: return pk_error_str(pk_str("TODO: error messages"));
             }
         }
         case PK_CALL_MACRO: {
             switch (function->header.type) {
                 case PK_ATOMTY_CMACRO: return pk_cfun_exec((PKAtomCFun *)function, stack);
                 case PK_ATOMTY_LMACRO: return pk_lfun_exec(function, args);
-                default: return pk_error();
+                default: return pk_error_str(pk_str("TODO: error messages"));
             }
         }
         default: return pk_error();

@@ -95,21 +95,22 @@ typedef struct PKCallConv_ {
 #define PK_ATOMTY_ILLEGAL (0)
 #define PK_ATOMTY_TYPE (1)
 #define PK_ATOMTY_FREE (2)
-#define PK_ATOMTY_THROW (3)
-#define PK_ATOMTY_UNDEFINED (4)
-#define PK_ATOMTY_NIL (5)
-#define PK_ATOMTY_TRUE (6)
-#define PK_ATOMTY_NUMBER (7)
-#define PK_ATOMTY_STRING (8)
-#define PK_ATOMTY_SYMBOL (9)
-#define PK_ATOMTY_KEYWORD (10)
-#define PK_ATOMTY_CONS (11)
-#define PK_ATOMTY_ARRAY (12)
-#define PK_ATOMTY_TABLE (13)
-#define PK_ATOMTY_CFUN (14)
-#define PK_ATOMTY_LFUN (15)
-#define PK_ATOMTY_CMACRO (16)
-#define PK_ATOMTY_LMACRO (17)
+#define PK_ATOMTY_OOM (3)
+#define PK_ATOMTY_THROW (4)
+#define PK_ATOMTY_UNDEFINED (5)
+#define PK_ATOMTY_NIL (6)
+#define PK_ATOMTY_TRUE (7)
+#define PK_ATOMTY_NUMBER (8)
+#define PK_ATOMTY_STRING (9)
+#define PK_ATOMTY_SYMBOL (10)
+#define PK_ATOMTY_KEYWORD (11)
+#define PK_ATOMTY_CONS (12)
+#define PK_ATOMTY_ARRAY (13)
+#define PK_ATOMTY_TABLE (14)
+#define PK_ATOMTY_CFUN (15)
+#define PK_ATOMTY_LFUN (16)
+#define PK_ATOMTY_CMACRO (17)
+#define PK_ATOMTY_LMACRO (18)
 
 #define PK_ATOMFLAG_NONE (0)
 #define PK_ATOMFLAG_IMMORTAL (1 << 0)
@@ -128,6 +129,8 @@ struct PKAtomFree_ {
 
 typedef struct PKAtomThrow_ {
     PKAtomHeader header;
+    PKAtom type;
+    PKAtom contents;
 } PKAtomThrow;
 
 #define PK_NUMTY_INT (0)
@@ -295,6 +298,7 @@ struct PKPool_ {
     .progn = NULL, \
     .sym_if = NULL, \
     .sym_while = NULL, \
+    .error = NULL, \
     .throw = NULL, \
     .var = NULL, \
     .fvar = NULL, \
@@ -320,6 +324,7 @@ typedef struct PKCache_ {
     PKAtom progn;
     PKAtom sym_if;
     PKAtom sym_while;
+    PKAtom error;
     PKAtom throw;
     PKAtom var;
     PKAtom fvar;
@@ -371,9 +376,6 @@ extern PocketLispMachine PK_CORE;
 #define pk_writer_str(w_, string_) \
     pk_writer_string(w_, pk_str(string_))
 
-PKAtom pk_error(void);
-PKAtom pk_error_oom(void);
-    
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);
     
 void *pk_malloc(size_t size);
