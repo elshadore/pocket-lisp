@@ -160,11 +160,19 @@ bool pk_is_macro(PKAtom atom) {
 }
 
 PKAtom pk_typecheck_symbol(PKAtom atom) {
-    return pk_error_type(PK_TYPE_SYMBOL, atom);
+    if (pk_is_symbol(atom)) {
+        return pk_true();
+    } else {
+        return pk_error_type(PK_TYPE_SYMBOL, atom);
+    }
 }
 
 PKAtom pk_typecheck_keyword(PKAtom atom) {
-    return pk_error_type(PK_TYPE_KEYWORD, atom);
+    if (pk_is_keyword(atom)) {
+        return pk_true();
+    } else {
+        return pk_error_type(PK_TYPE_KEYWORD, atom);
+    }
 }
 
 PKAtom pk_reverse(PKAtom atom) {
