@@ -114,6 +114,13 @@ PKAtom pk_read_keyword(PKReader *r) {
     
     pk_propagate(pk_reader_ince(r));
     
+    if (pk_rat(r) == '|') {
+        PKWriter w = PK_WRITER_EMPTY;
+        PKAtom result = pk_read_barred(r, &w, PK_SYMTY_KEYWORD);
+        pk_writer_deinit(&w);
+        return result;
+    }
+    
     save = r->curr;
     
     if (!pk_char_is_symbol(pk_rat(r))) {
@@ -288,7 +295,7 @@ PKAtom pk_read_number(PKReader *r) {
     return pk_int(acc);
 }
 
-PKAtom pk_read_barred_symbol_(PKReader *r, PKWriter *w) {
+PKAtom pk_read_barred(PKReader *r, PKWriter *w, PK_SYMTY type) {
     pk_propagate(pk_reader_ince(r));
     
     while ((!pk_reader_is_finished(r)) && (pk_rat(r) != '|')) {
@@ -318,7 +325,11 @@ PKAtom pk_read_barred_symbol_(PKReader *r, PKWriter *w) {
     
     (void)pk_reader_inc(r);
     
-    return pk_symbol(slice);
+    switch (type) {
+        case PK_SYMTY_SYMBOL: return pk_symbol(slice);
+        case PK_SYMTY_KEYWORD: return pk_keyword(slice);
+        default: return pk_errors(pk_str("corrupted memory"));
+    }
 }
 
 PKAtom pk_read_symbol(PKReader *r) {
@@ -326,7 +337,7 @@ PKAtom pk_read_symbol(PKReader *r) {
 
     if (pk_rat(r) == '|') {
         PKWriter w = PK_WRITER_EMPTY;
-        PKAtom result = pk_read_barred_symbol_(r, &w);
+        PKAtom result = pk_read_barred(r, &w, PK_SYMTY_SYMBOL);
         pk_writer_deinit(&w);
         return result;
     }

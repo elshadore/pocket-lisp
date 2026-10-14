@@ -13,6 +13,11 @@ typedef uint16_t pk_u16;
 typedef uint32_t pk_u32;
 typedef uint64_t pk_u64;
 
+typedef enum PK_SYMTY_ {
+    PK_SYMTY_SYMBOL = 0,
+    PK_SYMTY_KEYWORD,
+} PK_SYMTY;
+
 #define PK_ARRAY_EMPTY (PKArray){.e = NULL, .count = 0, .capacity = 0}
 
 #define PK_HASHMAP_EMPTY (PKHashmap){.e = NULL, .count = 0, .capacity = 0}
@@ -425,6 +430,7 @@ PKAtom pk_stack_op_strcat(size_t depth);
 void pk_let_unwind(size_t n);
 
 PKAtom pk_read_atom(PKReader *r);
+PKAtom pk_read_barred(PKReader *r, PKWriter *w, PK_SYMTY type);
     
 void pk_writer_deinit(PKWriter *w);
 PKAtom pk_writer_expand(PKWriter *w, size_t needed);
