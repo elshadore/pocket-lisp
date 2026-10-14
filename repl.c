@@ -4,16 +4,14 @@
 #include "repl.h"
 
 PKAtom cargs(int argc, char **argv) {
-    PKAtom acc = pk_nil();
+    PKAccum acc = pk_accum_new();
     for (int i = 0; i < argc; ++i) {
         PKAtom a = pk_stringc(argv[i]);
         pk_propagate(a);
-        PKAtom b = pk_cons(a, acc);
-        pk_propagate(b);
+        pk_propagate(pk_accum_push(&acc, a));
         pk_ref_dec(a);
-        acc = b;
     }
-    return pk_reverse(acc);
+    return acc.head;
 }
     
 PKAtom run(int argc, char **argv) {
@@ -29,6 +27,7 @@ PKAtom run(int argc, char **argv) {
 
     pk_propagate(pk_set(PK_ENV_VAR, symbol, args));
     pk_ref_dec(symbol);
+    pk_ref_dec(args);
     
     PKAtom a = pk_string(pk_str(REPL_CODE));
     pk_propagate(a);

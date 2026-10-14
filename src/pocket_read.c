@@ -518,13 +518,16 @@ PKAtom pk_read_str(PKStr string, PK_MODE mode) {
 
     if (mode == PK_MODE_EXPRESSION) {
         if (!pk_reader_is_finished(&r)) {
-            return pk_errors(pk_str("trailing characters"));
+            PKAtom error = pk_errors(pk_str("trailing characters"));
+            pk_ref_dec(first);
+            return error;
         }
         return first;
     }
 
     PKAtom cons = pk_cons(first, pk_nil());
     pk_propagate(cons);
+    pk_ref_dec(first);
     PKAccum acc = (PKAccum){.head = cons, .tail = cons};
 
     while (!pk_reader_is_finished(&r)) {

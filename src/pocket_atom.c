@@ -271,6 +271,7 @@ PKAtom pk_reverse(PKAtom atom) {
             while (pk_is_cons(iter)) {
                 PKAtom a = pk_cons(iter->cons.car, acc);
                 pk_propagate(a);
+                pk_ref_dec(acc);
                 acc = a;
                 iter = iter->cons.cdr;
             }
