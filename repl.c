@@ -56,9 +56,11 @@ int main(int argc, char **argv) {
     if (pk_is_throwing(result)) {
         PKAtom message = pk_throw_contents(result);
         (void)pk_print(message);
+        pk_deinit();
         return 1;
     } else {
         (void)pk_print(result);
+        pk_deinit();
         return 0;
     }
 }

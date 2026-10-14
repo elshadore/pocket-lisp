@@ -99,6 +99,20 @@ void pk_deinit(void) {
     if (!PK_CORE.initialized) {
         return;
     }
+
+    pk_free(PK_CORE.stack.e);
+    pk_free(PK_CORE.frames.e);
+    pk_free(PK_CORE.lets.e);
+    pk_hashmap_deinit(&PK_CORE.symbolizer);
+
+    {
+        PKPool *iter = PK_CORE.pool;
+        while (iter != NULL) {
+            PKPool *pool = iter;
+            iter = iter->next;
+            pk_free(pool);
+        }
+    }
     
     PK_CORE = POCKET_LISP_MACHINE_EMPTY;
 }
