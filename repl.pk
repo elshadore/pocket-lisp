@@ -9,13 +9,13 @@
      (setq repl/result (eval (read string)))
      (print repl/result)
      repl/result)
-
+     
 (when (= (cadr args) "-e")
     (setq repl/running nil)
     (read-eval-print (caddr args)))
 
 (while repl/running
      (puts "LISP>> ")
-     (read-eval-print (fs/read-user-input)))
+     (print (catch 'error (eval (read (fs/read-user-input))))))
 
 repl/result

@@ -11,8 +11,8 @@
 "    (setq repl/running nil)\n" \
 "    (read-eval-print (caddr args)))\n" \
 "(while repl/running\n" \
-"     (puts \"LISP>> \")\n" \
-"     (read-eval-print (fs/read-user-input)))\n"
+"    (puts \"LISP>> \")\n" \
+"    (print (catch 'error (eval (read (fs/read-user-input))))))\n"
 
 PKAtom cargs(int argc, char **argv) {
     PKAtom acc = pk_nil();
