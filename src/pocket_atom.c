@@ -44,8 +44,6 @@ PKAtom pk_symbol(PKStr string) {
     PKAtom name = pk_string(string);
     pk_propagate(name);
 
-    pk_propagate(pk_ref_inc(name));
-
     atom->header.type = PK_ATOMTY_SYMBOL;
     atom->symbol.var = pk_undefined();
     atom->symbol.fun = pk_undefined();
@@ -53,11 +51,6 @@ PKAtom pk_symbol(PKStr string) {
     atom->symbol.name = name;
 
     pk_propagate(pk_hashmap_insert(&PK_CORE.symbolizer, name, atom));
-    
-    // The symbolizer owns the name and the symbol; this reference is the one the
-    // caller gets.
-    // NOTE: huh...
-    pk_ref_dec(name);
     
     return atom;
 }
