@@ -121,6 +121,49 @@ void pk_deinit_cache(void) {
     pk_ref_dec(PK_CORE.cache.string_substitute);
 }
 
+void pk_debug_leakcheck(void) {
+    fprintf(stderr, "debug: atom leakcheck begin\n");
+    size_t count = 0;
+    for (PKPool *iter = PK_CORE.pool; iter != NULL; iter = iter->next) {
+        for (size_t i = 0; i < PK_POOL_MAX; ++i) {
+            PKAtom atom = &iter->e[i];
+            if (atom->header.type != PK_ATOMTY_FREE) {
+                PKStr ident = pk_ident_atomty(atom->header.type);
+                fprintf(stderr, "[%zu] => <%p> [%.*s] ", count, atom, (int)ident.length, ident.c);
+                switch (atom->header.type) {
+                    case PK_ATOMTY_STRING: {
+                        fprintf(stderr, "%.*s", (int)atom->string.str.length, atom->string.str.c);
+                        break;
+                    }
+                    case PK_ATOMTY_KEYWORD: {
+                        fprintf(stderr, "%.*s", (int)atom->keyword.id.length, atom->keyword.id.c);
+                        break;
+                    }
+                    case PK_ATOMTY_SYMBOL: {
+                        PKAtom name = atom->symbol.name;
+                        if (name->header.type == PK_ATOMTY_STRING) {
+                            fprintf(stderr, "%.*s", (int)name->string.str.length, name->string.str.c);
+                        }
+                        break;
+                    }
+                    case PK_ATOMTY_NUMBER: {
+                        if (atom->number.num_type == PK_NUMTY_INT) {
+                            fprintf(stderr, "%d", atom->number.as.i);
+                        } else {
+                            fprintf(stderr, "%f", atom->number.as.f);
+                        }
+                        break;
+                    }
+                    default: break;
+                }
+                fprintf(stderr, "\n");
+                count += 1;
+            }
+        }
+    }
+    fprintf(stderr, "debug: atom leakcheck count: %zu\n", count);
+}
+
 void pk_deinit(void) {
     if (!PK_CORE.initialized) {
         return;
@@ -131,6 +174,8 @@ void pk_deinit(void) {
     pk_free(PK_CORE.lets.e);
     pk_deinit_cache();
     pk_hashmap_deinit(&PK_CORE.symbolizer);
+
+    pk_debug_leakcheck();
 
     {
         PKPool *iter = PK_CORE.pool;
