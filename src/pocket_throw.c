@@ -28,24 +28,20 @@ PKAtom pk_throw(PKAtom type, PKAtom contents) {
     return atom;
 }
 
-PKAtom pk_error_atom(PKAtom message) {
+PKAtom pk_error(PKAtom message) {
     return pk_throw(PK_CORE.cache.error, message);
 }
 
-PKAtom pk_error(void) {
-    return pk_error_str(pk_str("TODO: implement error messages"));
-}
-    
-PKAtom pk_error_str(PKStr message) {
+PKAtom pk_errors(PKStr message) {
     PKAtom atom = pk_string(message);
     pk_propagate(atom);
-    return pk_error_atom(atom);
+    return pk_error(atom);
 }
 
 PKAtom pk_error_type(PK_TYPE expected, PKAtom found) {
     (void)expected;
     (void)found;
-    return pk_error_str(pk_str("TODO: implement type error"));
+    return pk_errors(pk_str("TODO: implement type error"));
 }
     
 PKAtom pk_error_oom(void) {
