@@ -134,6 +134,8 @@ PKAtom pk_table(void);
 
 PKAtom pk_car(PKAtom cons);
 PKAtom pk_cdr(PKAtom cons);
+PKAtom pk_car_discard(PKAtom cons);
+PKAtom pk_cdr_discard(PKAtom cons);
 
 PKAtom pk_set_car(PKAtom cons, PKAtom new_car);
 PKAtom pk_set_cdr(PKAtom cons, PKAtom new_cdr);

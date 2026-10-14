@@ -13,34 +13,16 @@
         return bind_name_(arg1); \
     }
 
-// For bound functions that return an atom they only borrow (car, cdr), so that
-// every cfun hands back a reference the caller owns.
-// TODO: car and cdr should return incremented references.
-#define PK_TEMPLATE_FUN1_OWNED(fun_name_, bind_name_) \
+#define PK_TEMPLATE_FUN1(fun_name_, bind_name_) \
     PKAtom fun_name_(void *user_closure, PKAtom arg1) { \
         (void)user_closure; \
-        PKAtom result = bind_name_(arg1); \
-        pk_propagate(result); \
-        pk_propagate(pk_ref_inc(result)); \
-        return result; \
+        return bind_name_(arg1); \
     }
 
 #define PK_TEMPLATE_FUN2(fun_name_, bind_name_) \
     PKAtom fun_name_(void *user_closure, PKAtom arg1, PKAtom arg2) { \
         (void)user_closure; \
         return bind_name_(arg1, arg2); \
-    }
-
-// Like PK_TEMPLATE_FUN2, for set-car and set-cdr which return the element they
-// displaced.
-// TODO: set-car and set-cdr should return incremented references.
-#define PK_TEMPLATE_FUN2_OWNED(fun_name_, bind_name_) \
-    PKAtom fun_name_(void *user_closure, PKAtom arg1, PKAtom arg2) { \
-        (void)user_closure; \
-        PKAtom result = bind_name_(arg1, arg2); \
-        pk_propagate(result); \
-        pk_propagate(pk_ref_inc(result)); \
-        return result; \
     }
 
 #define PK_TEMPLATE_FUN3V(fun_name_, bind_name_) \
@@ -50,10 +32,12 @@
         pk_propagate(result); \
         PKAtom iter = argn; \
         while (pk_is_cons(iter)) { \
-            PKAtom atom = pk_car(iter); \
-            result = bind_name_(result, atom); \
-            pk_propagate(result); \
-            iter = pk_cdr(iter); \
+            PKAtom atom = pk_car_discard(iter); \
+            PKAtom temp = bind_name_(result, atom); \
+            pk_ref_dec(result); \
+            pk_propagate(temp); \
+            result = temp; \
+            iter = pk_cdr_discard(iter); \
         } \
         return result; \
     }
@@ -75,10 +59,10 @@ PKAtom pk_fun_eq(void *user_closure, PKAtom arg1, PKAtom arg2) {
 }
 
 PK_TEMPLATE_FUN2(pk_fun_cons, pk_cons)
-PK_TEMPLATE_FUN1_OWNED(pk_fun_car, pk_car)
-PK_TEMPLATE_FUN1_OWNED(pk_fun_cdr, pk_cdr)
-PK_TEMPLATE_FUN2_OWNED(pk_fun_set_car, pk_set_car)
-PK_TEMPLATE_FUN2_OWNED(pk_fun_set_cdr, pk_set_cdr)
+PK_TEMPLATE_FUN1(pk_fun_car, pk_car)
+PK_TEMPLATE_FUN1(pk_fun_cdr, pk_cdr)
+PK_TEMPLATE_FUN2(pk_fun_set_car, pk_set_car)
+PK_TEMPLATE_FUN2(pk_fun_set_cdr, pk_set_cdr)
 
 // The environment hands back a reference of its own for get, and passes the
 // displaced value's reference along for set, so only get needs to take one.

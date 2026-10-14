@@ -29,20 +29,34 @@ void pk_cons_link(PKAtom tail, PKAtom cons) {
     tail->cons.cdr = cons;
 }
 
-PKAtom pk_car(PKAtom cons) {
+PKAtom pk_car_discard(PKAtom cons) {
     switch (cons->header.type) {
         case PK_ATOMTY_NIL: return pk_nil();
         case PK_ATOMTY_CONS: return cons->cons.car;
-        default: return pk_errors(pk_str("expected cons"));
+        default: return pk_error_type(PK_TYPE_LIST, cons);
     }
 }
 
-PKAtom pk_cdr(PKAtom cons) {
+PKAtom pk_cdr_discard(PKAtom cons) {
     switch (cons->header.type) {
         case PK_ATOMTY_NIL: return pk_nil();
         case PK_ATOMTY_CONS: return cons->cons.cdr;
-        default: return pk_errors(pk_str("expected cons"));
+        default: return pk_error_type(PK_TYPE_LIST, cons);
     }
+}
+
+PKAtom pk_car(PKAtom cons) {
+    PKAtom result = pk_car_discard(cons);
+    pk_propagate(result);
+    pk_propagate(pk_ref_inc(result));
+    return result;
+}
+
+PKAtom pk_cdr(PKAtom cons) {
+    PKAtom result = pk_cdr_discard(cons);
+    pk_propagate(result);
+    pk_propagate(pk_ref_inc(result));
+    return result;
 }
 
 PKAtom pk_set_car(PKAtom cons, PKAtom new_car) {
@@ -50,7 +64,6 @@ PKAtom pk_set_car(PKAtom cons, PKAtom new_car) {
     pk_propagate(pk_ref_inc(new_car));
     PKAtom result = cons->cons.car;
     cons->cons.car = new_car;
-    pk_ref_dec(result);
     return result;
 }
 
@@ -59,7 +72,6 @@ PKAtom pk_set_cdr(PKAtom cons, PKAtom new_cdr) {
     pk_propagate(pk_ref_inc(new_cdr));
     PKAtom result = cons->cons.cdr;
     cons->cons.cdr = new_cdr;
-    pk_ref_dec(result);
     return result;
 }
 
