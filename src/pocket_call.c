@@ -126,20 +126,21 @@ PKAtom pk_stack_funcall(PK_CALL call, pk_u8 args) {
         }
     }
     
+    PKCallConv cc = PK_CALLCONV_EMPTY;
+    pk_propagate(pk_callconv(function, args, &cc));
+    
     pk_propagate(pk_frame_push(args + 1));
     
-    PKCallConv cc = PK_CALLCONV_EMPTY;
-    {
-        pk_propagate(pk_callconv(function, args, &cc));
-        if (cc.push_extra_nil) {
-            pk_propagate(pk_stack_push(pk_nil()));
-        }
-        if (cc.variadic) {
-            pk_propagate(pk_stack_op_list((size_t)cc.variadic_count + 1));
-        }
+    PKAtom result = pk_true();
+    if (cc.push_extra_nil) {
+        result = pk_stack_push(pk_nil());
+    } else if (cc.variadic) {
+        result = pk_stack_op_list((size_t)cc.variadic_count + 1);
     }
-
-    PKAtom result = pk_stack_funcall_(call, function, cc.args);
+    
+    if (!pk_is_throwing(result)) {
+        result = pk_stack_funcall_(call, function, cc.args);
+    }
     pk_frame_unwind();
     
     return result;

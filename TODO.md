@@ -12,14 +12,11 @@ The todo list for POCKET LISP
   - [ ] Slots
   - [ ] Methods
 - [ ] Better Symbol Parsing
-  - [ ] Enable `:` in symbols, `foo:bar-baz`.
   - [ ] Any Character Symbols
     - `|this is a single symbol|`
+    - `:|this is a keyword!!!|`
 - [ ] Multiple Optional Variables
-- [ ] Simple Errors
 - [ ] Special Forms
-  - [ ] and
-  - [ ] or
   - [ ] break
   - [ ] block
   - [ ] unwind-protect

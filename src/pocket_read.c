@@ -6,18 +6,28 @@
 
 #define pk_rat(r_) (r_)->c
 
-PKAtom pk_reader_error(PKReader *r, const char *error_message) {
-    fprintf(
-        stderr,
-        "READER-ERROR:\n  curr: [%zu / %zu]\n  bol = %zu\n  line = %zu\n  char = %c\n  error: %s\n",
+PKAtom pk_reader_error_(PKReader *r, PKWriter *w, PKStr error_message) {
+    pk_propagate(pk_writer_fmt(
+        w,
+        "READER-ERROR:\n  curr: [%zu / %zu]\n  bol = %zu\n  line = %zu\n  char = %c\n  error:",
         r->curr,
         r->str.length,
         r->bol + 1,
         r->line + 1,
-        r->c,
-        error_message
-    );
-    return pk_errors(pk_str("reader error"));
+        r->c
+    ));
+
+    pk_propagate(pk_writer_string(w, error_message));
+    pk_propagate(pk_writer_newline(w));
+
+    return pk_errors(pk_writer_slice(w));
+}
+
+PKAtom pk_reader_error(PKReader *r, PKStr error_message) {
+    PKWriter w = PK_WRITER_EMPTY;
+    PKAtom result = pk_reader_error_(r, &w, error_message);
+    pk_writer_deinit(&w);
+    return result;
 }
 
 bool pk_reader_inc(PKReader *r) {

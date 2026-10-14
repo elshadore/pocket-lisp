@@ -87,6 +87,11 @@ PK_TEMPLATE_FUN3V(pk_fun_mul, pk_mul)
 PK_TEMPLATE_FUN3V(pk_fun_div, pk_div)
 PK_TEMPLATE_FUN2(pk_fun_mod, pk_mod)
 
+PK_TEMPLATE_FUN2(pk_fun_lt, pk_lt)
+PK_TEMPLATE_FUN2(pk_fun_lte, pk_lte)
+PK_TEMPLATE_FUN2(pk_fun_gt, pk_gt)
+PK_TEMPLATE_FUN2(pk_fun_gte, pk_gte)
+
 PKAtom pk_fun_eq(void *user_closure, PKAtom arg1, PKAtom arg2) {
     (void)user_closure;
     return pk_bool(pk_eq(arg1, arg2));
@@ -227,6 +232,12 @@ PKAtom pk_std_load_cfun(void) {
     PK_FLOAD(pk_str("*"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_mul, PK_ARITY_VARIADIC));
     PK_FLOAD(pk_str("/"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_div, PK_ARITY_VARIADIC));
     PK_FLOAD(pk_str("%"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_mod, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("mod"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_mod, PK_ARITY_NORMAL));
+    
+    PK_FLOAD(pk_str("<"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_lt, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("<="), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_lte, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str(">"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_gt, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str(">="), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_gte, PK_ARITY_NORMAL));
     
     PK_FLOAD(pk_str("="), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_eq, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("eq?"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_eq, PK_ARITY_NORMAL));

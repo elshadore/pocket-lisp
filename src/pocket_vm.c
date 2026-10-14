@@ -266,12 +266,15 @@ PKAtom pk_vm_op_exec(PKVM *vm) {
 PKAtom pk_vm_exec(PKVM *vm) {
     // The frame starts below this lfun's arguments, so that a leading LET_VAR
     // can see them in the frame's slice.
+    size_t frames = PK_CORE.frames.count;
     pk_propagate(pk_frame_push(vm->save));
     
     while (!vm->finished) {
         PKAtom atom = pk_vm_op_exec(vm);
         if (pk_is_throwing(atom)) {
-            pk_frame_unwind();
+            while (PK_CORE.frames.count > frames) {
+                pk_frame_unwind();
+            }
             return atom;
         }
     }

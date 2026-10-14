@@ -411,7 +411,7 @@ PKAtom pk_compile_jmp_(PKCompiler *c, PKAtom args, pk_u8 op, pk_u8 empty_op, PKB
     
     return result;
 }
-    
+
 PKAtom pk_compile_jmp(PKCompiler *c, PKAtom args, pk_u8 op, pk_u8 empty_op) {
     PKBytes patches = PK_BYTES_EMPTY;
     PKAtom result = pk_compile_jmp_(c, args, op, empty_op, &patches);
@@ -439,14 +439,17 @@ PKAtom pk_compile_var(PKCompiler *c, PKAtom form, PK_ENV env) {
     switch (env) {
         case PK_ENV_VAR: {
             pk_propagate(pk_cmp_push_byte(c, PK_OP_LET_VAR));
+            pk_propagate(pk_cmp_push_byte(c, 1));
             break;
         }
         case PK_ENV_FUN: {
             pk_propagate(pk_cmp_push_byte(c, PK_OP_LET_FUN));
+            pk_propagate(pk_cmp_push_byte(c, 1));
             break;
         }
         case PK_ENV_PROP: {
             pk_propagate(pk_cmp_push_byte(c, PK_OP_LET_PROP));
+            pk_propagate(pk_cmp_push_byte(c, 1));
             break;
         }
     }
