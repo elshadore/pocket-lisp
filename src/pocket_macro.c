@@ -17,7 +17,6 @@ PKAtom pk_macroexpand_list(PKAtom list, bool *expanded) {
         pk_cons_link(acc.tail, iter);
     }
 
-    pk_propagate(pk_ref_inc(acc.head));
     return acc.head;
 }
 
@@ -39,12 +38,12 @@ PKAtom pk_macroexpand_let_args(PKAtom args, bool *expanded) {
         
         pk_propagate(result);
         pk_accum_push(&acc, result);
+        pk_ref_dec(result);
         pk_ref_dec(atom);
         
         iter = iter->cons.cdr;
     }
 
-    pk_propagate(pk_ref_inc(acc.head));
     return acc.head;
 }
     
@@ -66,7 +65,6 @@ PKAtom pk_macroexpand_let(PKAtom let, PKAtom body, bool *expanded) {
     pk_ref_dec(rbody);
     pk_ref_dec(args);
     
-    pk_propagate(pk_ref_inc(acc.head));
     return acc.head;
 }
     

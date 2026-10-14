@@ -10,6 +10,7 @@ PKAtom cargs(int argc, char **argv) {
         pk_propagate(a);
         PKAtom b = pk_cons(a, acc);
         pk_propagate(b);
+        pk_ref_dec(a);
         acc = b;
     }
     return pk_reverse(acc);
@@ -27,6 +28,7 @@ PKAtom run(int argc, char **argv) {
     pk_propagate(symbol);
 
     pk_propagate(pk_set(PK_ENV_VAR, symbol, args));
+    pk_ref_dec(symbol);
     
     PKAtom a = pk_string(pk_str(REPL_CODE));
     pk_propagate(a);
@@ -35,6 +37,8 @@ PKAtom run(int argc, char **argv) {
     pk_propagate(b);
     
     PKAtom c = pk_eval(b, PK_MODE_EXPRLIST);
+    pk_ref_dec(a);
+    pk_ref_dec(b);
     pk_propagate(c);
 
     return c;
@@ -45,10 +49,12 @@ int main(int argc, char **argv) {
     if (pk_is_throwing(result)) {
         PKAtom message = pk_throw_contents(result);
         (void)pk_print(message);
+        pk_ref_dec(result);
         pk_deinit();
         return 1;
     } else {
         (void)pk_print(result);
+        pk_ref_dec(result);
         pk_deinit();
         return 0;
     }

@@ -44,7 +44,9 @@ PKAtom pk_error(PKAtom message) {
 PKAtom pk_errors(PKStr message) {
     PKAtom atom = pk_string(message);
     pk_propagate(atom);
-    return pk_error(atom);
+    PKAtom error = pk_error(atom);
+    pk_ref_dec(atom);
+    return error;
 }
 
 PKAtom pk_error_type(PK_TYPE expected, PKAtom found) {
@@ -56,7 +58,9 @@ PKAtom pk_error_type(PK_TYPE expected, PKAtom found) {
     PKAtom message = pk_string(pk_writer_slice(&w));
     pk_writer_deinit(&w);
     pk_propagate(message);
-    return pk_error(message);
+    PKAtom error = pk_error(message);
+    pk_ref_dec(message);
+    return error;
 }
     
 PKAtom pk_error_oom(void) {

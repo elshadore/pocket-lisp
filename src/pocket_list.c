@@ -27,7 +27,6 @@ PKAtom pk_cons(PKAtom car, PKAtom cdr) {
 
 void pk_cons_link(PKAtom tail, PKAtom cons) {
     tail->cons.cdr = cons;
-    cons->header.refcount += 1;
 }
 
 PKAtom pk_car(PKAtom cons) {
@@ -69,6 +68,7 @@ PKAtom pk_list2(PKAtom first, PKAtom second) {
     pk_propagate(b);
     PKAtom a = pk_cons(first, b);
     pk_propagate(a);
+    pk_ref_dec(b);
     return a;
 }
 
@@ -79,6 +79,8 @@ PKAtom pk_list3(PKAtom first, PKAtom second, PKAtom third) {
     pk_propagate(b);
     PKAtom a = pk_cons(first, b);
     pk_propagate(a);
+    pk_ref_dec(b);
+    pk_ref_dec(c);
     return a;
 }
 

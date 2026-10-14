@@ -464,6 +464,7 @@ PKAtom pk_compile_special(PKCompiler *c, PKAtom symbol, PKAtom args, bool *is_sp
         PKAtom lfun = pk_compile_lambda(PK_CALL_FUN, args->cons.car, args->cons.cdr);
         pk_propagate(lfun);
         pk_propagate(pk_cmp_load(c, lfun));
+        pk_ref_dec(lfun);
         
         *is_special = true;
     } else if (symbol == PK_CORE.cache.macro) {
@@ -471,6 +472,7 @@ PKAtom pk_compile_special(PKCompiler *c, PKAtom symbol, PKAtom args, bool *is_sp
         PKAtom lfun = pk_compile_lambda(PK_CALL_MACRO, args->cons.car, args->cons.cdr);
         pk_propagate(lfun);
         pk_propagate(pk_cmp_load(c, lfun));
+        pk_ref_dec(lfun);
         
         *is_special = true;
     } else if (symbol == PK_CORE.cache.quote) {

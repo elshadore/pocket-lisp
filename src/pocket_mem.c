@@ -66,7 +66,10 @@ PKAtom pk_atom_alloc(void) {
     }
     PKAtomFree *free = PK_CORE.free;
     PK_CORE.free = free->next;
-    return (PKAtom)free;
+    
+    PKAtom atom = (PKAtom)free;
+    atom->header.refcount = 1;
+    return atom;
 }
 
 void pk_atom_free(PKAtom atom) {

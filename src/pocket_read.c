@@ -410,13 +410,13 @@ PKAtom pk_read_cons(PKReader *r) {
             }
             
             (void)pk_reader_inc(r);
-            pk_propagate(pk_ref_inc(packed_cons));
             pk_cons_link(acc.tail, packed_cons);
             return acc.head;
         } else {
             PKAtom atom = pk_read_atom(r);
             pk_propagate(atom);
             pk_accum_push(&acc, atom);
+            pk_ref_dec(atom);
             first = false;
             char last = r->str.c[r->curr - 1];
             if (last == ')' || last == '"') {
@@ -437,7 +437,9 @@ PKAtom pk_read_simple_macro(PKReader *r, PKAtom macro) {
     PKAtom contents = pk_read_atom(r);
     pk_propagate(contents);
 
-    return pk_list2(macro, contents);
+    PKAtom result = pk_list2(macro, contents);
+    pk_ref_dec(contents);
+    return result;
 }
 
 PKAtom pk_read_unquote_macro(PKReader *r) {
@@ -455,6 +457,7 @@ PKAtom pk_read_unquote_macro(PKReader *r) {
     pk_propagate(contents);
     
     PKAtom result = pk_list2(macro, contents);
+    pk_ref_dec(contents);
     return result;
 }
 
@@ -528,6 +531,7 @@ PKAtom pk_read_str(PKStr string, PK_MODE mode) {
         PKAtom atom = pk_read_atom(&r);
         pk_propagate(atom);
         pk_propagate(pk_accum_push(&acc, atom));
+        pk_ref_dec(atom);
         (void)pk_reader_trim_whitespace(&r);
     }
 

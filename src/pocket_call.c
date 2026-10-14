@@ -91,25 +91,18 @@ PKAtom pk_stack_funcall_(PK_CALL call, PKAtom function, pk_u8 args) {
     if (stack.length != args) {
         return pk_errors(pk_str("wrong arg count"));
     }
+    
     switch (call) {
         case PK_CALL_FUN: {
             switch (function->header.type) {
-                case PK_ATOMTY_CFUN: {
-                    PKAtom result = pk_cfun_exec((PKAtomCFun *)function, stack);
-                    pk_propagate(pk_ref_inc(result));
-                    return result;
-                }
+                case PK_ATOMTY_CFUN: return pk_cfun_exec((PKAtomCFun *)function, stack);
                 case PK_ATOMTY_LFUN: return pk_lfun_exec(function, args);
                 default: return pk_errors(pk_str("expected function"));
             }
         }
         case PK_CALL_MACRO: {
             switch (function->header.type) {
-                case PK_ATOMTY_CMACRO: {
-                    PKAtom result = pk_cfun_exec((PKAtomCFun *)function, stack);
-                    pk_propagate(pk_ref_inc(result));
-                    return result;
-                }
+                case PK_ATOMTY_CMACRO: return pk_cfun_exec((PKAtomCFun *)function, stack);
                 case PK_ATOMTY_LMACRO: return pk_lfun_exec(function, args);
                 default: return pk_errors(pk_str("expected macro"));
             }

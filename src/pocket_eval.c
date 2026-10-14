@@ -30,7 +30,6 @@ PKAtom pk_eval_(PKAtom expr) {
     PKAtom b = pk_compile(PK_CALL_FUN, a, PK_MODE_EXPRESSION);
     pk_propagate(b);
     pk_ref_dec(a);
-    pk_propagate(pk_ref_inc(b));
     PKAtom result = pk_funcall0(PK_CALL_FUN, b);
     pk_ref_dec(b);
     return result;

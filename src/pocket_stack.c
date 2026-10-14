@@ -118,14 +118,12 @@ PKAtom pk_stack_slice_down(size_t depth, PKAtoms *output) {
 }
 
 PKAtom pk_stack_op_finish(size_t depth, PKAtom result) {
-    PKAtom inc = pk_ref_inc(result);
-    pk_propagate(inc);
-
     pk_stack_pop_unchecked(depth - 1);
     for (size_t i = 0; i < depth; ++i) {
         size_t index = PK_CORE.stack.count - 1 + i;
         pk_ref_dec(PK_CORE.stack.e[index]);
     }
+    
     PK_CORE.stack.e[PK_CORE.stack.count - 1] = result;
 
     return pk_true();
