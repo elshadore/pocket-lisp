@@ -52,7 +52,7 @@ bool pk_reader_inc(PKReader *r) {
 
 PKAtom pk_reader_ince(PKReader *r) {
     if (!pk_reader_inc(r)) {
-        return pk_reader_error(r, "reader is finished, expected more characters in string");
+        return pk_reader_error(r, pk_str("reader is finished, expected more characters in string"));
     } else {
         return pk_true();
     }
@@ -109,7 +109,7 @@ PKAtom pk_read_keyword(PKReader *r) {
     size_t save = 0;
     
     if (pk_rat(r) != ':') {
-        return pk_reader_error(r, "keyword does not start with ':', character");
+        return pk_reader_error(r, pk_str("keyword does not start with ':', character"));
     }
     
     pk_propagate(pk_reader_ince(r));
@@ -117,7 +117,7 @@ PKAtom pk_read_keyword(PKReader *r) {
     save = r->curr;
     
     if (!pk_char_is_symbol(pk_rat(r))) {
-        return pk_reader_error(r, "expected valid symbol character at start of keyword");
+        return pk_reader_error(r, pk_str("expected valid symbol character at start of keyword"));
     }
 
     do {
@@ -134,7 +134,7 @@ PKAtom pk_read_keyword(PKReader *r) {
 
 PKAtom pk_read_string_(PKReader *r, PKWriter *w) {
     if (pk_rat(r) != '\"') {
-        return pk_reader_error(r, "string does not start with \", character");
+        return pk_reader_error(r, pk_str("string does not start with \", character"));
     }
 
     while (pk_reader_inc(r)) {
@@ -191,10 +191,10 @@ PKAtom pk_read_string_(PKReader *r, PKWriter *w) {
                     b = pk_rat(r);
                     
                     if (!pk_char_is_hex(a)) {
-                        pk_propagate(pk_reader_error(r, "hex escape invalid"));
+                        pk_propagate(pk_reader_error(r, pk_str("hex escape invalid")));
                     }
                     if (!pk_char_is_hex(b)) {
-                        pk_propagate(pk_reader_error(r, "hex escape invalid"));
+                        pk_propagate(pk_reader_error(r, pk_str("hex escape invalid")));
                     }
                     byte = (pk_u8)((pk_char_to_hex(a) << 4) | pk_char_to_hex(b));
                     pk_propagate(pk_writer_char(w, (char)byte));
@@ -213,7 +213,7 @@ PKAtom pk_read_string_(PKReader *r, PKWriter *w) {
                     break;
                 }
                 default: {
-                    pk_propagate(pk_reader_error(r, "invalid string escape code"));
+                    pk_propagate(pk_reader_error(r, pk_str("invalid string escape code")));
                     break;
                 }
             }
@@ -222,7 +222,7 @@ PKAtom pk_read_string_(PKReader *r, PKWriter *w) {
         }
     }
     
-    return pk_reader_error(r, "string unterminated");
+    return pk_reader_error(r, pk_str("string unterminated"));
 }
     
 PKAtom pk_read_string(PKReader *r) {
@@ -245,7 +245,7 @@ PKAtom pk_read_number(PKReader *r) {
     }
     
     if (!pk_char_is_digit(pk_rat(r))) {
-        return pk_reader_error(r, "expected digit character at start of number");
+        return pk_reader_error(r, pk_str("expected digit character at start of number"));
     }
     
     int acc = pk_char_to_digit(pk_rat(r));
@@ -259,7 +259,7 @@ PKAtom pk_read_number(PKReader *r) {
     if (pk_rat(r) == '.') {
         char peek = '\0';
         if (!pk_reader_peek(r, &peek) || !pk_char_is_digit(peek)) {
-            return pk_reader_error(r, "expected digit character after decimal point in number");
+            return pk_reader_error(r, pk_str("expected digit character after decimal point in number"));
         }
 
         pk_propagate(pk_reader_ince(r));
@@ -292,7 +292,7 @@ PKAtom pk_read_symbol(PKReader *r) {
     size_t save = r->curr;
 
     if (!pk_char_is_symbol(pk_rat(r))) {
-        return pk_reader_error(r, "expected valid symbol character at start of symbol");
+        return pk_reader_error(r, pk_str("expected valid symbol character at start of symbol"));
     }
 
     do {
@@ -316,7 +316,7 @@ PKAtom pk_read_symbol(PKReader *r) {
 
 PKAtom pk_read_cons(PKReader *r) {
     if (pk_rat(r) != '(') {
-        return pk_reader_error(r, "expected list to begin with (, character");
+        return pk_reader_error(r, pk_str("expected list to begin with (, character"));
     }
 
     pk_propagate(pk_reader_ince(r));
@@ -335,10 +335,10 @@ PKAtom pk_read_cons(PKReader *r) {
                 return acc.head;
             }
         } else if (!first && !whitespace && !separated) {
-            return pk_reader_error(r, "list elements must be seperated with whitespace");
+            return pk_reader_error(r, pk_str("list elements must be seperated with whitespace"));
         } else if (pk_rat(r) == '.') {
             if (first) {
-                return pk_reader_error(r, "cannot create a dotted cons without elements before the dot");
+                return pk_reader_error(r, pk_str("cannot create a dotted cons without elements before the dot"));
             }
             pk_propagate(pk_reader_ince(r));
             (void)pk_reader_trim_whitespace(r);
@@ -348,7 +348,7 @@ PKAtom pk_read_cons(PKReader *r) {
             
             (void)pk_reader_trim_whitespace(r);
             if (pk_rat(r) != ')') {
-                return pk_reader_error(r, "cannot create a dotted cons with multiple elements after the dot");
+                return pk_reader_error(r, pk_str("cannot create a dotted cons with multiple elements after the dot"));
             }
             
             (void)pk_reader_inc(r);
@@ -369,7 +369,7 @@ PKAtom pk_read_cons(PKReader *r) {
         }
     }
 
-    return pk_reader_error(r, "unterminated list");
+    return pk_reader_error(r, pk_str("unterminated list"));
 }
 
 PKAtom pk_read_simple_macro(PKReader *r, PKAtom macro) {
@@ -401,7 +401,7 @@ PKAtom pk_read_unquote_macro(PKReader *r) {
 
 PKAtom pk_read_atom(PKReader *r) {
     if (pk_reader_is_finished(r)) {
-        return pk_reader_error(r, "reader is already finished in atom reading");
+        return pk_reader_error(r, pk_str("reader is already finished in atom reading"));
     }
     
     switch (pk_rat(r)) {
@@ -409,7 +409,7 @@ PKAtom pk_read_atom(PKReader *r) {
             return pk_read_cons(r);
         }
         case ')': {
-            return pk_reader_error(r, "encountered end of list ), character without start of list (, character");
+            return pk_reader_error(r, pk_str("encountered end of list ), character without start of list (, character"));
         }
         case '\'': {
             return pk_read_simple_macro(r, PK_CORE.cache.quote);
