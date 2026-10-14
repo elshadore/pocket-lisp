@@ -72,6 +72,28 @@ PKStr pk_ident_env(PK_ENV env) {
     }
 }
 
+PKStr pk_ident_type(PK_TYPE ty) {
+    switch (ty) {
+        case PK_TYPE_UNKNOWN: return pk_str("unknown");
+        case PK_TYPE_THROW: return pk_str("throw");
+        case PK_TYPE_NUMBER: return pk_str("number");
+        case PK_TYPE_INTEGER: return pk_str("integer");
+        case PK_TYPE_FLOAT: return pk_str("float");
+        case PK_TYPE_STRING: return pk_str("string");
+        case PK_TYPE_SYMBOL: return pk_str("symbol");
+        case PK_TYPE_KEYWORD: return pk_str("keyword");
+        case PK_TYPE_CONS: return pk_str("cons");
+        case PK_TYPE_SEQ: return pk_str("seq");
+        case PK_TYPE_FUNCTION: return pk_str("function");
+        case PK_TYPE_CFUN: return pk_str("cfun");
+        case PK_TYPE_LFUN: return pk_str("lfun");
+        case PK_TYPE_MACRO: return pk_str("macro");
+        case PK_TYPE_CMACRO: return pk_str("cmacro");
+        case PK_TYPE_LMACRO: return pk_str("lmacro");
+        default: return pk_str("unknown");
+    }
+}
+
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
     switch (op) {
         case PK_OP_LOAD: return PK_OPCODE_TY_LOAD;

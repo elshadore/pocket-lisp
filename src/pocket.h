@@ -61,13 +61,17 @@ typedef enum PK_CALL_ {
 
 typedef enum PK_TYPE_ {
     PK_TYPE_UNKNOWN = 0,
+    PK_TYPE_TRUE,
     PK_TYPE_THROW,
+    PK_TYPE_ERROR,
     PK_TYPE_NUMBER,
+    PK_TYPE_NIL,
     PK_TYPE_INTEGER,
     PK_TYPE_FLOAT,
     PK_TYPE_STRING,
     PK_TYPE_SYMBOL,
     PK_TYPE_KEYWORD,
+    PK_TYPE_LIST,
     PK_TYPE_CONS,
     PK_TYPE_SEQ,
     PK_TYPE_FUNCTION,
@@ -198,7 +202,9 @@ bool pk_is_keyword(PKAtom atom);
 bool pk_is_cons(PKAtom atom);
 bool pk_is_function(PKAtom atom);
 bool pk_is_macro(PKAtom atom);
+bool pk_is_type(PKAtom atom, PK_TYPE type);
 
+PKAtom pk_typecheck(PKAtom atom, PK_TYPE check);
 PKAtom pk_typecheck_nil(PKAtom atom);
 PKAtom pk_typecheck_number(PKAtom atom);
 PKAtom pk_typecheck_string(PKAtom atom);
@@ -207,6 +213,7 @@ PKAtom pk_typecheck_keyword(PKAtom atom);
 PKAtom pk_typecheck_cons(PKAtom atom);
     
 PKStr pk_to_string(PKAtom atom);
+PK_TYPE pk_type_of(PKAtom atom);
 int pk_to_int(PKAtom atom);
 float pk_to_float(PKAtom atom);
 

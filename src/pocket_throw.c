@@ -39,9 +39,15 @@ PKAtom pk_errors(PKStr message) {
 }
 
 PKAtom pk_error_type(PK_TYPE expected, PKAtom found) {
-    (void)expected;
-    (void)found;
-    return pk_errors(pk_str("TODO: implement type error"));
+    PKWriter w = PK_WRITER_EMPTY;
+    pk_propagate(pk_writer_string(&w, pk_str("expected ")));
+    pk_propagate(pk_writer_string(&w, pk_ident_type(expected)));
+    pk_propagate(pk_writer_string(&w, pk_str(", got ")));
+    pk_propagate(pk_writer_atom(&w, found));
+    PKAtom message = pk_string(pk_writer_slice(&w));
+    pk_writer_deinit(&w);
+    pk_propagate(message);
+    return pk_error(message);
 }
     
 PKAtom pk_error_oom(void) {

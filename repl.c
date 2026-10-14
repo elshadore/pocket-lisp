@@ -48,14 +48,17 @@ PKAtom run(int argc, char **argv) {
     PKAtom c = pk_eval(b, PK_MODE_EXPRLIST);
     pk_propagate(c);
 
-    pk_print(c);
-    
-    return pk_true();
+    return c;
 }
 
 int main(int argc, char **argv) {
-    if (pk_is_throwing(run(argc, argv))) {
+    PKAtom result = run(argc, argv);
+    if (pk_is_throwing(result)) {
+        PKAtom message = pk_throw_contents(result);
+        (void)pk_print(message);
         return 1;
+    } else {
+        (void)pk_print(result);
+        return 0;
     }
-    return 0;
 }

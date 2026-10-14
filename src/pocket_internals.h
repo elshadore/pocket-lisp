@@ -390,6 +390,8 @@ PKAtom pk_string_alloc(size_t length);
 PKAtom pk_string_nomemcpy(PKStr string);
 PKAtom pk_string_cat(PKAtoms strings);
 
+bool pk_type_match(PKAtom atom, PK_TYPE match);
+    
 PKAtom pk_undefined(void);
 
 PKAtom pk_lfun_exec(PKAtom lfun, size_t save);    
@@ -485,6 +487,7 @@ PKStr pk_ident_opcode(pk_u8 op);
 PKStr pk_ident_atomty(pk_u8 ty);
 PKStr pk_ident_arity(pk_u8 arity);
 PKStr pk_ident_env(PK_ENV env);
+PKStr pk_ident_type(PK_TYPE ty);
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
     
 PKAtom pk_macroexpand1_(PKAtom atom, bool *expanded);
