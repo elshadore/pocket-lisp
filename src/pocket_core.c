@@ -132,6 +132,19 @@ void pk_deinit(void) {
     pk_deinit_cache();
     pk_hashmap_deinit(&PK_CORE.symbolizer);
 
+    // Symbol Deinit
+    // We don't have an easy to interact with environment yet. Our environment currently
+    // is just the symbol objects themselves scattered across the memory pool. This code
+    // is essentially an environment deinit function.
+    for (PKPool *iter = PK_CORE.pool; iter != NULL; iter = iter->next) {
+        for (size_t i = 0; i < PK_POOL_MAX; ++i) {
+            PKAtom atom = &iter->e[i];
+            if (atom->header.type == PK_ATOMTY_SYMBOL) {
+                pk_ref_dec(atom);
+            }
+        }
+    }
+    
     pk_debug_leakcheck();
 
     {

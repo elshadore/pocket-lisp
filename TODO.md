@@ -2,9 +2,6 @@
 The todo list for POCKET LISP
 
 ## TODAY
-- [ ] Referance Counting
-- [ ] Debug Stuff
-  - [ ] Memory Leak Detection
 - [ ] Object System
   - [ ] CObjects
   - [ ] Array
@@ -20,6 +17,7 @@ The todo list for POCKET LISP
   - [ ] bind
 
 ## TODO
+- [ ] Full Code Review
 - [ ] Full Float Parsing and Printing
   - [ ] Parsing
   - [ ] Printing
