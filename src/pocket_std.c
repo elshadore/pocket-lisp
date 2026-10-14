@@ -1,52 +1,5 @@
 #include "pocket_internals.h"
-
-#define PK_LISP_STD \
-"(fset 'defmacro (macro (symbol args :rest body)\n" \
-"   `(fset ',symbol (macro ,args ,@body))))\n" \
-"(defmacro defun (symbol args :rest body)\n" \
-"   `(fset ',symbol (lambda ,args ,@body)))\n" \
-"(defmacro defvar (symbol :opt value)\n" \
-"   `(set ',symbol ,value))\n" \
-"(defmacro fsetq (symbol value)\n" \
-"   `(fset ',symbol ,value))\n" \
-"(defmacro setq (symbol value)\n" \
-"   `(set ',symbol ,value))\n" \
-"(defmacro when (cond :rest body)\n" \
-"   `(if ,cond (progn ,@body) nil))\n" \
-"(defmacro unless (cond :rest body)\n" \
-"   `(if ,cond nil (progn ,@body)))\n" \
-"(defun square (x)\n" \
-"   (* x x))\n" \
-"(defun cube (x)\n" \
-"   (* x x x))\n" \
-"(defun load (file)\n" \
-"   (evlist (read-list (fs/slurp file))))\n"\
-"(defun caar (x)\n" \
-"   (car (car x)))\n" \
-"(defun cadr (x)\n" \
-"   (car (cdr x)))\n" \
-"(defun cdar (x)\n" \
-"   (cdr (car x)))\n" \
-"(defun cddr (x)\n" \
-"   (cdr (cdr x)))\n" \
-"(defun caaar (x)\n" \
-"   (car (car (car x))))\n" \
-"(defun caadr (x)\n" \
-"   (car (car (cdr x))))\n" \
-"(defun cadar (x)\n" \
-"   (car (cdr (car x))))\n" \
-"(defun cdaar (x)\n" \
-"   (cdr (car (car x))))\n" \
-"(defun caddr (x)\n" \
-"   (car (cdr (cdr x))))\n" \
-"(defun cddar (x)\n" \
-"   (cdr (cdr (car x))))\n" \
-"(defun cdadr (x)\n" \
-"   (cdr (car (cdr x))))\n" \
-"(defun cdddr (x)\n" \
-"   (cdr (cdr (cdr x))))\n" \
-"(defmacro catch (symbol :rest body)\n" \
-"   `(funcatch ,symbol (lambda () ,@body)))\n"
+#include "pocket_std.h"
 
 #define PK_TEMPLATE_FUN0(fun_name_, bind_name_) \
     PKAtom fun_name_(void *user_closure) { \
@@ -293,7 +246,7 @@ PKAtom pk_std_load_cfun(void) {
 }
 
 PKAtom pk_std_load_lfun(void) {
-    PKAtom a = pk_string(pk_str(PK_LISP_STD));
+    PKAtom a = pk_string(pk_str(PK_STD_CODE));
     pk_propagate(a);
     
     PKAtom b = pk_read(a, PK_MODE_EXPRLIST);

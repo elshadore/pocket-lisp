@@ -16,6 +16,9 @@
 
 (while repl/running
      (puts "LISP>> ")
-     (print (catch 'error (eval (read (fs/read-user-input))))))
+     (var input (fs/read-user-input))
+     (if input
+        (print (catch 'error (eval (read input))))
+        (repl/quit)))
 
 repl/result

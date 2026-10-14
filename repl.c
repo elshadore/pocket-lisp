@@ -1,18 +1,7 @@
 #include "./src/pocket.h"
 #include "./src/pocket_all.c"
 
-#define REPL_CODE \
-"(defvar repl/running true)\n" \
-"(defun repl/quit ()\n" \
-"     (setq repl/running nil))\n" \
-"(defun read-eval-print (string)\n" \
-"     (print (eval (read string))))\n" \
-"(when (= (cadr args) \"-e\")\n" \
-"    (setq repl/running nil)\n" \
-"    (read-eval-print (caddr args)))\n" \
-"(while repl/running\n" \
-"    (puts \"LISP>> \")\n" \
-"    (print (catch 'error (eval (read (fs/read-user-input))))))\n"
+#include "repl.h"
 
 PKAtom cargs(int argc, char **argv) {
     PKAtom acc = pk_nil();
