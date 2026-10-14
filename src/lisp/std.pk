@@ -63,3 +63,6 @@
    
 (defun cdddr (x)
    (cdr (cdr (cdr x))))
+
+(defmacro catch (symbol :rest body)
+    `(funcatch ,symbol (lambda () ,@body)))

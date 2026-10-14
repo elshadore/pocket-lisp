@@ -44,7 +44,9 @@
 "(defun cdadr (x)\n" \
 "   (cdr (car (cdr x))))\n" \
 "(defun cdddr (x)\n" \
-"   (cdr (cdr (cdr x))))\n"
+"   (cdr (cdr (cdr x))))\n" \
+"(defmacro catch (symbol :rest body)\n" \
+"   `(funcatch ,symbol (lambda () ,@body)))\n"
 
 #define PK_TEMPLATE_FUN0(fun_name_, bind_name_) \
     PKAtom fun_name_(void *user_closure) { \
@@ -194,6 +196,23 @@ PKAtom pk_fun_list(void *user_closure, PKAtom argn) {
     return argn;
 }
 
+PKAtom pk_fun_funcatch(void *user_closure, PKAtom symbol, PKAtom fun) {
+    (void)user_closure;
+    pk_propagate(pk_typecheck_symbol(symbol));
+    PKAtom result = pk_funcall0(PK_CALL_FUN, fun);
+    if (!pk_is_throwing(result)) {
+        return result;
+    }
+    PKAtom match = pk_throw_type(result);
+    if (pk_eq(symbol, match)) {
+        return pk_throw_contents(result);
+    } else {
+        return result;
+    }
+}
+
+PK_TEMPLATE_FUN2(pk_fun_throw, pk_throw)
+
 #define PK_FLOAD(name_, fun_) do { \
     PKAtom name = pk_symbol(name_); \
     pk_propagate(name); \
@@ -234,6 +253,9 @@ PKAtom pk_std_load_cfun(void) {
     PK_FLOAD(pk_str("unbind"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_unbind, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("funbind"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_funbind, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("punbind"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_punbind, PK_ARITY_NORMAL));
+    
+    PK_FLOAD(pk_str("funcatch"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_funcatch, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("throw"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_throw, PK_ARITY_NORMAL));
     
     PK_FLOAD(pk_str("read"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_read, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("read-list"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_read_list, PK_ARITY_NORMAL));
