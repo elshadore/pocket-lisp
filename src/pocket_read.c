@@ -139,6 +139,83 @@ PKAtom pk_read_keyword(PKReader *r) {
     return pk_keyword(slice);
 }
 
+PKAtom pk_read_write_escape(PKReader *r, PKWriter *w) {
+    switch (pk_rat(r)) {
+        case 'a': {
+            pk_propagate(pk_writer_char(w, '\a'));
+            break;
+        }
+        case 'b': {
+            pk_propagate(pk_writer_char(w, '\b'));
+            break;
+        }
+        case 'e': {
+            pk_propagate(pk_writer_char(w, '\x1B'));
+            break;
+        }
+        case 'f': {
+            pk_propagate(pk_writer_char(w, '\f'));
+            break;
+        }
+        case 'n': {
+            pk_propagate(pk_writer_char(w, '\n'));
+            break;
+        }
+        case 'r': {
+            pk_propagate(pk_writer_char(w, '\r'));
+            break;
+        }
+        case 't': {
+            pk_propagate(pk_writer_char(w, '\t'));
+            break;
+        }
+        case 'v': {
+            pk_propagate(pk_writer_char(w, '\v'));
+            break;
+        }
+        case 'x': {
+            char a = '\0';
+            char b = '\0';
+            pk_u8 byte = 0;
+
+            pk_propagate(pk_reader_ince(r));
+            a = pk_rat(r);
+            pk_propagate(pk_reader_ince(r));
+            b = pk_rat(r);
+
+            if (!pk_char_is_hex(a)) {
+                pk_propagate(pk_reader_error(r, pk_str("hex escape invalid")));
+            }
+            if (!pk_char_is_hex(b)) {
+                pk_propagate(pk_reader_error(r, pk_str("hex escape invalid")));
+            }
+            byte = (pk_u8)((pk_char_to_hex(a) << 4) | pk_char_to_hex(b));
+            pk_propagate(pk_writer_char(w, (char)byte));
+            break;
+        }
+        case '|': {
+            pk_propagate(pk_writer_char(w, '|'));
+            break;
+        }
+        case '\\': {
+            pk_propagate(pk_writer_char(w, '\\'));
+            break;
+        }
+        case '\'': {
+            pk_propagate(pk_writer_char(w, '\''));
+            break;
+        }
+        case '\"': {
+            pk_propagate(pk_writer_char(w, '\"'));
+            break;
+        }
+        default: {
+            return pk_reader_error(r, pk_str("invalid escape code"));
+        }
+    }
+    return pk_true();
+}
+
 PKAtom pk_read_string_(PKReader *r, PKWriter *w) {
     if (pk_rat(r) != '\"') {
         return pk_reader_error(r, pk_str("string does not start with \", character"));
@@ -151,79 +228,8 @@ PKAtom pk_read_string_(PKReader *r, PKWriter *w) {
             return pk_string(pk_writer_slice(w));
             
         } else if (pk_rat(r) == '\\') {
-            
             pk_propagate(pk_reader_ince(r));
-            
-            switch (pk_rat(r)) {
-                case 'a': {
-                    pk_propagate(pk_writer_char(w, '\a'));
-                    break;
-                }
-                case 'b': {
-                    pk_propagate(pk_writer_char(w, '\b'));
-                    break;
-                }
-                case 'e': {
-                    pk_propagate(pk_writer_char(w, '\x1B'));
-                    break;
-                }
-                case 'f': {
-                    pk_propagate(pk_writer_char(w, '\f'));
-                    break;
-                }
-                case 'n': {
-                    pk_propagate(pk_writer_char(w, '\n'));
-                    break;
-                }
-                case 'r': {
-                    pk_propagate(pk_writer_char(w, '\r'));
-                    break;
-                }
-                case 't': {
-                    pk_propagate(pk_writer_char(w, '\t'));
-                    break;
-                }
-                case 'v': {
-                    pk_propagate(pk_writer_char(w, '\v'));
-                    break;
-                }
-                case 'x': {
-                    char a = '\0';
-                    char b = '\0';
-                    pk_u8 byte = 0;
-                    
-                    pk_propagate(pk_reader_ince(r));
-                    a = pk_rat(r);
-                    pk_propagate(pk_reader_ince(r));
-                    b = pk_rat(r);
-                    
-                    if (!pk_char_is_hex(a)) {
-                        pk_propagate(pk_reader_error(r, pk_str("hex escape invalid")));
-                    }
-                    if (!pk_char_is_hex(b)) {
-                        pk_propagate(pk_reader_error(r, pk_str("hex escape invalid")));
-                    }
-                    byte = (pk_u8)((pk_char_to_hex(a) << 4) | pk_char_to_hex(b));
-                    pk_propagate(pk_writer_char(w, (char)byte));
-                    break;
-                }
-                case '\\': {
-                    pk_propagate(pk_writer_char(w, '\\'));
-                    break;
-                }
-                case '\'': {
-                    pk_propagate(pk_writer_char(w, '\''));
-                    break;
-                }
-                case '\"': {
-                    pk_propagate(pk_writer_char(w, '\"'));
-                    break;
-                }
-                default: {
-                    pk_propagate(pk_reader_error(r, pk_str("invalid string escape code")));
-                    break;
-                }
-            }
+            pk_propagate(pk_read_write_escape(r, w));
         } else {
             pk_propagate(pk_writer_char(w, pk_rat(r)));
         }
@@ -301,13 +307,7 @@ PKAtom pk_read_barred(PKReader *r, PKWriter *w, PK_SYMTY type) {
     while ((!pk_reader_is_finished(r)) && (pk_rat(r) != '|')) {
         if (pk_rat(r) == '\\') {
             pk_propagate(pk_reader_ince(r));
-            if (pk_rat(r) == '|') {
-                pk_propagate(pk_writer_char(w, '|'));
-            } else if (pk_rat(r) == 'n') {
-                pk_propagate(pk_writer_char(w, '\n'));
-            } else {
-                return pk_reader_error(r, pk_str("invalid symbol escape code, expected | or n"));
-            }
+            pk_propagate(pk_read_write_escape(r, w));
         } else {
             pk_propagate(pk_writer_char(w, pk_rat(r)));
         }
