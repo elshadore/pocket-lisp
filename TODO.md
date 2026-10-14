@@ -2,7 +2,6 @@
 The todo list for POCKET LISP
 
 ## TODAY
-- [ ] Throwing
 - [ ] Referance Counting
 - [ ] Debug Stuff
   - [ ] Memory Leak Detection
