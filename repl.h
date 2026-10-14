@@ -15,8 +15,8 @@
 "     repl/result)\n" \
 "     \n" \
 "(when (= (cadr args) \"-e\")\n" \
-"    (setq repl/running nil)\n" \
-"    (read-eval-print (caddr args)))\n" \
+"     (setq repl/running nil)\n" \
+"     (read-eval-print (caddr args)))\n" \
 "\n" \
 "(while repl/running\n" \
 "     (puts \"LISP>> \")\n" \

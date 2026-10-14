@@ -515,6 +515,7 @@ PKAtom pk_compile_special(PKCompiler *c, PKAtom symbol, PKAtom args, bool *is_sp
         PKAtom clause_f = b->cons.car;
         pk_propagate(pk_typecheck_nil(b->cons.cdr));
 
+        pk_propagate(pk_cmp_push_byte(c, PK_OP_BLOCK_BEGIN));
         pk_propagate(pk_compile_value(c, value));
 
         pk_propagate(pk_cmp_push_byte(c, PK_OP_JMP_UNLESS));
@@ -526,10 +527,12 @@ PKAtom pk_compile_special(PKCompiler *c, PKAtom symbol, PKAtom args, bool *is_sp
         pk_propagate(pk_cmp_push_byte(c, 0));
         pk_u8 patch_2 = pk_cmp_addr(c);
         
-        pk_u8 jump_to_f = pk_cmp_addr(c) + 1 - patch_1;
+        pk_u8 jump_to_f = patch_2 + 1 - patch_1;
         pk_propagate(pk_compile_value(c, clause_f));
         pk_u8 jump_from_t = pk_cmp_addr(c) + 1 - patch_2;
 
+        pk_propagate(pk_cmp_push_byte(c, PK_OP_BLOCK_END));
+        
         pk_propagate(pk_cmp_patch_byte(c, patch_1, jump_to_f));
         pk_propagate(pk_cmp_patch_byte(c, patch_2, jump_from_t));
         

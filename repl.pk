@@ -11,8 +11,8 @@
      repl/result)
      
 (when (= (cadr args) "-e")
-    (setq repl/running nil)
-    (read-eval-print (caddr args)))
+     (setq repl/running nil)
+     (read-eval-print (caddr args)))
 
 (while repl/running
      (puts "LISP>> ")
