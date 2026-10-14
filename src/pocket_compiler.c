@@ -29,7 +29,7 @@ PKCompiler pk_cmp_new(PK_CALL type) {
 
 PKAtom pk_cmp_patch_byte(PKCompiler *c, pk_u8 addr, pk_u8 byte) {
     if (addr >= c->bc.count) {
-        return pk_error();
+        return pk_errors(pk_str("bad byte address"));
     }
     c->bc.e[addr] = byte;
     return pk_true();
@@ -37,7 +37,7 @@ PKAtom pk_cmp_patch_byte(PKCompiler *c, pk_u8 addr, pk_u8 byte) {
 
 PKAtom pk_cmp_push_byte(PKCompiler *c, pk_u8 byte) {
     if (c->bc.count >= UINT8_MAX) {
-        return pk_error();
+        return pk_errors(pk_str("bytecode too big"));
     }
     
     c->addr = (pk_u8)c->bc.count;
@@ -47,7 +47,7 @@ PKAtom pk_cmp_push_byte(PKCompiler *c, pk_u8 byte) {
 
 PKAtom pk_cmp_push_any(PKCompiler *c, size_t value) {
     if (value > UINT8_MAX) {
-        return pk_error();
+        return pk_errors(pk_str("address too big"));
     }
 
     return pk_cmp_push_byte(c, (pk_u8)value);
@@ -55,7 +55,7 @@ PKAtom pk_cmp_push_any(PKCompiler *c, size_t value) {
 
 PKAtom pk_cmp_push_atom(PKCompiler *c, PKAtom atom) {
     if (c->atoms.count >= UINT8_MAX) {
-        return pk_error();
+        return pk_errors(pk_str("too many atoms"));
     }
 
     for (size_t i = 0; i < c->atoms.count; ++i) {
@@ -159,7 +159,7 @@ PKAtom pk_compile_let(PKCompiler *c, PKAtom args, PK_ENV env) {
                 PKAtom b = a->cons.cdr;
                 pk_propagate(pk_typecheck_cons(b));
                 if (!pk_is_nil(b->cons.cdr)) {
-                    return pk_error();
+                    return pk_errors(pk_str("bad body"));
                 }
                 pk_propagate(pk_compile_value(c, b->cons.car));
             }
@@ -210,7 +210,7 @@ PKAtom pk_compile_let(PKCompiler *c, PKAtom args, PK_ENV env) {
 
 PKAtom pk_compile_let_star(PKCompiler *c, PKAtom args, PK_ENV env) {
     if (!pk_is_cons(args)) {
-        return pk_error();
+        return pk_errors(pk_str("bad let args"));
     }
     
     PKAtom bindings = args->cons.car;
@@ -227,17 +227,17 @@ PKAtom pk_compile_let_star(PKCompiler *c, PKAtom args, PK_ENV env) {
         } else {
             PKAtom a = iter->cons.car;
             if (!pk_is_cons(a)) {
-                return pk_error();
+                return pk_errors(pk_str("bad let binding"));
             }
             PKAtom b = a->cons.cdr;
             if (!pk_is_cons(b)) {
-                return pk_error();
+                return pk_errors(pk_str("bad let binding"));
             }
             if (!pk_is_nil(b->cons.cdr)) {
-                return pk_error();
+                return pk_errors(pk_str("bad let binding"));
             }
             if (!pk_is_symbol(a->cons.car)) {
-                return pk_error();
+                return pk_errors(pk_str("bad let symbol"));
             }
             
             pk_propagate(pk_compile_value(c, b->cons.car));
@@ -286,20 +286,20 @@ PKAtom pk_compile_quasiquote_value(PKCompiler *c, PKAtom value, PKAtom *spliced)
         if (a == PK_CORE.cache.unquote) {
             PKAtom b = value->cons.cdr;
             if (!pk_is_cons(b)) {
-                return pk_error();
+                return pk_errors(pk_str("bad unquote"));
             }
             if (!pk_is_nil(b->cons.cdr)) {
-                return pk_error();
+                return pk_errors(pk_str("bad unquote"));
             }
             pk_propagate(pk_compile_value(c, b->cons.car));
             return pk_true();
         } else if (a == PK_CORE.cache.unquote_splice) {
             PKAtom b = value->cons.cdr;
             if (!pk_is_cons(b)) {
-                return pk_error();
+                return pk_errors(pk_str("bad unquote splice"));
             }
             if (!pk_is_nil(b->cons.cdr)) {
-                return pk_error();
+                return pk_errors(pk_str("bad unquote splice"));
             }
             *spliced = b->cons.car;
             return pk_true();
@@ -368,7 +368,7 @@ PKAtom pk_compile_quasiquote(PKCompiler *c, PKAtom value) {
     PKAtom spliced = NULL;
     pk_propagate(pk_compile_quasiquote_value(c, value, &spliced));
     if (spliced != NULL) {
-        return pk_error();
+        return pk_errors(pk_str("bad quasiquote"));
     }
     return pk_true();
 }
@@ -491,7 +491,7 @@ PKAtom pk_compile_special(PKCompiler *c, PKAtom symbol, PKAtom args, bool *is_sp
 
         *is_special = true;
     } else if (symbol == PK_CORE.cache.unquote) {
-        return pk_error();
+        return pk_errors(pk_str("unquote outside quasiquote"));
     } else if (symbol == PK_CORE.cache.let) {
         pk_propagate(pk_compile_let(c, args, PK_ENV_VAR));
         
@@ -560,7 +560,7 @@ PKAtom pk_compile_expression(PKCompiler *c, PKAtom expr) {
     }
 
     if (acc >= UINT8_MAX) {
-        return pk_error();
+        return pk_errors(pk_str("too many expressions"));
     }
 
     pk_propagate(pk_cmp_push_byte(c, PK_OP_CALL));
@@ -623,7 +623,7 @@ PKAtom pk_compile_lambda_(PKCompiler *c, PKAtom args, PKAtom body) {
             PKAtom atom = iter->cons.car;
             if (pk_is_keyword(atom)) {
                 if (expected_final) {
-                    return pk_error();
+                    return pk_errors(pk_str("bad keyword arg"));
                 }
                 if (pk_keyword_qeq(atom, pk_str("rest"))) {
                     arity = PK_INT_ARITY_VARIADIC;
@@ -642,7 +642,7 @@ PKAtom pk_compile_lambda_(PKCompiler *c, PKAtom args, PKAtom body) {
                 }
 
                 if (nargs == (UINT8_MAX - 1)) {
-                    return pk_error();
+                    return pk_errors(pk_str("too many args"));
                 }
                 nargs += 1;
             }

@@ -23,7 +23,7 @@ bool pk_strsub_inc(PKStrSub *sub) {
 
 PKAtom pk_strsub_ince(PKStrSub *sub) {
     if (!pk_strsub_inc(sub)) {
-        return pk_error();
+        return pk_errors(pk_str("string sub out of bounds"));
     } else {
         return pk_true();
     }
@@ -55,7 +55,7 @@ PKAtom pk_compile_strsub_(PKStrSub *sub) {
         if (pk_strsub_at(sub) == '\\') {
             pk_propagate(pk_strsub_ince(sub));
             if (pk_strsub_at(sub) != '{') {
-                return pk_error();
+                return pk_errors(pk_str("bad escape"));
             }
             pk_propagate(pk_writer_char(&sub->w, '{'));
             pk_propagate(pk_strsub_ince(sub));
@@ -77,7 +77,7 @@ PKAtom pk_compile_strsub_(PKStrSub *sub) {
             {
                 PKStr slice = pk_strsub_slice(sub);
                 if (slice.length == 0) {
-                    return pk_error();
+                    return pk_errors(pk_str("empty sub"));
                 }
                 pk_propagate(pk_compile_strsub_value(sub, slice));
                 pk_strsub_mark(sub);

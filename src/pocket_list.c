@@ -27,7 +27,7 @@ PKAtom pk_car(PKAtom cons) {
     switch (cons->header.type) {
         case PK_ATOMTY_NIL: return pk_nil();
         case PK_ATOMTY_CONS: return cons->cons.car;
-        default: return pk_error();
+        default: return pk_errors(pk_str("expected cons"));
     }
 }
 
@@ -35,7 +35,7 @@ PKAtom pk_cdr(PKAtom cons) {
     switch (cons->header.type) {
         case PK_ATOMTY_NIL: return pk_nil();
         case PK_ATOMTY_CONS: return cons->cons.cdr;
-        default: return pk_error();
+        default: return pk_errors(pk_str("expected cons"));
     }
 }
 
@@ -109,7 +109,7 @@ PKAtom pk_list_flatten(PKAtoms lists) {
             continue;
         }
         if (!pk_is_cons(list)) {
-            return pk_error();
+            return pk_errors(pk_str("expected list"));
         }
         PKAtom iter = list;
         while (pk_is_cons(iter)) {
@@ -132,7 +132,7 @@ PKAtom pk_typecheck_nil(PKAtom atom) {
     if (pk_is_nil(atom)) {
         return pk_true();
     } else {
-        return pk_error();
+        return pk_errors(pk_str("expected nil"));
     }
 }
 
@@ -140,6 +140,6 @@ PKAtom pk_typecheck_cons(PKAtom atom) {
     if (pk_is_cons(atom)) {
         return pk_true();
     } else {
-        return pk_error();
+        return pk_errors(pk_str("expected cons"));
     }
 }

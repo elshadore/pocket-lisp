@@ -82,7 +82,7 @@ PKAtom pk_stack_head() {
 
 PKAtom pk_stack_pop() {
     if (pk_frame_length() == 0) {
-        return pk_error();
+        return pk_errors(pk_str("stack underflow"));
     }
     PKAtom result = PK_CORE.stack.e[PK_CORE.stack.count - 1];
     PK_CORE.stack.count -= 1;
@@ -105,7 +105,7 @@ PKAtom pk_stack_slice_down(size_t depth, PKAtoms *output) {
     PKAtoms slice = pk_stack_slice();
     
     if (depth > slice.length) {
-        return pk_error();
+        return pk_errors(pk_str("stack slice too deep"));
     }
     
     size_t offset = slice.length - depth;

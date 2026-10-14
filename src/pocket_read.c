@@ -17,7 +17,7 @@ PKAtom pk_reader_error(PKReader *r, const char *error_message) {
         r->c,
         error_message
     );
-    return pk_error();
+    return pk_errors(pk_str("reader error"));
 }
 
 bool pk_reader_inc(PKReader *r) {
@@ -446,7 +446,7 @@ PKAtom pk_read_str(PKStr string, PK_MODE mode) {
 
     if (mode == PK_MODE_EXPRESSION) {
         if (!pk_reader_is_finished(&r)) {
-            return pk_error();
+            return pk_errors(pk_str("trailing characters"));
         }
         return first;
     }
@@ -467,7 +467,7 @@ PKAtom pk_read_str(PKStr string, PK_MODE mode) {
     
 PKAtom pk_read(PKAtom string, PK_MODE mode) {
     if (!pk_is_string(string)) {
-        return pk_error();
+        return pk_errors(pk_str("expected string"));
     }
     return pk_read_str(string->string.str, mode);
 }

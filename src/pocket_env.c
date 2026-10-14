@@ -2,7 +2,7 @@
 
 PKAtom pk_get_raw(PK_ENV env, PKAtom symbol) {
     if (!pk_is_symbol(symbol)) {
-        return pk_error();
+        return pk_errors(pk_str("expected symbol"));
     }
 
     switch (env) {
@@ -18,12 +18,12 @@ PKAtom pk_get_raw(PK_ENV env, PKAtom symbol) {
         default: break;
     }
 
-    return pk_error();
+    return pk_errors(pk_str("bad env property"));
 }
 
 PKAtom pk_set_raw(PK_ENV env, PKAtom symbol, PKAtom value) {
     if (!pk_is_symbol(symbol)) {
-        return pk_error();
+        return pk_errors(pk_str("expected symbol"));
     }
 
     PKAtom temp = pk_undefined();
@@ -44,7 +44,7 @@ PKAtom pk_set_raw(PK_ENV env, PKAtom symbol, PKAtom value) {
             symbol->symbol.prop = value;
             break;
         }
-        default: return pk_error();
+        default: return pk_errors(pk_str("bad env property"));
     }
 
     return temp;
@@ -97,7 +97,7 @@ PKAtom pk_let(PK_ENV env, PKAtom symbol, PKAtom value) {
         size_t new_capacity = pk_grow_capacity(PK_CORE.lets.capacity, 32);
         PKLet *new_e = pk_realloc(PK_CORE.lets.e, new_capacity * sizeof(PKLet));
         if (new_e == NULL) {
-            return pk_error();
+            return pk_errors(pk_str("out of memory"));
         }
         PK_CORE.lets.e = new_e;
         PK_CORE.lets.capacity = new_capacity;

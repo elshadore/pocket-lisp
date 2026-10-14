@@ -84,7 +84,7 @@ PKAtom pk_hexdump_(PKWriter *w, PKAtom lfun) {
             case PK_OPCODE_TY_LOAD: {
                 i++;
                 if (i >= lfun->lfun.bc.length) {
-                    return pk_error();
+                    return pk_errors(pk_str("bad bytecode"));
                 }
                 pk_u8 data = lfun->lfun.bc.e[i];
                 PKAtom atom = lfun->lfun.atoms.e[data];
@@ -96,7 +96,7 @@ PKAtom pk_hexdump_(PKWriter *w, PKAtom lfun) {
             case PK_OPCODE_TY_LIT: {
                 i++;
                 if (i >= lfun->lfun.bc.length) {
-                    return pk_error();
+                    return pk_errors(pk_str("bad bytecode"));
                 }
                 pk_u8 data = lfun->lfun.bc.e[i];
                 
@@ -124,7 +124,7 @@ PKAtom pk_hexdump_(PKWriter *w, PKAtom lfun) {
     
 PKAtom pk_hexdump(PKAtom lfun) {
     if (!pk_is_lfun(lfun)) {
-        return pk_error();
+        return pk_errors(pk_str("expected lfun"));
     }
     PKWriter w = PK_WRITER_EMPTY;
     PKAtom result = pk_hexdump_(&w, lfun);

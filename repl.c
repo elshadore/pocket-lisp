@@ -28,7 +28,7 @@ PKAtom cargs(int argc, char **argv) {
     
 PKAtom run(int argc, char **argv) {
     if (!pk_init()) {
-        return pk_error();
+        return pk_errors(pk_str("init failed"));
     }
 
     PKAtom args = cargs(argc, argv);

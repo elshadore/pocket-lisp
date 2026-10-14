@@ -5,7 +5,7 @@ PKAtom pk_ref_inc(PKAtom atom) {
         return pk_true();
     }
     if (atom->header.refcount == UINT8_MAX) {
-        return pk_error();
+        return pk_errors(pk_str("refcount overflow"));
     }
     atom->header.refcount += 1;
     return pk_true();

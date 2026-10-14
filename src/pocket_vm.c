@@ -16,7 +16,7 @@ PKAtom pk_vm_inc(PKVM *vm) {
     vm->curr += 1;
     if (vm->curr >= vm->lfun->lfun.bc.length) {
         vm->op = PK_OP_ILLEGAL;
-        return pk_error();
+        return pk_errors(pk_str("vm out of bounds"));
     }
     vm->op = vm->lfun->lfun.bc.e[vm->curr];
     return pk_true();
@@ -26,7 +26,7 @@ PKAtom pk_vm_jmp(PKVM *vm, pk_u8 jmp) {
     vm->curr += jmp;
     if (vm->curr >= vm->lfun->lfun.bc.length) {
         vm->op = PK_OP_ILLEGAL;
-        return pk_error();
+        return pk_errors(pk_str("vm out of bounds"));
     }
     vm->op = vm->lfun->lfun.bc.e[vm->curr];
     return pk_true();
@@ -35,7 +35,7 @@ PKAtom pk_vm_jmp(PKVM *vm, pk_u8 jmp) {
 PKAtom pk_vm_jmp_back(PKVM *vm, pk_u8 jmp) {
     if (jmp > vm->curr) {
         vm->op = PK_OP_ILLEGAL;
-        return pk_error();
+        return pk_errors(pk_str("vm out of bounds"));
     }
     
     vm->curr -= jmp;
@@ -45,7 +45,7 @@ PKAtom pk_vm_jmp_back(PKVM *vm, pk_u8 jmp) {
 
 PKAtom pk_vm_get_atom(PKVM *vm, pk_u8 byte) {
     if (byte >= vm->lfun->lfun.atoms.length) {
-        return pk_error();
+        return pk_errors(pk_str("bad atom index"));
     }
     return vm->lfun->lfun.atoms.e[byte];
 }
@@ -105,7 +105,7 @@ PKAtom pk_vm_op_set(PKVM *vm, PK_ENV env) {
 PKAtom pk_vm_op_exec(PKVM *vm) {
     switch (pk_vat(vm)) {
         case PK_OP_ILLEGAL: {
-            return pk_error();
+            return pk_errors(pk_str("illegal op"));
         }
         case PK_OP_NOP: {
             pk_propagate(pk_vm_inc(vm));
@@ -243,7 +243,7 @@ PKAtom pk_vm_op_exec(PKVM *vm) {
             break;
         }
         default: {
-            pk_propagate(pk_error());
+            pk_propagate(pk_errors(pk_str("illegal op")));
             break;
         }
     }

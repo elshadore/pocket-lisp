@@ -2,7 +2,7 @@
 
 PKAtom pk_fs_slurp_str(PKStr file_path) {
     if (file_path.length == 0) {
-        return pk_error();
+        return pk_errors(pk_str("empty file path"));
     }
     char *cfile_path = pk_malloc((file_path.length + 1) * sizeof(char));
     (void)memcpy(cfile_path, file_path.c, file_path.length);
@@ -11,14 +11,14 @@ PKAtom pk_fs_slurp_str(PKStr file_path) {
     FILE *file = fopen(cfile_path, "r");
     pk_free(cfile_path);
     if (file == NULL) {
-        return pk_error();
+        return pk_errors(pk_str("cannot open file"));
     }
 
     fseek(file, 0, SEEK_END);
     long length = ftell(file);
     if (length < 0) {
         fclose(file);
-        return pk_error();
+        return pk_errors(pk_str("cannot get file size"));
     }
     rewind(file);
     
@@ -32,7 +32,7 @@ PKAtom pk_fs_slurp_str(PKStr file_path) {
     fclose(file);
     
     if ((size_t)length != read) {
-        return pk_error();
+        return pk_errors(pk_str("cannot read file"));
     }
     
     return result;
@@ -61,7 +61,7 @@ PKAtom pk_fs_read_user_input(void) {
             break;
         }
         if (i == READ_BUFFER_MAX) {
-            return pk_error();
+            return pk_errors(pk_str("input too long"));
         }
         READ_BUFFER[i] = (char)c;
         i += 1;

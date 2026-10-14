@@ -20,27 +20,27 @@ PKAtom pk_float(float floater) {
 
 #define PK_TEMPLATE_MATH_OP(op_) \
     if (!pk_is_number(lhs)) { \
-        return pk_error(); \
+        return pk_errors(pk_str("expected number")); \
     } \
     if (!pk_is_number(rhs)) { \
-        return pk_error(); \
+        return pk_errors(pk_str("expected number")); \
     } \
     switch (lhs->number.num_type) { \
         case PK_NUMTY_INT: { \
             switch (rhs->number.num_type) { \
                 case PK_NUMTY_INT: return pk_int(lhs->number.as.i op_ rhs->number.as.i); \
                 case PK_NUMTY_FLOAT: return pk_float((float)lhs->number.as.i op_ rhs->number.as.f); \
-                default: return pk_error(); \
+                default: return pk_errors(pk_str("expected number")); \
             } \
         } \
         case PK_NUMTY_FLOAT: { \
             switch (rhs->number.num_type) { \
                 case PK_NUMTY_INT: return pk_float(lhs->number.as.f op_ (float)rhs->number.as.i); \
                 case PK_NUMTY_FLOAT: return pk_float(lhs->number.as.f op_ rhs->number.as.f); \
-                default: return pk_error(); \
+                default: return pk_errors(pk_str("expected number")); \
             } \
         } \
-        default: return pk_error(); \
+        default: return pk_errors(pk_str("expected number")); \
     }
 
 PKAtom pk_add(PKAtom lhs, PKAtom rhs) {
@@ -57,10 +57,10 @@ PKAtom pk_mul(PKAtom lhs, PKAtom rhs) {
 
 PKAtom pk_div(PKAtom lhs, PKAtom rhs) {
     if (!pk_is_number(lhs)) {
-        return pk_error();
+        return pk_errors(pk_str("expected number"));
     }
     if (!pk_is_number(rhs)) {
-        return pk_error();
+        return pk_errors(pk_str("expected number"));
     }
     
     float result = pk_to_float(lhs) / pk_to_float(rhs);
@@ -70,10 +70,10 @@ PKAtom pk_div(PKAtom lhs, PKAtom rhs) {
 
 PKAtom pk_mod(PKAtom lhs, PKAtom rhs) {
     if (!pk_is_number(lhs)) {
-        return pk_error();
+        return pk_errors(pk_str("expected number"));
     }
     if (!pk_is_number(rhs)) {
-        return pk_error();
+        return pk_errors(pk_str("expected number"));
     }
     
     int a = pk_to_int(lhs);
@@ -106,27 +106,27 @@ float pk_to_float(PKAtom atom) {
 
 #define PK_TEMPLATE_MATH_LOGIC_OP(op_) \
     if (!pk_is_number(lhs)) { \
-        return pk_error(); \
+        return pk_errors(pk_str("expected number")); \
     } \
     if (!pk_is_number(rhs)) { \
-        return pk_error(); \
+        return pk_errors(pk_str("expected number")); \
     } \
     switch (lhs->number.num_type) { \
         case PK_NUMTY_INT: { \
             switch (rhs->number.num_type) { \
                 case PK_NUMTY_INT: return pk_bool(lhs->number.as.i op_ rhs->number.as.i); \
                 case PK_NUMTY_FLOAT: return pk_bool((float)lhs->number.as.i op_ rhs->number.as.f); \
-                default: return pk_error(); \
+                default: return pk_errors(pk_str("expected number")); \
             } \
         } \
         case PK_NUMTY_FLOAT: { \
             switch (rhs->number.num_type) { \
                 case PK_NUMTY_INT: return pk_bool(lhs->number.as.f op_ (float)rhs->number.as.i); \
                 case PK_NUMTY_FLOAT: return pk_bool(lhs->number.as.f op_ rhs->number.as.f); \
-                default: return pk_error(); \
+                default: return pk_errors(pk_str("expected number")); \
             } \
         } \
-        default: return pk_error(); \
+        default: return pk_errors(pk_str("expected number")); \
     }
 
 PKAtom pk_lt(PKAtom lhs, PKAtom rhs) {
@@ -163,6 +163,6 @@ PKAtom pk_typecheck_number(PKAtom atom) {
     if (pk_is_number(atom)) {
         return pk_true();
     } else {
-        return pk_error();
+        return pk_errors(pk_str("expected number"));
     }
 }

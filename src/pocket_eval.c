@@ -7,7 +7,7 @@ PKAtom pk_apply_(PK_CALL call, PKAtom fun, PKAtom args) {
         PKAtom iter = args;
         while (pk_is_cons(iter)) {
             if (arity == UINT8_MAX) {
-                return pk_error();
+                return pk_errors(pk_str("too many arguments"));
             }
             pk_propagate(pk_stack_push(iter->cons.car));
             arity += 1;

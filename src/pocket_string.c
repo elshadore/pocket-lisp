@@ -65,7 +65,7 @@ PKAtom pk_string_cat(PKAtoms strings) {
     for (size_t i = 0; i < strings.length; ++i) {
         PKAtom string = strings.e[i];
         if (!pk_is_string(string)) {
-            return pk_error();
+            return pk_errors(pk_str("expected string"));
         }
         length += string->string.str.length;
     }
@@ -92,7 +92,7 @@ PKAtom pk_typecheck_string(PKAtom atom) {
     if (pk_is_string(atom)) {
         return pk_true();
     } else {
-        return pk_error();
+        return pk_errors(pk_str("expected string"));
     }
 }
 

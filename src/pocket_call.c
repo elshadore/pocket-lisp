@@ -4,7 +4,7 @@ PKAtom pk_callconv_(pk_u8 input_args, pk_u8 args, pk_u8 arity, PKCallConv *outpu
     switch (arity) {
         case PK_INT_ARITY_NORMAL: {
             if (input_args != args) {
-                return pk_error();
+                return pk_errors(pk_str("wrong arg count"));
             } else {
                 *output = (PKCallConv) {
                     .args = args,
@@ -33,7 +33,7 @@ PKAtom pk_callconv_(pk_u8 input_args, pk_u8 args, pk_u8 arity, PKCallConv *outpu
                 };
                 return pk_true();
             } else {
-                return pk_error();
+                return pk_errors(pk_str("wrong arg count"));
             }
         }
         case PK_INT_ARITY_VARIADIC: {
@@ -54,10 +54,10 @@ PKAtom pk_callconv_(pk_u8 input_args, pk_u8 args, pk_u8 arity, PKCallConv *outpu
                 };
                 return pk_true();
             } else {
-                return pk_error();
+                return pk_errors(pk_str("wrong arg count"));
             }
         }
-        default: return pk_error();
+        default: return pk_errors(pk_str("bad arity"));
     }
 }
     
@@ -67,7 +67,7 @@ PKAtom pk_callconv(PKAtom fun, pk_u8 args, PKCallConv *output) {
         case PK_ATOMTY_LFUN: return pk_callconv_(args, fun->lfun.args, fun->lfun.arity, output);
         case PK_ATOMTY_CMACRO: return pk_callconv_(args, fun->cmacro.args, fun->cmacro.arity, output);
         case PK_ATOMTY_LMACRO: return pk_callconv_(args, fun->lmacro.args, fun->lmacro.arity, output);
-        default: return pk_error();
+        default: return pk_errors(pk_str("expected function"));
     }
 }
 
@@ -77,36 +77,36 @@ PKAtom pk_cfun_exec(PKAtomCFun *cfun, PKAtoms stack) {
         case 1: return (cfun->as.fun1)(cfun->user_closure, stack.e[0]);
         case 2: return (cfun->as.fun2)(cfun->user_closure, stack.e[0], stack.e[1]);
         case 3: return (cfun->as.fun3)(cfun->user_closure, stack.e[0], stack.e[1], stack.e[2]);
-        default: return pk_error();
+        default: return pk_errors(pk_str("bad cfun arity"));
     }
 }
 
 PKAtom pk_stack_funcall_(PK_CALL call, PKAtom function, pk_u8 args) {
     PKAtoms stack = pk_stack_slice();
     if (stack.length < 1) {
-        return pk_error();
+        return pk_errors(pk_str("stack underflow"));
     }
     stack.e += 1;
     stack.length -= 1;
     if (stack.length != args) {
-        return pk_error();
+        return pk_errors(pk_str("wrong arg count"));
     }
     switch (call) {
         case PK_CALL_FUN: {
             switch (function->header.type) {
                 case PK_ATOMTY_CFUN: return pk_cfun_exec((PKAtomCFun *)function, stack);
                 case PK_ATOMTY_LFUN: return pk_lfun_exec(function, args);
-                default: return pk_error();
+                default: return pk_errors(pk_str("expected function"));
             }
         }
         case PK_CALL_MACRO: {
             switch (function->header.type) {
                 case PK_ATOMTY_CMACRO: return pk_cfun_exec((PKAtomCFun *)function, stack);
                 case PK_ATOMTY_LMACRO: return pk_lfun_exec(function, args);
-                default: return pk_error();
+                default: return pk_errors(pk_str("expected macro"));
             }
         }
-        default: return pk_error();
+        default: return pk_errors(pk_str("bad call mode"));
     }
 }
 
@@ -114,7 +114,7 @@ PKAtom pk_stack_funcall(PK_CALL call, pk_u8 args) {
     PKAtoms stack = pk_stack_slice();
     size_t uargs = (size_t)args;
     if (stack.length < (uargs + 1)) {
-        return pk_error();
+        return pk_errors(pk_str("stack underflow"));
     }
     
     PKAtom function = stack.e[stack.length - uargs - 1];
@@ -122,7 +122,7 @@ PKAtom pk_stack_funcall(PK_CALL call, pk_u8 args) {
     if (pk_is_symbol(function)) {
         function = pk_get(PK_ENV_FUN, function);
         if (pk_is_nil(function)) {
-            return pk_error();
+            return pk_errors(pk_str("undefined function"));
         }
     }
     
@@ -147,7 +147,7 @@ PKAtom pk_stack_funcall(PK_CALL call, pk_u8 args) {
 
 PKAtom pk_funcall0(PK_CALL call, PKAtom fun) {
     if (!pk_is_function(fun)) {
-        return pk_error();
+        return pk_errors(pk_str("expected function"));
     }
     
     PKAtom e[] = {
@@ -167,7 +167,7 @@ PKAtom pk_funcall0(PK_CALL call, PKAtom fun) {
 
 PKAtom pk_funcall1(PK_CALL call, PKAtom fun, PKAtom arg1) {
     if (!pk_is_function(fun)) {
-        return pk_error();
+        return pk_errors(pk_str("expected function"));
     }
     
     PKAtom e[] = {
@@ -188,7 +188,7 @@ PKAtom pk_funcall1(PK_CALL call, PKAtom fun, PKAtom arg1) {
 
 PKAtom pk_funcall2(PK_CALL call, PKAtom fun, PKAtom arg1, PKAtom arg2) {
     if (!pk_is_function(fun)) {
-        return pk_error();
+        return pk_errors(pk_str("expected function"));
     }
     
     PKAtom e[] = {
@@ -210,7 +210,7 @@ PKAtom pk_funcall2(PK_CALL call, PKAtom fun, PKAtom arg1, PKAtom arg2) {
 
 PKAtom pk_funcall3(PK_CALL call, PKAtom fun, PKAtom arg1, PKAtom arg2, PKAtom arg3) {
     if (!pk_is_function(fun)) {
-        return pk_error();
+        return pk_errors(pk_str("expected function"));
     }
     
     PKAtom e[] = {
