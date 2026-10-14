@@ -126,7 +126,7 @@ void pk_deinit(void) {
         return;
     }
 
-    pk_free(PK_CORE.stack.e);
+    pk_array_deinit(&PK_CORE.stack);
     pk_free(PK_CORE.frames.e);
     pk_free(PK_CORE.lets.e);
     pk_deinit_cache();
