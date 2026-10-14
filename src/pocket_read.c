@@ -410,7 +410,7 @@ PKAtom pk_read_cons(PKReader *r) {
             }
             
             (void)pk_reader_inc(r);
-            pk_accum_push(&acc, packed_cons);
+            acc.tail->cons.cdr = packed_cons;
             return acc.head;
         } else {
             PKAtom atom = pk_read_atom(r);

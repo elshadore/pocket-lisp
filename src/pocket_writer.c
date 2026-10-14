@@ -187,6 +187,8 @@ PKAtom pk_writer_symbol_name(PKWriter *w, PKStr name) {
         char c = name.c[i];
         if (c == '|') {
             pk_propagate(pk_writer_string(w, pk_str("\\|")));
+        } else if (c == '\\') {
+            pk_propagate(pk_writer_string(w, pk_str("\\\\")));
         } else if (c == '\n') {
             pk_propagate(pk_writer_string(w, pk_str("\\n")));
         } else {

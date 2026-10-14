@@ -10,6 +10,10 @@ PKAtom pk_macroexpand_list(PKAtom list, bool *expanded) {
         iter = iter->cons.cdr;
     }
 
+    if (!pk_is_nil(iter)) {
+        acc.tail->cons.cdr = iter;
+    }
+
     return acc.head;
 }
 

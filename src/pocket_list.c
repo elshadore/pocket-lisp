@@ -116,6 +116,9 @@ PKAtom pk_list_flatten(PKAtoms lists) {
             pk_propagate(pk_accum_push(&acc, iter->cons.car));
             iter = iter->cons.cdr;
         }
+        if (!pk_is_nil(iter)) {
+            acc.tail->cons.cdr = iter;
+        }
     }
     return acc.head;
 }
