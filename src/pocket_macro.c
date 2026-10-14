@@ -6,14 +6,18 @@ PKAtom pk_macroexpand_list(PKAtom list, bool *expanded) {
     PKAtom iter = list;
     while (pk_is_cons(iter)) {
         PKAtom atom = pk_macroexpand1_(iter->cons.car, expanded);
-        pk_propagate(pk_accum_push(&acc, atom));
+        pk_propagate(atom);
+        pk_accum_push(&acc, atom);
+        pk_ref_dec(atom);
         iter = iter->cons.cdr;
     }
 
     if (!pk_is_nil(iter)) {
-        acc.tail->cons.cdr = iter;
+        pk_propagate(pk_ref_inc(iter));
+        pk_cons_link(acc.tail, iter);
     }
 
+    pk_propagate(pk_ref_inc(acc.head));
     return acc.head;
 }
 
@@ -34,11 +38,13 @@ PKAtom pk_macroexpand_let_args(PKAtom args, bool *expanded) {
         PKAtom result = pk_list2(a->cons.car, atom);
         
         pk_propagate(result);
-        pk_propagate(pk_accum_push(&acc, result));
+        pk_accum_push(&acc, result);
+        pk_ref_dec(atom);
         
         iter = iter->cons.cdr;
     }
 
+    pk_propagate(pk_ref_inc(acc.head));
     return acc.head;
 }
     
@@ -56,11 +62,17 @@ PKAtom pk_macroexpand_let(PKAtom let, PKAtom body, bool *expanded) {
         pk_propagate(pk_accum_push(&acc, iter->cons.car));
         iter = iter->cons.cdr;
     }
+    
+    pk_ref_dec(rbody);
+    pk_ref_dec(args);
+    
+    pk_propagate(pk_ref_inc(acc.head));
     return acc.head;
 }
     
 PKAtom pk_macroexpand1_(PKAtom atom, bool *expanded) {
     if (!pk_is_cons(atom)) {
+        pk_propagate(pk_ref_inc(atom));
         return atom;
     }
     PKAtom head = atom->cons.car;
@@ -88,13 +100,15 @@ PKAtom pk_macroexpand1(PKAtom atom) {
 }
     
 PKAtom pk_macroexpand(PKAtom atom) {
-    PKAtom result = atom;
-    for(;;) {
-        bool expanded = false;
-        result = pk_macroexpand1_(result, &expanded);
-        if (!expanded) {
-            break;
-        }
+    bool expanded = false;
+    PKAtom result = pk_macroexpand1_(atom, &expanded);
+    pk_propagate(result);
+    while (expanded) {
+        expanded = false;
+        PKAtom next = pk_macroexpand1_(result, &expanded);
+        pk_ref_dec(result);
+        pk_propagate(next);
+        result = next;
     }
     return result;
 }

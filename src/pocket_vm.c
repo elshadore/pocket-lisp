@@ -62,6 +62,11 @@ PKAtom pk_vm_op_let(PKVM *vm, PK_ENV env) {
         pk_propagate(pk_typecheck_symbol(symbol));
         pk_propagate(pk_let(env, symbol, slice.e[i]));
     }
+
+    for (size_t i = 0; i < (let * 2); ++i) {
+        pk_ref_dec(slice.e[i]);
+    }
+    pk_stack_pop_unchecked(let * 2);
     
     pk_propagate(pk_vm_inc(vm));
     return pk_true();
@@ -91,7 +96,7 @@ PKAtom pk_vm_op_set(PKVM *vm, PK_ENV env) {
     PKAtom symbol = slice.e[0];
     PKAtom value = slice.e[1];
     pk_propagate(pk_typecheck_symbol(symbol));
-    pk_propagate(pk_set(env, symbol, value));
+    pk_propagate(pk_set_discard(env, symbol, value));
 
     PKAtoms popped = PK_ATOMS_EMPTY;
     pk_propagate(pk_stack_slice_down(2, &popped));
@@ -136,6 +141,7 @@ PKAtom pk_vm_op_exec(PKVM *vm) {
             PKAtom result = pk_stack_funcall(PK_CALL_FUN, args);
             pk_propagate(result);
             pk_propagate(pk_stack_push(result));
+            pk_ref_dec(result);
             pk_propagate(pk_vm_inc(vm));
             break;
         }
@@ -146,8 +152,10 @@ PKAtom pk_vm_op_exec(PKVM *vm) {
         }
         case PK_OP_BLOCK_END: {
             PKAtom result = pk_stack_head();
+            pk_propagate(pk_ref_inc(result));
             pk_frame_unwind();
             pk_propagate(pk_stack_push(result));
+            pk_ref_dec(result);
             pk_propagate(pk_vm_inc(vm));
             break;
         }
@@ -278,7 +286,10 @@ PKAtom pk_vm_exec(PKVM *vm) {
             return atom;
         }
     }
+    // The frame is about to be released and it owns the result, so hand that
+    // reference to the caller.
     PKAtom result = pk_stack_head();
+    pk_propagate(pk_ref_inc(result));
     pk_frame_unwind();
     return result;
 }

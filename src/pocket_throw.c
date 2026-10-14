@@ -17,9 +17,18 @@ PKAtomData PK_ATOM_OOM_MESSAGE = (PKAtomData) {
     }
 };
 
+// Throw can fail to throw it's actual type and contents as it can produce errors of it's own.
 PKAtom pk_throw(PKAtom type, PKAtom contents) {
     PKAtom atom = pk_atom_alloc();
     pk_propagate(atom);
+    
+    PKAtom e[] = {type, contents};
+    PKAtoms atoms = (PKAtoms) {
+        .e = e,
+        .length = 2,
+    };
+    
+    pk_propagate(pk_ref_inc_many(atoms));
     
     atom->header.type = PK_ATOMTY_THROW;
     atom->throw.type = type;

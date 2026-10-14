@@ -109,6 +109,7 @@ void pk_deinit(void);
 PKAtom pk_ref_inc(PKAtom atom);
 PKAtom pk_ref_inc_many(PKAtoms atoms);
 void pk_ref_dec(PKAtom atom);
+void pk_ref_dec_many(PKAtoms atoms);
 
 PKAtom pk_true(void);
 PKAtom pk_nil(void);
@@ -155,6 +156,7 @@ PKAtom pk_gte(PKAtom lhs, PKAtom rhs);
 bool pk_eq(PKAtom lhs, PKAtom rhs);
 
 PKAtom pk_set(PK_ENV env, PKAtom symbol, PKAtom value);
+PKAtom pk_set_discard(PK_ENV env, PKAtom symbol, PKAtom value);
 PKAtom pk_get(PK_ENV env, PKAtom symbol);
 PKAtom pk_set_raw(PK_ENV env, PKAtom symbol, PKAtom value);
 PKAtom pk_get_raw(PK_ENV env, PKAtom symbol);

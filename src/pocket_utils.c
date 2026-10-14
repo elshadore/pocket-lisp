@@ -16,7 +16,7 @@ PKAtom pk_accum_push(PKAccum *acc, PKAtom atom) {
         acc->head = cons;
         acc->tail = cons;
     } else {
-        acc->tail->cons.cdr = cons;
+        pk_cons_link(acc->tail, cons);
         acc->tail = cons;
     }
 
@@ -35,6 +35,14 @@ PKAtom pk_array_push(PKArray *array, PKAtom atom, size_t init_capacity) {
     }
     array->e[array->count++] = atom;
     return pk_true();
+}
+
+void pk_array_deinit(PKArray *array) {
+    for (size_t i = 0; i < array->count; ++i) {
+        pk_ref_dec(array->e[i]);
+    }
+    pk_free(array->e);
+    *array = PK_ARRAY_EMPTY;
 }
 
 PKAtom pk_bytes_push(PKBytes *bytes, pk_u8 byte, size_t init_capacity) {

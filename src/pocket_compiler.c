@@ -67,7 +67,8 @@ PKAtom pk_cmp_push_atom(PKCompiler *c, PKAtom atom) {
     }
     
     c->addr = (pk_u8)c->atoms.count;
-    return pk_array_push(&c->atoms, atom, 8);
+    pk_propagate(pk_array_push(&c->atoms, atom, 8));
+    return pk_ref_inc(atom);
 }
 
 PKAtom pk_cmp_load_nil(PKCompiler *c) {
@@ -121,7 +122,7 @@ PKAtom pk_cmp_lookup(PKCompiler *c, PKAtom symbol, PK_ENV env) {
 }
 
 void pk_cmp_deinit(PKCompiler *c) {
-    pk_free(c->atoms.e);
+    pk_array_deinit(&c->atoms);
     pk_free(c->bc.e);
     *c = pk_cmp_new(c->type);
 }

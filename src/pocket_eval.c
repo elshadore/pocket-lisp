@@ -29,7 +29,11 @@ PKAtom pk_eval_(PKAtom expr) {
     pk_propagate(a);
     PKAtom b = pk_compile(PK_CALL_FUN, a, PK_MODE_EXPRESSION);
     pk_propagate(b);
-    return pk_funcall0(PK_CALL_FUN, b);
+    pk_ref_dec(a);
+    pk_propagate(pk_ref_inc(b));
+    PKAtom result = pk_funcall0(PK_CALL_FUN, b);
+    pk_ref_dec(b);
+    return result;
 }
     
 PKAtom pk_evlist_(PKAtom exprlist) {

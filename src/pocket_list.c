@@ -15,12 +15,19 @@ PKAtom pk_nil() {
 PKAtom pk_cons(PKAtom car, PKAtom cdr) {
     PKAtom atom = pk_atom_alloc();
     pk_propagate(atom);
+    pk_propagate(pk_ref_inc(car));
+    pk_propagate(pk_ref_inc(cdr));
     
     atom->header.type = PK_ATOMTY_CONS;
     atom->cons.car = car;
     atom->cons.cdr = cdr;
     
     return atom;
+}
+
+void pk_cons_link(PKAtom tail, PKAtom cons) {
+    tail->cons.cdr = cons;
+    cons->header.refcount += 1;
 }
 
 PKAtom pk_car(PKAtom cons) {
@@ -41,15 +48,19 @@ PKAtom pk_cdr(PKAtom cons) {
 
 PKAtom pk_set_car(PKAtom cons, PKAtom new_car) {
     pk_propagate(pk_typecheck_cons(cons));
+    pk_propagate(pk_ref_inc(new_car));
     PKAtom result = cons->cons.car;
     cons->cons.car = new_car;
+    pk_ref_dec(result);
     return result;
 }
 
 PKAtom pk_set_cdr(PKAtom cons, PKAtom new_cdr) {
     pk_propagate(pk_typecheck_cons(cons));
+    pk_propagate(pk_ref_inc(new_cdr));
     PKAtom result = cons->cons.cdr;
     cons->cons.cdr = new_cdr;
+    pk_ref_dec(result);
     return result;
 }
 
@@ -92,7 +103,8 @@ PKAtom pk_list_packed(PKAtoms atoms) {
     for (size_t i = 0; i < (atoms.length - 1); ++i) {
         pk_propagate(pk_accum_push(&acc, atoms.e[i]));
     }
-    acc.tail->cons.cdr = atoms.e[atoms.length - 1];
+    pk_propagate(pk_ref_inc(atoms.e[atoms.length - 1]));
+    pk_cons_link(acc.tail, atoms.e[atoms.length - 1]);
     return acc.head;
 }
 
@@ -117,7 +129,8 @@ PKAtom pk_list_flatten(PKAtoms lists) {
             iter = iter->cons.cdr;
         }
         if (!pk_is_nil(iter)) {
-            acc.tail->cons.cdr = iter;
+            pk_propagate(pk_ref_inc(iter));
+            pk_cons_link(acc.tail, iter);
         }
     }
     return acc.head;

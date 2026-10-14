@@ -74,8 +74,7 @@ void pk_atom_free(PKAtom atom) {
     if ((type == PK_ATOMTY_FREE) || ((atom->header.flags & PK_ATOMFLAG_IMMORTAL) != 0)) {
         return;
     }
-    atom->header.type = PK_ATOMTY_FREE;
-    switch (atom->header.type) {
+    switch (type) {
         case PK_ATOMTY_STRING: {
             pk_free(atom->string.str.c);
             break;
@@ -85,11 +84,13 @@ void pk_atom_free(PKAtom atom) {
             break;
         }
         case PK_ATOMTY_LFUN: {
+            pk_ref_dec_many(atom->lfun.atoms);
             pk_free(atom->lfun.bc.e);
             pk_free(atom->lfun.atoms.e);
             break;
         }
         case PK_ATOMTY_LMACRO: {
+            pk_ref_dec_many(atom->lmacro.atoms);
             pk_free(atom->lmacro.bc.e);
             pk_free(atom->lmacro.atoms.e);
             break;
@@ -111,7 +112,13 @@ void pk_atom_free(PKAtom atom) {
             pk_ref_dec(atom->throw.contents);
             break;
         }
+        default: break;
     }
+    atom->header = (PKAtomHeader) {
+        .type = PK_ATOMTY_FREE,
+        .flags = PK_ATOMFLAG_NONE,
+        .refcount = 0,
+    };
     atom->free.next = PK_CORE.free;
     PK_CORE.free = (PKAtomFree *)atom;
 }

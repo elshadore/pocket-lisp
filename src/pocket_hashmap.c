@@ -100,12 +100,15 @@ PKAtom pk_hashmap_insert(PKHashmap *map, PKAtom key, PKAtom value) {
         map->capacity = PK_HASHMAP_INIT_CAPACITY;
     }
     
+    pk_propagate(pk_ref_inc(value));
+    
     bool found = false;
     size_t vacancy = 0;
     PKHashmapSlot *slot = pk_hashmap_find(map, key, &found, &vacancy);
     if (found) {
         PKAtom old_value = slot->value;
         slot->value = value;
+        pk_ref_dec(old_value);
         return old_value;
     }
     
@@ -117,11 +120,13 @@ PKAtom pk_hashmap_insert(PKHashmap *map, PKAtom key, PKAtom value) {
         if (slot != NULL) {
             PKAtom old_value = slot->value;
             slot->value = value;
+            pk_ref_dec(old_value);
             return old_value;
         }
         vacancy = ignored_vacancy;
     }
     
+    pk_propagate(pk_ref_inc(key));
     map->e[vacancy] = (PKHashmapSlot) {
         .key = key,
         .value = value,
@@ -184,6 +189,9 @@ PKAtom pk_hashmap_remove(PKHashmap *map, PKAtom key) {
     
     PKAtom old_value = slot->value;
     
+    pk_ref_dec(old_value);
+    pk_ref_dec(slot->key);
+    
     *slot = (PKHashmapSlot) {
         .key = pk_undefined(),
         .value = pk_undefined(),
@@ -195,6 +203,15 @@ PKAtom pk_hashmap_remove(PKHashmap *map, PKAtom key) {
 }
 
 void pk_hashmap_deinit(PKHashmap *map) {
+    for (size_t i = 0; i < map->capacity; ++i) {
+        PKHashmapSlot *slot = &map->e[i];
+        if (slot->state != PK_HASHMAP_SLOT_OCCUPIED) {
+            continue;
+        }
+        pk_ref_dec(slot->value);
+        pk_ref_dec(slot->key);
+    }
+    
     pk_free(map->e);
     map->e = NULL;
     map->count = 0;

@@ -95,6 +95,32 @@ bool pk_init(void) {
     return true;
 }
 
+void pk_deinit_cache(void) {
+    pk_ref_dec(PK_CORE.cache.lambda);
+    pk_ref_dec(PK_CORE.cache.macro);
+    pk_ref_dec(PK_CORE.cache.progn);
+    pk_ref_dec(PK_CORE.cache.sym_if);
+    pk_ref_dec(PK_CORE.cache.sym_while);
+    pk_ref_dec(PK_CORE.cache.sym_and);
+    pk_ref_dec(PK_CORE.cache.sym_or);
+    pk_ref_dec(PK_CORE.cache.error);
+    pk_ref_dec(PK_CORE.cache.throw);
+    pk_ref_dec(PK_CORE.cache.var);
+    pk_ref_dec(PK_CORE.cache.fvar);
+    pk_ref_dec(PK_CORE.cache.let);
+    pk_ref_dec(PK_CORE.cache.let_star);
+    pk_ref_dec(PK_CORE.cache.flet);
+    pk_ref_dec(PK_CORE.cache.flet_star);
+    pk_ref_dec(PK_CORE.cache.block);
+    pk_ref_dec(PK_CORE.cache.apply);
+    pk_ref_dec(PK_CORE.cache.macro_apply);
+    pk_ref_dec(PK_CORE.cache.quote);
+    pk_ref_dec(PK_CORE.cache.quasiquote);
+    pk_ref_dec(PK_CORE.cache.unquote);
+    pk_ref_dec(PK_CORE.cache.unquote_splice);
+    pk_ref_dec(PK_CORE.cache.string_substitute);
+}
+
 void pk_deinit(void) {
     if (!PK_CORE.initialized) {
         return;
@@ -103,6 +129,7 @@ void pk_deinit(void) {
     pk_free(PK_CORE.stack.e);
     pk_free(PK_CORE.frames.e);
     pk_free(PK_CORE.lets.e);
+    pk_deinit_cache();
     pk_hashmap_deinit(&PK_CORE.symbolizer);
 
     {

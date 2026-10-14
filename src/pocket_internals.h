@@ -239,10 +239,7 @@ typedef struct PKAtomLFun_ {
         pk_u8 *e;
         size_t length;
     } bc;
-    struct {
-        PKAtom *e;
-        size_t length;
-    } atoms;
+    PKAtoms atoms;
 } PKAtomLFun;
 
 typedef union PKAtomData_ {
@@ -468,8 +465,10 @@ pk_u8 pk_char_to_hex(char c);
 
 PKAccum pk_accum_new(void);
 PKAtom pk_accum_push(PKAccum *acc, PKAtom atom);
+void pk_cons_link(PKAtom tail, PKAtom cons);
 
 PKAtom pk_array_push(PKArray *array, PKAtom atom, size_t init_capacity);
+void pk_array_deinit(PKArray *array);
 PKAtom pk_bytes_push(PKBytes *bytes, pk_u8 byte, size_t init_capacity);
     
 PKAtom pk_hashmap_insert(PKHashmap *map, PKAtom key, PKAtom value);
@@ -504,7 +503,11 @@ PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
     
 PKAtom pk_macroexpand1_(PKAtom atom, bool *expanded);
 
+extern PKAtomData PK_ATOM_OOM;
+extern PKAtomData PK_ATOM_OOM_MESSAGE;
+
 PKAtom pk_std_load(void);
+void pk_deinit_cache(void);
 
 PKAtom pk_fs_slurp_str(PKStr file_path);
 PKAtom pk_fs_slurp(PKAtom file_path);

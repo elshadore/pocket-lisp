@@ -210,7 +210,11 @@ PKAtom pk_fun_funcatch(void *user_closure, PKAtom symbol, PKAtom fun) {
     }
     PKAtom match = pk_throw_type(result);
     if (pk_eq(symbol, match)) {
-        return pk_throw_contents(result);
+        PKAtom contents = pk_throw_contents(result);
+        pk_propagate(pk_ref_inc(contents));
+        // The throw is handled here, so it can go back to the pool.
+        pk_ref_dec(result);
+        return contents;
     } else {
         return result;
     }
@@ -223,7 +227,7 @@ PK_TEMPLATE_FUN2(pk_fun_throw, pk_throw)
     pk_propagate(name); \
     PKAtom fun = fun_; \
     pk_propagate(fun); \
-    pk_propagate(pk_set(PK_ENV_FUN, name, fun)); \
+    pk_propagate(pk_set_discard(PK_ENV_FUN, name, fun)); \
 } while(0)
 
 PKAtom pk_std_load_cfun(void) {

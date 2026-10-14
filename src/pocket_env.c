@@ -26,6 +26,8 @@ PKAtom pk_set_raw(PK_ENV env, PKAtom symbol, PKAtom value) {
         return pk_errors(pk_str("expected symbol"));
     }
 
+    pk_propagate(pk_ref_inc(value));
+    
     PKAtom temp = pk_undefined();
 
     switch (env) {
@@ -59,6 +61,13 @@ PKAtom pk_set(PK_ENV env, PKAtom symbol, PKAtom value) {
     } else {
         return temp;
     }
+}
+
+PKAtom pk_set_discard(PK_ENV env, PKAtom symbol, PKAtom value) {
+    PKAtom temp = pk_set_raw(env, symbol, value);
+    pk_propagate(temp);
+    pk_ref_dec(temp);
+    return pk_true();
 }
 
 PKAtom pk_get(PK_ENV env, PKAtom symbol) {
@@ -121,7 +130,11 @@ void pk_let_unwind(size_t n) {
         PKLet unwind = PK_CORE.lets.e[index];
         // The only error that can occur is a type error on the symbol input.
         // So it's okay to skip errors here.
-        (void)pk_set(unwind.env, unwind.symbol, unwind.restore);
+        PKAtom displaced = pk_set(unwind.env, unwind.symbol, unwind.restore);
+        pk_ref_dec(unwind.restore);
+        if (!pk_is_throwing(displaced)) {
+            pk_ref_dec(displaced);
+        }
     }
     PK_CORE.lets.count -= n;
 }

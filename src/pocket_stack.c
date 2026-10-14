@@ -117,9 +117,7 @@ PKAtom pk_stack_slice_down(size_t depth, PKAtoms *output) {
     return pk_true();
 }
 
-// Collapses the top `depth` stack slots into `result`, which becomes the sole
-// slot left behind. The consumed slots each owned a reference.
-static PKAtom pk_stack_op_finish(size_t depth, PKAtom result) {
+PKAtom pk_stack_op_finish(size_t depth, PKAtom result) {
     PKAtom inc = pk_ref_inc(result);
     pk_propagate(inc);
 
