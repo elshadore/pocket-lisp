@@ -315,20 +315,27 @@ PKAtom pk_read_barred(PKReader *r, PKWriter *w, PK_SYMTY type) {
     }
     
     if (pk_reader_is_finished(r)) {
-        return pk_reader_error(r, pk_str("unterminated symbol, expected closing |"));
+        if (type == PK_SYMTY_SYMBOL) {
+            return pk_reader_error(r, pk_str("unterminated symbol, expected closing |"));
+        } else {
+            return pk_reader_error(r, pk_str("unterminated keyword, expected closing |"));
+        }
     }
     
     PKStr slice = pk_writer_slice(w);
     if (slice.length == 0) {
-        return pk_reader_error(r, pk_str("empty symbol between | characters"));
+        if (type == PK_SYMTY_SYMBOL) {
+            return pk_reader_error(r, pk_str("empty symbol between | characters"));
+        } else {
+            return pk_reader_error(r, pk_str("empty keyword between | characters"));
+        }
     }
     
     (void)pk_reader_inc(r);
-    
-    switch (type) {
-        case PK_SYMTY_SYMBOL: return pk_symbol(slice);
-        case PK_SYMTY_KEYWORD: return pk_keyword(slice);
-        default: return pk_errors(pk_str("corrupted memory"));
+    if (type == PK_SYMTY_SYMBOL) {
+        return pk_symbol(slice);
+    } else {
+        return pk_keyword(slice);
     }
 }
 
