@@ -512,5 +512,7 @@ void pk_deinit_cache(void);
 PKAtom pk_fs_slurp_str(PKStr file_path);
 PKAtom pk_fs_slurp(PKAtom file_path);
 PKAtom pk_fs_read_user_input(void);
+
+void pk_debug_leakcheck(void);
     
 #endif // POCKET_LISP_INTERNALS_H
