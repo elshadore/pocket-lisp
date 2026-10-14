@@ -439,12 +439,14 @@ PKAtom pk_writer_address(PKWriter *w, size_t address);
 PKAtom pk_writer_newline(PKWriter *w);
 PKStr pk_writer_slice(PKWriter *w);
 void pk_writer_reset(PKWriter *w);
+PKAtom pk_writer_symbol_name(PKWriter *w, PKStr name);
 PKAtom pk_writer_atom(PKWriter *w, PKAtom atom);
     
 PKAtom pk_str_alloc(size_t length, PKStr *output);
 PKAtom pk_str_dupe(PKStr input, PKStr *output);
 PKStr pk_str_from_cstr(char *cstr);
 bool pk_str_eq(PKStr a, PKStr b);
+bool pk_str_needs_bars(PKStr string);
 void pk_str_reverse_mut(PKStr string);
 
 pk_u8 pk_char_to_digit(char c);

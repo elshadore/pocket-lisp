@@ -199,6 +199,18 @@ bool pk_char_is_symbol(char c) {
     }
 }
 
+bool pk_str_needs_bars(PKStr string) {
+    if (string.length == 0) {
+        return true;
+    }
+    for (size_t i = 0; i < string.length; ++i) {
+        if (!pk_char_is_symbol(string.c[i])) {
+            return true;
+        }
+    }
+    return false;
+}
+
 char pk_char_from_hex(pk_u8 byte) {
     switch (byte) {
         case 0: return '0';

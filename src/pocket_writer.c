@@ -177,6 +177,26 @@ PKAtom pk_writer_simple_function(PKWriter *w, void *obj, PKStr type, pk_u8 args,
     return pk_true();
 }
 
+PKAtom pk_writer_symbol_name(PKWriter *w, PKStr name) {
+    if (!pk_str_needs_bars(name)) {
+        return pk_writer_string(w, name);
+    }
+    
+    pk_propagate(pk_writer_char(w, '|'));
+    for (size_t i = 0; i < name.length; ++i) {
+        char c = name.c[i];
+        if (c == '|') {
+            pk_propagate(pk_writer_string(w, pk_str("\\|")));
+        } else if (c == '\n') {
+            pk_propagate(pk_writer_string(w, pk_str("\\n")));
+        } else {
+            pk_propagate(pk_writer_char(w, c));
+        }
+    }
+    pk_propagate(pk_writer_char(w, '|'));
+    return pk_true();
+}
+
 PKAtom pk_writer_atom(PKWriter *w, PKAtom atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_OOM: {
@@ -218,12 +238,12 @@ PKAtom pk_writer_atom(PKWriter *w, PKAtom atom) {
             break;
         }
         case PK_ATOMTY_SYMBOL: {
-            pk_propagate(pk_writer_string(w, atom->symbol.name->string.str));
+            pk_propagate(pk_writer_symbol_name(w, atom->symbol.name->string.str));
             break;
         }
         case PK_ATOMTY_KEYWORD: {
             pk_propagate(pk_writer_char(w, ':'));
-            pk_propagate(pk_writer_string(w, atom->keyword.id));
+            pk_propagate(pk_writer_symbol_name(w, atom->keyword.id));
             break;
         }
         case PK_ATOMTY_CONS: {

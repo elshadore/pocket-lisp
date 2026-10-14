@@ -288,9 +288,49 @@ PKAtom pk_read_number(PKReader *r) {
     return pk_int(acc);
 }
 
+PKAtom pk_read_symbol_(PKReader *r, PKWriter *w) {
+    pk_propagate(pk_reader_ince(r));
+    
+    while ((!pk_reader_is_finished(r)) && (pk_rat(r) != '|')) {
+        if (pk_rat(r) == '\\') {
+            pk_propagate(pk_reader_ince(r));
+            if (pk_rat(r) == '|') {
+                pk_propagate(pk_writer_char(w, '|'));
+            } else if (pk_rat(r) == 'n') {
+                pk_propagate(pk_writer_char(w, '\n'));
+            } else {
+                return pk_reader_error(r, pk_str("invalid symbol escape code, expected | or n"));
+            }
+        } else {
+            pk_propagate(pk_writer_char(w, pk_rat(r)));
+        }
+        (void)pk_reader_inc(r);
+    }
+    
+    if (pk_reader_is_finished(r)) {
+        return pk_reader_error(r, pk_str("unterminated symbol, expected closing |"));
+    }
+    
+    PKStr slice = pk_writer_slice(w);
+    if (slice.length == 0) {
+        return pk_reader_error(r, pk_str("empty symbol between | characters"));
+    }
+    
+    (void)pk_reader_inc(r);
+    
+    return pk_symbol(slice);
+}
+
 PKAtom pk_read_symbol(PKReader *r) {
     size_t save = r->curr;
 
+    if (pk_rat(r) == '|') {
+        PKWriter w = PK_WRITER_EMPTY;
+        PKAtom result = pk_read_symbol_(r, &w);
+        pk_writer_deinit(&w);
+        return result;
+    }
+    
     if (!pk_char_is_symbol(pk_rat(r))) {
         return pk_reader_error(r, pk_str("expected valid symbol character at start of symbol"));
     }
