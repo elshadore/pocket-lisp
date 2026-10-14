@@ -17,13 +17,12 @@ The todo list for POCKET LISP
   - [ ] Any Character Symbols
     - `|this is a single symbol|`
 - [ ] Multiple Optional Variables
+- [ ] Simple Errors
 - [ ] Special Forms
   - [ ] and
   - [ ] or
   - [ ] break
   - [ ] block
-  - [ ] throw
-  - [ ] catch
   - [ ] unwind-protect
   - [ ] setq, fsetq, psetq
   - [ ] bind
@@ -39,3 +38,5 @@ The todo list for POCKET LISP
 - [ ] Compiling Non Special Variables
 - [ ] Modules / Namespaces / Packages
   - `foo:bar-baz`
+- [ ] Inputting and Outputting Bytecode
+  - Compiling bytecode to a `.pkc` format.
