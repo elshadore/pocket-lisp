@@ -20,7 +20,7 @@ void pk_ref_dec(PKAtom atom) {
     }
     atom->header.refcount -= 1;
     if (atom->header.refcount == 0) {
-        // printf("TODO: free atoms on ref dec");
+        pk_atom_free(atom);
     }
 }
 

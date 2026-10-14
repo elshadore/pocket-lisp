@@ -392,6 +392,7 @@ void pk_free(void *ptr);
 
 PKAtom pk_pool_expand(void);
 PKAtom pk_atom_alloc(void);
+void pk_atom_free(PKAtom atom);
 
 PKAtom pk_string_empty(void);
 PKAtom pk_string_alloc(size_t length);
