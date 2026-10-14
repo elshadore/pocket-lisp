@@ -18,6 +18,12 @@ PKAtom pk_init_symbols(void) {
     PK_CORE.cache.sym_while = pk_symbol(pk_str("while"));
     pk_propagate(PK_CORE.cache.sym_while);
     
+    PK_CORE.cache.sym_and = pk_symbol(pk_str("and"));
+    pk_propagate(PK_CORE.cache.sym_and);
+    
+    PK_CORE.cache.sym_or = pk_symbol(pk_str("or"));
+    pk_propagate(PK_CORE.cache.sym_or);
+    
     PK_CORE.cache.error = pk_symbol(pk_str("error"));
     pk_propagate(PK_CORE.cache.error);
     

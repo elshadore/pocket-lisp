@@ -202,7 +202,7 @@ typedef struct PKAtomCFun_ {
 #define PK_OP_BLOCK_BEGIN (7)
 #define PK_OP_BLOCK_END (8)
 #define PK_OP_BLOCK_CLEAR (9)
-#define PK_OP_JMP_IF_NIL (10)
+#define PK_OP_JMP_UNLESS (10)
 #define PK_OP_JMP (11)
 #define PK_OP_JMP_BACK (12)
 #define PK_OP_SET_VAR (13)
@@ -218,6 +218,7 @@ typedef struct PKAtomCFun_ {
 #define PK_OP_MAKE_LIST_PACKED (23)
 #define PK_OP_MERGE_LISTS (24)
 #define PK_OP_STRCAT (25)
+#define PK_OP_JMP_WHEN (26)
 
 typedef enum PK_OPCODE_TY_ {
     PK_OPCODE_TY_NORMAL = 0,
@@ -324,6 +325,8 @@ typedef struct PKCache_ {
     PKAtom progn;
     PKAtom sym_if;
     PKAtom sym_while;
+    PKAtom sym_and;
+    PKAtom sym_or;
     PKAtom error;
     PKAtom throw;
     PKAtom var;

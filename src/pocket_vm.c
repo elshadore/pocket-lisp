@@ -156,12 +156,24 @@ PKAtom pk_vm_op_exec(PKVM *vm) {
             pk_propagate(pk_vm_inc(vm));
             break;
         }
-        case PK_OP_JMP_IF_NIL: {
+        case PK_OP_JMP_UNLESS: {
             pk_propagate(pk_vm_inc(vm));
             PKAtom atom = pk_stack_head();
             pk_propagate(atom);
 
             if (pk_is_nil(atom)){
+                pk_propagate(pk_vm_jmp(vm, pk_vat(vm)));
+            } else {
+                pk_propagate(pk_vm_inc(vm));
+            }
+            break;
+        }
+        case PK_OP_JMP_WHEN: {
+            pk_propagate(pk_vm_inc(vm));
+            PKAtom atom = pk_stack_head();
+            pk_propagate(atom);
+
+            if (!pk_is_nil(atom)) {
                 pk_propagate(pk_vm_jmp(vm, pk_vat(vm)));
             } else {
                 pk_propagate(pk_vm_inc(vm));

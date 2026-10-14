@@ -12,7 +12,8 @@ PKStr pk_ident_opcode(pk_u8 op) {
         case PK_OP_BLOCK_BEGIN: return pk_str("BLOCK_BEGIN");
         case PK_OP_BLOCK_END: return pk_str("BLOCK_END");
         case PK_OP_BLOCK_CLEAR: return pk_str("BLOCK_CLEAR");
-        case PK_OP_JMP_IF_NIL: return pk_str("JMP_IF_NIL");
+        case PK_OP_JMP_UNLESS: return pk_str("JMP_UNLESS");
+        case PK_OP_JMP_WHEN: return pk_str("JMP_WHEN");
         case PK_OP_JMP: return pk_str("JMP");
         case PK_OP_JMP_BACK: return pk_str("JMP_BACK");
         case PK_OP_LET_VAR: return pk_str("LET_VAR");
@@ -104,7 +105,8 @@ PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
         case PK_OP_GET_PROP: return PK_OPCODE_TY_LOAD;
         
         case PK_OP_CALL: return PK_OPCODE_TY_LIT;
-        case PK_OP_JMP_IF_NIL: return PK_OPCODE_TY_LIT;
+        case PK_OP_JMP_UNLESS: return PK_OPCODE_TY_LIT;
+        case PK_OP_JMP_WHEN: return PK_OPCODE_TY_LIT;
         case PK_OP_JMP: return PK_OPCODE_TY_LIT;
         case PK_OP_JMP_BACK: return PK_OPCODE_TY_LIT;
         case PK_OP_LET_VAR: return PK_OPCODE_TY_LIT;

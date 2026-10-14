@@ -373,6 +373,52 @@ PKAtom pk_compile_quasiquote(PKCompiler *c, PKAtom value) {
     return pk_true();
 }
 
+PKAtom pk_compile_jmp_rec_(PKCompiler *c, PKAtom args, pk_u8 op, PKBytes *patches) {
+    pk_propagate(pk_compile_value(c, args->cons.car));
+    
+    if (pk_is_nil(args->cons.cdr)) {
+        return pk_true();
+    }
+    
+    pk_propagate(pk_cmp_push_byte(c, op));
+    pk_propagate(pk_cmp_push_byte(c, 0));
+    pk_propagate(pk_bytes_push(patches, pk_cmp_addr(c), 16));
+    
+    return pk_compile_jmp_rec_(c, args->cons.cdr, op, patches);
+}
+
+PKAtom pk_compile_jmp_(PKCompiler *c, PKAtom args, pk_u8 op, pk_u8 empty_op, PKBytes *patches) {
+    if (!pk_is_cons(args)) {
+        if (pk_is_nil(args)) {
+            return pk_cmp_push_byte(c, empty_op);
+        }
+        return pk_error_type(PK_TYPE_SEQ, args);
+    }
+    
+    PKAtom result = pk_true();
+    
+    pk_propagate(pk_cmp_push_byte(c, PK_OP_BLOCK_BEGIN));
+    pk_propagate(pk_compile_jmp_rec_(c, args, op, patches));
+    pk_propagate(pk_cmp_push_byte(c, PK_OP_BLOCK_END));
+    
+    pk_u8 end = pk_cmp_addr(c);
+    for (size_t i = 0; i < patches->count; ++i) {
+        result = pk_cmp_patch_byte(c, patches->e[i], end - patches->e[i]);
+        if (pk_is_throwing(result)) {
+            break;
+        }
+    }
+    
+    return result;
+}
+    
+PKAtom pk_compile_jmp(PKCompiler *c, PKAtom args, pk_u8 op, pk_u8 empty_op) {
+    PKBytes patches = PK_BYTES_EMPTY;
+    PKAtom result = pk_compile_jmp_(c, args, op, empty_op, &patches);
+    pk_free(patches.e);
+    return result;
+}
+
 PKAtom pk_compile_progn(PKCompiler *c, PKAtom atom) {
     pk_propagate(pk_cmp_push_byte(c, PK_OP_BLOCK_BEGIN));
     pk_propagate(pk_compile_evlist(c, atom));
@@ -441,7 +487,7 @@ PKAtom pk_compile_special(PKCompiler *c, PKAtom symbol, PKAtom args, bool *is_sp
         pk_u8 start = pk_cmp_addr(c);
         
         pk_propagate(pk_compile_value(c, predicate));
-        pk_propagate(pk_cmp_push_byte(c, PK_OP_JMP_IF_NIL));
+        pk_propagate(pk_cmp_push_byte(c, PK_OP_JMP_UNLESS));
         pk_propagate(pk_cmp_push_byte(c, 0));
         
         pk_u8 patch = pk_cmp_addr(c);
@@ -467,7 +513,7 @@ PKAtom pk_compile_special(PKCompiler *c, PKAtom symbol, PKAtom args, bool *is_sp
 
         pk_propagate(pk_compile_value(c, value));
 
-        pk_propagate(pk_cmp_push_byte(c, PK_OP_JMP_IF_NIL));
+        pk_propagate(pk_cmp_push_byte(c, PK_OP_JMP_UNLESS));
         pk_propagate(pk_cmp_push_byte(c, 0));
         pk_u8 patch_1 = pk_cmp_addr(c);
         
@@ -525,6 +571,14 @@ PKAtom pk_compile_special(PKCompiler *c, PKAtom symbol, PKAtom args, bool *is_sp
         *is_special = true;
     } else if (symbol == PK_CORE.cache.fvar) {
         pk_propagate(pk_compile_var(c, args, PK_ENV_FUN));
+        
+        *is_special = true;
+    } else if (symbol == PK_CORE.cache.sym_and) {
+        pk_propagate(pk_compile_jmp(c, args, PK_OP_JMP_UNLESS, PK_OP_LOAD_TRUE));
+        
+        *is_special = true;
+    } else if (symbol == PK_CORE.cache.sym_or) {
+        pk_propagate(pk_compile_jmp(c, args, PK_OP_JMP_WHEN, PK_OP_LOAD_NIL));
         
         *is_special = true;
     } else {
