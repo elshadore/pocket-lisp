@@ -288,7 +288,7 @@ PKAtom pk_read_number(PKReader *r) {
     return pk_int(acc);
 }
 
-PKAtom pk_read_symbol_(PKReader *r, PKWriter *w) {
+PKAtom pk_read_barred_symbol_(PKReader *r, PKWriter *w) {
     pk_propagate(pk_reader_ince(r));
     
     while ((!pk_reader_is_finished(r)) && (pk_rat(r) != '|')) {
@@ -326,7 +326,7 @@ PKAtom pk_read_symbol(PKReader *r) {
 
     if (pk_rat(r) == '|') {
         PKWriter w = PK_WRITER_EMPTY;
-        PKAtom result = pk_read_symbol_(r, &w);
+        PKAtom result = pk_read_barred_symbol_(r, &w);
         pk_writer_deinit(&w);
         return result;
     }
