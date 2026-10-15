@@ -187,6 +187,7 @@ typedef struct PKAtomCFun_ {
     PKAtomHeader header;
     pk_u8 arity;
     pk_u8 args;
+    pk_u8 option_start;
     void *user_closure;
     union {
         void *opaque;
@@ -235,6 +236,7 @@ typedef struct PKAtomLFun_ {
     PKAtomHeader header;
     pk_u8 args;
     pk_u8 arity;
+    pk_u8 option_start;
     struct {
         pk_u8 *e;
         size_t length;

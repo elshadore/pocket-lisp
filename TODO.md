@@ -2,7 +2,6 @@
 The todo list for POCKET LISP
 
 ## V1
-- [ ] Debug Mode
 - [ ] Multiple Optional Variables
 - [ ] Special Forms
   - [ ] unwind-protect

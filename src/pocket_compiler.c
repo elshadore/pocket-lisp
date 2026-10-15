@@ -646,7 +646,7 @@ PKAtom pk_compile_value(PKCompiler *c, PKAtom value) {
     }
 }
 
-PKAtom pk_compile_compile(PKCompiler *c, pk_u8 args, pk_u8 arity) {
+PKAtom pk_compile_compile(PKCompiler *c, pk_u8 args, pk_u8 arity, pk_u8 option_start) {
     PKAtom result = pk_atom_alloc();
     pk_propagate(result);
     
@@ -669,6 +669,7 @@ PKAtom pk_compile_compile(PKCompiler *c, pk_u8 args, pk_u8 arity) {
     result->lfun.bc.length = c->bc.capacity;
     result->lfun.args = args;
     result->lfun.arity = arity;
+    result->lfun.option_start = option_start;
 
     // pk_propagate(pk_hexdump(result));
 
@@ -678,29 +679,36 @@ PKAtom pk_compile_compile(PKCompiler *c, pk_u8 args, pk_u8 arity) {
 PKAtom pk_compile_lambda_(PKCompiler *c, PKAtom args, PKAtom body) {
     pk_u8 nargs = 0;
     pk_u8 arity = PK_INT_ARITY_NORMAL;
+    pk_u8 option_start = 0;
+    bool variadic = false;
     
     {
         PKAtom iter = args;
-        bool expected_final = false;
         while (pk_is_cons(iter)) {
             PKAtom atom = iter->cons.car;
             if (pk_is_keyword(atom)) {
-                if (expected_final) {
+                if (variadic) {
                     return pk_errors(pk_str("bad keyword arg"));
                 }
                 if (pk_keyword_qeq(atom, pk_str("rest"))) {
                     arity = PK_INT_ARITY_VARIADIC;
+                    variadic = true;
                 } else if (pk_keyword_qeq(atom, pk_str("opt"))) {
+                    if (arity != PK_INT_ARITY_OPTIONAL) {
+                        option_start = nargs;
+                    }
                     arity = PK_INT_ARITY_OPTIONAL;
                 } else if (pk_keyword_qeq(atom, pk_str("optional"))) {
+                    if (arity != PK_INT_ARITY_OPTIONAL) {
+                        option_start = nargs;
+                    }
                     arity = PK_INT_ARITY_OPTIONAL;
                 }
-                expected_final = true;
             } else {
                 pk_propagate(pk_typecheck_symbol(atom));
                 pk_propagate(pk_cmp_load(c, atom));
 
-                if (expected_final) {
+                if (variadic) {
                     pk_propagate(pk_typecheck_nil(iter->cons.cdr));
                 }
 
@@ -714,6 +722,10 @@ PKAtom pk_compile_lambda_(PKCompiler *c, PKAtom args, PKAtom body) {
         }
     }
 
+    if (arity != PK_INT_ARITY_OPTIONAL) {
+        option_start = nargs;
+    }
+
     if (nargs > 0) {
         pk_propagate(pk_cmp_push_byte(c, PK_OP_LET_VAR));
         pk_propagate(pk_cmp_push_byte(c, nargs));
@@ -722,7 +734,7 @@ PKAtom pk_compile_lambda_(PKCompiler *c, PKAtom args, PKAtom body) {
     pk_propagate(pk_compile_evlist(c, body));
     pk_propagate(pk_cmp_push_byte(c, PK_OP_RET));
 
-    return pk_compile_compile(c, nargs, arity);
+    return pk_compile_compile(c, nargs, arity, option_start);
 }
     
 PKAtom pk_compile_lambda(PK_CALL type, PKAtom args, PKAtom body) {
@@ -738,13 +750,13 @@ PKAtom pk_compile_atom(PKCompiler *c, PKAtom value) {
     pk_propagate(pk_compile_value(c, value));
     pk_propagate(pk_cmp_push_byte(c, PK_OP_RET));
     
-    return pk_compile_compile(c, 0, PK_INT_ARITY_NORMAL);
+    return pk_compile_compile(c, 0, PK_INT_ARITY_NORMAL, 0);
 }
 
 PKAtom pk_compile_exprlist(PKCompiler *c, PKAtom exprlist) {
     pk_propagate(pk_compile_progn(c, exprlist));
     pk_propagate(pk_cmp_push_byte(c, PK_OP_RET));
-    return pk_compile_compile(c, 0, PK_INT_ARITY_NORMAL);
+    return pk_compile_compile(c, 0, PK_INT_ARITY_NORMAL, 0);
 }
     
 PKAtom pk_compile(PK_CALL type, PKAtom value, PK_MODE mode) {

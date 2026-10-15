@@ -12,6 +12,12 @@ PKAtom pk_cfun_cons(void *user_closure, PK_CALL call, void *opaque_fun, pk_u8 ar
     atom->cfun.user_closure = user_closure;
     atom->cfun.args = args;
     atom->cfun.arity = arity;
+    if (arity == PK_INT_ARITY_OPTIONAL) {
+        atom->cfun.option_start = args - 1;
+    } else {
+        atom->cfun.option_start = args;
+    }
+    atom->cfun.option_start = (arity == PK_INT_ARITY_OPTIONAL) ? (pk_u8)(args - 1) : args;
     atom->cfun.as.opaque = opaque_fun;
     return atom;
 }
