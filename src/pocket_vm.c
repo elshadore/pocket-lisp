@@ -8,7 +8,10 @@ PKVM pk_vm_init(PKAtom lfun, size_t save) {
         .save = save,
         .curr = 0,
         .op = lfun->lfun.bc.e[0],
+        .opcode = PK_OP_ILLEGAL,
         .finished = false,
+        .protected = false,
+        .protect_offset = 0,
     };
 }
 
@@ -108,7 +111,8 @@ PKAtom pk_vm_op_set(PKVM *vm, PK_ENV env) {
 }
 
 PKAtom pk_vm_op_exec(PKVM *vm) {
-    switch (pk_vat(vm)) {
+    vm->opcode = vm->op;
+    switch (vm->op) {
         case PK_OP_ILLEGAL: {
             return pk_errors(pk_str("illegal op"));
         }
@@ -161,6 +165,11 @@ PKAtom pk_vm_op_exec(PKVM *vm) {
         }
         case PK_OP_BLOCK_CLEAR: {
             pk_frame_clear();
+            pk_propagate(pk_vm_inc(vm));
+            break;
+        }
+        case PK_OP_BLOCK_POP: {
+            pk_frame_unwind();
             pk_propagate(pk_vm_inc(vm));
             break;
         }
@@ -284,6 +293,17 @@ PKAtom pk_vm_op_exec(PKVM *vm) {
             pk_propagate(pk_stack_op_cdr(true));
             break;
         }
+        case PK_OP_PROTECT_BEGIN: {
+            vm->protected = true;
+            vm->protect_offset = PK_CORE.stack.count;
+            pk_propagate(pk_vm_inc(vm));
+            break;
+        }
+        case PK_OP_PROTECT_END: {
+            vm->protected = false;
+            pk_propagate(pk_vm_inc(vm));
+            break;
+        }
         case PK_OP_RET: {
             vm->finished = true;
             break;
@@ -306,10 +326,22 @@ PKAtom pk_vm_exec(PKVM *vm) {
     while (!vm->finished) {
         PKAtom atom = pk_vm_op_exec(vm);
         if (pk_is_throwing(atom)) {
-            while (PK_CORE.frames.count > frames) {
-                pk_frame_unwind();
+            if ((!vm->protected) || (atom->header.type == PK_ATOMTY_OOM)) {
+                while (PK_CORE.frames.count > frames) {
+                    pk_frame_unwind();
+                }
+                return atom;
             }
-            return atom;
+            
+            // The protected region handles the throw itself, so the value the
+            // op was working on is dropped and the next form carries on.
+            pk_ref_dec(atom);
+            pk_stack_reset_to(vm->protect_offset);
+            pk_propagate(pk_stack_push(pk_nil()));
+            if (pk_opcode_ty(vm->opcode) == PK_OPCODE_TY_LIT) {
+                pk_propagate(pk_vm_inc(vm));
+            }
+            continue;
         }
     }
     // The frame is about to be released and it owns the result, so hand that

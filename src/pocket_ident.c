@@ -34,6 +34,9 @@ PKStr pk_ident_opcode(pk_u8 op) {
         case PK_OP_CAR_STRICT: return pk_str("CAR_STRICT");
         case PK_OP_CDR: return pk_str("CDR");
         case PK_OP_CDR_STRICT: return pk_str("CDR_STRICT");
+        case PK_OP_PROTECT_BEGIN: return pk_str("PROTECT_BEGIN");
+        case PK_OP_PROTECT_END: return pk_str("PROTECT_END");
+        case PK_OP_BLOCK_POP: return pk_str("BLOCK_POP");
         default: return pk_str("UNKNOWN");
     }
 }

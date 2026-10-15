@@ -47,6 +47,7 @@ typedef struct PKCompiler_ {
     PKArray atoms;
     PK_CALL type;
     pk_u8 addr;
+    size_t protect_depth;
 } PKCompiler;
 
 typedef struct PKVM_ {
@@ -54,7 +55,10 @@ typedef struct PKVM_ {
     size_t curr;
     size_t save;
     pk_u8 op;
+    pk_u8 opcode;
     bool finished;
+    bool protected;
+    size_t protect_offset;
 } PKVM;
 
 typedef struct PKAccum_ {
@@ -220,6 +224,9 @@ typedef struct PKAtomCFun_ {
 #define PK_OP_CAR_STRICT (29)
 #define PK_OP_CDR (30)
 #define PK_OP_CDR_STRICT (31)
+#define PK_OP_PROTECT_BEGIN (32)
+#define PK_OP_PROTECT_END (33)
+#define PK_OP_BLOCK_POP (34)
 
 typedef enum PK_OPCODE_TY_ {
     PK_OPCODE_TY_NORMAL = 0,
@@ -332,6 +339,8 @@ typedef struct PKCache_ {
     PKAtom fvar;
     PKAtom let;
     PKAtom let_star;
+    PKAtom protect;
+    PKAtom unwind_protect;
     PKAtom flet;
     PKAtom flet_star;
     PKAtom block;
@@ -428,6 +437,7 @@ PKAtom pk_stack_op_strcat(size_t depth);
 PKAtom pk_stack_op_dig(size_t depth);
 PKAtom pk_stack_op_car(bool strict);
 PKAtom pk_stack_op_cdr(bool strict);
+void pk_stack_reset_to(size_t count);
     
 void pk_let_unwind(size_t n);
 

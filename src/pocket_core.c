@@ -41,6 +41,12 @@ PKAtom pk_init_symbols(void) {
     
     PK_CORE.cache.let_star = pk_symbol(pk_str("let*"));
     pk_propagate(PK_CORE.cache.let_star);
+
+    PK_CORE.cache.protect = pk_symbol(pk_str("protect"));
+    pk_propagate(PK_CORE.cache.protect);
+
+    PK_CORE.cache.unwind_protect = pk_symbol(pk_str("unwind-protect"));
+    pk_propagate(PK_CORE.cache.unwind_protect);
     
     PK_CORE.cache.flet = pk_symbol(pk_str("flet"));
     pk_propagate(PK_CORE.cache.flet);
@@ -109,6 +115,8 @@ void pk_deinit_cache(void) {
     pk_ref_dec(PK_CORE.cache.fvar);
     pk_ref_dec(PK_CORE.cache.let);
     pk_ref_dec(PK_CORE.cache.let_star);
+    pk_ref_dec(PK_CORE.cache.protect);
+    pk_ref_dec(PK_CORE.cache.unwind_protect);
     pk_ref_dec(PK_CORE.cache.flet);
     pk_ref_dec(PK_CORE.cache.flet_star);
     pk_ref_dec(PK_CORE.cache.block);

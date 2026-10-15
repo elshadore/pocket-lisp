@@ -22,6 +22,7 @@ PKCompiler pk_cmp_new(PK_CALL type) {
         .bc = PK_BYTES_EMPTY,
         .type = type,
         .addr = 0,
+        .protect_depth = 0,
     };
 }
 
@@ -572,6 +573,77 @@ PKAtom pk_compile_quasiquote_list(PKCompiler *c, PKAtom list) {
     return pk_true();
 }
 
+PKAtom pk_cons_last(PKAtom list) {
+    PKAtom last = pk_nil();
+    PKAtom iter = list;
+    while (pk_is_cons(iter)) {
+        last = iter->cons.car;
+        iter = iter->cons.cdr;
+    }
+    return last;
+}
+
+PKAtom pk_compile_evlist_except_last(PKCompiler *c, PKAtom args) {
+    PKAtom iter = args;
+    while (pk_is_cons(iter) && pk_is_cons(iter->cons.cdr)) {
+        pk_propagate(pk_compile_value(c, iter->cons.car));
+        iter = iter->cons.cdr;
+    }
+    return pk_true();
+}
+
+PKAtom pk_protect_begin(PKCompiler *c, bool *outer) {
+    *outer = (c->protect_depth == 0);
+    if (*outer) {
+        pk_propagate(pk_cmp_push_byte(c, PK_OP_PROTECT_BEGIN));
+    }
+    c->protect_depth += 1;
+    return pk_true();
+}
+
+PKAtom pk_protect_end(PKCompiler *c, bool outer) {
+    c->protect_depth -= 1;
+    if (outer) {
+        pk_propagate(pk_cmp_push_byte(c, PK_OP_PROTECT_END));
+    }
+    return pk_true();
+}
+
+PKAtom pk_compile_protect(PKCompiler *c, PKAtom args) {
+    bool outer = false;
+    pk_propagate(pk_protect_begin(c, &outer));
+    
+    pk_propagate(pk_compile_evlist(c, args));
+    
+    pk_propagate(pk_protect_end(c, outer));
+    return pk_true();
+}
+
+PKAtom pk_compile_unwind_protect(PKCompiler *c, PKAtom args) {
+    pk_propagate(pk_typecheck_cons(args));
+    if ((!pk_is_cons(args)) || (!pk_is_cons(args->cons.cdr))) {
+        return pk_errors(pk_str("bad unwind-protect"));
+    }
+    
+    PKAtom last = pk_cons_last(args);
+    
+    bool outer = false;
+    pk_propagate(pk_protect_begin(c, &outer));
+    
+    // Every protected form runs, even when an earlier one of them throws.
+    pk_propagate(pk_compile_evlist_except_last(c, args));
+    
+    // The cleanup form runs protected as well, so a failing one does not stop
+    // anything, but its value is dropped so the protected value is the result
+    // of the whole form.
+    pk_propagate(pk_cmp_push_byte(c, PK_OP_BLOCK_BEGIN));
+    pk_propagate(pk_compile_value(c, last));
+    pk_propagate(pk_cmp_push_byte(c, PK_OP_BLOCK_POP));
+    
+    pk_propagate(pk_protect_end(c, outer));
+    return pk_true();
+}
+
 PKAtom pk_compile_quasiquote(PKCompiler *c, PKAtom value) {
     PKAtom spliced = NULL;
     pk_propagate(pk_compile_quasiquote_value(c, value, &spliced));
@@ -783,6 +855,14 @@ PKAtom pk_compile_special(PKCompiler *c, PKAtom symbol, PKAtom args, bool *is_sp
         *is_special = true;
     } else if (symbol == PK_CORE.cache.var) {
         pk_propagate(pk_compile_var(c, args, PK_ENV_VAR));
+        
+        *is_special = true;
+    } else if (symbol == PK_CORE.cache.protect) {
+        pk_propagate(pk_compile_protect(c, args));
+        
+        *is_special = true;
+    } else if (symbol == PK_CORE.cache.unwind_protect) {
+        pk_propagate(pk_compile_unwind_protect(c, args));
         
         *is_special = true;
     } else if (symbol == PK_CORE.cache.fvar) {

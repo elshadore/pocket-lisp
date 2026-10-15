@@ -93,6 +93,13 @@ void pk_stack_pop_unchecked(size_t n) {
     PK_CORE.stack.count -= n;
 }
 
+void pk_stack_reset_to(size_t count) {
+    for (size_t i = PK_CORE.stack.count; i > count; --i) {
+        pk_ref_dec(PK_CORE.stack.e[i - 1]);
+    }
+    PK_CORE.stack.count = count;
+}
+
 PKAtoms pk_stack_slice() {
     size_t offset = PK_CORE.current_frame.stack_offset;
     return (PKAtoms) {
