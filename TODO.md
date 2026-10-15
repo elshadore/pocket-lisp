@@ -7,6 +7,7 @@ The todo list for POCKET LISP
   - [ ] unwind-protect
   - [ ] fn, λ, lambda
   - [ ] defvar, defun, defmacro, defclass
+- [ ] Special Form: setq, fsetq, psetq
 - [ ] Object System
   - [ ] CObjects
   - [ ] LObjects
@@ -34,7 +35,6 @@ The todo list for POCKET LISP
   - [ ] Printing
 - [ ] Immutable Vector Update
   - Move from cons cells to immutable vectors.
-- [ ] Special Form: setq, fsetq, psetq
 - [ ] Standard Library
   - [ ] Filesystem API
   - [ ] Shell Command / Process API
@@ -45,6 +45,7 @@ The todo list for POCKET LISP
 - [ ] Error Stack Traces
 - [ ] Testing Suite
 - [ ] Full Code Review
+- [ ] Var should destructure bind ???
 
 ## V2
 - [ ] Interpretter Objects
