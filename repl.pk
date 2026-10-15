@@ -6,7 +6,7 @@
 (defun read-eval-print (string)
   (print (catch 'error (eval (read string)))))
 
-(defun test (:opt a b c d)
+(defun test ()
   (let (((a b :opt c) (list 1 2)))
       (print $"{a}, {b}, {c}, {d}")))
 

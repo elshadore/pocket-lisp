@@ -172,6 +172,7 @@ PKAtom pk_set_discard(PK_ENV env, PKAtom symbol, PKAtom value);
 PKAtom pk_get(PK_ENV env, PKAtom symbol);
 PKAtom pk_set_raw(PK_ENV env, PKAtom symbol, PKAtom value);
 PKAtom pk_get_raw(PK_ENV env, PKAtom symbol);
+PKAtom pk_list_env(PK_ENV env);
 PKAtom pk_let(PK_ENV env, PKAtom symbol, PKAtom value);
 bool pk_is_bound(PK_ENV env, PKAtom symbol);
 PKAtom pk_unbind(PK_ENV env, PKAtom symbol);

@@ -10,7 +10,7 @@
 "(defun read-eval-print (string)\n" \
 "  (print (catch 'error (eval (read string)))))\n" \
 "\n" \
-"(defun test (:opt a b c d)\n" \
+"(defun test ()\n" \
 "  (let (((a b :opt c) (list 1 2)))\n" \
 "      (print $\"{a}, {b}, {c}, {d}\")))\n" \
 "\n" \

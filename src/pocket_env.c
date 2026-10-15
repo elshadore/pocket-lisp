@@ -70,6 +70,40 @@ PKAtom pk_set_discard(PK_ENV env, PKAtom symbol, PKAtom value) {
     return pk_true();
 }
 
+PKAtom pk_list_env(PK_ENV env) {
+    PKAccum acc = pk_accum_new();
+    
+    for (PKPool *iter = PK_CORE.pool; iter != NULL; iter = iter->next) {
+        for (size_t i = 0; i < PK_POOL_MAX; ++i) {
+            PKAtom symbol = &iter->e[i];
+            if (!pk_is_symbol(symbol)) {
+                continue;
+            }
+            
+            PKAtom value = pk_get_raw(env, symbol);
+            if (pk_is_undefined(value)) {
+                continue;
+            }
+            
+            PKAtom pair = pk_cons(symbol, value);
+            if (pk_is_throwing(pair)) {
+                pk_ref_dec(acc.head);
+                return pair;
+            }
+            
+            PKAtom result = pk_accum_push(&acc, pair);
+            if (pk_is_throwing(result)) {
+                pk_ref_dec(pair);
+                pk_ref_dec(acc.head);
+                return result;
+            }
+            pk_ref_dec(pair);
+        }
+    }
+    
+    return acc.head;
+}
+
 PKAtom pk_get(PK_ENV env, PKAtom symbol) {
     PKAtom result = pk_get_raw(env, symbol);
     pk_propagate(result);

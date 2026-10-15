@@ -99,6 +99,12 @@ PK_TEMPLATE_FUN2(pk_fun_set_cdr, pk_set_cdr)
         return result; \
     }
 
+#define PK_TEMPLATE_ENV_LIST(fun_name_, env_) \
+    PKAtom fun_name_(void *user_closure) { \
+        (void)user_closure; \
+        return pk_list_env(env_); \
+    }
+
 PK_TEMPLATE_ENV_SET(pk_fun_set, PK_ENV_VAR)
 PK_TEMPLATE_ENV_SET(pk_fun_fset, PK_ENV_FUN)
 PK_TEMPLATE_ENV_SET(pk_fun_pset, PK_ENV_PROP)
@@ -114,6 +120,10 @@ PK_TEMPLATE_ENV_BOUND(pk_fun_pbound, PK_ENV_PROP)
 PK_TEMPLATE_ENV_UNBIND(pk_fun_unbind, PK_ENV_VAR)
 PK_TEMPLATE_ENV_UNBIND(pk_fun_funbind, PK_ENV_FUN)
 PK_TEMPLATE_ENV_UNBIND(pk_fun_punbind, PK_ENV_PROP)
+
+PK_TEMPLATE_ENV_LIST(pk_fun_list_vars, PK_ENV_VAR)
+PK_TEMPLATE_ENV_LIST(pk_fun_list_funs, PK_ENV_FUN)
+PK_TEMPLATE_ENV_LIST(pk_fun_list_props, PK_ENV_PROP)
     
 PKAtom pk_fun_read(void *user_closure, PKAtom arg1) {
     (void)user_closure;
@@ -241,6 +251,10 @@ PKAtom pk_std_load_cfun(void) {
     PK_FLOAD(pk_str("unbind"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_unbind, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("funbind"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_funbind, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("punbind"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_punbind, PK_ARITY_NORMAL));
+
+    PK_FLOAD(pk_str("list-vars"), pk_cfun0(NULL, PK_CALL_FUN, pk_fun_list_vars));
+    PK_FLOAD(pk_str("list-funs"), pk_cfun0(NULL, PK_CALL_FUN, pk_fun_list_funs));
+    PK_FLOAD(pk_str("list-props"), pk_cfun0(NULL, PK_CALL_FUN, pk_fun_list_props));
     
     PK_FLOAD(pk_str("funcatch"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_funcatch, PK_ARITY_NORMAL, 0));
     PK_FLOAD(pk_str("throw"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_throw, PK_ARITY_NORMAL, 0));

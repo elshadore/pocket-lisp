@@ -4,8 +4,6 @@ The todo list for POCKET LISP
 ## V1
 - [ ] Special Forms
   - [ ] unwind-protect
-  - [ ] bind
-    - Upgrade `let` forms to support destructuring bind
   - [ ] fn, λ, lambda
   - [ ] defvar, defun, defmacro, defclass
 - [ ] Object System
