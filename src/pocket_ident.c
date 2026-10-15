@@ -29,6 +29,11 @@ PKStr pk_ident_opcode(pk_u8 op) {
         case PK_OP_MAKE_LIST_PACKED: return pk_str("MAKE_LIST_PACKED");
         case PK_OP_MERGE_LISTS: return pk_str("MERGE_LISTS");
         case PK_OP_STRCAT: return pk_str("STRCAT");
+        case PK_OP_DIG: return pk_str("DIG");
+        case PK_OP_CAR: return pk_str("CAR");
+        case PK_OP_CAR_STRICT: return pk_str("CAR_STRICT");
+        case PK_OP_CDR: return pk_str("CDR");
+        case PK_OP_CDR_STRICT: return pk_str("CDR_STRICT");
         default: return pk_str("UNKNOWN");
     }
 }
@@ -119,6 +124,7 @@ PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
         case PK_OP_SET_VAR: return PK_OPCODE_TY_LIT;
         case PK_OP_SET_FUN: return PK_OPCODE_TY_LIT;
         case PK_OP_SET_PROP: return PK_OPCODE_TY_LIT;
+        case PK_OP_DIG: return PK_OPCODE_TY_LIT;
         
         default: return PK_OPCODE_TY_NORMAL;
     }

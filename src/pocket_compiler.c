@@ -138,56 +138,172 @@ PKAtom pk_compile_evlist(PKCompiler *c, PKAtom args) {
     return pk_true();
 }
 
-PKAtom pk_compile_let(PKCompiler *c, PKAtom args, PK_ENV env) {
-    pk_propagate(pk_typecheck_cons(args));
-    
-    PKAtom bindings = args->cons.car;
-    PKAtom body = args->cons.cdr;
-    
-    pk_propagate(pk_cmp_push_byte(c, PK_OP_BLOCK_BEGIN));
+pk_u8 pk_pattern_car_op(bool optional) {
+    if (optional) {
+        return PK_OP_CAR_STRICT;
+    } else {
+        return PK_OP_CAR;
+    }
+}
 
-    
-    size_t lets = 0;
-    {
-        PKAtom iter = bindings;
-        while (pk_is_cons(iter)) {
+pk_u8 pk_pattern_cdr_op(bool optional) {
+    if (optional) {
+        return PK_OP_CDR_STRICT;
+    } else {
+        return PK_OP_CDR;
+    }
+}
 
-            if (pk_is_symbol(iter->cons.car)) {
-                pk_propagate(pk_cmp_load_nil(c));
-            } else {
-                PKAtom a = iter->cons.car;
-                pk_propagate(pk_typecheck_cons(a));
-                PKAtom b = a->cons.cdr;
-                pk_propagate(pk_typecheck_cons(b));
-                if (!pk_is_nil(b->cons.cdr)) {
-                    return pk_errors(pk_str("bad body"));
+#define PK_PATTERN_PATH_CDR (0)
+#define PK_PATTERN_PATH_CAR (1)
+#define PK_PATTERN_PATH_MAX (64)
+
+PKAtom pk_compile_pattern_path(PKCompiler *c, pk_u8 *path, size_t length, bool optional) {
+    for (size_t i = 0; i < length; ++i) {
+        if (path[i] == PK_PATTERN_PATH_CAR) {
+            pk_propagate(pk_cmp_push_byte(c, pk_pattern_car_op(optional)));
+        } else {
+            pk_propagate(pk_cmp_push_byte(c, pk_pattern_cdr_op(optional)));
+        }
+    }
+    return pk_true();
+}
+
+PKAtom pk_compile_pattern_cdrs(PKCompiler *c, size_t index, bool optional) {
+    pk_u8 op = pk_pattern_cdr_op(optional);
+    for (size_t i = 0; i < index; ++i) {
+        pk_propagate(pk_cmp_push_byte(c, op));
+    }
+    return pk_true();
+}
+
+PKAtom pk_compile_pattern_descend(pk_u8 *path, size_t length, size_t index) {
+    if ((length + index + 1) >= PK_PATTERN_PATH_MAX) {
+        return pk_errors(pk_str("destructure too deep"));
+    }
+    
+    for (size_t i = 0; i < index; ++i) {
+        path[length + i] = PK_PATTERN_PATH_CDR;
+    }
+    path[length + index] = PK_PATTERN_PATH_CAR;
+    
+    return pk_true();
+}
+
+PKAtom pk_compile_pattern_values_(PKCompiler *c, PKAtom pattern, pk_u8 *path, size_t length, size_t base, size_t bias, size_t *pushed, bool optional) {
+    PKAtom iter = pattern;
+    size_t index = 0;
+    while (pk_is_cons(iter)) {
+        PKAtom atom = iter->cons.car;
+        PKAtom tail = iter->cons.cdr;
+
+        if (pk_is_keyword(atom)) {
+            if ((pk_keyword_qeq(atom, pk_str("opt"))) || (pk_keyword_qeq(atom, pk_str("optional")))) {
+                optional = true;
+            } else if (pk_keyword_qeq(atom, pk_str("rest"))) {
+                if ((!pk_is_cons(tail)) || (!pk_is_symbol(tail->cons.car)) || (!pk_is_nil(tail->cons.cdr))) {
+                    return pk_errors(pk_str("bad destructure"));
                 }
-                pk_propagate(pk_compile_value(c, b->cons.car));
-            }
 
-            lets += 1;
-            iter = iter->cons.cdr;
-        }
-    }
-
-    {
-        PKAtom iter = bindings;
-        while (pk_is_cons(iter)) {
-            PKAtom symbol = pk_nil();
-            PKAtom a = iter->cons.car;
-            if (pk_is_symbol(a)) {
-                symbol = iter->cons.car;
+                pk_propagate(pk_cmp_push_byte(c, PK_OP_DIG));
+                pk_propagate(pk_cmp_push_any(c, (*pushed - base) + bias));
+                pk_propagate(pk_compile_pattern_path(c, path, length, optional));
+                pk_propagate(pk_compile_pattern_cdrs(c, index, true));
+                *pushed += 1;
+                return pk_true();
             } else {
-                pk_propagate(pk_typecheck_cons(a));
-                pk_propagate(pk_typecheck_symbol(a->cons.car));
-                symbol = a->cons.car;
+                return pk_errors(pk_str("bad destructure"));
             }
-            pk_propagate(pk_cmp_load(c, symbol));
+        } else if (pk_is_symbol(atom)) {
+            pk_propagate(pk_cmp_push_byte(c, PK_OP_DIG));
+            pk_propagate(pk_cmp_push_any(c, (*pushed - base) + bias));
+            pk_propagate(pk_compile_pattern_path(c, path, length, optional));
+            pk_propagate(pk_compile_pattern_cdrs(c, index, optional));
+            pk_propagate(pk_cmp_push_byte(c, pk_pattern_car_op(optional)));
+            *pushed += 1;
+        } else if (pk_is_cons(atom)) {
+            pk_propagate(pk_compile_pattern_descend(path, length, index));
+            pk_propagate(pk_compile_pattern_values_(c, atom, path, length + index + 1, base, bias, pushed, optional));
+        } else {
+            return pk_errors(pk_str("bad destructure"));
+        }
 
-            iter = iter->cons.cdr;
+        iter = tail;
+        if (!pk_is_keyword(atom)) {
+            index += 1;
         }
     }
 
+    if (!pk_is_nil(iter)) {
+        return pk_errors(pk_str("bad destructure"));
+    }
+
+    return pk_true();
+}
+
+PKAtom pk_compile_pattern_values(PKCompiler *c, PKAtom pattern, size_t bias, bool optional, size_t *pushed) {
+    pk_u8 path[PK_PATTERN_PATH_MAX] = {0};
+    return pk_compile_pattern_values_(c, pattern, path, 0, 0, bias, pushed, optional);
+}
+
+PKAtom pk_compile_pattern_symbols_(PKCompiler *c, PKAtom pattern, bool optional, size_t *leaves) {
+    PKAtom iter = pattern;
+    while (pk_is_cons(iter)) {
+        PKAtom atom = iter->cons.car;
+        PKAtom tail = iter->cons.cdr;
+
+        if (pk_is_keyword(atom)) {
+            if ((pk_keyword_qeq(atom, pk_str("opt"))) || (pk_keyword_qeq(atom, pk_str("optional")))) {
+                optional = true;
+            } else if (pk_keyword_qeq(atom, pk_str("rest"))) {
+                if ((!pk_is_cons(tail)) || (!pk_is_symbol(tail->cons.car)) || (!pk_is_nil(tail->cons.cdr))) {
+                    return pk_errors(pk_str("bad destructure"));
+                }
+                pk_propagate(pk_cmp_load(c, tail->cons.car));
+                *leaves += 1;
+                return pk_true();
+            } else {
+                return pk_errors(pk_str("bad destructure"));
+            }
+        } else if (pk_is_symbol(atom)) {
+            pk_propagate(pk_cmp_load(c, atom));
+            *leaves += 1;
+        } else if (pk_is_cons(atom)) {
+            pk_propagate(pk_compile_pattern_symbols_(c, atom, optional, leaves));
+        } else {
+            return pk_errors(pk_str("bad destructure"));
+        }
+
+        iter = tail;
+    }
+
+    if (!pk_is_nil(iter)) {
+        return pk_errors(pk_str("bad destructure"));
+    }
+
+    return pk_true();
+}
+
+PKAtom pk_compile_pattern_symbols(PKCompiler *c, PKAtom pattern, bool optional, size_t *leaves) {
+    return pk_compile_pattern_symbols_(c, pattern, optional, leaves);
+}
+
+bool pk_let_binding_is_pattern(PKAtom binding) {
+    return pk_is_cons(binding) && pk_is_cons(binding->cons.car);
+}
+
+bool pk_compile_let_has_patterns(PKAtom bindings) {
+    PKAtom iter = bindings;
+    while (pk_is_cons(iter)) {
+        if (pk_let_binding_is_pattern(iter->cons.car)) {
+            return true;
+        }
+        iter = iter->cons.cdr;
+    }
+    return false;
+}
+
+PKAtom pk_compile_let_lets(PKCompiler *c, PK_ENV env) {
     switch (env) {
         case PK_ENV_VAR: {
             pk_propagate(pk_cmp_push_byte(c, PK_OP_LET_VAR));
@@ -202,7 +318,87 @@ PKAtom pk_compile_let(PKCompiler *c, PKAtom args, PK_ENV env) {
             break;
         }
     }
+    return pk_true();
+}
+
+PKAtom pk_compile_let_binding_value(PKCompiler *c, PKAtom binding) {
+    if (pk_is_symbol(binding)) {
+        return pk_cmp_load_nil(c);
+    }
+
+    PKAtom a = binding;
+    pk_propagate(pk_typecheck_cons(a));
+    PKAtom b = a->cons.cdr;
+    pk_propagate(pk_typecheck_cons(b));
+    if (!pk_is_nil(b->cons.cdr)) {
+        return pk_errors(pk_str("bad body"));
+    }
+    return pk_compile_value(c, b->cons.car);
+}
+
+PKAtom pk_compile_let(PKCompiler *c, PKAtom args, PK_ENV env) {
+    pk_propagate(pk_typecheck_cons(args));
     
+    PKAtom bindings = args->cons.car;
+    PKAtom body = args->cons.cdr;
+    
+    pk_propagate(pk_cmp_push_byte(c, PK_OP_BLOCK_BEGIN));
+
+    bool patterns = pk_compile_let_has_patterns(bindings);
+
+    size_t values = 0;
+    {
+        PKAtom iter = bindings;
+        while (pk_is_cons(iter)) {
+            pk_propagate(pk_compile_let_binding_value(c, iter->cons.car));
+            values += 1;
+            iter = iter->cons.cdr;
+        }
+    }
+
+    if (patterns) {
+        size_t pushed = 0;
+        size_t index = 0;
+        PKAtom iter = bindings;
+        while (pk_is_cons(iter)) {
+            PKAtom binding = iter->cons.car;
+            if (pk_let_binding_is_pattern(binding)) {
+                pk_propagate(pk_compile_pattern_values(c, binding->cons.car, (values - 1) - index, false, &pushed));
+            } else {
+                pk_propagate(pk_cmp_push_byte(c, PK_OP_DIG));
+                pk_propagate(pk_cmp_push_any(c, pushed + ((values - 1) - index)));
+                pushed += 1;
+            }
+            index += 1;
+            iter = iter->cons.cdr;
+        }
+    }
+
+    size_t lets = 0;
+    {
+        PKAtom iter = bindings;
+        while (pk_is_cons(iter)) {
+            PKAtom binding = iter->cons.car;
+            if (pk_let_binding_is_pattern(binding)) {
+                pk_propagate(pk_compile_pattern_symbols(c, binding->cons.car, false, &lets));
+            } else {
+                PKAtom symbol = pk_nil();
+                if (pk_is_symbol(binding)) {
+                    symbol = binding;
+                } else {
+                    pk_propagate(pk_typecheck_cons(binding));
+                    pk_propagate(pk_typecheck_symbol(binding->cons.car));
+                    symbol = binding->cons.car;
+                }
+                pk_propagate(pk_cmp_load(c, symbol));
+                lets += 1;
+            }
+
+            iter = iter->cons.cdr;
+        }
+    }
+
+    pk_propagate(pk_compile_let_lets(c, env));
     pk_propagate(pk_cmp_push_any(c, lets));
     pk_propagate(pk_compile_evlist(c, body));
     pk_propagate(pk_cmp_push_byte(c, PK_OP_BLOCK_END));
@@ -221,12 +417,37 @@ PKAtom pk_compile_let_star(PKCompiler *c, PKAtom args, PK_ENV env) {
 
     PKAtom iter = bindings;
     while (pk_is_cons(iter)) {
+        PKAtom binding = iter->cons.car;
+
+        if (pk_let_binding_is_pattern(binding)) {
+            PKAtom a = binding->cons.car;
+            PKAtom b = binding->cons.cdr;
+            pk_propagate(pk_typecheck_cons(b));
+            if (!pk_is_nil(b->cons.cdr)) {
+                return pk_errors(pk_str("bad let binding"));
+            }
+
+            pk_propagate(pk_compile_value(c, b->cons.car));
+
+            size_t pushed = 0;
+            pk_propagate(pk_compile_pattern_values(c, a, 0, false, &pushed));
+
+            size_t lets = 0;
+            pk_propagate(pk_compile_pattern_symbols(c, a, false, &lets));
+
+            pk_propagate(pk_compile_let_lets(c, env));
+            pk_propagate(pk_cmp_push_any(c, lets));
+
+            iter = iter->cons.cdr;
+            continue;
+        }
+
         PKAtom symbol = pk_nil();
-        if (pk_is_symbol(iter->cons.car)) {
+        if (pk_is_symbol(binding)) {
             pk_propagate(pk_cmp_load_nil(c));
-            symbol = iter->cons.car;
+            symbol = binding;
         } else {
-            PKAtom a = iter->cons.car;
+            PKAtom a = binding;
             if (!pk_is_cons(a)) {
                 return pk_errors(pk_str("bad let binding"));
             }
@@ -246,21 +467,7 @@ PKAtom pk_compile_let_star(PKCompiler *c, PKAtom args, PK_ENV env) {
         }
 
         pk_propagate(pk_cmp_load(c, symbol));
-        
-        switch (env) {
-            case PK_ENV_VAR: {
-                pk_propagate(pk_cmp_push_byte(c, PK_OP_LET_VAR));
-                break;
-            }
-            case PK_ENV_FUN: {
-                pk_propagate(pk_cmp_push_byte(c, PK_OP_LET_FUN));
-                break;
-            }
-            case PK_ENV_PROP: {
-                pk_propagate(pk_cmp_push_byte(c, PK_OP_LET_PROP));
-                break;
-            }
-        }
+        pk_propagate(pk_compile_let_lets(c, env));
         pk_propagate(pk_cmp_push_byte(c, 1));
         
         iter = iter->cons.cdr;

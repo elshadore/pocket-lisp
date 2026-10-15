@@ -215,6 +215,11 @@ typedef struct PKAtomCFun_ {
 #define PK_OP_MERGE_LISTS (24)
 #define PK_OP_STRCAT (25)
 #define PK_OP_JMP_WHEN (26)
+#define PK_OP_DIG (27)
+#define PK_OP_CAR (28)
+#define PK_OP_CAR_STRICT (29)
+#define PK_OP_CDR (30)
+#define PK_OP_CDR_STRICT (31)
 
 typedef enum PK_OPCODE_TY_ {
     PK_OPCODE_TY_NORMAL = 0,
@@ -420,6 +425,9 @@ PKAtom pk_stack_op_list(size_t depth);
 PKAtom pk_stack_op_list_packed(size_t depth);
 PKAtom pk_stack_op_list_merge(size_t depth);
 PKAtom pk_stack_op_strcat(size_t depth);
+PKAtom pk_stack_op_dig(size_t depth);
+PKAtom pk_stack_op_car(bool strict);
+PKAtom pk_stack_op_cdr(bool strict);
     
 void pk_let_unwind(size_t n);
 

@@ -187,3 +187,46 @@ PKAtom pk_stack_op_strcat(size_t depth) {
     
     return pk_stack_op_finish(depth, result);
 }
+
+PKAtom pk_stack_op_dig(size_t depth) {
+    PKAtoms slice = PK_ATOMS_EMPTY;
+    pk_propagate(pk_stack_slice_down(depth + 1, &slice));
+    
+    return pk_stack_push(slice.e[0]);
+}
+
+PKAtom pk_stack_op_car(bool strict) {
+    PKAtom top = pk_stack_head();
+    PKAtom car = pk_nil();
+    if (!pk_is_nil(top)) {
+        car = pk_car(top);
+        pk_propagate(car);
+    } else if (strict) {
+        return pk_errors(pk_str("not enough elements"));
+    }
+    
+    pk_ref_dec(top);
+    pk_stack_pop_unchecked(1);
+    
+    PKAtom result = pk_stack_push(car);
+    pk_ref_dec(car);
+    return result;
+}
+
+PKAtom pk_stack_op_cdr(bool strict) {
+    PKAtom top = pk_stack_head();
+    PKAtom cdr = pk_nil();
+    if (!pk_is_nil(top)) {
+        cdr = pk_cdr(top);
+        pk_propagate(cdr);
+    } else if (strict) {
+        return pk_errors(pk_str("not enough elements"));
+    }
+    
+    pk_ref_dec(top);
+    pk_stack_pop_unchecked(1);
+    
+    PKAtom result = pk_stack_push(cdr);
+    pk_ref_dec(cdr);
+    return result;
+}

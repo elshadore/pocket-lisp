@@ -258,6 +258,32 @@ PKAtom pk_vm_op_exec(PKVM *vm) {
             pk_propagate(pk_vm_inc(vm));
             break;
         }
+        case PK_OP_DIG: {
+            pk_propagate(pk_vm_inc(vm));
+            pk_propagate(pk_stack_op_dig(pk_vat(vm)));
+            pk_propagate(pk_vm_inc(vm));
+            break;
+        }
+        case PK_OP_CAR: {
+            pk_propagate(pk_vm_inc(vm));
+            pk_propagate(pk_stack_op_car(false));
+            break;
+        }
+        case PK_OP_CAR_STRICT: {
+            pk_propagate(pk_vm_inc(vm));
+            pk_propagate(pk_stack_op_car(true));
+            break;
+        }
+        case PK_OP_CDR: {
+            pk_propagate(pk_vm_inc(vm));
+            pk_propagate(pk_stack_op_cdr(false));
+            break;
+        }
+        case PK_OP_CDR_STRICT: {
+            pk_propagate(pk_vm_inc(vm));
+            pk_propagate(pk_stack_op_cdr(true));
+            break;
+        }
         case PK_OP_RET: {
             vm->finished = true;
             break;
