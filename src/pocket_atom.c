@@ -102,8 +102,8 @@ bool pk_is_undefined(PKAtom atom) {
     return atom->header.type == PK_ATOMTY_UNDEFINED;
 }
 
-bool pk_type_match(PKAtom atom, PK_TYPE match) {
-    if (match == PK_TYPE_TRUE) {
+bool pk_is_type(PKAtom atom, PK_TYPE type) {
+    if (type == PK_TYPE_TRUE) {
         if (atom->header.type == PK_ATOMTY_NIL) {
             return false;
         } else {
@@ -112,16 +112,16 @@ bool pk_type_match(PKAtom atom, PK_TYPE match) {
     }
     switch (atom->header.type) {
         case PK_ATOMTY_OOM: {
-            return (match == PK_TYPE_THROW) || (match == PK_TYPE_ERROR);
+            return (type == PK_TYPE_THROW) || (type == PK_TYPE_ERROR);
         }
         case PK_ATOMTY_THROW: {
-            return match == PK_TYPE_THROW;
+            return type == PK_TYPE_THROW;
         }
         case PK_ATOMTY_NIL: {
-            return (match == PK_TYPE_NIL) || (match == PK_TYPE_LIST);
+            return (type == PK_TYPE_NIL) || (type == PK_TYPE_LIST);
         }
         case PK_ATOMTY_NUMBER: {
-            switch (match) {
+            switch (type) {
                 case PK_TYPE_NUMBER: return true;
                 case PK_TYPE_INTEGER: return atom->number.num_type == PK_NUMTY_INT;
                 case PK_TYPE_FLOAT: return atom->number.num_type == PK_NUMTY_FLOAT;
@@ -129,74 +129,47 @@ bool pk_type_match(PKAtom atom, PK_TYPE match) {
             }
         }
         case PK_ATOMTY_STRING: {
-            return match == PK_TYPE_STRING;
+            return type == PK_TYPE_STRING;
         }
         case PK_ATOMTY_SYMBOL: {
-            return match == PK_TYPE_SYMBOL;
+            return type == PK_TYPE_SYMBOL;
         }
         case PK_ATOMTY_KEYWORD: {
-            return match == PK_TYPE_KEYWORD;
+            return type == PK_TYPE_KEYWORD;
         }
         case PK_ATOMTY_CONS: {
-            return (match == PK_TYPE_CONS) || (match == PK_TYPE_LIST);
+            return (type == PK_TYPE_CONS) || (type == PK_TYPE_LIST);
         }
         case PK_ATOMTY_CFUN: {
-            return (match == PK_TYPE_FUNCTION) || (match == PK_TYPE_CFUN);
+            return (type == PK_TYPE_FUNCTION) || (type == PK_TYPE_CFUN);
         }
         case PK_ATOMTY_LFUN: {
-            return (match == PK_TYPE_FUNCTION) || (match == PK_TYPE_LFUN);
+            return (type == PK_TYPE_FUNCTION) || (type == PK_TYPE_LFUN);
         }
         case PK_ATOMTY_CMACRO: {
-            return (match == PK_TYPE_MACRO) || (match == PK_TYPE_CMACRO);
+            return (type == PK_TYPE_MACRO) || (type == PK_TYPE_CMACRO);
         }
         case PK_ATOMTY_LMACRO: {
-            return (match == PK_TYPE_MACRO) || (match == PK_TYPE_LMACRO);
+            return (type == PK_TYPE_MACRO) || (type == PK_TYPE_LMACRO);
         }
         default: return false;
     }
 }
 
-PK_TYPE pk_type_of(PKAtom atom) {
-    switch (atom->header.type) {
-        case PK_ATOMTY_OOM: return PK_TYPE_THROW;
-        case PK_ATOMTY_THROW: return PK_TYPE_THROW;
-        case PK_ATOMTY_NIL: return PK_TYPE_UNKNOWN;
-        case PK_ATOMTY_TRUE: return PK_TYPE_UNKNOWN;
-        case PK_ATOMTY_NUMBER: {
-            switch (atom->number.num_type) {
-                case PK_NUMTY_INT: return PK_TYPE_INTEGER;
-                case PK_NUMTY_FLOAT: return PK_TYPE_FLOAT;
-                default: return PK_TYPE_NUMBER;
-            }
-        }
-        case PK_ATOMTY_STRING: return PK_TYPE_STRING;
-        case PK_ATOMTY_SYMBOL: return PK_TYPE_SYMBOL;
-        case PK_ATOMTY_KEYWORD: return PK_TYPE_KEYWORD;
-        case PK_ATOMTY_CONS: return PK_TYPE_CONS;
-        case PK_ATOMTY_ARRAY: return PK_TYPE_SEQ;
-        case PK_ATOMTY_TABLE: return PK_TYPE_SEQ;
-        case PK_ATOMTY_CFUN: return PK_TYPE_CFUN;
-        case PK_ATOMTY_LFUN: return PK_TYPE_LFUN;
-        case PK_ATOMTY_CMACRO: return PK_TYPE_CMACRO;
-        case PK_ATOMTY_LMACRO: return PK_TYPE_LMACRO;
-        default: return PK_TYPE_UNKNOWN;
+PKAtom pk_typecheck(PKAtom atom, PK_TYPE check) {
+    if (pk_is_type(atom, check)) {
+        return pk_true();
+    } else {
+        return pk_error_type(check, atom);
     }
 }
 
 PKAtom pk_typecheck_symbol(PKAtom atom) {
-    if (pk_is_symbol(atom)) {
-        return pk_true();
-    } else {
-        return pk_error_type(PK_TYPE_SYMBOL, atom);
-    }
+    return pk_typecheck(atom, PK_TYPE_SYMBOL);
 }
 
 PKAtom pk_typecheck_keyword(PKAtom atom) {
-    if (pk_is_keyword(atom)) {
-        return pk_true();
-    } else {
-        return pk_error_type(PK_TYPE_KEYWORD, atom);
-    }
+    return pk_typecheck(atom, PK_TYPE_KEYWORD);
 }
 
 PKAtom pk_reverse(PKAtom atom) {

@@ -404,6 +404,9 @@ PKAtom pk_lfun_exec(PKAtom lfun, size_t save);
 bool pk_is_cfun(PKAtom atom);
 bool pk_is_lfun(PKAtom atom);
 bool pk_is_function(PKAtom atom);
+PKAtom pk_typecheck_lfun(PKAtom atom);
+PKAtom pk_typecheck_cfun(PKAtom atom);
+PKAtom pk_typecheck_function(PKAtom atom);
 
 void pk_print_str(PKStr string);
 

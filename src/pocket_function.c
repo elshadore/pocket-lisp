@@ -104,12 +104,21 @@ PKAtom pk_hexdump_(PKWriter *w, PKAtom lfun) {
 }
     
 PKAtom pk_hexdump(PKAtom lfun) {
-    if (!pk_is_lfun(lfun)) {
-        return pk_errors(pk_str("expected lfun"));
+    PKAtom a = lfun;
+    if (pk_is_symbol(a)) {
+        a = pk_get(PK_ENV_FUN, a);
+        pk_propagate(a);
+    } else {
+        pk_propagate(pk_ref_inc(a));
     }
+    
+    pk_propagate(pk_typecheck_lfun(a));
+    
     PKWriter w = PK_WRITER_EMPTY;
-    PKAtom result = pk_hexdump_(&w, lfun);
+    PKAtom result = pk_hexdump_(&w, a);
     pk_writer_deinit(&w);
+    pk_ref_dec(a);
+    
     return result;
 }
 
@@ -125,3 +134,14 @@ bool pk_is_function(PKAtom atom) {
     return pk_is_cfun(atom) || pk_is_lfun(atom);
 }
 
+PKAtom pk_typecheck_lfun(PKAtom atom) {
+    return pk_typecheck(atom, PK_TYPE_LFUN);
+}
+
+PKAtom pk_typecheck_cfun(PKAtom atom) {
+    return pk_typecheck(atom, PK_TYPE_CFUN);
+}
+
+PKAtom pk_typecheck_function(PKAtom atom) {
+    return pk_typecheck(atom, PK_TYPE_FUNCTION);
+}
