@@ -4,15 +4,11 @@
 #define REPL_CODE \
 "(defvar repl/running true)\n" \
 "\n" \
-"(defvar repl/result nil)\n" \
-"\n" \
 "(defun repl/quit ()\n" \
 "  (setq repl/running nil))\n" \
 "\n" \
 "(defun read-eval-print (string)\n" \
-"  (setq repl/result (catch 'error (eval (read string))))\n" \
-"  (print repl/result)\n" \
-"  repl/result)\n" \
+"  (print (catch 'error (eval (read string)))))\n" \
 "\n" \
 "(when (= (cadr args) \"-e\")\n" \
 "  (setq repl/running nil)\n" \
@@ -23,11 +19,9 @@
 "  (var input (fs/read-user-input))\n" \
 "  (if input\n" \
 "      (read-eval-print input)\n" \
-"    (progn\n" \
-"      (setq repl/result nil)\n" \
-"      (repl/quit))))\n" \
+"    (repl/quit)))\n" \
 "\n" \
-"repl/result\n"
+"'quit\n"
 
 
 #endif // REPL_H

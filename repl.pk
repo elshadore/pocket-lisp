@@ -1,14 +1,10 @@
 (defvar repl/running true)
 
-(defvar repl/result nil)
-
 (defun repl/quit ()
   (setq repl/running nil))
 
 (defun read-eval-print (string)
-  (setq repl/result (catch 'error (eval (read string))))
-  (print repl/result)
-  repl/result)
+  (print (catch 'error (eval (read string)))))
 
 (when (= (cadr args) "-e")
   (setq repl/running nil)
@@ -19,8 +15,6 @@
   (var input (fs/read-user-input))
   (if input
       (read-eval-print input)
-    (progn
-      (setq repl/result nil)
-      (repl/quit))))
+    (repl/quit)))
 
-repl/result
+'quit

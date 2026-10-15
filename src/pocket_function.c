@@ -108,9 +108,8 @@ PKAtom pk_hexdump(PKAtom lfun) {
     if (pk_is_symbol(a)) {
         a = pk_get(PK_ENV_FUN, a);
         pk_propagate(a);
-    } else {
-        pk_propagate(pk_ref_inc(a));
     }
+    pk_propagate(pk_ref_inc(a));
     
     pk_propagate(pk_typecheck_lfun(a));
     
