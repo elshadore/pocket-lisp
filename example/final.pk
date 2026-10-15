@@ -1,19 +1,24 @@
+#!/bin/pocket -e
+
 # Example Final Syntax
 
 ## Objects
 
 (defclass Tilemap (IRectangle)
-     (e :init nil)
-     (width :type Integer :init 0)
-     (height :type Integer :init 0))
+  :doc "A Tilemap class, use `tilemap` as a constructor."
+  (e :init nil)
+  (width :type Integer :init 0)
+  (height :type Integer :init 0))
 
 (defun tilemap ((width Integer) (height Integer) :key (fill nil))
-     (assert (and (>= width 0) (>= height 0)))
-     (var area (* width height))
-     (var e (array area fill))
-     (new 'Tilemap :e e
-                   :width width
-                   :height height))
+  :doc "Creates a Tilemap."
+  :return-type Tilemap
+  (assert (and (>= width 0) (>= height 0)))
+  (var area (* width height))
+  (var e (array area fill))
+  (new 'Tilemap :e e
+       :width width
+       :height height))
 
 (defun xy->index ((x Integer) (y Integer) (width Integer))
      (+ (* y width) x))
@@ -40,3 +45,5 @@
 (block foo
      (break foo 69)
      420)
+
+

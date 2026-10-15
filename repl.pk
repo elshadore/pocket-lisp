@@ -3,22 +3,24 @@
 (defvar repl/result nil)
 
 (defun repl/quit ()
-     (setq repl/running nil))
+  (setq repl/running nil))
 
 (defun read-eval-print (string)
-     (setq repl/result (eval (read string)))
-     (print repl/result)
-     repl/result)
-     
+  (setq repl/result (catch 'error (eval (read string))))
+  (print repl/result)
+  repl/result)
+
 (when (= (cadr args) "-e")
-     (setq repl/running nil)
-     (read-eval-print (caddr args)))
+  (setq repl/running nil)
+  (read-eval-print (caddr args)))
 
 (while repl/running
-     (puts "LISP>> ")
-     (var input (fs/read-user-input))
-     (if input
-        (print (catch 'error (eval (read input))))
-        (repl/quit)))
+  (puts "LISP>> ")
+  (var input (fs/read-user-input))
+  (if input
+      (read-eval-print (input))
+    (progn
+      (setq repl/result nil)
+      (repl/quit))))
 
 repl/result

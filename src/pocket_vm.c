@@ -294,7 +294,3 @@ PKAtom pk_vm_exec(PKVM *vm) {
     return result;
 }
 
-PKAtom pk_lfun_exec(PKAtom lfun, size_t save) {
-    PKVM vm = pk_vm_init(lfun, save);
-    return pk_vm_exec(&vm);
-}

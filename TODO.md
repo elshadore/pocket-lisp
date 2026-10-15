@@ -1,32 +1,65 @@
 # TODO
 The todo list for POCKET LISP
 
-## TODAY
+## V1
+- [ ] Debug Mode
+- [ ] Multiple Optional Variables
+- [ ] Special Forms
+  - [ ] unwind-protect
+  - [ ] bind
+    - Upgrade `let` forms to support destructuring bind
+  - [ ] fn, λ, lambda
+  - [ ] defvar, defun, defmacro, defclass
 - [ ] Object System
   - [ ] CObjects
+  - [ ] LObjects
   - [ ] Array
   - [ ] Table
   - [ ] Slots
   - [ ] Methods
-- [ ] Multiple Optional Variables
-- [ ] Special Forms
-  - [ ] break
-  - [ ] block
-  - [ ] unwind-protect
-  - [ ] setq, fsetq, psetq
-  - [ ] bind
-
-## TODO
-- [ ] Full Code Review
+- [ ] Big Numbers
+- [ ] Streams
+- [ ] List Funs / List Vars
+- [ ] Unicode Strings (utf8)
+- [ ] Types
+  - [ ] Char (Unicode)
+  - [ ] Byte Type
+  - [ ] Byte Blobs (Immutable like Strings)
+  - [ ] StringArray (Mutable Append)
+  - [ ] ByteArray (Mutable Append)
+- [ ] Emacs Mode
+  - [ ] Syntax Highlighting
+  - [ ] Identation
+    - `(declare (indent 1))`
+  - Connect to Lisp Server
+- [ ] Environment Objects
 - [ ] Full Float Parsing and Printing
   - [ ] Parsing
   - [ ] Printing
-- [ ] Big Numbers
 - [ ] Immutable Vector Update
   - Move from cons cells to immutable vectors.
+- [ ] Special Form: setq, fsetq, psetq
+- [ ] Standard Library
+  - [ ] Filesystem API
+  - [ ] Shell Command / Process API
+  - [ ] TCP/UDP
+  - [ ] JSON
+  - [ ] HTTP
+  - [ ] HTML
+- [ ] Error Stack Traces
+- [ ] Testing Suite
+- [ ] Full Code Review
+
+## V2
+- [ ] Interpretter Objects
 - [ ] Lexical Capture
-- [ ] Compiling Non Special Variables
+  - [ ] Upvalues
+  - [ ] Compiling Non Special Variables as Stack Variables
+  - [ ] Need Eval to Work
 - [ ] Modules / Namespaces / Packages
   - `foo:bar-baz`
 - [ ] Inputting and Outputting Bytecode
   - Compiling bytecode to a `.pkc` format.
+- [ ] Async
+  - [ ] Green Threads
+  - [ ] Async Dynamic Scope

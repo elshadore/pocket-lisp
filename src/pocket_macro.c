@@ -110,3 +110,7 @@ PKAtom pk_macroexpand(PKAtom atom) {
     }
     return result;
 }
+
+bool pk_is_macro(PKAtom atom) {
+    return atom->header.type == PK_ATOMTY_CMACRO || atom->header.type == PK_ATOMTY_LMACRO;
+}
