@@ -140,17 +140,17 @@ PKAtom pk_compile_evlist(PKCompiler *c, PKAtom args) {
 
 pk_u8 pk_pattern_car_op(bool optional) {
     if (optional) {
-        return PK_OP_CAR_STRICT;
-    } else {
         return PK_OP_CAR;
+    } else {
+        return PK_OP_CAR_STRICT;
     }
 }
 
 pk_u8 pk_pattern_cdr_op(bool optional) {
     if (optional) {
-        return PK_OP_CDR_STRICT;
-    } else {
         return PK_OP_CDR;
+    } else {
+        return PK_OP_CDR_STRICT;
     }
 }
 
