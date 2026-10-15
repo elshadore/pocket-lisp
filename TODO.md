@@ -3,6 +3,7 @@ The todo list for POCKET LISP
 
 ## V1
 - [ ] Special Forms
+  - [ ] protect
   - [ ] unwind-protect
   - [ ] fn, λ, lambda
   - [ ] defvar, defun, defmacro, defclass
@@ -15,7 +16,6 @@ The todo list for POCKET LISP
   - [ ] Methods
 - [ ] Big Numbers
 - [ ] Streams
-- [ ] List Funs / List Vars
 - [ ] Unicode Strings (utf8)
 - [ ] Types
   - [ ] Char (Unicode)
