@@ -3,16 +3,6 @@
 
 #include "pocket.h"
 
-typedef int8_t pk_i8;
-typedef int16_t pk_i16;
-typedef int32_t pk_i32;
-typedef int64_t pk_i64;
-
-typedef uint8_t pk_u8;
-typedef uint16_t pk_u16;
-typedef uint32_t pk_u32;
-typedef uint64_t pk_u64;
-
 typedef enum PK_SYMTY_ {
     PK_SYMTY_SYMBOL = 0,
     PK_SYMTY_KEYWORD,

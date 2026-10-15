@@ -1,6 +1,6 @@
 #include "pocket_internals.h"
 
-PKAtom pk_cfun_cons(void *user_closure, PK_CALL call, void *opaque_fun, pk_u8 args, pk_u8 arity) {
+PKAtom pk_cfun_cons(void *user_closure, PK_CALL call, void *opaque_fun, pk_u8 args, pk_u8 arity, pk_u8 option_start) {
     PKAtom atom = pk_atom_alloc();
     pk_propagate(atom);
 
@@ -12,11 +12,7 @@ PKAtom pk_cfun_cons(void *user_closure, PK_CALL call, void *opaque_fun, pk_u8 ar
     atom->cfun.user_closure = user_closure;
     atom->cfun.args = args;
     atom->cfun.arity = arity;
-    if (arity == PK_INT_ARITY_OPTIONAL) {
-        atom->cfun.option_start = args - 1;
-    } else {
-        atom->cfun.option_start = args;
-    }
+    atom->cfun.option_start = option_start;
     atom->cfun.option_start = (arity == PK_INT_ARITY_OPTIONAL) ? (pk_u8)(args - 1) : args;
     atom->cfun.as.opaque = opaque_fun;
     return atom;
@@ -32,19 +28,25 @@ pk_u8 pk_cfun_arity_conv(PK_ARITY arity) {
 }
 
 PKAtom pk_cfun0(void *user_closure, PK_CALL call, PKFun0 fun) {
-    return pk_cfun_cons(user_closure, call, (void *)fun, 0, PK_INT_ARITY_NORMAL);
+    return pk_cfun_cons(user_closure, call, (void *)fun, 0, PK_INT_ARITY_NORMAL, 0);
 }
 
 PKAtom pk_cfun1(void *user_closure, PK_CALL call, PKFun1 fun, PK_ARITY arity) {
-    return pk_cfun_cons(user_closure, call, (void *)fun, 1, pk_cfun_arity_conv(arity));
+    return pk_cfun_cons(user_closure, call, (void *)fun, 1, pk_cfun_arity_conv(arity), 1);
 }
 
-PKAtom pk_cfun2(void *user_closure, PK_CALL call, PKFun2 fun, PK_ARITY arity) {
-    return pk_cfun_cons(user_closure, call, (void *)fun, 2, pk_cfun_arity_conv(arity));
+PKAtom pk_cfun2(void *user_closure, PK_CALL call, PKFun2 fun, PK_ARITY arity, pk_u8 optionals) {
+    if (optionals > 2) {
+        return pk_errors(pk_str("cannot have more than 2 optionals in pk_cfun2"));
+    }
+    return pk_cfun_cons(user_closure, call, (void *)fun, 2, pk_cfun_arity_conv(arity), 2 - optionals);
 }
 
-PKAtom pk_cfun3(void *user_closure, PK_CALL call, PKFun3 fun, PK_ARITY arity) {
-    return pk_cfun_cons(user_closure, call, (void *)fun, 3, pk_cfun_arity_conv(arity));
+PKAtom pk_cfun3(void *user_closure, PK_CALL call, PKFun3 fun, PK_ARITY arity, pk_u8 optionals){
+    if (optionals > 3) {
+        return pk_errors(pk_str("cannot have more than 3 optionals in pk_cfun3"));
+    }
+    return pk_cfun_cons(user_closure, call, (void *)fun, 3, pk_cfun_arity_conv(arity), 3 - optionals);
 }
 
 PKAtom pk_lfun_exec(PKAtom lfun, size_t save) {

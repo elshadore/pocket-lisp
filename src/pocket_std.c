@@ -204,31 +204,31 @@ PK_TEMPLATE_FUN1(pk_fun_hexdump, pk_hexdump)
 } while(0)
 
 PKAtom pk_std_load_cfun(void) {
-    PK_FLOAD(pk_str("+"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_add, PK_ARITY_VARIADIC));
-    PK_FLOAD(pk_str("-"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_sub, PK_ARITY_VARIADIC));
-    PK_FLOAD(pk_str("*"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_mul, PK_ARITY_VARIADIC));
-    PK_FLOAD(pk_str("/"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_div, PK_ARITY_VARIADIC));
-    PK_FLOAD(pk_str("%"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_mod, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("mod"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_mod, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("+"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_add, PK_ARITY_VARIADIC, 0));
+    PK_FLOAD(pk_str("-"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_sub, PK_ARITY_VARIADIC, 0));
+    PK_FLOAD(pk_str("*"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_mul, PK_ARITY_VARIADIC, 0));
+    PK_FLOAD(pk_str("/"), pk_cfun3(NULL, PK_CALL_FUN, pk_fun_div, PK_ARITY_VARIADIC, 0));
+    PK_FLOAD(pk_str("%"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_mod, PK_ARITY_NORMAL, 0));
+    PK_FLOAD(pk_str("mod"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_mod, PK_ARITY_NORMAL, 0));
     
-    PK_FLOAD(pk_str("<"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_lt, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("<="), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_lte, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str(">"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_gt, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str(">="), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_gte, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("<"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_lt, PK_ARITY_NORMAL, 0));
+    PK_FLOAD(pk_str("<="), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_lte, PK_ARITY_NORMAL, 0));
+    PK_FLOAD(pk_str(">"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_gt, PK_ARITY_NORMAL, 0));
+    PK_FLOAD(pk_str(">="), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_gte, PK_ARITY_NORMAL, 0));
     
-    PK_FLOAD(pk_str("="), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_eq, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("eq?"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_eq, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("="), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_eq, PK_ARITY_NORMAL, 0));
+    PK_FLOAD(pk_str("eq?"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_eq, PK_ARITY_NORMAL, 0));
     
-    PK_FLOAD(pk_str("cons"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_cons, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("cons"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_cons, PK_ARITY_NORMAL, 0));
     PK_FLOAD(pk_str("list"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_list, PK_ARITY_VARIADIC));
     PK_FLOAD(pk_str("car"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_car, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("cdr"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_cdr, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("set-car"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set_car, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("set-cdr"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set_cdr, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("set-car"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set_car, PK_ARITY_NORMAL, 0));
+    PK_FLOAD(pk_str("set-cdr"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set_cdr, PK_ARITY_NORMAL, 0));
 
-    PK_FLOAD(pk_str("set"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("fset"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_fset, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("pset"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_pset, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("set"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_set, PK_ARITY_NORMAL, 0));
+    PK_FLOAD(pk_str("fset"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_fset, PK_ARITY_NORMAL, 0));
+    PK_FLOAD(pk_str("pset"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_pset, PK_ARITY_NORMAL, 0));
 
     PK_FLOAD(pk_str("get"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_get, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("fget"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_fget, PK_ARITY_NORMAL));
@@ -242,16 +242,16 @@ PKAtom pk_std_load_cfun(void) {
     PK_FLOAD(pk_str("funbind"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_funbind, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("punbind"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_punbind, PK_ARITY_NORMAL));
     
-    PK_FLOAD(pk_str("funcatch"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_funcatch, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("throw"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_throw, PK_ARITY_NORMAL));
+    PK_FLOAD(pk_str("funcatch"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_funcatch, PK_ARITY_NORMAL, 0));
+    PK_FLOAD(pk_str("throw"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_throw, PK_ARITY_NORMAL, 0));
     
     PK_FLOAD(pk_str("hexdump"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_hexdump, PK_ARITY_NORMAL));
     
     PK_FLOAD(pk_str("read"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_read, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("read-list"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_read_list, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("apply"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_apply, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("macro-apply"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_macro_apply, PK_ARITY_NORMAL));
-    PK_FLOAD(pk_str("funcall"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_funcall, PK_ARITY_VARIADIC));
+    PK_FLOAD(pk_str("apply"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_apply, PK_ARITY_NORMAL, 0));
+    PK_FLOAD(pk_str("macro-apply"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_macro_apply, PK_ARITY_NORMAL, 0));
+    PK_FLOAD(pk_str("funcall"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_funcall, PK_ARITY_VARIADIC, 0));
     PK_FLOAD(pk_str("print"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_print, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("puts"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_puts, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("eval"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_eval, PK_ARITY_NORMAL));

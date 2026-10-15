@@ -9,6 +9,16 @@
 #include <string.h>
 #include <limits.h>
 
+typedef int8_t pk_i8;
+typedef int16_t pk_i16;
+typedef int32_t pk_i32;
+typedef int64_t pk_i64;
+
+typedef uint8_t pk_u8;
+typedef uint16_t pk_u16;
+typedef uint32_t pk_u32;
+typedef uint64_t pk_u64;
+
 typedef union PKAtomData_ *PKAtom;
 
 typedef PKAtom (PKFun0)(void *user_closure);
@@ -142,8 +152,8 @@ PKAtom pk_set_cdr(PKAtom cons, PKAtom new_cdr);
 
 PKAtom pk_cfun0(void *user_closure, PK_CALL call, PKFun0 fun);
 PKAtom pk_cfun1(void *user_closure, PK_CALL call, PKFun1 fun, PK_ARITY arity);
-PKAtom pk_cfun2(void *user_closure, PK_CALL call, PKFun2 fun, PK_ARITY arity);
-PKAtom pk_cfun3(void *user_closure, PK_CALL call, PKFun3 fun, PK_ARITY arity);
+PKAtom pk_cfun2(void *user_closure, PK_CALL call, PKFun2 fun, PK_ARITY arity, pk_u8 optionals);
+PKAtom pk_cfun3(void *user_closure, PK_CALL call, PKFun3 fun, PK_ARITY arity, pk_u8 optionals);
 
 PKAtom pk_add(PKAtom lhs, PKAtom rhs);
 PKAtom pk_sub(PKAtom lhs, PKAtom rhs);
