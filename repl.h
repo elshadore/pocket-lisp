@@ -10,6 +10,9 @@
 "(defun read-eval-print (string)\n" \
 "  (print (catch 'error (eval (read string)))))\n" \
 "\n" \
+"(defun test (:opt a b c d)\n" \
+"  (print $\"{a}, {b}, {c}, {d}\"))\n" \
+"\n" \
 "(when (= (cadr args) \"-e\")\n" \
 "  (setq repl/running nil)\n" \
 "  (read-eval-print (caddr args)))\n" \

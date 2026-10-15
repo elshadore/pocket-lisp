@@ -37,6 +37,7 @@ PKAtom pk_compile_strsub_value(PKStrSub *sub, PKStr string) {
     PKAtom read = pk_read_str(string, PK_MODE_EXPRESSION);
     pk_propagate(read);
     pk_propagate(pk_compile_value(sub->cmp, read));
+    pk_ref_dec(read);
     return pk_true();
 }
 
@@ -64,6 +65,7 @@ PKAtom pk_compile_strsub_(PKStrSub *sub) {
                 PKAtom before = pk_string(pk_writer_slice(&sub->w));
                 pk_propagate(before);
                 pk_propagate(pk_cmp_load(sub->cmp, before));
+                pk_ref_dec(before);
                 count += 1;
             }
                 
@@ -93,6 +95,7 @@ PKAtom pk_compile_strsub_(PKStrSub *sub) {
         PKAtom before = pk_string(pk_writer_slice(&sub->w));
         pk_propagate(before);
         pk_propagate(pk_cmp_load(sub->cmp, before));
+        pk_ref_dec(before);
         count += 1;
     }
 

@@ -60,14 +60,31 @@ PKAtom pk_stringc(char *cstring) {
     return pk_string(string);
 }
 
+PKAtom pk_string_cat_part(PKAtom atom, PKStr *part, PKAtom *owned) {
+    if (pk_is_string(atom)) {
+        *part = atom->string.str;
+        *owned = pk_nil();
+        return pk_true();
+    }
+    
+    PKAtom result = pk_format(atom);
+    pk_propagate(result);
+    *part = result->string.str;
+    *owned = result;
+    return pk_true();
+}
+
 PKAtom pk_string_cat(PKAtoms strings) {
     size_t length = 0;
     for (size_t i = 0; i < strings.length; ++i) {
-        PKAtom string = strings.e[i];
-        if (!pk_is_string(string)) {
-            return pk_errors(pk_str("expected string"));
+        PKStr part = PK_STR_EMPTY;
+        PKAtom owned = pk_nil();
+        PKAtom result = pk_string_cat_part(strings.e[i], &part, &owned);
+        if (pk_is_throwing(result)) {
+            return result;
         }
-        length += string->string.str.length;
+        pk_ref_dec(owned);
+        length += part.length;
     }
     PKAtom atom = pk_string_alloc(length);
     
@@ -76,9 +93,15 @@ PKAtom pk_string_cat(PKAtoms strings) {
     {
         size_t offset = 0;
         for (size_t i = 0; i < strings.length; ++i) {
-            PKAtom string = strings.e[i];
-            memcpy(atom->string.str.c + offset, string->string.str.c, string->string.str.length);
-            offset += string->string.str.length;
+            PKStr part = PK_STR_EMPTY;
+            PKAtom owned = pk_nil();
+            PKAtom result = pk_string_cat_part(strings.e[i], &part, &owned);
+            pk_propagate(result);
+            if (part.length > 0) {
+                memcpy(atom->string.str.c + offset, part.c, part.length);
+                offset += part.length;
+            }
+            pk_ref_dec(owned);
         }
     }
     return atom;

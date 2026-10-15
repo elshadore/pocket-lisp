@@ -397,6 +397,7 @@ PKAtom pk_string_empty(void);
 PKAtom pk_string_alloc(size_t length);
 PKAtom pk_string_nomemcpy(PKStr string);
 PKAtom pk_string_cat(PKAtoms strings);
+PKAtom pk_string_cat_part(PKAtom atom, PKStr *part, PKAtom *owned);
 
 bool pk_type_match(PKAtom atom, PK_TYPE match);
     

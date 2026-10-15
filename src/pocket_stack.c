@@ -181,7 +181,9 @@ PKAtom pk_stack_op_strcat(size_t depth) {
     PKAtoms slice = PK_ATOMS_EMPTY;
     pk_propagate(pk_stack_slice_down(depth, &slice));
     PKAtom result = pk_string_cat(slice);
-    pk_propagate(result);
+    if (pk_is_throwing(result)) {
+        return result;
+    }
     
     return pk_stack_op_finish(depth, result);
 }

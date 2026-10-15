@@ -6,6 +6,9 @@
 (defun read-eval-print (string)
   (print (catch 'error (eval (read string)))))
 
+(defun test (:opt a b c d)
+  (print $"{a}, {b}, {c}, {d}"))
+
 (when (= (cadr args) "-e")
   (setq repl/running nil)
   (read-eval-print (caddr args)))
