@@ -144,8 +144,10 @@ void pk_deinit(void) {
             }
         }
     }
-    
+
+    #ifdef POCKET_CFLAG_DEBUG
     pk_debug_leakcheck();
+    #endif
 
     {
         PKPool *iter = PK_CORE.pool;

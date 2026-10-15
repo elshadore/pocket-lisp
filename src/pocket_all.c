@@ -2,7 +2,11 @@
 #include "pocket_call.c"
 #include "pocket_compiler.c"
 #include "pocket_core.c"
+
+#ifdef POCKET_CFLAG_DEBUG
 #include "pocket_debug.c"
+#endif
+
 #include "pocket_env.c"
 #include "pocket_eval.c"
 #include "pocket_fs.c"

@@ -191,6 +191,8 @@ PKAtom pk_fun_funcatch(void *user_closure, PKAtom symbol, PKAtom fun) {
 
 PK_TEMPLATE_FUN2(pk_fun_throw, pk_throw)
 
+PK_TEMPLATE_FUN1(pk_fun_hexdump, pk_hexdump)
+
 #define PK_FLOAD(name_, fun_) do { \
     PKAtom name = pk_symbol(name_); \
     pk_propagate(name); \
@@ -242,6 +244,8 @@ PKAtom pk_std_load_cfun(void) {
     
     PK_FLOAD(pk_str("funcatch"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_funcatch, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("throw"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_throw, PK_ARITY_NORMAL));
+    
+    PK_FLOAD(pk_str("hexdump"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_hexdump, PK_ARITY_NORMAL));
     
     PK_FLOAD(pk_str("read"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_read, PK_ARITY_NORMAL));
     PK_FLOAD(pk_str("read-list"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_read_list, PK_ARITY_NORMAL));

@@ -46,6 +46,73 @@ PKAtom pk_lfun_exec(PKAtom lfun, size_t save) {
     return pk_vm_exec(&vm);
 }
 
+PKAtom pk_hexdump_(PKWriter *w, PKAtom lfun) {
+    pk_propagate(pk_writer_string(w, pk_str("*~HEX-DUMP~*\n")));
+    pk_propagate(pk_writer_string(w, pk_str("SECTION-CODE:\n")));
+    
+    for (size_t i = 0; i < lfun->lfun.bc.length; ++i) {
+        pk_propagate(pk_writer_string(w, pk_str("[")));
+        pk_propagate(pk_writer_fmt(w, "%zu", i));
+        pk_propagate(pk_writer_string(w, pk_str("] => ")));
+        
+        pk_u8 byte = lfun->lfun.bc.e[i];
+        PKStr ident = pk_ident_opcode(byte);
+        pk_propagate(pk_writer_string(w, ident));
+        
+        PK_OPCODE_TY ty = pk_opcode_ty(byte);
+        
+        switch (ty) {
+            case PK_OPCODE_TY_LOAD: {
+                i++;
+                if (i >= lfun->lfun.bc.length) {
+                    return pk_errors(pk_str("bad bytecode"));
+                }
+                pk_u8 data = lfun->lfun.bc.e[i];
+                PKAtom atom = lfun->lfun.atoms.e[data];
+                
+                pk_propagate(pk_writer_string(w, pk_str(" => ")));
+                pk_propagate(pk_writer_atom(w, atom));
+                break;
+            }
+            case PK_OPCODE_TY_LIT: {
+                i++;
+                if (i >= lfun->lfun.bc.length) {
+                    return pk_errors(pk_str("bad bytecode"));
+                }
+                pk_u8 data = lfun->lfun.bc.e[i];
+                
+                pk_propagate(pk_writer_string(w, pk_str(" => ")));
+                pk_propagate(pk_writer_fmt(w, "%u", data));
+                break;
+            }
+            default: break;
+        }
+        pk_propagate(pk_writer_newline(w));
+    }
+
+    pk_propagate(pk_writer_newline(w));
+    
+    pk_propagate(pk_writer_string(w, pk_str("SECTION-DATA:\n")));
+    for (size_t i = 0; i < lfun->lfun.atoms.length; ++i) {
+        pk_propagate(pk_writer_atom(w, lfun->lfun.atoms.e[i]));
+        pk_propagate(pk_writer_newline(w));
+    }
+    
+    pk_propagate(pk_writer_newline(w));
+
+    return pk_string(pk_writer_slice(w));
+}
+    
+PKAtom pk_hexdump(PKAtom lfun) {
+    if (!pk_is_lfun(lfun)) {
+        return pk_errors(pk_str("expected lfun"));
+    }
+    PKWriter w = PK_WRITER_EMPTY;
+    PKAtom result = pk_hexdump_(&w, lfun);
+    pk_writer_deinit(&w);
+    return result;
+}
+
 bool pk_is_cfun(PKAtom atom) {
     return atom->header.type == PK_ATOMTY_CFUN;
 }

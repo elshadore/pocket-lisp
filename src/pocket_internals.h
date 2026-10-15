@@ -515,8 +515,10 @@ PKAtom pk_fs_read_user_input(void);
 
 PKVM pk_vm_init(PKAtom lfun, size_t save);
 PKAtom pk_vm_exec(PKVM *vm);
-    
+
+#ifdef POCKET_CFLAG_DEBUG
 void pk_debug_leakcheck(void);
 PKAtom pk_debug_dump(const char *tag, PK_DUMP opt);
+#endif
     
 #endif // POCKET_LISP_INTERNALS_H
