@@ -18,7 +18,7 @@
   (puts "LISP>> ")
   (var input (fs/read-user-input))
   (if input
-      (read-eval-print (input))
+      (read-eval-print input)
     (progn
       (setq repl/result nil)
       (repl/quit))))

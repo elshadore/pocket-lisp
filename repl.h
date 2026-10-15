@@ -22,7 +22,7 @@
 "  (puts \"LISP>> \")\n" \
 "  (var input (fs/read-user-input))\n" \
 "  (if input\n" \
-"      (read-eval-print (input))\n" \
+"      (read-eval-print input)\n" \
 "    (progn\n" \
 "      (setq repl/result nil)\n" \
 "      (repl/quit))))\n" \
