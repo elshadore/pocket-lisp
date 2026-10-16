@@ -447,19 +447,13 @@ PKAtom pk_string_nomemcpy(PKStr string);
 PKAtom pk_string_cat(PKAtoms strings);
 PKAtom pk_string_cat_part(PKAtom atom, PKStr *part, PKAtom *owned);
 
-bool pk_type_match(PKAtom atom, PK_TYPE match);
-    
 PKAtom pk_undefined(void);
 
 PKAtom pk_lfun_exec(PKAtom lfun, size_t save);    
-bool pk_is_cfun(PKAtom atom);
-bool pk_is_lfun(PKAtom atom);
-bool pk_is_function(PKAtom atom);
-PKAtom pk_typecheck_lfun(PKAtom atom);
-PKAtom pk_typecheck_cfun(PKAtom atom);
-PKAtom pk_typecheck_function(PKAtom atom);
 
 void pk_print_str(PKStr string);
+
+PKAtom pk_error_message(PKStr prefix, PKAtom atom);
 
 PKAtom pk_frame_push(size_t arity);
 PKAtom pk_frame_pushc(PKAtoms atoms);

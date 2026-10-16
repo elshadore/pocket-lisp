@@ -66,6 +66,7 @@ void pk_bytes_deinit(PKBytes *bytes) {
 
 void pk_atoms_free(PKAtoms *atoms) {
     pk_ref_dec_many(*atoms);
+    pk_free(atoms->e);
     *atoms = PK_ATOMS_EMPTY;
 }
 
@@ -98,4 +99,16 @@ size_t pk_hash_djb2(PKStr string) {
 size_t pk_hash_pointer(void *ptr) {
     size_t p = (size_t)ptr;
     return (size_t)(p >> 3);
+}
+
+PKAtom pk_error_message(PKStr prefix, PKAtom atom) {
+    PKWriter w = PK_WRITER_EMPTY;
+    pk_propagate(pk_writer_string(&w, prefix));
+    pk_propagate(pk_writer_atom(&w, atom));
+    PKAtom message = pk_string(pk_writer_slice(&w));
+    pk_writer_deinit(&w);
+    pk_propagate(message);
+    PKAtom error = pk_error(message);
+    pk_ref_dec(message);
+    return error;
 }

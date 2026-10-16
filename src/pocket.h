@@ -206,6 +206,7 @@ PKAtom pk_errors(PKStr message);
 PKAtom pk_error_oom(void);
 PKAtom pk_error_type(PK_TYPE expected, PKAtom found);
     
+bool pk_is_type(PKAtom atom, PK_TYPE type);
 bool pk_is_nil(PKAtom atom);
 bool pk_is_undefined(PKAtom atom);
 bool pk_is_true(PKAtom atom);
@@ -218,9 +219,13 @@ bool pk_is_string(PKAtom atom);
 bool pk_is_symbol(PKAtom atom);
 bool pk_is_keyword(PKAtom atom);
 bool pk_is_cons(PKAtom atom);
+bool pk_is_cfun(PKAtom atom);
+bool pk_is_lfun(PKAtom atom);
 bool pk_is_function(PKAtom atom);
 bool pk_is_macro(PKAtom atom);
-bool pk_is_type(PKAtom atom, PK_TYPE type);
+bool pk_is_cobject(PKAtom object);
+bool pk_is_lobject(PKAtom object);
+bool pk_is_object(PKAtom object);
 
 PKAtom pk_typecheck(PKAtom atom, PK_TYPE check);
 PKAtom pk_typecheck_nil(PKAtom atom);
@@ -229,6 +234,12 @@ PKAtom pk_typecheck_string(PKAtom atom);
 PKAtom pk_typecheck_symbol(PKAtom atom);
 PKAtom pk_typecheck_keyword(PKAtom atom);
 PKAtom pk_typecheck_cons(PKAtom atom);
+PKAtom pk_typecheck_lfun(PKAtom atom);
+PKAtom pk_typecheck_cfun(PKAtom atom);
+PKAtom pk_typecheck_function(PKAtom atom);
+PKAtom pk_typecheck_object(PKAtom object);
+PKAtom pk_typecheck_cobject(PKAtom object);
+PKAtom pk_typecheck_lobject(PKAtom object);
 
 PKAtom pk_deftype_lisp(PKAtom symbol, PKAtoms slots);
 PKAtom pk_deftype_c_owned(PKAtom symbol, size_t size);
