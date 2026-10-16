@@ -89,6 +89,12 @@ bool pk_is_type(PKAtom atom, PK_TYPE type) {
         case PK_ATOMTY_LMACRO: {
             return (type == PK_TYPE_MACRO) || (type == PK_TYPE_LMACRO);
         }
+        case PK_ATOMTY_LOBJECT: {
+            return (type == PK_TYPE_OBJECT) || (type == PK_TYPE_LOBJECT);
+        }
+        case PK_ATOMTY_COBJECT: {
+            return (type == PK_TYPE_OBJECT) || (type == PK_TYPE_COBJECT);
+        }
         default: return false;
     }
 }

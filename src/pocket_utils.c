@@ -64,6 +64,11 @@ void pk_bytes_deinit(PKBytes *bytes) {
     *bytes = PK_BYTES_EMPTY;
 }
 
+void pk_atoms_free(PKAtoms *atoms) {
+    pk_ref_dec_many(*atoms);
+    *atoms = PK_ATOMS_EMPTY;
+}
+
 PKAtom pk_str_alloc(size_t length, PKStr *output) {
     if (length == 0) {
         *output = PK_STR_EMPTY;

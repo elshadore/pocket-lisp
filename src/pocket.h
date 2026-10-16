@@ -90,6 +90,9 @@ typedef enum PK_TYPE_ {
     PK_TYPE_MACRO,
     PK_TYPE_CMACRO,
     PK_TYPE_LMACRO,
+    PK_TYPE_OBJECT,
+    PK_TYPE_LOBJECT,
+    PK_TYPE_COBJECT,
 } PK_TYPE;
 
 #define pk_str(text_) (PKStr) {.c = (text_), .length = (sizeof(text_) - 1)}
@@ -230,6 +233,8 @@ PKAtom pk_typecheck_cons(PKAtom atom);
 PKAtom pk_deftype_lisp(PKAtom symbol, PKAtoms slots);
 PKAtom pk_deftype_c_owned(PKAtom symbol, size_t size);
 PKAtom pk_deftype_c_user(PKAtom symbol);
+
+PKAtom pk_object_new(PKAtom type);
 
 PKAtom pk_slot_set(PKAtom object, PKAtom slot, PKAtom value);
 PKAtom pk_slot_get(PKAtom object, PKAtom slot);

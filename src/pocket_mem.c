@@ -103,6 +103,19 @@ void pk_atom_free(PKAtom atom) {
             pk_ref_dec(atom->symbol.var);
             pk_ref_dec(atom->symbol.fun);
             pk_ref_dec(atom->symbol.prop);
+            pk_slotmap_deinit(&atom->symbol.slots);
+            break;
+        }
+        case PK_ATOMTY_LOBJECT: {
+            pk_ref_dec(atom->lobject.type);
+            pk_atoms_free(&atom->lobject.slots);
+            break;
+        }
+        case PK_ATOMTY_COBJECT: {
+            pk_ref_dec(atom->cobject.type);
+            if (atom->cobject.type->symbol.type_type == PK_TYPETY_C_OWNED) {
+                pk_free(atom->cobject.data);
+            }
             break;
         }
         case PK_ATOMTY_CONS: {

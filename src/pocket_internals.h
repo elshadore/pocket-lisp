@@ -127,6 +127,8 @@ typedef struct PKCallConv_ {
 #define PK_ATOMTY_LFUN (16)
 #define PK_ATOMTY_CMACRO (17)
 #define PK_ATOMTY_LMACRO (18)
+#define PK_ATOMTY_LOBJECT (19)
+#define PK_ATOMTY_COBJECT (20)
 
 #define PK_ATOMFLAG_NONE (0)
 #define PK_ATOMFLAG_IMMORTAL (1 << 0)
@@ -275,11 +277,13 @@ typedef struct PKAtomLFun_ {
 } PKAtomLFun;
 
 typedef struct PKAtomCObject_ {
+    PKAtomHeader header;
     PKAtom type;
     void *data;
 } PKAtomCObject;
 
 typedef struct PKAtomLObject_ {
+    PKAtomHeader header;
     PKAtom type;
     PKAtoms slots;
 } PKAtomLObject;
@@ -525,6 +529,7 @@ PKAtom pk_array_push(PKArray *array, PKAtom atom, size_t init_capacity);
 void pk_array_deinit(PKArray *array);
 PKAtom pk_bytes_push(PKBytes *bytes, pk_u8 byte, size_t init_capacity);
 void pk_bytes_deinit(PKBytes *bytes);
+void pk_atoms_free(PKAtoms *atoms);
     
 PKAtom pk_hashmap_insert(PKHashmap *map, PKAtom key, PKAtom value);
 PKAtom pk_hashmap_get_str(PKHashmap *map, PKStr key);
@@ -536,6 +541,7 @@ size_t pk_slotmap_index(PKSlotmap *map, PKAtom symbol);
 PKSlotmapSlot *pk_slotmap_find(PKSlotmap *map, PKAtom symbol);
 bool pk_slotmap_index_of(PKSlotmap *map, PKAtom symbol, size_t *index);
 PKAtom pk_slotmap_insert(PKSlotmap *map, PKAtom symbol, size_t *index);
+PKAtom pk_slotmap_reserve(PKSlotmap *map, size_t count);
 void pk_slotmap_deinit(PKSlotmap *map);
     
 size_t pk_hash_djb2(PKStr string);

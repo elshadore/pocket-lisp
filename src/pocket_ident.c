@@ -59,6 +59,8 @@ PKStr pk_ident_atomty(pk_u8 ty) {
         case PK_ATOMTY_TABLE: return pk_str("TABLE");
         case PK_ATOMTY_CFUN: return pk_str("CFUN");
         case PK_ATOMTY_LFUN: return pk_str("LFUN");
+        case PK_ATOMTY_LOBJECT: return pk_str("LOBJECT");
+        case PK_ATOMTY_COBJECT: return pk_str("COBJECT");
         default: return pk_str("UNKNOWN");
     }
 }
@@ -99,6 +101,9 @@ PKStr pk_ident_type(PK_TYPE ty) {
         case PK_TYPE_MACRO: return pk_str("macro");
         case PK_TYPE_CMACRO: return pk_str("cmacro");
         case PK_TYPE_LMACRO: return pk_str("lmacro");
+        case PK_TYPE_OBJECT: return pk_str("object");
+        case PK_TYPE_LOBJECT: return pk_str("lobject");
+        case PK_TYPE_COBJECT: return pk_str("cobject");
         default: return pk_str("unknown");
     }
 }

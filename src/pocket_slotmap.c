@@ -112,6 +112,31 @@ PKAtom pk_slotmap_insert(PKSlotmap *map, PKAtom symbol, size_t *index) {
     return pk_undefined();
 }
 
+PKAtom pk_slotmap_reserve(PKSlotmap *map, size_t count) {
+    size_t capacity = (map->capacity == 0) ? PK_SLOTMAP_INIT_CAPACITY : map->capacity;
+
+    while ((count + 1) * PK_SLOTMAP_LOAD_DEN > (capacity * PK_SLOTMAP_LOAD_NUM)) {
+        capacity = pk_grow_capacity(capacity, PK_SLOTMAP_INIT_CAPACITY);
+    }
+
+    if (capacity == map->capacity) {
+        return pk_undefined();
+    }
+
+    if (map->capacity == 0) {
+        PKSlotmapSlot *e = (PKSlotmapSlot *)pk_malloc(capacity * sizeof(PKSlotmapSlot));
+        if (e == NULL) {
+            return pk_error_oom();
+        }
+        memset(e, 0, capacity * sizeof(PKSlotmapSlot));
+        map->e = e;
+        map->capacity = capacity;
+        return pk_undefined();
+    }
+
+    return pk_slotmap_rehash(map, capacity);
+}
+
 void pk_slotmap_deinit(PKSlotmap *map) {
     for (size_t i = 0; i < map->capacity; ++i) {
         PKSlotmapSlot *slot = &map->e[i];
