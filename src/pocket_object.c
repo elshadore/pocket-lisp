@@ -80,11 +80,9 @@ PKAtom pk_slot_set(PKAtom object, PKAtom slot, PKAtom value) {
 
     pk_propagate(pk_ref_inc(value));
 
-    PKAtom old_value = object->lobject.slots.e[index];
+    PKAtom result = object->lobject.slots.e[index];
     object->lobject.slots.e[index] = value;
-    pk_ref_dec(old_value);
-
-    return pk_true();
+    return result;
 }
 
 PKAtom pk_slot_get(PKAtom object, PKAtom slot) {
