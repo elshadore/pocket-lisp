@@ -49,6 +49,10 @@ The todo list for POCKET LISP
 - [ ] Var should destructure bind ???
 - [ ] Error Types
   - Error Symbol + Message
+- [ ] Constant Errors
+  - [ ] OOM
+  - [ ] Corrupted Memory
+  - [ ] Refcount Overflow
 
 ## V2
 - [ ] Interpretter Objects

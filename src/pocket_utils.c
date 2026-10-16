@@ -59,6 +59,11 @@ PKAtom pk_bytes_push(PKBytes *bytes, pk_u8 byte, size_t init_capacity) {
     return pk_true();
 }
 
+void pk_bytes_deinit(PKBytes *bytes) {
+    pk_free(bytes->e);
+    *bytes = PK_BYTES_EMPTY;
+}
+
 PKAtom pk_str_alloc(size_t length, PKStr *output) {
     if (length == 0) {
         *output = PK_STR_EMPTY;

@@ -32,6 +32,30 @@
 (defmethod get-height ((self Tilemap))
      (get-slot self 'height))
 
+## Primitive object routines
+
+(defclass Tilemap ()
+  :doc "This is a Tilemap"
+  e
+  width
+  height)
+
+(new 'Tilemap)
+
+(new 'Tilemap 'e nil 'width 200 'height 200)
+
+(methods 'Tilemap)
+
+(progn
+  (var a (tilemap 64 64))
+  (get-slot a 'width)
+  (set-slot a 'width 10)
+  (setq-slot a width 10)
+  (getq-slot a width)
+  ## Let the slot values `get` and then `set` them afterwards.
+  (with-slots ((width height) a)
+      (setq width 64)
+    (setq height 64)))
 
 ## Throwing Catching
 
@@ -46,4 +70,30 @@
      (break foo 69)
      420)
 
+## With Form
+(with ((a (file-open "foo.txt"))
+       (b (file-open "bar.txt")))
+      (save "baz.txt" (concat a b)))
 
+## Messages
+
+(progn
+  (var a (file-open "foo.txt"))
+  ## It doesn't matter if File type has the `foopy` method.
+  (message a 'foopy 69 420)
+  ## Strict dispatch, error
+  (dispatch a 'foopy 69 420))
+
+## Destructuring Var
+
+(progn
+  (var (a b :rest c) (list 1 2 3 4 5 6))
+  (print c))
+
+
+## Keyword Args
+
+(defun example (:keys (foo 0) (bar 0) (baz 0))
+  (print $"{foo}, {bar}, {baz}"))
+
+(example :baz 69 :bar 420)

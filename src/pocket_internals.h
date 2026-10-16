@@ -520,6 +520,7 @@ void pk_cons_link(PKAtom tail, PKAtom cons);
 PKAtom pk_array_push(PKArray *array, PKAtom atom, size_t init_capacity);
 void pk_array_deinit(PKArray *array);
 PKAtom pk_bytes_push(PKBytes *bytes, pk_u8 byte, size_t init_capacity);
+void pk_bytes_deinit(PKBytes *bytes);
     
 PKAtom pk_hashmap_insert(PKHashmap *map, PKAtom key, PKAtom value);
 PKAtom pk_hashmap_get_str(PKHashmap *map, PKStr key);
