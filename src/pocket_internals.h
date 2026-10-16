@@ -573,7 +573,6 @@ PKAtom pk_macroexpand1_(PKAtom atom, bool *expanded);
 
 PKAtom pk_error_corrupted_memory(void);
 PKAtom pk_error_refcount_overflow(void);
-bool pk_is_critical_error(PKAtom atom);
 
 PKAtom pk_std_load(void);
 void pk_deinit_cache(void);

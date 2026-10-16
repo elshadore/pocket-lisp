@@ -65,7 +65,7 @@ PKAtom pk_atom_alloc(void) {
         pk_propagate(pk_pool_expand());
         if (PK_CORE.free == NULL) {
             // The pool just expanded, so it has to hand out an atom.
-            return pk_error_oom();
+            return pk_error_corrupted_memory();
         }
     }
     PKAtomFree *free = PK_CORE.free;

@@ -5,9 +5,9 @@ PKAtom pk_ref_inc(PKAtom atom) {
         return pk_true();
     }
     if (atom->header.refcount == UINT8_MAX) {
-        // Const errors are immortal and never allocate, so reporting the
+        // Critical errors are immortal and never allocate, so reporting the
         // overflow cannot recurse back into pk_ref_inc.
-        return pk_error_oom();
+        return pk_error_refcount_overflow();
     }
     atom->header.refcount += 1;
     return pk_true();
