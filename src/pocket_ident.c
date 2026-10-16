@@ -44,7 +44,7 @@ PKStr pk_ident_opcode(pk_u8 op) {
 PKStr pk_ident_atomty(pk_u8 ty) {
     switch (ty) {
         case PK_ATOMTY_ILLEGAL: return pk_str("ILLEGAL");
-        case PK_ATOMTY_TYPE: return pk_str("TYPE");
+        case PK_ATOMTY_ERROR: return pk_str("ERROR");
         case PK_ATOMTY_FREE: return pk_str("FREE");
         case PK_ATOMTY_THROW: return pk_str("THROW");
         case PK_ATOMTY_UNDEFINED: return pk_str("UNDEFINED");

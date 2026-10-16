@@ -24,6 +24,8 @@
 #include "pocket_std.c"
 #include "pocket_string.c"
 #include "pocket_strsub.c"
+#include "pocket_symbol.c"
+#include "pocket_text.c"
 #include "pocket_throw.c"
 #include "pocket_utils.c"
 #include "pocket_vm.c"

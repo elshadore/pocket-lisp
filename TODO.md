@@ -3,10 +3,9 @@ The todo list for POCKET LISP
 
 ## V1
 - [ ] Special Forms
-  - [ ] protect
-  - [ ] unwind-protect
   - [ ] fn, λ, lambda
   - [ ] defvar, defun, defmacro, defclass
+  - [ ] defmacro needs full destructuring bind
 - [ ] Special Form: setq, fsetq, psetq
 - [ ] Object System
   - [ ] CObjects
@@ -45,7 +44,11 @@ The todo list for POCKET LISP
 - [ ] Error Stack Traces
 - [ ] Testing Suite
 - [ ] Full Code Review
+- [ ] Upgrade to Arbitary Precision Bytecode
+  - Not limited to 8bit args
 - [ ] Var should destructure bind ???
+- [ ] Error Types
+  - Error Symbol + Message
 
 ## V2
 - [ ] Interpretter Objects

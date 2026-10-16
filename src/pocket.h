@@ -226,7 +226,17 @@ PKAtom pk_typecheck_string(PKAtom atom);
 PKAtom pk_typecheck_symbol(PKAtom atom);
 PKAtom pk_typecheck_keyword(PKAtom atom);
 PKAtom pk_typecheck_cons(PKAtom atom);
-    
+
+PKAtom pk_deftype_lisp(PKAtom symbol, PKAtoms slots);
+PKAtom pk_deftype_c_owned(PKAtom symbol, size_t size);
+PKAtom pk_deftype_c_user(PKAtom symbol);
+
+PKAtom pk_slot_set(PKAtom object, PKAtom slot, PKAtom value);
+PKAtom pk_slot_get(PKAtom object, PKAtom slot);
+
+void *pk_cobject_data(PKAtom atom);
+size_t pk_cobject_size(PKAtom atom);
+
 PKStr pk_to_string(PKAtom atom);
 PK_TYPE pk_type_of(PKAtom atom);
 int pk_to_int(PKAtom atom);

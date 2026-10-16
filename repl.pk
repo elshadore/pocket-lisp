@@ -7,8 +7,10 @@
   (print (catch 'error (eval (read string)))))
 
 (defun test ()
-  (let (((a b :opt c) (list 1 2)))
-      (print $"{a}, {b}, {c}, {d}")))
+  (protect
+   (error "this is an error!")
+   (throw 'foo 69)
+   420))
 
 (when (= (cadr args) "-e")
   (setq repl/running nil)

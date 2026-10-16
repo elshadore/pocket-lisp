@@ -142,7 +142,7 @@ PKAtom pk_hashmap_get_str(PKHashmap *map, PKStr key) {
         return pk_undefined();
     }
     
-    size_t index = pk_hash_djb2(key.c, key.length) & (map->capacity - 1);
+    size_t index = pk_hash_djb2(key) & (map->capacity - 1);
     
     for (size_t i = 0; i < map->capacity; ++i) {
         PKHashmapSlot *slot = &map->e[index];

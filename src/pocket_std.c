@@ -200,6 +200,7 @@ PKAtom pk_fun_funcatch(void *user_closure, PKAtom symbol, PKAtom fun) {
 }
 
 PK_TEMPLATE_FUN2(pk_fun_throw, pk_throw)
+PK_TEMPLATE_FUN1(pk_fun_error, pk_error)
 
 PK_TEMPLATE_FUN1(pk_fun_hexdump, pk_hexdump)
 
@@ -258,6 +259,7 @@ PKAtom pk_std_load_cfun(void) {
     
     PK_FLOAD(pk_str("funcatch"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_funcatch, PK_ARITY_NORMAL, 0));
     PK_FLOAD(pk_str("throw"), pk_cfun2(NULL, PK_CALL_FUN, pk_fun_throw, PK_ARITY_NORMAL, 0));
+    PK_FLOAD(pk_str("error"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_error, PK_ARITY_NORMAL));
     
     PK_FLOAD(pk_str("hexdump"), pk_cfun1(NULL, PK_CALL_FUN, pk_fun_hexdump, PK_ARITY_NORMAL));
     

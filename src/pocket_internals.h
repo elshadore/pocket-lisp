@@ -10,8 +10,6 @@ typedef enum PK_SYMTY_ {
 
 #define PK_ARRAY_EMPTY (PKArray){.e = NULL, .count = 0, .capacity = 0}
 
-#define PK_HASHMAP_EMPTY (PKHashmap){.e = NULL, .count = 0, .capacity = 0}
-
 typedef struct PKArray_ {
     PKAtom *e;
     size_t count;
@@ -25,6 +23,37 @@ typedef struct PKBytes_ {
     size_t count;
     size_t capacity;
 } PKBytes;
+
+#define PK_HASHMAP_SLOT_UNOCCUPIED (0)
+#define PK_HASHMAP_SLOT_OCCUPIED (1)
+#define PK_HASHMAP_SLOT_DELETED (2)
+
+typedef struct PKHashmapSlot_ {
+    PKAtom key;
+    PKAtom value;
+    pk_u8 state;
+} PKHashmapSlot;
+
+#define PK_HASHMAP_EMPTY (PKHashmap){.e = NULL, .count = 0, .capacity = 0}
+
+typedef struct PKHashmap_ {
+    PKHashmapSlot *e;
+    size_t count;
+    size_t capacity;
+} PKHashmap;
+
+typedef struct PKSlotmapSlot_ {
+    PKAtom symbol;
+    size_t index;
+} PKSlotmapSlot;
+
+#define PK_SLOTMAP_EMPTY (PKSlotmap){.e = NULL, .count = 0, .capacity = 0}
+
+typedef struct PKSlotmap_ {
+    PKSlotmapSlot *e;
+    size_t count;
+    size_t capacity;
+} PKSlotmap;
 
 #define PK_WRITER_EMPTY (PKWriter){.c = NULL, .count = 0, .capacity = 0}
 
@@ -66,22 +95,6 @@ typedef struct PKAccum_ {
     PKAtom tail;
 } PKAccum;
 
-#define PK_HASHMAP_SLOT_UNOCCUPIED (0)
-#define PK_HASHMAP_SLOT_OCCUPIED (1)
-#define PK_HASHMAP_SLOT_DELETED (2)
-
-typedef struct PKHashmapSlot_ {
-    PKAtom key;
-    PKAtom value;
-    pk_u8 state;
-} PKHashmapSlot;
-
-typedef struct PKHashmap_ {
-    PKHashmapSlot *e;
-    size_t count;
-    size_t capacity;
-} PKHashmap;
-
 #define PK_CALLCONV_EMPTY (PKCallConv){.args = 0, .variadic_count = 0, .variadic = false, .push_extra_nil = false}
 
 typedef struct PKCallConv_ {
@@ -92,9 +105,9 @@ typedef struct PKCallConv_ {
 } PKCallConv;
 
 #define PK_ATOMTY_ILLEGAL (0)
-#define PK_ATOMTY_TYPE (1)
-#define PK_ATOMTY_FREE (2)
-#define PK_ATOMTY_OOM (3)
+#define PK_ATOMTY_FREE (1)
+#define PK_ATOMTY_OOM (2)
+#define PK_ATOMTY_ERROR (3)
 #define PK_ATOMTY_THROW (4)
 #define PK_ATOMTY_UNDEFINED (5)
 #define PK_ATOMTY_NIL (6)
@@ -149,12 +162,23 @@ typedef struct PKAtomString_ {
     PKStr str;
 } PKAtomString;
 
+#define PK_TYPETY_NOTYPE (0)
+#define PK_TYPETY_PRIMITIVE (1)
+// Who owns the memory for the Object, (Us we free, User they free (create a destroy method))
+#define PK_TYPETY_C_OWNED (2)
+#define PK_TYPETY_C_USER (3)
+#define PK_TYPETY_LISP (4)
+
 typedef struct PKAtomSymbol_ {
     PKAtomHeader header;
+    pk_u8 type_type;
     PKAtom var;
     PKAtom fun;
     PKAtom prop;
     PKAtom name;
+    PKSlotmap slots;
+    PKHashmap methods;
+    size_t owned_memory;
 } PKAtomSymbol;
 
 typedef struct PKAtomKeyword_ {
@@ -246,6 +270,16 @@ typedef struct PKAtomLFun_ {
     PKAtoms atoms;
 } PKAtomLFun;
 
+typedef struct PKAtomCObject_ {
+    PKAtom type;
+    void *data;
+} PKAtomCObject;
+
+typedef struct PKAtomLObject_ {
+    PKAtom type;
+    PKAtoms slots;
+} PKAtomLObject;
+
 typedef union PKAtomData_ {
     PKAtomHeader header;
     PKAtomFree free;
@@ -259,6 +293,8 @@ typedef union PKAtomData_ {
     PKAtomLFun lfun;
     PKAtomCFun cmacro;
     PKAtomLFun lmacro;
+    PKAtomCObject cobject;
+    PKAtomLObject lobject;
 } PKAtomData;
 
 #define PK_FRAME_EMPTY (PKFrame){0}
@@ -491,7 +527,7 @@ PKAtom pk_hashmap_get(PKHashmap *map, PKAtom key);
 PKAtom pk_hashmap_remove(PKHashmap *map, PKAtom key);
 void pk_hashmap_deinit(PKHashmap *map);
     
-size_t pk_hash_djb2(const char *c, size_t length);
+size_t pk_hash_djb2(PKStr string);
 size_t pk_hash_pointer(void *ptr);
 size_t pk_hash(PKAtom atom);
 

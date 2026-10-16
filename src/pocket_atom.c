@@ -31,71 +31,8 @@ PKAtom pk_bool(bool boolean) {
     }
 }
 
-PKAtom pk_symbol(PKStr string) {
-    PKAtom interned = pk_hashmap_get_str(&PK_CORE.symbolizer, string);
-    if (!pk_is_undefined(interned)) {
-        pk_propagate(pk_ref_inc(interned));
-        return interned;
-    }
-    
-    PKAtom atom = pk_atom_alloc();
-    pk_propagate(atom);
-
-    PKAtom name = pk_string(string);
-    pk_propagate(name);
-
-    atom->header.type = PK_ATOMTY_SYMBOL;
-    atom->symbol.var = pk_undefined();
-    atom->symbol.fun = pk_undefined();
-    atom->symbol.prop = pk_undefined();
-    atom->symbol.name = name;
-
-    pk_propagate(pk_hashmap_insert(&PK_CORE.symbolizer, name, atom));
-    
-    return atom;
-}
-
-PKAtom pk_symbolc(char *csymbol) {
-    PKStr symbol = pk_str_from_cstr(csymbol);
-    return pk_symbol(symbol);
-}
-
-PKAtom pk_keyword(PKStr keyword) {
-    PKAtom atom = pk_atom_alloc();
-    pk_propagate(atom);
-
-    PKStr dupe = PK_STR_EMPTY;
-    pk_propagate(pk_str_dupe(keyword, &dupe));
-
-    atom->header.type = PK_ATOMTY_KEYWORD;
-    atom->keyword.id = dupe;
-
-    return atom;
-}
-bool pk_symbol_qeq(PKAtom symbol, PKStr comp) {
-    if (!pk_is_symbol(symbol)) {
-        return false;
-    }
-    return pk_str_eq(symbol->symbol.name->string.str, comp);
-}
-
-bool pk_keyword_qeq(PKAtom keyword, PKStr comp) {
-    if (!pk_is_keyword(keyword)) {
-        return false;
-    }
-    return pk_str_eq(keyword->keyword.id, comp);
-}
-
 bool pk_is_true(PKAtom atom) {
     return atom->header.type != PK_ATOMTY_NIL;
-}
-
-bool pk_is_symbol(PKAtom atom) {
-    return atom->header.type == PK_ATOMTY_SYMBOL;
-}
-
-bool pk_is_keyword(PKAtom atom) {
-    return atom->header.type == PK_ATOMTY_KEYWORD;
 }
 
 bool pk_is_undefined(PKAtom atom) {
@@ -232,12 +169,10 @@ bool pk_eq(PKAtom lhs, PKAtom rhs) {
 size_t pk_hash(PKAtom atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_STRING: {
-            PKStr str = atom->string.str;
-            return pk_hash_djb2(str.c, str.length);
+            return pk_hash_djb2(atom->string.str);
         }
         case PK_ATOMTY_KEYWORD: {
-            PKStr id = atom->keyword.id;
-            return pk_hash_djb2(id.c, id.length);
+            return pk_hash_djb2(atom->keyword.id);
         }
         case PK_ATOMTY_NUMBER: {
             if (atom->number.num_type == PK_NUMTY_FLOAT) {
@@ -246,9 +181,17 @@ size_t pk_hash(PKAtom atom) {
                 if (atom->number.as.f == 0.0f) {
                     bits = 0;
                 }
-                return pk_hash_djb2((const char *)&bits, sizeof(pk_u32));
+                PKStr mem = (PKStr) {
+                    .c = (char *)&bits,
+                    .length = sizeof(pk_u32)
+                };
+                return pk_hash_djb2(mem);
             } else {
-                return pk_hash_djb2((const char *)&atom->number.as.i, sizeof(int));
+                PKStr mem = (PKStr) {
+                    .c = (char *)&atom->number.as.i,
+                    .length = sizeof(int)
+                };
+                return pk_hash_djb2(mem);
             }
         }
         default: {

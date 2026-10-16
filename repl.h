@@ -11,8 +11,10 @@
 "  (print (catch 'error (eval (read string)))))\n" \
 "\n" \
 "(defun test ()\n" \
-"  (let (((a b :opt c) (list 1 2)))\n" \
-"      (print $\"{a}, {b}, {c}, {d}\")))\n" \
+"  (protect\n" \
+"   (error \"this is an error!\")\n" \
+"   (throw 'foo 69)\n" \
+"   420))\n" \
 "\n" \
 "(when (= (cadr args) \"-e\")\n" \
 "  (setq repl/running nil)\n" \
