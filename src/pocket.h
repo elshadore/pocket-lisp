@@ -212,6 +212,7 @@ bool pk_is_nil(PKAtom atom);
 bool pk_is_undefined(PKAtom atom);
 bool pk_is_true(PKAtom atom);
 bool pk_is_throwing(PKAtom atom);
+bool pk_is_const_error(PKAtom atom);
 bool pk_is_error(PKAtom atom);
 bool pk_is_int(PKAtom atom);
 bool pk_is_float(PKAtom atom);

@@ -326,7 +326,7 @@ PKAtom pk_vm_exec(PKVM *vm) {
     while (!vm->finished) {
         PKAtom atom = pk_vm_op_exec(vm);
         if (pk_is_throwing(atom)) {
-            if ((!vm->protected) || (atom->header.type == PK_ATOMTY_OOM)) {
+            if ((!vm->protected) || pk_is_critical_error(atom)) {
                 while (PK_CORE.frames.count > frames) {
                     pk_frame_unwind();
                 }

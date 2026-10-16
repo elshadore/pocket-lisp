@@ -48,7 +48,7 @@ bool pk_is_type(PKAtom atom, PK_TYPE type) {
         }
     }
     switch (atom->header.type) {
-        case PK_ATOMTY_OOM: {
+        case PK_ATOMTY_CRITICAL_ERROR: {
             return (type == PK_TYPE_THROW) || (type == PK_TYPE_ERROR);
         }
         case PK_ATOMTY_THROW: {

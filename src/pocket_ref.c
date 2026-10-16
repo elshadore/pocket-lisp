@@ -5,9 +5,8 @@ PKAtom pk_ref_inc(PKAtom atom) {
         return pk_true();
     }
     if (atom->header.refcount == UINT8_MAX) {
-        // Building an error here would call pk_ref_inc again, so report the
-        // shared out of memory throw instead.
-        // TODO: we should probably make refcount overflow a IMMORTAL compiletime atom
+        // Const errors are immortal and never allocate, so reporting the
+        // overflow cannot recurse back into pk_ref_inc.
         return pk_error_oom();
     }
     atom->header.refcount += 1;

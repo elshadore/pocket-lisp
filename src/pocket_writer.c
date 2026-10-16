@@ -201,8 +201,8 @@ PKAtom pk_writer_symbol_name(PKWriter *w, PKStr name) {
 
 PKAtom pk_writer_atom(PKWriter *w, PKAtom atom) {
     switch (atom->header.type) {
-        case PK_ATOMTY_OOM: {
-            pk_propagate(pk_writer_simple_object(w, atom, pk_str("ERROR")));
+        case PK_ATOMTY_CRITICAL_ERROR: {
+            pk_propagate(pk_writer_simple_object(w, atom, pk_str("CRITICAL-ERROR")));
             break;
         }
         case PK_ATOMTY_THROW: {
