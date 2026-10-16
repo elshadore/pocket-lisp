@@ -42,9 +42,13 @@ typedef struct PKHashmap_ {
     size_t capacity;
 } PKHashmap;
 
+#define PK_SLOTMAP_SLOT_UNOCCUPIED (0)
+#define PK_SLOTMAP_SLOT_OCCUPIED (1)
+
 typedef struct PKSlotmapSlot_ {
     PKAtom symbol;
     size_t index;
+    pk_u8 state;
 } PKSlotmapSlot;
 
 #define PK_SLOTMAP_EMPTY (PKSlotmap){.e = NULL, .count = 0, .capacity = 0}
@@ -527,6 +531,12 @@ PKAtom pk_hashmap_get_str(PKHashmap *map, PKStr key);
 PKAtom pk_hashmap_get(PKHashmap *map, PKAtom key);
 PKAtom pk_hashmap_remove(PKHashmap *map, PKAtom key);
 void pk_hashmap_deinit(PKHashmap *map);
+
+size_t pk_slotmap_index(PKSlotmap *map, PKAtom symbol);
+PKSlotmapSlot *pk_slotmap_find(PKSlotmap *map, PKAtom symbol);
+bool pk_slotmap_index_of(PKSlotmap *map, PKAtom symbol, size_t *index);
+PKAtom pk_slotmap_insert(PKSlotmap *map, PKAtom symbol, size_t *index);
+void pk_slotmap_deinit(PKSlotmap *map);
     
 size_t pk_hash_djb2(PKStr string);
 size_t pk_hash_pointer(void *ptr);
