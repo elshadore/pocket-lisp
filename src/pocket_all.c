@@ -17,6 +17,7 @@
 #include "pocket_macro.c"
 #include "pocket_math.c"
 #include "pocket_mem.c"
+#include "pocket_method.c"
 #include "pocket_object.c"
 #include "pocket_print.c"
 #include "pocket_read.c"

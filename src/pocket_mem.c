@@ -104,6 +104,7 @@ void pk_atom_free(PKAtom atom) {
             pk_ref_dec(atom->symbol.fun);
             pk_ref_dec(atom->symbol.prop);
             pk_slotmap_deinit(&atom->symbol.slots);
+            pk_hashmap_deinit(&atom->symbol.methods);
             break;
         }
         case PK_ATOMTY_LOBJECT: {

@@ -144,6 +144,7 @@ PKAtom pk_list_packed(PKAtoms atoms);
 PKAtom pk_list_flatten(PKAtoms lists);
 PKAtom pk_array(PKAtoms atoms);
 PKAtom pk_table(void);
+PKAtom pk_object_new(PKAtom type);
 
 PKAtom pk_car(PKAtom cons);
 PKAtom pk_cdr(PKAtom cons);
@@ -245,10 +246,12 @@ PKAtom pk_deftype_lisp(PKAtom symbol, PKAtoms slots);
 PKAtom pk_deftype_c_owned(PKAtom symbol, size_t size);
 PKAtom pk_deftype_c_user(PKAtom symbol);
 
-PKAtom pk_object_new(PKAtom type);
-
 PKAtom pk_slot_set(PKAtom object, PKAtom slot, PKAtom value);
 PKAtom pk_slot_get(PKAtom object, PKAtom slot);
+
+PKAtom pk_method_set(PKAtom type, PKAtom symbol, PKAtom method);
+PKAtom pk_method_get(PKAtom type, PKAtom symbol);
+PKAtom pk_method_get_raw(PKAtom type, PKAtom symbol);
 
 void *pk_cobject_data(PKAtom atom);
 size_t pk_cobject_size(PKAtom atom);
