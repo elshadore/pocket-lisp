@@ -1,28 +1,39 @@
 # TODO
 The todo list for POCKET LISP
 
+## TODAY
+- [ ] Object System
+  - [ ] CObjects
+  - [ ] LObjects
+  - [ ] Slots
+  - [ ] Methods
+- [ ] Types
+  - [ ] Streams
+  - [ ] Char (Unicode)
+  - [ ] Byte Type
+  - [ ] Array
+  - [ ] Table
+  - [ ] Byte Blobs (Immutable like Strings)
+  - [ ] StringArray (Mutable Append)
+  - [ ] ByteArray (Mutable Append)
+- [ ] Var should destructure bind ???
+- [ ] Error Types
+  - Error Symbol + Message
+- [ ] Constant Errors
+  - [ ] OOM
+  - [ ] Corrupted Memory
+  - [ ] Refcount Overflow
+- [ ] Error Stack Traces
+  - debug-trace variable
+
 ## V1
 - [ ] Special Forms
   - [ ] fn, λ, lambda
   - [ ] defvar, defun, defmacro, defclass
   - [ ] defmacro needs full destructuring bind
 - [ ] Special Form: setq, fsetq, psetq
-- [ ] Object System
-  - [ ] CObjects
-  - [ ] LObjects
-  - [ ] Array
-  - [ ] Table
-  - [ ] Slots
-  - [ ] Methods
 - [ ] Big Numbers
-- [ ] Streams
 - [ ] Unicode Strings (utf8)
-- [ ] Types
-  - [ ] Char (Unicode)
-  - [ ] Byte Type
-  - [ ] Byte Blobs (Immutable like Strings)
-  - [ ] StringArray (Mutable Append)
-  - [ ] ByteArray (Mutable Append)
 - [ ] Emacs Mode
   - [ ] Syntax Highlighting
   - [ ] Identation
@@ -41,18 +52,10 @@ The todo list for POCKET LISP
   - [ ] JSON
   - [ ] HTTP
   - [ ] HTML
-- [ ] Error Stack Traces
 - [ ] Testing Suite
 - [ ] Full Code Review
 - [ ] Upgrade to Arbitary Precision Bytecode
   - Not limited to 8bit args
-- [ ] Var should destructure bind ???
-- [ ] Error Types
-  - Error Symbol + Message
-- [ ] Constant Errors
-  - [ ] OOM
-  - [ ] Corrupted Memory
-  - [ ] Refcount Overflow
 
 ## V2
 - [ ] Interpretter Objects
