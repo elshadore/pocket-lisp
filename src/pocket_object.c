@@ -11,7 +11,7 @@ PKAtom pk_object_new(PKAtom type) {
                 return pk_error_oom();
             }
             for (size_t i = 0; i < length; ++i) {
-                e[i] = pk_undefined();
+                e[i] = pk_nil();
             }
 
             PKAtom atom = pk_atom_alloc();
@@ -102,15 +102,17 @@ PKAtom pk_slot_get(PKAtom object, PKAtom slot) {
 void *pk_cobject_data(PKAtom atom) {
     if (atom->header.type != PK_ATOMTY_COBJECT) {
         return NULL;
+    } else {
+        return atom->cobject.data;
     }
-    return atom->cobject.data;
 }
 
 size_t pk_cobject_size(PKAtom atom) {
     if (atom->header.type != PK_ATOMTY_COBJECT) {
         return 0;
+    } else {
+        return atom->cobject.type->symbol.owned_memory;
     }
-    return atom->cobject.type->symbol.owned_memory;
 }
 
 bool pk_is_object(PKAtom object) {
