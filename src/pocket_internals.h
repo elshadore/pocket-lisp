@@ -469,6 +469,8 @@ bool pk_atom_string_cmp(PKAtomString *string, PKStr comp);
 PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);
 PKAtom *pk_atom_car(Pocket lisp, PKAtom *atom);
 PKAtom *pk_atom_cdr(Pocket lisp, PKAtom *atom);
+PKAtom *pk_atom_car_strict(Pocket lisp, PKAtom *atom);
+PKAtom *pk_atom_cdr_strict(Pocket lisp, PKAtom *atom);
 PKAtom *pk_atom_set_car(Pocket lisp, PKAtom *atom, PKAtom *new_car);
 PKAtom *pk_atom_set_cdr(Pocket lisp, PKAtom *atom, PKAtom *new_cdr);
 PKAtomCons *pk_atom_list1(Pocket lisp, PKAtom *first);
@@ -489,20 +491,24 @@ size_t pk_frame_length(Pocket lisp);
 
 void pk_stack_push(Pocket lisp, PKAtom *atom);
 PKAtom *pk_stack_funcall(PK_CALL call, pk_u8 arity);
-PKAtom *pk_stack_head();
-PKAtom *pk_stack_pop();
-void pk_stack_pop_unchecked(size_t n);
-PKAtoms *pk_stack_slice();
+PKAtom *pk_stack_head(Pocket lisp);
+PKAtom *pk_stack_head_strict(Pocket lisp);
+PKAtom *pk_stack_pop(Pocket lisp);
+void pk_stack_pop_unchecked(Pocket lisp, size_t n);
+void pk_stack_set_unchecked(Pocket lisp, size_t count);
+PKAtoms pk_stack_slice(Pocket lisp);
+PKAtoms pk_stack_slice_down(Pocket lisp, size_t depth);
+void pk_stack_dig(Pocket lisp, size_t index);
 
-PKAtom *pk_stack_slice_down(size_t depth, PKAtoms **output);
-PKAtom *pk_stack_op_list(size_t depth);
-PKAtom *pk_stack_op_list_packed(size_t depth);
-PKAtom *pk_stack_op_list_merge(size_t depth);
-PKAtom *pk_stack_op_strcat(size_t depth);
-PKAtom *pk_stack_op_dig(size_t depth);
-PKAtom *pk_stack_op_car(bool strict);
-PKAtom *pk_stack_op_cdr(bool strict);
-void pk_stack_reset_to(size_t count);
+void pk_stack_op_dig(Pocket lisp, size_t index);
+void pk_stack_op_car(Pocket lisp);
+void pk_stack_op_cdr(Pocket lisp);
+void pk_stack_op_car_strict(Pocket lisp);
+void pk_stack_op_cdr_strict(Pocket lisp);
+void pk_stack_op_list(Pocket lisp, size_t depth);
+void pk_stack_op_list_packed(Pocket lisp, size_t depth);
+void pk_stack_op_list_merge(Pocket lisp, size_t depth);
+void pk_stack_op_strcat(Pocket lisp, size_t depth);
     
 void pk_let_unwind(size_t n);
 

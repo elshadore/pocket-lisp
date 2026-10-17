@@ -11,11 +11,33 @@ PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr) {
 }
 
 PKAtom *pk_atom_car(Pocket lisp, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_NIL: return lisp->cache.nil;
+        case PK_ATOMTY_CONS: return atom->cons.car;
+        default:{
+            pk_error(lisp);
+            return lisp->cache.nil;
+        }
+    }
+}
+
+PKAtom *pk_atom_cdr(Pocket lisp, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_NIL: return lisp->cache.nil;
+        case PK_ATOMTY_CONS: return atom->cons.cdr;
+        default:{
+            pk_error(lisp);
+            return lisp->cache.nil;
+        }
+    }
+}
+
+PKAtom *pk_atom_car_strict(Pocket lisp, PKAtom *atom) {
     PKAtomCons *cons = pk_atom_assert_cons(lisp, atom);
     return cons->car;
 }
 
-PKAtom *pk_atom_cdr(Pocket lisp, PKAtom *atom) {
+PKAtom *pk_atom_cdr_strict(Pocket lisp, PKAtom *atom) {
     PKAtomCons *cons = pk_atom_assert_cons(lisp, atom);
     return cons->cdr;
 }

@@ -1,159 +1,149 @@
 #include "pocket_internals.h"
 
-void pk_stack_push(Pocket lisp, PKAtom atom) {
-    pk_array_push(&lisp->stack, atom, 128);
+void pk_stack_push(Pocket lisp, PKAtom *atom) {
+    pk_array_push(lisp, &lisp->stack, atom, 128);
 }
 
-PKAtom pk_stack_head() {
-    if (pk_frame_length() == 0) {
-        return pk_nil();
+PKAtom *pk_stack_head(Pocket lisp) {
+    if (pk_frame_length(lisp) == 0) {
+        return lisp->cache.nil;
     } else {
-        return PK_CORE.stack.e[PK_CORE.stack.count - 1];
+        return lisp->stack.e[lisp->stack.count - 1];
     }
 }
 
-PKAtom pk_stack_pop() {
-    if (pk_frame_length() == 0) {
-        return pk_errors(pk_str("stack underflow"));
+PKAtom *pk_stack_head_strict(Pocket lisp) {
+    if (pk_frame_length(lisp) == 0) {
+        pk_error(lisp);
+        return lisp->cache.nil;
+    } else {
+        return lisp->stack.e[lisp->stack.count - 1];
     }
-    PKAtom result = PK_CORE.stack.e[PK_CORE.stack.count - 1];
-    PK_CORE.stack.count -= 1;
+}
+
+PKAtom *pk_stack_pop(Pocket lisp) {
+    if (pk_frame_length(lisp) == 0) {
+        pk_error(lisp);
+        return lisp->cache.nil;
+    }
+    PKAtom *result = lisp->stack.e[lisp->stack.count - 1];
+    lisp->stack.count -= 1;
     return result;
 }
 
-void pk_stack_pop_unchecked(size_t n) {
-    PK_CORE.stack.count -= n;
+void pk_stack_pop_unchecked(Pocket lisp, size_t n) {
+    lisp->stack.count -= n;
 }
 
-void pk_stack_reset_to(size_t count) {
-    for (size_t i = PK_CORE.stack.count; i > count; --i) {
-        pk_ref_dec(PK_CORE.stack.e[i - 1]);
-    }
-    PK_CORE.stack.count = count;
+void pk_stack_set_unchecked(Pocket lisp, size_t count) {
+    lisp->stack.count = count;
 }
 
-PKAtoms pk_stack_slice() {
-    size_t offset = PK_CORE.current_frame.stack_offset;
+PKAtoms pk_stack_slice(Pocket lisp) {
+    size_t offset = lisp->current_frame.stack_offset;
     return (PKAtoms) {
-        .e = PK_CORE.stack.e + offset,
-        .length = PK_CORE.stack.count - offset,
+        .e = lisp->stack.e + offset,
+        .length = lisp->stack.count - offset,
     };
 }
 
-PKAtom pk_stack_slice_down(size_t depth, PKAtoms *output) {
-    PKAtoms slice = pk_stack_slice();
+PKAtoms pk_stack_slice_down(Pocket lisp, size_t depth) {
+    PKAtoms slice = pk_stack_slice(lisp);
     
     if (depth > slice.length) {
-        return pk_errors(pk_str("stack slice too deep"));
+        pk_error(lisp);
+        return PK_ATOMS_EMPTY;
     }
     
     size_t offset = slice.length - depth;
-    *output = (PKAtoms) {
+    return (PKAtoms) {
         .e = slice.e + offset,
         .length = depth,
     };
-    
-    return pk_true();
 }
 
-PKAtom pk_stack_op_finish(size_t depth, PKAtom result) {
-    pk_stack_pop_unchecked(depth - 1);
-    for (size_t i = 0; i < depth; ++i) {
-        size_t index = PK_CORE.stack.count - 1 + i;
-        pk_ref_dec(PK_CORE.stack.e[index]);
-    }
-    
-    PK_CORE.stack.e[PK_CORE.stack.count - 1] = result;
-
-    return pk_true();
+void pk_stack_op_dig(Pocket lisp, size_t index) {
+    PKAtoms slice = pk_stack_slice_down(lisp, index);
+    return pk_stack_push(lisp, slice.e[0]);
 }
 
-PKAtom pk_stack_op_list(size_t depth) {
-    if (depth == 0) {
-        return pk_true();
-    }
-    PKAtoms slice = PK_ATOMS_EMPTY;
-    pk_propagate(pk_stack_slice_down(depth, &slice));
+void pk_stack_op_car(Pocket lisp) {
+    PKAtom *atom = pk_stack_head_strict(lisp);
+    PKAtom *result = pk_atom_car(lisp, atom);
     
-    PKAtom result = pk_list(slice);
+    pk_stack_pop_unchecked(lisp, 1);
     
-    return pk_stack_op_finish(depth, result);
+    pk_stack_push(lisp, result);
 }
 
-PKAtom pk_stack_op_list_packed(size_t depth) {
-    if (depth == 0) {
-        return pk_true();
-    }
-    PKAtoms slice = PK_ATOMS_EMPTY;
-    pk_propagate(pk_stack_slice_down(depth, &slice));
+void pk_stack_op_cdr(Pocket lisp) {
+    PKAtom *atom = pk_stack_head_strict(lisp);
+    PKAtom *result = pk_atom_cdr(lisp, atom);
     
-    PKAtom result = pk_list_packed(slice);
+    pk_stack_pop_unchecked(lisp, 1);
     
-    return pk_stack_op_finish(depth, result);
+    pk_stack_push(lisp, result);
 }
 
-PKAtom pk_stack_op_list_merge(size_t depth) {
-    if (depth == 0) {
-        return pk_true();
-    }
-    PKAtoms slice = PK_ATOMS_EMPTY;
-    pk_propagate(pk_stack_slice_down(depth, &slice));
+void pk_stack_op_car_strict(Pocket lisp) {
+    PKAtom *atom = pk_stack_head_strict(lisp);
+    PKAtom *result = pk_atom_car_strict(lisp, atom);
     
-    PKAtom result = pk_list_flatten(slice);
+    pk_stack_pop_unchecked(lisp, 1);
     
-    return pk_stack_op_finish(depth, result);
+    pk_stack_push(lisp, result);
 }
 
-PKAtom pk_stack_op_strcat(size_t depth) {
-    if (depth == 0) {
-        return pk_true();
-    }
-    PKAtoms slice = PK_ATOMS_EMPTY;
-    pk_propagate(pk_stack_slice_down(depth, &slice));
-    PKAtom result = pk_string_cat(slice);
+void pk_stack_op_cdr_strict(Pocket lisp) {
+    PKAtom *atom = pk_stack_head_strict(lisp);
+    PKAtom *result = pk_atom_cdr_strict(lisp, atom);
     
-    return pk_stack_op_finish(depth, result);
+    pk_stack_pop_unchecked(lisp, 1);
+    
+    pk_stack_push(lisp, result);
 }
 
-PKAtom pk_stack_op_dig(size_t depth) {
-    PKAtoms slice = PK_ATOMS_EMPTY;
-    pk_propagate(pk_stack_slice_down(depth + 1, &slice));
-    
-    return pk_stack_push(slice.e[0]);
+void pk_stack_op_finish(Pocket lisp, PKAtom *result, size_t depth) {
+    pk_stack_pop_unchecked(lisp, depth - 1);
+    lisp->stack.e[lisp->stack.count - 1] = result;
 }
 
-PKAtom pk_stack_op_car(bool strict) {
-    PKAtom top = pk_stack_head();
-    PKAtom car = pk_nil();
-    if (!pk_is_nil(top)) {
-        car = pk_car(top);
-        pk_propagate(car);
-    } else if (strict) {
-        return pk_errors(pk_str("not enough elements"));
-    }
+void pk_stack_op_list(Pocket lisp, size_t depth) {
+    if (depth == 0) return;
     
-    pk_ref_dec(top);
-    pk_stack_pop_unchecked(1);
+    PKAtoms slice = pk_stack_slice_down(lisp, depth);
+    PKAtom *result = pk_atom_list(lisp, slice);
     
-    PKAtom result = pk_stack_push(car);
-    pk_ref_dec(car);
-    return result;
+    pk_stack_op_finish(lisp, result, depth);
 }
 
-PKAtom pk_stack_op_cdr(bool strict) {
-    PKAtom top = pk_stack_head();
-    PKAtom cdr = pk_nil();
-    if (!pk_is_nil(top)) {
-        cdr = pk_cdr(top);
-        pk_propagate(cdr);
-    } else if (strict) {
-        return pk_errors(pk_str("not enough elements"));
-    }
+void pk_stack_op_list_packed(Pocket lisp, size_t depth) {
+    if (depth == 0) return;
     
-    pk_ref_dec(top);
-    pk_stack_pop_unchecked(1);
+    PKAtoms slice = pk_stack_slice_down(lisp, depth);
     
-    PKAtom result = pk_stack_push(cdr);
-    pk_ref_dec(cdr);
-    return result;
+    PKAtom *result = pk_atom_list_packed(lisp, slice);
+    
+    pk_stack_op_finish(lisp, result, depth);
 }
+
+void pk_stack_op_list_merge(Pocket lisp, size_t depth) {
+    if (depth == 0) return;
+    
+    PKAtoms slice = pk_stack_slice_down(lisp, depth);
+    
+    PKAtom *result = pk_atom_list_flatten(lisp, slice);
+    
+    pk_stack_op_finish(lisp, result, depth);
+}
+
+void pk_stack_op_strcat(Pocket lisp, size_t depth) {
+    if (depth == 0) return;
+    
+    PKAtoms slice = pk_stack_slice_down(lisp, depth);
+    
+    PKAtomString *result = pk_atom_string_cat(lisp, slice);
+    
+    pk_stack_op_finish(lisp, (PKAtom *)result, depth);
+}
+
