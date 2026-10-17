@@ -463,6 +463,7 @@ bool pk_atom_is_keyword(PKAtom *atom);
 bool pk_atom_is_cfun(PKAtom *atom);
 bool pk_atom_is_lfun(PKAtom *atom);
 bool pk_atom_is_function(PKAtom *atom);
+bool pk_atom_is_macro(PKAtom *atom);
 
 PKAtom *pk_atom_assert_nil(Pocket lisp, PKAtom *atom);
 PKAtomCons *pk_atom_assert_cons(Pocket lisp, PKAtom *atom);
@@ -494,6 +495,8 @@ PKAtomCons *pk_atom_list2(Pocket lisp, PKAtom *first, PKAtom *second);
 PKAtomCons *pk_atom_list3(Pocket lisp, PKAtom *first, PKAtom *second, PKAtom *third);
 PKAtom *pk_atom_list(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_packed(Pocket lisp, PKAtoms atoms);
+PKAtom *pk_atom_list_rev(Pocket lisp, PKAtoms atoms);
+PKAtom *pk_atom_list_rev_packed(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_flatten(Pocket lisp, PKAtoms atoms);
 
 PKAtomNumber *pk_atom_int(Pocket lisp, int integer);
@@ -563,7 +566,9 @@ void pk_stack_op_cdr(Pocket lisp);
 void pk_stack_op_car_strict(Pocket lisp);
 void pk_stack_op_cdr_strict(Pocket lisp);
 void pk_stack_op_list(Pocket lisp, size_t depth);
+void pk_stack_op_list_rev(Pocket lisp, size_t depth);
 void pk_stack_op_list_packed(Pocket lisp, size_t depth);
+void pk_stack_op_list_rev_packed(Pocket lisp, size_t depth);
 void pk_stack_op_list_merge(Pocket lisp, size_t depth);
 void pk_stack_op_strcat(Pocket lisp, size_t depth);
     
@@ -654,7 +659,10 @@ PKStr pk_ident_env(PK_ENV env);
 PKStr pk_ident_type(PK_TYPE ty);
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
     
-PKAtom *pk_macroexpand1_(PKAtom *atom, bool *expanded);
+void pk_atom_apply(Pocket lisp, PK_CALL call, PKAtom *fun, PKAtom *args);
+void pk_atom_eval(Pocket lisp, PKAtom *expr, PK_MODE mode);
+bool pk_atom_macroexpand(Pocket lisp, PKAtom *expr);
+bool pk_atom_macroexpand1(Pocket lisp, PKAtom *expr);
 
 PKAtom *pk_std_load(void);
 void pk_deinit_cache(void);

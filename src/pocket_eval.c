@@ -1,56 +1,47 @@
 #include "pocket_internals.h"
 
-PKAtom pk_apply_(PK_CALL call, PKAtom fun, PKAtom args) {
-    pk_propagate(pk_stack_push(fun));
-    pk_u8 arity = 0;
+void pk_atom_apply(Pocket lisp, PK_CALL call, PKAtom *fun, PKAtom *args) {
+    pk_frame_push(lisp, 0);
+    pk_stack_push(lisp, fun);
+    pk_u8 count = 0;
     {
-        PKAtom iter = args;
-        while (pk_is_cons(iter)) {
-            if (arity == UINT8_MAX) {
-                return pk_errors(pk_str("too many arguments"));
+        PKAtom *iter = args;
+        while (pk_atom_is_cons(iter)) {
+            if (count == UINT8_MAX) {
+                pk_error(lisp);
+                return;
             }
-            pk_propagate(pk_stack_push(iter->cons.car));
-            arity += 1;
+            pk_stack_push(lisp, iter->cons.car);
+            count += 1;
             iter = iter->cons.cdr;
         }
     }
-    return pk_stack_funcall(call, arity);
-}
-    
-PKAtom pk_apply(PK_CALL call, PKAtom fun, PKAtom args) {
-    pk_propagate(pk_frame_push(0));
-    PKAtom result = pk_apply_(call, fun, args);
-    pk_frame_unwind();
-    return result;
+    pk_fcall(lisp, call, count);
+    pk_frame_return(lisp);
 }
 
-PKAtom pk_eval_(PKAtom expr) {
-    PKAtom a = pk_macroexpand(expr);
-    pk_propagate(a);
-    PKAtom b = pk_compile(PK_CALL_FUN, a, PK_MODE_EXPRESSION);
-    pk_propagate(b);
-    pk_ref_dec(a);
-    PKAtom result = pk_funcall0(PK_CALL_FUN, b);
-    pk_ref_dec(b);
-    return result;
+void pk_atom_eval_(Pocket lisp, PKAtom *expr) {
+    (void)pk_atom_macroexpand(lisp, expr);
+    PKAtom *function = pk_atom_compile(PK_CALL_FUN, pk_stack_head(lisp), PK_MODE_EXPRESSION);
+    pk_pop(lisp);
+    pk_stack_push(lisp, function);
+    pk_fcall(lisp, PK_CALL_FUN, 0);
 }
     
-PKAtom pk_evlist_(PKAtom exprlist) {
-    PKAtom iter = exprlist;
-    PKAtom result = pk_nil();
-    while (pk_is_cons(iter)) {
-        PKAtom next = pk_eval_(iter->cons.car);
-        result = next;
+void pk_atom_evlist_(Pocket lisp, PKAtom *exprlist) {
+    pk_frame_push(lisp, 0);
+    PKAtom *iter = exprlist;
+    while (pk_atom_is_cons(iter)) {
+        pk_atom_eval_(lisp, iter->cons.car);
         iter = iter->cons.cdr;
     }
-    return result;
+    pk_frame_return(lisp);
 }
 
-PKAtom pk_eval(PKAtom expr, PK_MODE mode) {
+void pk_atom_eval(Pocket lisp, PKAtom *expr, PK_MODE mode) {
     if (mode == PK_MODE_EXPRESSION) {
-        return pk_eval_(expr);
+        pk_atom_eval_(lisp, expr);
     } else {
-        return pk_evlist_(expr);
+        pk_atom_evlist_(lisp, expr);
     }
 }
-

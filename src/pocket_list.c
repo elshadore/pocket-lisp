@@ -86,6 +86,20 @@ PKAtom *pk_atom_list(Pocket lisp, PKAtoms atoms) {
     return acc.head;
 }
 
+PKAtom *pk_atom_list_rev(Pocket lisp, PKAtoms atoms) {
+    if (atoms.length == 0) {
+        return lisp->cache.nil;
+    }
+    
+    PKAccum acc = pk_accum_new(lisp);
+    for (size_t i = 0; i < atoms.length; ++i) {
+        size_t index = atoms.length - i - 1;
+        pk_accum_push(&acc, atoms.e[index]);
+    }
+    
+    return acc.head;
+}
+
 PKAtom *pk_atom_list_packed(Pocket lisp, PKAtoms atoms) {
     if (atoms.length == 0) {
         return lisp->cache.nil;
@@ -97,6 +111,22 @@ PKAtom *pk_atom_list_packed(Pocket lisp, PKAtoms atoms) {
     }
     if (atoms.length > 1) {
         acc.tail->cons.cdr = atoms.e[atoms.length - 1];
+    }
+    return acc.head;
+}
+
+PKAtom *pk_atom_list_rev_packed(Pocket lisp, PKAtoms atoms) {
+    if (atoms.length == 0) {
+        return lisp->cache.nil;
+    }
+    
+    PKAccum acc = pk_accum_new(lisp);
+    for (size_t i = 0; i < (atoms.length - 1); ++i) {
+        size_t index = atoms.length - i - 1;
+        pk_accum_push(&acc, atoms.e[index]);
+    }
+    if (atoms.length > 1) {
+        acc.tail->cons.cdr = atoms.e[0];
     }
     return acc.head;
 }

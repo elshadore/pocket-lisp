@@ -235,12 +235,31 @@ void pk_stack_op_list(Pocket lisp, size_t depth) {
     pk_stack_op_finish(lisp, result, depth);
 }
 
+void pk_stack_op_list_rev(Pocket lisp, size_t depth) {
+    if (depth == 0) return;
+    
+    PKAtoms slice = pk_stack_slice_down(lisp, depth);
+    PKAtom *result = pk_atom_list_rev(lisp, slice);
+    
+    pk_stack_op_finish(lisp, result, depth);
+}
+
 void pk_stack_op_list_packed(Pocket lisp, size_t depth) {
     if (depth == 0) return;
     
     PKAtoms slice = pk_stack_slice_down(lisp, depth);
     
     PKAtom *result = pk_atom_list_packed(lisp, slice);
+    
+    pk_stack_op_finish(lisp, result, depth);
+}
+
+void pk_stack_op_list_rev_packed(Pocket lisp, size_t depth) {
+    if (depth == 0) return;
+    
+    PKAtoms slice = pk_stack_slice_down(lisp, depth);
+    
+    PKAtom *result = pk_atom_list_rev_packed(lisp, slice);
     
     pk_stack_op_finish(lisp, result, depth);
 }

@@ -1,30 +1,31 @@
 #include "pocket_internals.h"
 
-PKAtom pk_macroexpand_list(PKAtom list, bool *expanded) {
-    PKAccum acc = pk_accum_new();
-
-    PKAtom iter = list;
-    while (pk_is_cons(iter)) {
-        PKAtom atom = pk_macroexpand1_(iter->cons.car, expanded);
-        pk_propagate(atom);
-        pk_accum_push(&acc, atom);
-        pk_ref_dec(atom);
+bool pk_macroexpand_list(Pocket lisp, PKAtom *list) {
+    PKAtom *iter = list;
+    bool expanded = false;
+    size_t count = 0;
+    
+    while (pk_atom_is_cons(iter)) {
+        expanded |= pk_atom_macroexpand1(lisp, iter->cons.car);
+        count += 1;
         iter = iter->cons.cdr;
     }
-
-    if (!pk_is_nil(iter)) {
-        pk_propagate(pk_ref_inc(iter));
-        pk_cons_link(acc.tail, iter);
+    
+    if (pk_atom_is_nil(iter)) {
+        pk_stack_op_list_rev(lisp, count);
+    } else {
+        expanded |= pk_atom_macroexpand1(lisp, iter);
+        pk_stack_op_list_rev_packed(lisp, count + 1);
     }
-
-    return acc.head;
+    
+    return expanded;
 }
 
-PKAtom pk_macroexpand_let_args(PKAtom args, bool *expanded) {
-    PKAccum acc = pk_accum_new();
+bool pk_macroexpand_let_args(Pocket lisp, PKAtom *args) {
+    PKAccum acc = pk_accum_new(lisp);
     
-    PKAtom iter = args;
-    while (pk_is_cons(iter)) {
+    PKAtom *iter = args;
+    while (pk_atom_is_cons(iter)) {
         PKAtom a = iter->cons.car;
         pk_propagate(pk_typecheck_cons(a));
         PKAtom b = a->cons.cdr;
@@ -92,25 +93,24 @@ PKAtom pk_macroexpand1_(PKAtom atom, bool *expanded) {
     return pk_macroexpand_list(atom, expanded);
 }
 
-PKAtom pk_macroexpand1(PKAtom atom) {
+bool pk_macroexpand1(Pocket lisp, PKAtom *atom) {
     bool ignore = false;
     return pk_macroexpand1_(atom, &ignore);
 }
     
-PKAtom pk_macroexpand(PKAtom atom) {
-    bool expanded = false;
-    PKAtom result = pk_macroexpand1_(atom, &expanded);
-    pk_propagate(result);
-    while (expanded) {
-        expanded = false;
-        PKAtom next = pk_macroexpand1_(result, &expanded);
-        pk_ref_dec(result);
-        pk_propagate(next);
-        result = next;
+bool pk_macroexpand(Pocket lisp, PKAtom *atom) {
+    if (!pk_macroexpand1(lisp, atom)) {
+        return false;
     }
-    return result;
+    for (;;) {
+        bool expanded = pk_macroexpand1(lisp, pk_stack_head(lisp));
+        pk_swap_pop2(lisp);
+        if (!expanded) {
+            return true;
+        }
+    }
 }
 
-bool pk_is_macro(PKAtom atom) {
+bool pk_atom_is_macro(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_CMACRO || atom->header.type == PK_ATOMTY_LMACRO;
 }
