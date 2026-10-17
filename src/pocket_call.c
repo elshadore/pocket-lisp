@@ -1,229 +1,143 @@
 #include "pocket_internals.h"
 
-PKAtom pk_callconv_(pk_u8 input_args, pk_u8 args, pk_u8 arity, pk_u8 option_start, PKCallConv *output) {
-    switch (arity) {
+PKCallConv pk_callconv_(Pocket lisp, PK_FUNTY type, pk_u8 args, PKArity arity) {
+    switch (arity.type) {
         case PK_INT_ARITY_NORMAL: {
-            if (input_args != args) {
-                return pk_errors(pk_str("wrong arg count"));
+            if (args != arity.args) {
+                pk_error(lisp);
+                return PK_CALLCONV_EMPTY;
             } else {
-                *output = (PKCallConv) {
+                return (PKCallConv) {
                     .args = args,
                     .variadic_count = 0,
-                    .push_extra_nil = false,
-                    .variadic = false,
+                    .extra_nils = 0,
                 };
-                return pk_true();
             }
         }
         case PK_INT_ARITY_OPTIONAL: {
-            if (input_args < option_start) {
-                return pk_errors(pk_str("wrong arg count"));
-            } else if (input_args > args) {
-                return pk_errors(pk_str("wrong arg count"));
+            pk_u8 min = arity.args - arity.options;
+            if (args < min) {
+                pk_error(lisp);
+                return PK_CALLCONV_EMPTY;
+            } else if (args > arity.args) {
+                pk_error(lisp);
+                return PK_CALLCONV_EMPTY;
             } else {
-                *output = (PKCallConv) {
+                return (PKCallConv) {
                     .args = args,
-                    .variadic_count = args - input_args,
-                    .push_extra_nil = true,
-                    .variadic = false,
+                    .extra_nils = args - min,
+                    .variadic_count = 0,
                 };
-                return pk_true();
             }
         }
         case PK_INT_ARITY_VARIADIC: {
-            if (input_args == (args - 1)) {
-                *output = (PKCallConv) {
-                    .args = args,
-                    .variadic_count = 1,
-                    .push_extra_nil = true,
-                    .variadic = false,
-                };
-                return pk_true();
-            } else if (input_args >= args) {
-                *output = (PKCallConv) {
-                    .args = args,
-                    .variadic_count = input_args - args,
-                    .push_extra_nil = false,
-                    .variadic = true,
-                };
-                return pk_true();
+            if (args == arity.args) {
+                if (type == PK_FUNTY_LISP) {
+                    return (PKCallConv) {
+                        .args = args + 1,
+                        .extra_nils = 1,
+                        .variadic_count = 0,
+                    };
+                } else {
+                    return (PKCallConv) {
+                        .args = args,
+                        .extra_nils = 0,
+                        .variadic_count = 0,
+                    };
+                }
+            } else if (args > arity.args) {
+                if (type == PK_FUNTY_LISP) {
+                    return (PKCallConv) {
+                        .args = arity.args + 1,
+                        .extra_nils = 0,
+                        .variadic_count = args - arity.args,
+                    };
+                } else {
+                    return (PKCallConv) {
+                        .args = args,
+                        .extra_nils = 0,
+                        .variadic_count = 0,
+                    };
+                }
             } else {
-                return pk_errors(pk_str("wrong arg count"));
+                pk_error(lisp);
+                return PK_CALLCONV_EMPTY;
             }
         }
-        default: return pk_errors(pk_str("bad arity"));
-    }
-}
-    
-PKAtom pk_callconv(PKAtom fun, pk_u8 args, PKCallConv *output) {
-    switch (fun->header.type) {
-        case PK_ATOMTY_CFUN: return pk_callconv_(args, fun->cfun.args, fun->cfun.arity, fun->cfun.option_start, output);
-        case PK_ATOMTY_LFUN: return pk_callconv_(args, fun->lfun.args, fun->lfun.arity, fun->lfun.option_start, output);
-        case PK_ATOMTY_CMACRO: return pk_callconv_(args, fun->cmacro.args, fun->cmacro.arity, fun->cmacro.option_start, output);
-        case PK_ATOMTY_LMACRO: return pk_callconv_(args, fun->lmacro.args, fun->lmacro.arity, fun->lmacro.option_start, output);
-        default: return pk_errors(pk_str("expected function"));
+        default: {
+            pk_error(lisp);
+            return PK_CALLCONV_EMPTY;
+        }
     }
 }
 
-PKAtom pk_cfun_exec(PKAtomCFun *cfun, PKAtoms stack) {
-    switch (cfun->args) {
-        case 0: return (cfun->as.fun0)(cfun->user_closure);
-        case 1: return (cfun->as.fun1)(cfun->user_closure, stack.e[0]);
-        case 2: return (cfun->as.fun2)(cfun->user_closure, stack.e[0], stack.e[1]);
-        case 3: return (cfun->as.fun3)(cfun->user_closure, stack.e[0], stack.e[1], stack.e[2]);
-        default: return pk_errors(pk_str("bad cfun arity"));
+PKCallConv pk_callconv(Pocket lisp, PKAtom *function, pk_u8 args) {
+    switch (function->header.type) {
+        case PK_ATOMTY_CFUN: return pk_callconv_(lisp, PK_FUNTY_C, args, function->cfun.arity);
+        case PK_ATOMTY_LFUN: return pk_callconv_(lisp, PK_FUNTY_LISP, args, function->lfun.arity);
+        case PK_ATOMTY_CMACRO: return pk_callconv_(lisp, PK_FUNTY_C, args, function->cmacro.arity);
+        case PK_ATOMTY_LMACRO: return pk_callconv_(lisp, PK_FUNTY_LISP, args, function->lmacro.arity);
+        default: {
+            pk_error(lisp);
+            return PK_CALLCONV_EMPTY;
+        }
     }
 }
 
-PKAtom pk_stack_funcall_(PK_CALL call, PKAtom function, pk_u8 args) {
-    PKAtoms stack = pk_stack_slice();
-    if (stack.length < 1) {
-        return pk_errors(pk_str("stack underflow"));
+void pk_fcall(Pocket lisp, PK_CALL call, size_t args) {
+    PKAtoms slice = pk_stack_slice_down(lisp, args + 1);
+    
+    PKAtom *symbol = slice.e[args];
+    PKAtom *function = symbol;
+    
+    if (pk_atom_is_symbol(function)) {
+        function = pk_env_get(lisp, PK_ENV_FUN, (PKAtomSymbol *)function);
+        if (pk_atom_is_undefined(function)) {
+            pk_error(lisp);
+            return;
+        }
     }
-    stack.e += 1;
-    stack.length -= 1;
-    if (stack.length != args) {
-        return pk_errors(pk_str("wrong arg count"));
+    if (args > UINT8_MAX) {
+        pk_error(lisp);
+        return;
+    }
+    PKCallConv cc = pk_callconv(lisp, function, args);
+    
+    for (size_t i = 0; i < cc.extra_nils; ++i) {
+        pk_push_nil(lisp);
+    }
+    if (cc.variadic_count > 0) {
+        pk_stack_op_list(lisp, cc.variadic_count);
     }
     
+    pk_frame_push(lisp, cc.args);
+
     switch (call) {
         case PK_CALL_FUN: {
             switch (function->header.type) {
-                case PK_ATOMTY_CFUN: return pk_cfun_exec((PKAtomCFun *)function, stack);
-                case PK_ATOMTY_LFUN: return pk_lfun_exec(function, args);
-                default: return pk_errors(pk_str("expected function"));
+                case PK_ATOMTY_CFUN: pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
+                case PK_ATOMTY_LFUN: pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
+                default: {
+                    pk_error(lisp);
+                    break;
+                }
             }
         }
         case PK_CALL_MACRO: {
             switch (function->header.type) {
-                case PK_ATOMTY_CMACRO: return pk_cfun_exec((PKAtomCFun *)function, stack);
-                case PK_ATOMTY_LMACRO: return pk_lfun_exec(function, args);
-                default: return pk_errors(pk_str("expected macro"));
+                case PK_ATOMTY_CMACRO: pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
+                case PK_ATOMTY_LMACRO: pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
+                default: {
+                    pk_error(lisp);
+                    break;
+                }
             }
         }
-        default: return pk_errors(pk_str("bad call mode"));
-    }
-}
-
-PKAtom pk_stack_funcall(PK_CALL call, pk_u8 args) {
-    PKAtoms stack = pk_stack_slice();
-    size_t uargs = (size_t)args;
-    if (stack.length < (uargs + 1)) {
-        return pk_errors(pk_str("stack underflow"));
-    }
-    
-    PKAtom function = stack.e[stack.length - uargs - 1];
-    
-    if (pk_is_symbol(function)) {
-        function = pk_get(PK_ENV_FUN, function);
-        if (pk_is_nil(function)) {
-            return pk_errors(pk_str("undefined function"));
+        default: {
+            pk_error(lisp);
+            break;
         }
     }
     
-    PKCallConv cc = PK_CALLCONV_EMPTY;
-    pk_propagate(pk_callconv(function, args, &cc));
-    
-    pk_propagate(pk_frame_push(args + 1));
-    
-    PKAtom result = pk_true();
-    if (cc.push_extra_nil) {
-        for (size_t i = 0; i < cc.variadic_count; ++i) {
-            pk_propagate(pk_stack_push(pk_nil()));
-        }
-    } else if (cc.variadic) {
-        result = pk_stack_op_list((size_t)cc.variadic_count + 1);
-    }
-    
-    result = pk_stack_funcall_(call, function, cc.args);
-    
-    pk_frame_unwind();
-    
-    return result;
-}
-
-PKAtom pk_funcall0(PK_CALL call, PKAtom fun) {
-    if (!pk_is_function(fun)) {
-        return pk_errors(pk_str("expected function"));
-    }
-    
-    PKAtom e[] = {
-        fun,
-    };
-    PKAtoms atoms = (PKAtoms){
-        .e = e,
-        .length = pk_alen(e)
-    };
-    
-    pk_propagate(pk_frame_pushc(atoms));
-    PKAtom result = pk_stack_funcall(call, 0);
-    pk_frame_unwind();
-    
-    return result;
-}
-
-PKAtom pk_funcall1(PK_CALL call, PKAtom fun, PKAtom arg1) {
-    if (!pk_is_function(fun)) {
-        return pk_errors(pk_str("expected function"));
-    }
-    
-    PKAtom e[] = {
-        fun,
-        arg1,
-    };
-    PKAtoms atoms = (PKAtoms){
-        .e = e,
-        .length = pk_alen(e)
-    };
-    
-    pk_propagate(pk_frame_pushc(atoms));
-    PKAtom result = pk_stack_funcall(call, 1);
-    pk_frame_unwind();
-
-    return result;
-}
-
-PKAtom pk_funcall2(PK_CALL call, PKAtom fun, PKAtom arg1, PKAtom arg2) {
-    if (!pk_is_function(fun)) {
-        return pk_errors(pk_str("expected function"));
-    }
-    
-    PKAtom e[] = {
-        fun,
-        arg1,
-        arg2,
-    };
-    PKAtoms atoms = (PKAtoms){
-        .e = e,
-        .length = pk_alen(e)
-    };
-    
-    pk_propagate(pk_frame_pushc(atoms));
-    PKAtom result = pk_stack_funcall(call, 2);
-    pk_frame_unwind();
-    
-    return result;
-}
-
-PKAtom pk_funcall3(PK_CALL call, PKAtom fun, PKAtom arg1, PKAtom arg2, PKAtom arg3) {
-    if (!pk_is_function(fun)) {
-        return pk_errors(pk_str("expected function"));
-    }
-    
-    PKAtom e[] = {
-        fun,
-        arg1,
-        arg2,
-        arg3,
-    };
-    PKAtoms atoms = (PKAtoms){
-        .e = e,
-        .length = pk_alen(e)
-    };
-    
-    pk_propagate(pk_frame_pushc(atoms));
-    PKAtom result = pk_stack_funcall(call, 3);
-    pk_frame_unwind();
-    
-    return result;
+    pk_frame_return(lisp);
 }

@@ -1,6 +1,17 @@
 #include "pocket_internals.h"
 
 PKAtomCFun *pk_atom_cfun(Pocket lisp, void *user_closure, PKFun fun, PK_CALL call, PK_ARITY arity, pk_u8 args, pk_u8 options) {
+    if (arity == PK_ARITY_OPTIONAL) {
+        if (options == 0) {
+            pk_error(lisp);
+            return NULL;
+        }
+        if (options > args) {
+            pk_error(lisp);
+            return NULL;
+        }
+    }
+    
     PKAtomCFun *atom = (PKAtomCFun *)pk_atom_alloc(lisp);
 
     if (call == PK_CALL_FUN) {
@@ -20,9 +31,14 @@ PKAtomCFun *pk_atom_cfun(Pocket lisp, void *user_closure, PKFun fun, PK_CALL cal
     return atom;
 }
 
-PKAtom *pk_atom_lfun_exec(PKAtom *lfun, size_t save) {
-    PKVM vm = pk_vm_init(lfun, save);
-    return pk_vm_exec(&vm);
+void pk_atom_cfun_exec(Pocket lisp, PKAtomCFun *cfun) {
+    (cfun->fun)(cfun->user_closure, lisp);
+}
+
+void pk_atom_lfun_exec(Pocket lisp, PKAtomLFun *lfun) {
+    (void)lisp;
+    PKVM vm = pk_vm_init((PKAtom *)lfun, 0);
+    pk_vm_exec(&vm);
 }
 
 PKAtomString *pk_hexdump_(Pocket lisp, PKWriter *w, PKAtomLFun *lfun) {

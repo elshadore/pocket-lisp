@@ -116,13 +116,17 @@ typedef struct PKAccum_ {
     PKAtom *tail;
 } PKAccum;
 
-#define PK_CALLCONV_EMPTY (PKCallConv){.args = 0, .variadic_count = 0, .variadic = false, .push_extra_nil = false}
+typedef enum PK_FUNTY_ {
+    PK_FUNTY_C = 0,
+    PK_FUNTY_LISP,
+} PK_FUNTY;
+
+#define PK_CALLCONV_EMPTY (PKCallConv){.args = 0, .variadic_count = 0, .extra_nils = 0}
 
 typedef struct PKCallConv_ {
     pk_u8 args;
     pk_u8 variadic_count;
-    bool variadic;
-    bool push_extra_nil;
+    pk_u8 extra_nils;
 } PKCallConv;
 
 #define PK_ATOMTY_ILLEGAL (0)
@@ -519,15 +523,17 @@ PKAtom *pk_env_let(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol, PKAtom *value)
 void pk_env_let_unwind(Pocket lisp, size_t n);
 PKAtom *pk_env_alist(Pocket lisp, PK_ENV env);
     
-PKAtom *pk_lfun_exec(PKAtom *lfun, size_t save);    
+void pk_atom_cfun_exec(Pocket lisp, PKAtomCFun *cfun);
+void pk_atom_lfun_exec(Pocket lisp, PKAtomLFun *lfun);
 
 void pk_atom_print(Pocket lisp, PKAtom *atom);
 void pk_atom_write(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_format(Pocket lisp, PKAtom *atom);
 
 void pk_frame_push(Pocket lisp, size_t arity);
-void pk_frame_clear(Pocket lisp);
 void pk_frame_unwind(Pocket lisp);
+void pk_frame_clear(Pocket lisp);
+void pk_frame_return(Pocket lisp);
 size_t pk_frame_length(Pocket lisp);
 
 void pk_stack_push(Pocket lisp, PKAtom *atom);
@@ -613,12 +619,10 @@ PKAtom *pk_hashmap_get(PKHashmap *map, PKAtom *key);
 PKAtom *pk_hashmap_remove(PKHashmap *map, PKAtom *key);
 void pk_hashmap_deinit(PKHashmap *map);
 
-size_t pk_slotmap_index(PKSlotmap *map, PKAtom *symbol);
-PKSlotmapSlot *pk_slotmap_find(PKSlotmap *map, PKAtom *symbol);
-bool pk_slotmap_index_of(PKSlotmap *map, PKAtom *symbol, size_t *index);
-PKAtom *pk_slotmap_insert(PKSlotmap *map, PKAtom *symbol, size_t *index);
-PKAtom *pk_slotmap_reserve(PKSlotmap *map, size_t count);
-void pk_slotmap_deinit(PKSlotmap *map);
+size_t pk_slotmap_hash(PKSlotmap *map, PKAtom *symbol);
+PKSlotmapSlot *pk_slotmap_get(PKSlotmap *map, PKAtom *symbol);
+void pk_slotmap_insert(Pocket lisp, PKSlotmap *map, PKAtom *symbol);
+void pk_slotmap_deinit(Pocket lisp, PKSlotmap *map);
     
 size_t pk_hash_djb2(PKStr string);
 size_t pk_hash_pointer(void *ptr);

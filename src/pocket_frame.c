@@ -21,15 +21,11 @@ void pk_frame_push(Pocket lisp, size_t arity) {
 
 void pk_frame_unwind(Pocket lisp) {
     PKFrame unwind = lisp->frames.e[lisp->frames.count - 1];
-    size_t stack_count = lisp->current_frame.stack_offset;
-    size_t diff = lisp->stack.count - stack_count;
-    size_t lets_unwind = lisp->lets.count - lisp->current_frame.let_offset;
-    pk_let_unwind(lets_unwind);
     
-    for (size_t i = 0; i < diff; ++i) {
-        size_t index = lisp->stack.count - i - 1;
-        pk_ref_dec(lisp->stack.e[index]);
-    }
+    size_t stack_count = lisp->current_frame.stack_offset;
+    size_t lets_unwind = lisp->lets.count - lisp->current_frame.let_offset;
+    
+    pk_env_let_unwind(lisp, lets_unwind);
     
     lisp->stack.count = stack_count;
     lisp->frames.count -= 1;
@@ -37,12 +33,13 @@ void pk_frame_unwind(Pocket lisp) {
 }
 
 void pk_frame_clear(Pocket lisp) {
-    size_t diff = lisp->stack.count - lisp->current_frame.stack_offset;
-    for (size_t i = 0; i < diff; ++i) {
-        size_t index = lisp->stack.count - i - 1;
-        pk_ref_dec(lisp->stack.e[index]);
-    }
     lisp->stack.count = lisp->current_frame.stack_offset;
+}
+
+void pk_frame_return(Pocket lisp) {
+    PKAtom *result = pk_stack_head(lisp);
+    pk_frame_unwind(lisp);
+    lisp->stack.e[lisp->stack.count - 1] = result;
 }
 
 size_t pk_frame_length(Pocket lisp) {
