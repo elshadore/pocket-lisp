@@ -158,7 +158,7 @@ struct PKAtomFree_ {
 #define PK_NUMTY_FLOAT (1)
 
 typedef struct PKAtomNumber_ {
-    PKAtomHeader *header;
+    PKAtomHeader header;
     pk_u8 num_type;
     union {
         int i;
@@ -448,16 +448,21 @@ size_t pk_atom_hash(PKAtom *atom);
 bool pk_atom_is_nil(PKAtom *atom);
 bool pk_atom_is_true(PKAtom *atom);
 bool pk_atom_is_cons(PKAtom *atom);
+bool pk_atom_is_int(PKAtom *atom);
+bool pk_atom_is_float(PKAtom *atom);
+bool pk_atom_is_number(PKAtom *atom);
 bool pk_atom_is_string(PKAtom *atom);
 bool pk_atom_is_symbol(PKAtom *atom);
 bool pk_atom_is_keyword(PKAtom *atom);
 
 PKAtom *pk_atom_assert_nil(Pocket lisp, PKAtom *atom);
 PKAtomCons *pk_atom_assert_cons(Pocket lisp, PKAtom *atom);
-PKAtomString *pk_atom_assert_number(Pocket lisp, PKAtom *atom);
+PKAtomNumber *pk_atom_assert_number(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_assert_string(Pocket lisp, PKAtom *atom);
 PKAtomSymbol *pk_atom_assert_symbol(Pocket lisp, PKAtom *atom);
 PKAtomKeyword *pk_atom_assert_keyword(Pocket lisp, PKAtom *atom);
+
+PKAtom *pk_atom_bool(Pocket lisp, bool boolean);
 
 PKAtomString *pk_atom_string_nomemcpy(Pocket lisp, PKStr string);
 PKAtomString *pk_atom_string(Pocket lisp, PKStr string);
@@ -482,6 +487,21 @@ PKAtom *pk_atom_list_flatten(Pocket lisp, PKAtoms atoms);
 
 PKAtomNumber *pk_atom_int(Pocket lisp, int integer);
 PKAtomNumber *pk_atom_float(Pocket lisp, float floater);
+PKAtom *pk_atom_add(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+PKAtom *pk_atom_sub(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+PKAtom *pk_atom_mul(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+PKAtom *pk_atom_div(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+PKAtom *pk_atom_mod(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+PKAtom *pk_atom_lt(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+PKAtom *pk_atom_lte(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+PKAtom *pk_atom_gt(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+PKAtom *pk_atom_gte(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+
+int pk_atom_as_int(PKAtom *atom);
+int pk_atom_to_int(Pocket lisp, PKAtom *atom);
+float pk_atom_as_float(PKAtom *atom);
+float pk_atom_to_float(Pocket lisp, PKAtom *atom);
+
 PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr id);
 PKAtomKeyword *pk_atom_keyword(Pocket lisp, PKStr id);
 

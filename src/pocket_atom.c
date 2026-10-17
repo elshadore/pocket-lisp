@@ -67,7 +67,7 @@ PKAtom *pk_atom_reverse(Pocket lisp, PKAtom *atom) {
         case PK_ATOMTY_STRING: {
             PKStr dupe = pk_str_dupe(lisp, atom->string.str);
             pk_str_reverse_mut(dupe);
-            return pk_string_nomemcpy(dupe);
+            return (PKAtom *)pk_atom_string_nomemcpy(lisp, dupe);
         }
         case PK_ATOMTY_CONS: {
             PKAtom *acc = lisp->cache.nil;
@@ -80,7 +80,7 @@ PKAtom *pk_atom_reverse(Pocket lisp, PKAtom *atom) {
         }
         case PK_ATOMTY_NIL: return lisp->cache.nil;
         default: {
-            pk_error(lisp, 0);
+            pk_error(lisp);
             return lisp->cache.nil;
         }
     }
