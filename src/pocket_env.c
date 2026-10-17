@@ -86,17 +86,7 @@ PKAtom pk_list_env(PK_ENV env) {
             }
             
             PKAtom pair = pk_cons(symbol, value);
-            if (pk_is_throwing(pair)) {
-                pk_ref_dec(acc.head);
-                return pair;
-            }
-            
-            PKAtom result = pk_accum_push(&acc, pair);
-            if (pk_is_throwing(result)) {
-                pk_ref_dec(pair);
-                pk_ref_dec(acc.head);
-                return result;
-            }
+            pk_accum_push(&acc, pair);
             pk_ref_dec(pair);
         }
     }
@@ -117,10 +107,6 @@ PKAtom pk_get(PK_ENV env, PKAtom symbol) {
 
 bool pk_is_bound(PK_ENV env, PKAtom symbol) {
     PKAtom fetch = pk_get_raw(env, symbol);
-    if (pk_is_throwing(fetch)) {
-        return false;
-    }
-
     return !pk_is_undefined(fetch);
 }
 
@@ -162,13 +148,7 @@ void pk_let_unwind(size_t n) {
     for (size_t i = 0; i < n; ++i) {
         size_t index = PK_CORE.lets.count - i - 1;
         PKLet unwind = PK_CORE.lets.e[index];
-        // The only error that can occur is a type error on the symbol input.
-        // So it's okay to skip errors here.
-        PKAtom displaced = pk_set(unwind.env, unwind.symbol, unwind.restore);
-        pk_ref_dec(unwind.restore);
-        if (!pk_is_throwing(displaced)) {
-            pk_ref_dec(displaced);
-        }
+        pk_set(unwind.env, unwind.symbol, unwind.restore);
     }
     PK_CORE.lets.count -= n;
 }

@@ -201,18 +201,6 @@ PKAtom pk_writer_symbol_name(PKWriter *w, PKStr name) {
 
 PKAtom pk_writer_atom(PKWriter *w, PKAtom atom) {
     switch (atom->header.type) {
-        case PK_ATOMTY_CRITICAL_ERROR: {
-            pk_propagate(pk_writer_simple_object(w, atom, pk_str("CRITICAL-ERROR")));
-            break;
-        }
-        case PK_ATOMTY_THROW: {
-            if (atom->throw.type == PK_CORE.cache.error) {
-                pk_propagate(pk_writer_simple_object(w, atom, pk_str("ERROR")));
-            } else {
-                pk_propagate(pk_writer_simple_object(w, atom, pk_str("THROW")));
-            }
-            break;
-        }
         case PK_ATOMTY_UNDEFINED: {
             pk_propagate(pk_writer_string(w, pk_str("&<UNDEFINED>")));
             break;

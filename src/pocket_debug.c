@@ -76,7 +76,7 @@ void pk_debug_leakcheck(void) {
                 continue;
             }
             PKStr ident = pk_ident_atomty(atom->header.type);
-            fprintf(stderr, "[%zu] => <%p> [%.*s] rc=%u ", count, atom, (int)ident.length, ident.c, atom->header.refcount);
+            fprintf(stderr, "[%zu] => <%p> [%.*s] ", count, atom, (int)ident.length, ident.c);
             switch (atom->header.type) {
                 case PK_ATOMTY_STRING: {
                     fprintf(stderr, "%.*s", (int)atom->string.str.length, atom->string.str.c);

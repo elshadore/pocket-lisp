@@ -94,10 +94,8 @@ bool pk_init(void) {
     
     PK_CORE.initialized = true;
     
-    if (pk_is_throwing(pk_init2())) {
-        pk_deinit();
-        return false;
-    }
+    pk_init2();
+    
     return true;
 }
 

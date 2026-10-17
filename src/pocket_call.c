@@ -135,9 +135,8 @@ PKAtom pk_stack_funcall(PK_CALL call, pk_u8 args) {
         result = pk_stack_op_list((size_t)cc.variadic_count + 1);
     }
     
-    if (!pk_is_throwing(result)) {
-        result = pk_stack_funcall_(call, function, cc.args);
-    }
+    result = pk_stack_funcall_(call, function, cc.args);
+    
     pk_frame_unwind();
     
     return result;

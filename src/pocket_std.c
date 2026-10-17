@@ -183,10 +183,9 @@ PKAtom pk_fun_list(void *user_closure, PKAtom argn) {
 PKAtom pk_fun_funcatch(void *user_closure, PKAtom symbol, PKAtom fun) {
     (void)user_closure;
     pk_propagate(pk_typecheck_symbol(symbol));
+    
     PKAtom result = pk_funcall0(PK_CALL_FUN, fun);
-    if (!pk_is_throwing(result)) {
-        return result;
-    }
+    
     PKAtom match = pk_throw_type(result);
     if (pk_eq(symbol, match)) {
         PKAtom contents = pk_throw_contents(result);

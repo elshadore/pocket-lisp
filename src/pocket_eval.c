@@ -40,11 +40,6 @@ PKAtom pk_evlist_(PKAtom exprlist) {
     PKAtom result = pk_nil();
     while (pk_is_cons(iter)) {
         PKAtom next = pk_eval_(iter->cons.car);
-        if (pk_is_throwing(next)) {
-            pk_ref_dec(result);
-            return next;
-        }
-        pk_ref_dec(result);
         result = next;
         iter = iter->cons.cdr;
     }

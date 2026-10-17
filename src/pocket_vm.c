@@ -321,28 +321,30 @@ PKAtom pk_vm_exec(PKVM *vm) {
     // The frame starts below this lfun's arguments, so that a leading LET_VAR
     // can see them in the frame's slice.
     size_t frames = PK_CORE.frames.count;
+    (void)frames;
     pk_propagate(pk_frame_push(vm->save));
     
     while (!vm->finished) {
         PKAtom atom = pk_vm_op_exec(vm);
-        if (pk_is_throwing(atom)) {
-            if ((!vm->protected) || pk_is_critical_error(atom)) {
-                while (PK_CORE.frames.count > frames) {
-                    pk_frame_unwind();
-                }
-                return atom;
-            }
+        (void)atom;
+        /* if (pk_is_throwing(atom)) { */
+        /*     if ((!vm->protected) || pk_is_critical_error(atom)) { */
+        /*         while (PK_CORE.frames.count > frames) { */
+        /*             pk_frame_unwind(); */
+        /*         } */
+        /*         return atom; */
+        /*     } */
             
-            // The protected region handles the throw itself, so the value the
-            // op was working on is dropped and the next form carries on.
-            pk_ref_dec(atom);
-            pk_stack_reset_to(vm->protect_offset);
-            pk_propagate(pk_stack_push(pk_nil()));
-            if (pk_opcode_ty(vm->opcode) == PK_OPCODE_TY_LIT) {
-                pk_propagate(pk_vm_inc(vm));
-            }
-            continue;
-        }
+        /*     // The protected region handles the throw itself, so the value the */
+        /*     // op was working on is dropped and the next form carries on. */
+        /*     pk_ref_dec(atom); */
+        /*     pk_stack_reset_to(vm->protect_offset); */
+        /*     pk_propagate(pk_stack_push(pk_nil())); */
+        /*     if (pk_opcode_ty(vm->opcode) == PK_OPCODE_TY_LIT) { */
+        /*         pk_propagate(pk_vm_inc(vm)); */
+        /*     } */
+        /*     continue; */
+        /* } */
     }
     // The frame is about to be released and it owns the result, so hand that
     // reference to the caller.

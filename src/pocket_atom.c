@@ -4,7 +4,6 @@ PKAtomData PK_ATOM_UNDEFINED = (PKAtomData) {
     .header = (PKAtomHeader) {
         .type = PK_ATOMTY_UNDEFINED,
         .flags = PK_ATOMFLAG_IMMORTAL,
-        .refcount = 0,
     }
 };
 
@@ -12,7 +11,6 @@ PKAtomData PK_ATOM_TRUE = (PKAtomData) {
     .header = (PKAtomHeader) {
         .type = PK_ATOMTY_TRUE,
         .flags = PK_ATOMFLAG_IMMORTAL,
-        .refcount = 0,
     }
 };
 
@@ -48,12 +46,6 @@ bool pk_is_type(PKAtom atom, PK_TYPE type) {
         }
     }
     switch (atom->header.type) {
-        case PK_ATOMTY_CRITICAL_ERROR: {
-            return (type == PK_TYPE_THROW) || (type == PK_TYPE_ERROR);
-        }
-        case PK_ATOMTY_THROW: {
-            return type == PK_TYPE_THROW;
-        }
         case PK_ATOMTY_NIL: {
             return (type == PK_TYPE_NIL) || (type == PK_TYPE_LIST);
         }

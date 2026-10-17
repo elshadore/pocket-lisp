@@ -45,16 +45,7 @@ PKAtom run(int argc, char **argv) {
 
 int main(int argc, char **argv) {
     PKAtom result = run(argc, argv);
-    if (pk_is_throwing(result)) {
-        PKAtom message = pk_throw_contents(result);
-        (void)pk_print(message);
-        pk_ref_dec(result);
-        pk_deinit();
-        return 1;
-    } else {
-        (void)pk_print(result);
-        pk_ref_dec(result);
-        pk_deinit();
-        return 0;
-    }
+    (void)result;
+    pk_deinit();
+    return 0;
 }

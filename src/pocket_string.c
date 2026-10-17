@@ -4,7 +4,6 @@ PKAtomData PK_ATOM_STRING_EMPTY = (PKAtomData) {
     .string = (PKAtomString) {
         .header.type = PK_ATOMTY_STRING,
         .header.flags = PK_ATOMFLAG_IMMORTAL,
-        .header.refcount = 0,
         .str = PK_STR_EMPTY,
     }
 };
@@ -79,10 +78,7 @@ PKAtom pk_string_cat(PKAtoms strings) {
     for (size_t i = 0; i < strings.length; ++i) {
         PKStr part = PK_STR_EMPTY;
         PKAtom owned = pk_nil();
-        PKAtom result = pk_string_cat_part(strings.e[i], &part, &owned);
-        if (pk_is_throwing(result)) {
-            return result;
-        }
+        pk_string_cat_part(strings.e[i], &part, &owned);
         pk_ref_dec(owned);
         length += part.length;
     }

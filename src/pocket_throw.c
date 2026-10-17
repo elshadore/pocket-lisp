@@ -1,78 +1,15 @@
 #include "pocket_internals.h"
 
-PKAtomData PK_ATOM_OOM_MESSAGE = (PKAtomData) {
-    .string = (PKAtomString) {
-        .header.type = PK_ATOMTY_STRING,
-        .header.flags = PK_ATOMFLAG_IMMORTAL,
-        .header.refcount = 0,
-        .str = pk_str("out of memory")
-    }
-};
+void pk_temp_panic(void) {
+    fprintf(stderr, "TODO: reimplement throwing and errors");
+    abort();
+}
 
-PKAtomData PK_ATOM_OOM = (PKAtomData) {
-    .critical_error = (PKAtomError) {
-        .header.type = PK_ATOMTY_CRITICAL_ERROR,
-        .header.flags = PK_ATOMFLAG_IMMORTAL,
-        .header.refcount = 0,
-        .message = &PK_ATOM_OOM_MESSAGE,
-    }
-};
-
-PKAtomData PK_ATOM_CORRUPTED_MESSAGE = (PKAtomData) {
-    .string = (PKAtomString) {
-        .header.type = PK_ATOMTY_STRING,
-        .header.flags = PK_ATOMFLAG_IMMORTAL,
-        .header.refcount = 0,
-        .str = pk_str("corrupted memory")
-    }
-};
-
-PKAtomData PK_ATOM_CORRUPTED = (PKAtomData) {
-    .critical_error = (PKAtomError) {
-        .header.type = PK_ATOMTY_CRITICAL_ERROR,
-        .header.flags = PK_ATOMFLAG_IMMORTAL,
-        .header.refcount = 0,
-        .message = &PK_ATOM_CORRUPTED_MESSAGE,
-    }
-};
-
-PKAtomData PK_ATOM_REFCOUNT_MESSAGE = (PKAtomData) {
-    .string = (PKAtomString) {
-        .header.type = PK_ATOMTY_STRING,
-        .header.flags = PK_ATOMFLAG_IMMORTAL,
-        .header.refcount = 0,
-        .str = pk_str("refcount overflow")
-    }
-};
-
-PKAtomData PK_ATOM_REFCOUNT = (PKAtomData) {
-    .critical_error = (PKAtomError) {
-        .header.type = PK_ATOMTY_CRITICAL_ERROR,
-        .header.flags = PK_ATOMFLAG_IMMORTAL,
-        .header.refcount = 0,
-        .message = &PK_ATOM_REFCOUNT_MESSAGE,
-    }
-};
-
-
-// Throw can fail to throw it's actual type and contents as it can produce errors of it's own.
 PKAtom pk_throw(PKAtom type, PKAtom contents) {
-    PKAtom atom = pk_atom_alloc();
-    pk_propagate(atom);
-    
-    PKAtom e[] = {type, contents};
-    PKAtoms atoms = (PKAtoms) {
-        .e = e,
-        .length = 2,
-    };
-    
-    pk_propagate(pk_ref_inc_many(atoms));
-    
-    atom->header.type = PK_ATOMTY_THROW;
-    atom->throw.type = type;
-    atom->throw.contents = contents;
-
-    return atom;
+    (void)type;
+    (void)contents;
+    pk_temp_panic();
+    return pk_true();
 }
 
 PKAtom pk_error(PKAtom message) {
@@ -102,45 +39,16 @@ PKAtom pk_error_type(PK_TYPE expected, PKAtom found) {
 }
     
 PKAtom pk_error_oom(void) {
-    return &PK_ATOM_OOM;
+    pk_temp_panic();
+    return pk_true();
 }
 
 PKAtom pk_error_corrupted_memory(void) {
-    return &PK_ATOM_CORRUPTED;
+    pk_temp_panic();
+    return pk_true();
 }
 
 PKAtom pk_error_refcount_overflow(void) {
-    return &PK_ATOM_REFCOUNT;
-}
-
-bool pk_is_critical_error(PKAtom atom) {
-    return atom->header.type == PK_ATOMTY_CRITICAL_ERROR;
-}
-
-PKAtom pk_throw_type(PKAtom throw) {
-    switch (throw->header.type) {
-        case PK_ATOMTY_CRITICAL_ERROR: return PK_CORE.cache.error;
-        case PK_ATOMTY_THROW: return throw->throw.type;
-        default: return pk_error_type(PK_TYPE_THROW, throw);
-    }
-}
-
-PKAtom pk_throw_contents(PKAtom throw) {
-    switch (throw->header.type) {
-        case PK_ATOMTY_CRITICAL_ERROR: return throw->critical_error.message;
-        case PK_ATOMTY_THROW: return throw->throw.contents;
-        default: return pk_error_type(PK_TYPE_THROW, throw);
-    }
-}
-
-bool pk_is_throwing(PKAtom atom) {
-    return (atom->header.type == PK_ATOMTY_THROW) || pk_is_critical_error(atom);
-}
-
-bool pk_is_error(PKAtom atom) {
-    return pk_is_throwing(atom);
-}
-
-PKAtom pk_typecheck_throw(PKAtom atom) {
-    return pk_error_type(PK_TYPE_THROW, atom);
+    pk_temp_panic();
+    return pk_true();
 }

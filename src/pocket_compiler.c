@@ -684,9 +684,6 @@ PKAtom pk_compile_jmp_(PKCompiler *c, PKAtom args, pk_u8 op, pk_u8 empty_op, PKB
     pk_u8 end = pk_cmp_addr(c);
     for (size_t i = 0; i < patches->count; ++i) {
         result = pk_cmp_patch_byte(c, patches->e[i], end - patches->e[i]);
-        if (pk_is_throwing(result)) {
-            break;
-        }
     }
     
     return result;
@@ -1027,9 +1024,7 @@ PKAtom pk_compile_lambda_(PKCompiler *c, PKAtom args, PKAtom body) {
 PKAtom pk_compile_lambda(PK_CALL type, PKAtom args, PKAtom body) {
     PKCompiler c = pk_cmp_new(type);
     PKAtom result = pk_compile_lambda_(&c, args, body);
-    if (pk_is_throwing(result)) {
-        pk_cmp_deinit(&c);
-    }
+    pk_cmp_deinit(&c);
     return result;
 }
 
@@ -1056,8 +1051,6 @@ PKAtom pk_compile(PK_CALL type, PKAtom value, PK_MODE mode) {
         result = pk_compile_exprlist(&c, value);
     }
     
-    if (pk_is_throwing(result)) {
-        pk_cmp_deinit(&c);
-    }
+    pk_cmp_deinit(&c);
     return result;
 }

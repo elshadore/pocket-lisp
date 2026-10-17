@@ -39,7 +39,6 @@ PKAtom pk_pool_expand(void) {
             .header = (PKAtomHeader) {
                 .type = PK_ATOMTY_FREE,
                 .flags = PK_ATOMFLAG_NONE,
-                .refcount = 0,
             },
             .next = (PKAtomFree *)b,
         };
@@ -48,7 +47,6 @@ PKAtom pk_pool_expand(void) {
     (pool->e[PK_POOL_MAX - 1]).free = (PKAtomFree) {
         .header = (PKAtomHeader) {
             .type = PK_ATOMTY_FREE,
-            .refcount = 0,
         },
         .next = NULL,
     };
@@ -72,7 +70,6 @@ PKAtom pk_atom_alloc(void) {
     PK_CORE.free = free->next;
     
     PKAtom atom = (PKAtom)free;
-    atom->header.refcount = 1;
     return atom;
 }
 
@@ -128,17 +125,11 @@ void pk_atom_free(PKAtom atom) {
             pk_ref_dec(atom->cons.cdr);
             break;
         }
-        case PK_ATOMTY_THROW: {
-            pk_ref_dec(atom->throw.type);
-            pk_ref_dec(atom->throw.contents);
-            break;
-        }
         default: break;
     }
     atom->header = (PKAtomHeader) {
         .type = PK_ATOMTY_FREE,
         .flags = PK_ATOMFLAG_NONE,
-        .refcount = 0,
     };
     atom->free.next = PK_CORE.free;
     PK_CORE.free = (PKAtomFree *)atom;

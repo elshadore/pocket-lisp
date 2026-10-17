@@ -35,10 +35,6 @@ PKAtom pk_object_new(PKAtom type) {
             memset(data, 0, type->symbol.owned_memory);
 
             PKAtom atom = pk_atom_alloc();
-            if (pk_is_throwing(atom)) {
-                pk_free(data);
-                return atom;
-            }
 
             pk_propagate(pk_ref_inc(type));
             atom->header.type = PK_ATOMTY_COBJECT;

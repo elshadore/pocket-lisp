@@ -27,11 +27,7 @@ PKAtom pk_frame_push(size_t arity) {
 PKAtom pk_frame_pushc(PKAtoms atoms) {
     pk_propagate(pk_frame_push(0));
     for (size_t i = 0; i < atoms.length; ++i) {
-        PKAtom atom = pk_stack_push(atoms.e[i]);
-        if (pk_is_throwing(atom)) {
-            pk_frame_unwind();
-            return atom;
-        }
+        pk_stack_push(atoms.e[i]);
     }
     return pk_true();
 }
@@ -65,11 +61,7 @@ void pk_frame_clear(void) {
 PKAtom pk_stack_push(PKAtom atom) {
     pk_propagate(pk_array_push(&PK_CORE.stack, atom, 128));
     
-    PKAtom result = pk_ref_inc(atom);
-    if (pk_is_throwing(result)) {
-        PK_CORE.stack.count -= 1;
-    }
-    return result;
+    return atom;
 }
 
 PKAtom pk_stack_head() {
@@ -144,9 +136,6 @@ PKAtom pk_stack_op_list(size_t depth) {
     pk_propagate(pk_stack_slice_down(depth, &slice));
     
     PKAtom result = pk_list(slice);
-    if (pk_is_throwing(result)) {
-        return result;
-    }
     
     return pk_stack_op_finish(depth, result);
 }
@@ -159,9 +148,6 @@ PKAtom pk_stack_op_list_packed(size_t depth) {
     pk_propagate(pk_stack_slice_down(depth, &slice));
     
     PKAtom result = pk_list_packed(slice);
-    if (pk_is_throwing(result)) {
-        return result;
-    }
     
     return pk_stack_op_finish(depth, result);
 }
@@ -174,9 +160,6 @@ PKAtom pk_stack_op_list_merge(size_t depth) {
     pk_propagate(pk_stack_slice_down(depth, &slice));
     
     PKAtom result = pk_list_flatten(slice);
-    if (pk_is_throwing(result)) {
-        return result;
-    }
     
     return pk_stack_op_finish(depth, result);
 }
@@ -188,9 +171,6 @@ PKAtom pk_stack_op_strcat(size_t depth) {
     PKAtoms slice = PK_ATOMS_EMPTY;
     pk_propagate(pk_stack_slice_down(depth, &slice));
     PKAtom result = pk_string_cat(slice);
-    if (pk_is_throwing(result)) {
-        return result;
-    }
     
     return pk_stack_op_finish(depth, result);
 }

@@ -110,9 +110,9 @@ typedef struct PKCallConv_ {
 
 #define PK_ATOMTY_ILLEGAL (0)
 #define PK_ATOMTY_FREE (1)
-#define PK_ATOMTY_CRITICAL_ERROR (2)
-#define PK_ATOMTY_ERROR (3)
-#define PK_ATOMTY_THROW (4)
+#define PK_ATOMTY_UNUSED_1 (2)
+#define PK_ATOMTY_UNUSED_2 (3)
+#define PK_ATOMTY_UNUSED_3 (4)
 #define PK_ATOMTY_UNDEFINED (5)
 #define PK_ATOMTY_NIL (6)
 #define PK_ATOMTY_TRUE (7)
@@ -136,7 +136,6 @@ typedef struct PKCallConv_ {
 typedef struct PKAtomHeader_ {
     pk_u8 type;
     pk_u8 flags;
-    pk_u8 refcount;
 } PKAtomHeader;
 
 typedef struct PKAtomFree_ PKAtomFree;
@@ -144,17 +143,6 @@ struct PKAtomFree_ {
     PKAtomHeader header;
     PKAtomFree *next;
 };
-
-typedef struct PKAtomError_ {
-    PKAtomHeader header;
-    PKAtom message;
-} PKAtomError;
-
-typedef struct PKAtomThrow_ {
-    PKAtomHeader header;
-    PKAtom type;
-    PKAtom contents;
-} PKAtomThrow;
 
 #define PK_NUMTY_INT (0)
 #define PK_NUMTY_FLOAT (1)
@@ -296,9 +284,6 @@ typedef struct PKAtomLObject_ {
 typedef union PKAtomData_ {
     PKAtomHeader header;
     PKAtomFree free;
-    PKAtomError critical_error;
-    PKAtomError error;
-    PKAtomThrow throw;
     PKAtomNumber number;
     PKAtomString string;
     PKAtomSymbol symbol;

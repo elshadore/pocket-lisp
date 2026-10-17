@@ -99,20 +99,8 @@ typedef enum PK_TYPE_ {
 #define PK_STR_EMPTY (PKStr){.c = NULL, .length = 0}
 
 #define pk_propagate(atom_) do { \
-    PKAtom temp_ = (atom_); \
-    if (pk_is_throwing(temp_)) { \
-        return temp_; \
-    } \
+    return atom_; \
 } while(0)
-
-#define pk_deferc(atom_, label_) do { \
-    PKAtom temp_ = (atom_); \
-    if (pk_is_throwing(temp_)) { \
-        goto label; \
-    } \
-} while(0)
-
-#define pk_defer(atom_) pk_deferc(atom_, DEFER)
 
 #define pk_alen(array_) (sizeof(array_) / sizeof(*array_))
 
@@ -211,9 +199,6 @@ bool pk_is_type(PKAtom atom, PK_TYPE type);
 bool pk_is_nil(PKAtom atom);
 bool pk_is_undefined(PKAtom atom);
 bool pk_is_true(PKAtom atom);
-bool pk_is_throwing(PKAtom atom);
-bool pk_is_critical_error(PKAtom atom);
-bool pk_is_error(PKAtom atom);
 bool pk_is_int(PKAtom atom);
 bool pk_is_float(PKAtom atom);
 bool pk_is_number(PKAtom atom);

@@ -4,7 +4,6 @@ PKAtomData PK_ATOM_NIL = (PKAtomData) {
     .header = (PKAtomHeader) {
         .type = PK_ATOMTY_NIL,
         .flags = PK_ATOMFLAG_IMMORTAL,
-        .refcount = 0,
     }
 };
 

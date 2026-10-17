@@ -2,8 +2,22 @@
 The todo list for POCKET LISP
 
 ## TODAY
-- [ ] LUA Stack Update
+### LUA Stack Update
   Update the API to a LUA like api with `setjmp` `longjmp` errors / throws.
+  - [ ] Remove Errors and Throws
+  - [ ] Remove Refcounting
+  - [ ] Add Stack Logic
+  - [ ] Add Stack API
+    - pop
+    - popn
+    - insert
+    - ...
+  - [ ] C Funcall Update
+  - [ ] Update STD + pocket_user.c
+  - [ ] Add Garbage Collection
+  - [ ] Remove pk_propagate
+  - [ ] Add `setjmp` `longjmp` errors / throws
+  - [ ] pk_protect
 
 ## TOMORROW
 - [ ] Object System
