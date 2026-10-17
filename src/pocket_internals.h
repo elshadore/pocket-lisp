@@ -480,6 +480,11 @@ PKAtom *pk_atom_list(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_packed(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_flatten(Pocket lisp, PKAtoms atoms);
 
+PKAtomNumber *pk_atom_int(Pocket lisp, int integer);
+PKAtomNumber *pk_atom_float(Pocket lisp, float floater);
+PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr id);
+PKAtomKeyword *pk_atom_keyword(Pocket lisp, PKStr id);
+
 PKAtom *pk_lfun_exec(PKAtom *lfun, size_t save);    
 
 void pk_print_str(PKStr string);
@@ -512,8 +517,16 @@ void pk_stack_op_strcat(Pocket lisp, size_t depth);
     
 void pk_let_unwind(size_t n);
 
-PKAtom *pk_read_atom(PKReader *r);
-PKAtom *pk_read_barred(PKReader *r, PKWriter *w, PK_SYMTY type);
+PKAtom *pk_read_atom(Pocket lisp, PKReader *r);
+PKAtom *pk_read_atom_barred(Pocket lisp, PKReader *r, PKWriter *w, PK_SYMTY type);
+PKAtom *pk_read_atom_keyword(Pocket lisp, PKReader *r);
+PKAtom *pk_read_atom_string(Pocket lisp, PKReader *r);
+PKAtom *pk_read_atom_number(Pocket lisp, PKReader *r);
+PKAtom *pk_read_atom_symbol(Pocket lisp, PKReader *r);
+PKAtom *pk_read_atom_cons(Pocket lisp, PKReader *r);
+
+PKAtom *pk_read_atom_from_str(Pocket lisp, PKStr string, PK_MODE mode);
+PKAtom *pk_read_atom_from_string(Pocket lisp, PKAtom *string, PK_MODE mode);
     
 void pk_writer_deinit(Pocket lisp, PKWriter *w);
 void pk_writer_expand(Pocket lisp, PKWriter *w, size_t needed);
