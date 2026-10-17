@@ -97,3 +97,15 @@
   (print $"{foo}, {bar}, {baz}"))
 
 (example :baz 69 :bar 420)
+
+## Object Printing
+
+&<ARRAY::(1 2 3 4 "foo")>
+
+&<TABLE::(("foo" . 69) ("bar" . 420))>
+
+&<VEC2::(33 22)>
+
+## Blobs
+
+[0 255 128 64]

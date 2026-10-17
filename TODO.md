@@ -2,6 +2,10 @@
 The todo list for POCKET LISP
 
 ## TODAY
+- [ ] LUA Stack Update
+  Update the API to a LUA like api with `setjmp` `longjmp` errors / throws.
+
+## TOMORROW
 - [ ] Object System
   - [ ] CObjects
   - [ ] LObjects
