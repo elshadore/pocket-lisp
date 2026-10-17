@@ -8,8 +8,8 @@ PKAccum pk_accum_new(Pocket lisp) {
     };
 }
 
-void pk_accum_push(PKAccum *acc, PKAtom atom) {
-    PKAtomCons *cons = pk_atom_cons(atom, acc->lisp->cache.nil);
+void pk_accum_push(PKAccum *acc, PKAtom *atom) {
+    PKAtomCons *cons = pk_atom_list1(acc->lisp, atom);
 
     if (pk_atom_is_nil(acc->head)) {
         acc->head = (PKAtom *)cons;

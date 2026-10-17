@@ -1,174 +1,135 @@
 #include "pocket_internals.h"
 
-PKAtomData PK_ATOM_NIL = (PKAtomData) {
-    .header = (PKAtomHeader) {
-        .type = PK_ATOMTY_NIL,
-        .flags = PK_ATOMFLAG_IMMORTAL,
-    }
-};
-
-PKAtom pk_nil() {
-    return &PK_ATOM_NIL;
-}
-
-PKAtom pk_cons(PKAtom car, PKAtom cdr) {
-    PKAtom atom = pk_atom_alloc();
-    pk_propagate(atom);
-    pk_propagate(pk_ref_inc(car));
-    pk_propagate(pk_ref_inc(cdr));
+PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr) {
+    PKAtomCons *result = (PKAtomCons *)pk_atom_alloc(lisp);
     
-    atom->header.type = PK_ATOMTY_CONS;
-    atom->cons.car = car;
-    atom->cons.cdr = cdr;
+    result->header.type = PK_ATOMTY_CONS;
+    result->car = car;
+    result->cdr = cdr;
     
-    return atom;
-}
-
-void pk_cons_link(PKAtom tail, PKAtom cons) {
-    tail->cons.cdr = cons;
-}
-
-PKAtom pk_car_discard(PKAtom cons) {
-    switch (cons->header.type) {
-        case PK_ATOMTY_NIL: return pk_nil();
-        case PK_ATOMTY_CONS: return cons->cons.car;
-        default: return pk_error_type(PK_TYPE_LIST, cons);
-    }
-}
-
-PKAtom pk_cdr_discard(PKAtom cons) {
-    switch (cons->header.type) {
-        case PK_ATOMTY_NIL: return pk_nil();
-        case PK_ATOMTY_CONS: return cons->cons.cdr;
-        default: return pk_error_type(PK_TYPE_LIST, cons);
-    }
-}
-
-PKAtom pk_car(PKAtom cons) {
-    PKAtom result = pk_car_discard(cons);
-    pk_propagate(result);
-    pk_propagate(pk_ref_inc(result));
     return result;
 }
 
-PKAtom pk_cdr(PKAtom cons) {
-    PKAtom result = pk_cdr_discard(cons);
-    pk_propagate(result);
-    pk_propagate(pk_ref_inc(result));
+PKAtom *pk_atom_car(Pocket lisp, PKAtom *atom) {
+    PKAtomCons *cons = pk_atom_assert_cons(lisp, atom);
+    return cons->car;
+}
+
+PKAtom *pk_atom_cdr(Pocket lisp, PKAtom *atom) {
+    PKAtomCons *cons = pk_atom_assert_cons(lisp, atom);
+    return cons->cdr;
+}
+
+PKAtom *pk_atom_set_car(Pocket lisp, PKAtom *atom, PKAtom *new_car) {
+    PKAtomCons *cons = pk_atom_assert_cons(lisp, atom);
+    PKAtom *result = cons->car;
+    cons->car = new_car;
     return result;
 }
 
-PKAtom pk_set_car(PKAtom cons, PKAtom new_car) {
-    pk_propagate(pk_typecheck_cons(cons));
-    pk_propagate(pk_ref_inc(new_car));
-    PKAtom result = cons->cons.car;
-    cons->cons.car = new_car;
+PKAtom *pk_atom_set_cdr(Pocket lisp, PKAtom *atom, PKAtom *new_cdr) {
+    PKAtomCons *cons = pk_atom_assert_cons(lisp, atom);
+    PKAtom *result = cons->cdr;
+    cons->cdr = new_cdr;
     return result;
 }
 
-PKAtom pk_set_cdr(PKAtom cons, PKAtom new_cdr) {
-    pk_propagate(pk_typecheck_cons(cons));
-    pk_propagate(pk_ref_inc(new_cdr));
-    PKAtom result = cons->cons.cdr;
-    cons->cons.cdr = new_cdr;
-    return result;
+PKAtomCons *pk_atom_list1(Pocket lisp, PKAtom *first) {
+    return pk_atom_cons(lisp, first, lisp->cache.nil);
 }
-
-PKAtom pk_list2(PKAtom first, PKAtom second) {
-    PKAtom b = pk_cons(second, pk_nil());
-    pk_propagate(b);
-    PKAtom a = pk_cons(first, b);
-    pk_propagate(a);
-    pk_ref_dec(b);
+    
+PKAtomCons *pk_atom_list2(Pocket lisp, PKAtom *first, PKAtom *second) {
+    PKAtomCons *b = pk_atom_cons(lisp, second, lisp->cache.nil);
+    PKAtomCons *a = pk_atom_cons(lisp, first, (PKAtom *)b);
     return a;
 }
 
-PKAtom pk_list3(PKAtom first, PKAtom second, PKAtom third) {
-    PKAtom c = pk_cons(third, pk_nil());
-    pk_propagate(c);
-    PKAtom b = pk_cons(second, c);
-    pk_propagate(b);
-    PKAtom a = pk_cons(first, b);
-    pk_propagate(a);
-    pk_ref_dec(b);
-    pk_ref_dec(c);
+PKAtomCons *pk_atom_list3(Pocket lisp, PKAtom *first, PKAtom *second, PKAtom *third) {
+    PKAtomCons *c = pk_atom_cons(lisp, third, lisp->cache.nil);
+    PKAtomCons *b = pk_atom_cons(lisp, second, (PKAtom *)c);
+    PKAtomCons *a = pk_atom_cons(lisp, first, (PKAtom *)b);
     return a;
 }
 
-PKAtom pk_list(PKAtoms atoms) {
+PKAtom *pk_atom_list(Pocket lisp, PKAtoms atoms) {
     if (atoms.length == 0) {
-        return pk_nil();
+        return lisp->cache.nil;
     }
     
-    PKAccum acc = pk_accum_new();
+    PKAccum acc = pk_accum_new(lisp);
     for (size_t i = 0; i < atoms.length; ++i) {
-        pk_propagate(pk_accum_push(&acc, atoms.e[i]));
+        pk_accum_push(&acc, atoms.e[i]);
     }
+    
     return acc.head;
 }
 
-PKAtom pk_list_packed(PKAtoms atoms) {
+PKAtom *pk_atom_list_packed(Pocket lisp, PKAtoms atoms) {
     if (atoms.length == 0) {
-        return pk_nil();
+        return lisp->cache.nil;
     }
     
-    PKAccum acc = pk_accum_new();
+    PKAccum acc = pk_accum_new(lisp);
     for (size_t i = 0; i < (atoms.length - 1); ++i) {
-        pk_propagate(pk_accum_push(&acc, atoms.e[i]));
+        pk_accum_push(&acc, atoms.e[i]);
     }
-    pk_propagate(pk_ref_inc(atoms.e[atoms.length - 1]));
-    pk_cons_link(acc.tail, atoms.e[atoms.length - 1]);
+    if (atoms.length > 1) {
+        acc.tail->cons.cdr = atoms.e[atoms.length - 1];
+    }
     return acc.head;
 }
 
-PKAtom pk_list_flatten(PKAtoms lists) {
+PKAtom *pk_atom_list_flatten(Pocket lisp, PKAtoms lists) {
     if (lists.length == 0) {
-        return pk_nil();
+        return lisp->cache.nil;
     }
     
-    PKAccum acc = pk_accum_new();
+    PKAccum acc = pk_accum_new(lisp);
     for (size_t i = 0; i < lists.length; ++i) {
-        PKAtom list = lists.e[i];
-        if (pk_is_nil(list)) {
-            pk_propagate(pk_accum_push(&acc, pk_nil()));
-            continue;
-        }
-        if (!pk_is_cons(list)) {
-            return pk_errors(pk_str("expected list"));
-        }
-        PKAtom iter = list;
-        while (pk_is_cons(iter)) {
-            pk_propagate(pk_accum_push(&acc, iter->cons.car));
-            iter = iter->cons.cdr;
-        }
-        if (!pk_is_nil(iter)) {
-            pk_propagate(pk_ref_inc(iter));
-            pk_cons_link(acc.tail, iter);
+        PKAtom *atom = lists.e[i];
+        switch (atom->header.type) {
+            case PK_ATOMTY_NIL: {
+                continue;
+            }
+            case PK_ATOMTY_CONS: {
+                PKAtom *iter = atom;
+                while (pk_atom_is_cons(iter)) {
+                    pk_accum_push(&acc, iter->cons.car);
+                    iter = iter->cons.cdr;
+                }
+                break;
+            }
+            default: {
+                pk_error(lisp);
+                break;
+            }
         }
     }
     return acc.head;
 }
 
-bool pk_is_nil(PKAtom atom) {
+bool pk_atom_is_nil(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_NIL;
 }
 
-bool pk_is_cons(PKAtom atom) {
+bool pk_atom_is_cons(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_CONS;
 }
 
-PKAtom pk_typecheck_nil(PKAtom atom) {
-    if (pk_is_nil(atom)) {
-        return pk_true();
+PKAtom *pk_atom_assert_nil(Pocket lisp, PKAtom *atom) {
+    if (pk_atom_is_nil(atom)) {
+        return atom;
     } else {
-        return pk_errors(pk_str("expected nil"));
+        pk_error(lisp);
+        return atom;
     }
 }
 
-PKAtom pk_typecheck_cons(PKAtom atom) {
-    if (pk_is_cons(atom)) {
-        return pk_true();
+PKAtomCons *pk_atom_assert_cons(Pocket lisp, PKAtom *atom) {
+    if (pk_atom_is_cons(atom)) {
+        return (PKAtomCons *)atom;
     } else {
-        return pk_errors(pk_str("expected cons"));
+        pk_error(lisp);
+        return NULL;
     }
 }

@@ -452,6 +452,7 @@ bool pk_atom_is_string(PKAtom *atom);
 bool pk_atom_is_symbol(PKAtom *atom);
 bool pk_atom_is_keyword(PKAtom *atom);
 
+PKAtom *pk_atom_assert_nil(Pocket lisp, PKAtom *atom);
 PKAtomCons *pk_atom_assert_cons(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_assert_number(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_assert_string(Pocket lisp, PKAtom *atom);
@@ -466,9 +467,16 @@ PKAtomString *pk_atom_string_cat(Pocket lisp, PKAtoms atoms);
 bool pk_atom_string_cmp(PKAtomString *string, PKStr comp);
 
 PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);
+PKAtom *pk_atom_car(Pocket lisp, PKAtom *atom);
+PKAtom *pk_atom_cdr(Pocket lisp, PKAtom *atom);
+PKAtom *pk_atom_set_car(Pocket lisp, PKAtom *atom, PKAtom *new_car);
+PKAtom *pk_atom_set_cdr(Pocket lisp, PKAtom *atom, PKAtom *new_cdr);
 PKAtomCons *pk_atom_list1(Pocket lisp, PKAtom *first);
 PKAtomCons *pk_atom_list2(Pocket lisp, PKAtom *first, PKAtom *second);
 PKAtomCons *pk_atom_list3(Pocket lisp, PKAtom *first, PKAtom *second, PKAtom *third);
+PKAtom *pk_atom_list(Pocket lisp, PKAtoms atoms);
+PKAtom *pk_atom_list_packed(Pocket lisp, PKAtoms atoms);
+PKAtom *pk_atom_list_flatten(Pocket lisp, PKAtoms atoms);
 
 PKAtom *pk_lfun_exec(PKAtom *lfun, size_t save);    
 
@@ -535,7 +543,7 @@ bool pk_char_is_hex(char c);
 pk_u8 pk_char_to_hex(char c);
 
 PKAccum pk_accum_new(Pocket lisp);
-void pk_accum_push(PKAccum *acc, PKAtom atom);
+void pk_accum_push(PKAccum *acc, PKAtom *atom);
 
 void pk_array_push(Pocket lisp, PKArray *array, PKAtom *atom, size_t init_capacity);
 void pk_array_deinit(Pocket lisp, PKArray *array);
