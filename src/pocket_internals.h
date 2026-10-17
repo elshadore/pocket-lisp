@@ -460,6 +460,9 @@ bool pk_atom_is_number(PKAtom *atom);
 bool pk_atom_is_string(PKAtom *atom);
 bool pk_atom_is_symbol(PKAtom *atom);
 bool pk_atom_is_keyword(PKAtom *atom);
+bool pk_atom_is_cfun(PKAtom *atom);
+bool pk_atom_is_lfun(PKAtom *atom);
+bool pk_atom_is_function(PKAtom *atom);
 
 PKAtom *pk_atom_assert_nil(Pocket lisp, PKAtom *atom);
 PKAtomCons *pk_atom_assert_cons(Pocket lisp, PKAtom *atom);
@@ -467,6 +470,8 @@ PKAtomNumber *pk_atom_assert_number(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_assert_string(Pocket lisp, PKAtom *atom);
 PKAtomSymbol *pk_atom_assert_symbol(Pocket lisp, PKAtom *atom);
 PKAtomKeyword *pk_atom_assert_keyword(Pocket lisp, PKAtom *atom);
+PKAtomLFun *pk_atom_assert_lfun(Pocket lisp, PKAtom *atom);
+PKAtomCFun *pk_atom_assert_cfun(Pocket lisp, PKAtom *atom);
 
 PKAtom *pk_atom_bool(Pocket lisp, bool boolean);
 
@@ -525,6 +530,8 @@ PKAtom *pk_env_alist(Pocket lisp, PK_ENV env);
     
 void pk_atom_cfun_exec(Pocket lisp, PKAtomCFun *cfun);
 void pk_atom_lfun_exec(Pocket lisp, PKAtomLFun *lfun);
+PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun);
+PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom);
 
 void pk_atom_print(Pocket lisp, PKAtom *atom);
 void pk_atom_write(Pocket lisp, PKAtom *atom);

@@ -41,7 +41,7 @@ void pk_atom_lfun_exec(Pocket lisp, PKAtomLFun *lfun) {
     pk_vm_exec(&vm);
 }
 
-PKAtomString *pk_hexdump_(Pocket lisp, PKWriter *w, PKAtomLFun *lfun) {
+PKAtomString *pk_lfun_hexdump_(Pocket lisp, PKWriter *w, PKAtomLFun *lfun) {
     pk_writer_string(lisp, w, pk_str("*~HEX-DUMP~*\n"));
     pk_writer_string(lisp, w, pk_str("SECTION-CODE:\n"));
     
@@ -99,44 +99,48 @@ PKAtomString *pk_hexdump_(Pocket lisp, PKWriter *w, PKAtomLFun *lfun) {
     return pk_atom_string(lisp, pk_writer_slice(w));
 }
     
-PKAtom pk_hexdump(PKAtom lfun) {
-    PKAtom a = lfun;
-    if (pk_is_symbol(a)) {
-        a = pk_get(PK_ENV_FUN, a);
-        a;
-    }
-    pk_ref_inc(a);
-    
-    pk_typecheck_lfun(a);
-    
+PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun) {
     PKWriter w = PK_WRITER_EMPTY;
-    PKAtom result = pk_hexdump_(&w, a);
+    PKAtomString *result = pk_lfun_hexdump_(lisp, &w, lfun);
     pk_writer_deinit(lisp, &w);
-    pk_ref_dec(a);
-    
     return result;
 }
 
-bool pk_is_cfun(PKAtom atom) {
+PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom) {
+    PKAtom *a = atom;
+    if (pk_atom_is_symbol(a)) {
+        a = pk_env_get(lisp, PK_ENV_FUN, (PKAtomSymbol *)a);
+        if (pk_atom_is_undefined(a)) {
+            pk_error(lisp);
+            return lisp->cache.empty_string;
+        }
+    }
+    PKAtomLFun *lfun = pk_atom_assert_lfun(lisp, atom);
+    return pk_lfun_hexdump(lisp, lfun);
+}
+
+bool pk_atom_is_cfun(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_CFUN;
 }
 
-bool pk_is_lfun(PKAtom atom) {
+bool pk_atom_is_lfun(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_LFUN;
 }
 
-bool pk_is_function(PKAtom atom) {
-    return pk_is_cfun(atom) || pk_is_lfun(atom);
+bool pk_atom_is_function(PKAtom *atom) {
+    return pk_atom_is_cfun(atom) || pk_atom_is_lfun(atom);
 }
 
-PKAtom pk_typecheck_lfun(PKAtom atom) {
-    return pk_typecheck(atom, PK_TYPE_LFUN);
+PKAtomLFun *pk_atom_assert_lfun(Pocket lisp, PKAtom *atom) {
+    if (!pk_atom_is_lfun(atom)) {
+        pk_error(lisp);
+    }
+    return (PKAtomLFun *)atom;
 }
 
-PKAtom pk_typecheck_cfun(PKAtom atom) {
-    return pk_typecheck(atom, PK_TYPE_CFUN);
-}
-
-PKAtom pk_typecheck_function(PKAtom atom) {
-    return pk_typecheck(atom, PK_TYPE_FUNCTION);
+PKAtomCFun *pk_atom_assert_cfun(Pocket lisp, PKAtom *atom) {
+    if (!pk_atom_is_cfun(atom)) {
+        pk_error(lisp);
+    }
+    return (PKAtomCFun *)atom;
 }
