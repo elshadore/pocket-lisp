@@ -58,7 +58,13 @@ void pk_push_cons(Pocket lisp, int car, int cdr) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_cons(lisp, acar, acdr));
 }
 
-void pk_push_cfun(Pocket lisp, void *user_closure, PKFun fun);
+void pk_push_cfun(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options) {
+    pk_stack_push(lisp, (PKAtom *)pk_atom_cfun(lisp, user_closure, fun, PK_CALL_FUN, arity, args, options));
+}
+
+void pk_push_cmacro(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options) {
+    pk_stack_push(lisp, (PKAtom *)pk_atom_cfun(lisp, user_closure, fun, PK_CALL_MACRO, arity, args, options));
+}
 
 void pk_car(Pocket lisp, int cons) {
     pk_stack_push(lisp, pk_atom_car(lisp, pk_stack_get(lisp, cons)));

@@ -1,129 +1,101 @@
 #include "pocket_internals.h"
 
-PKAtom pk_cfun_cons(void *user_closure, PK_CALL call, void *opaque_fun, pk_u8 args, pk_u8 arity, pk_u8 option_start) {
-    PKAtom atom = pk_atom_alloc();
-    pk_propagate(atom);
+PKAtomCFun *pk_atom_cfun(Pocket lisp, void *user_closure, PKFun fun, PK_CALL call, PK_ARITY arity, pk_u8 args, pk_u8 options) {
+    PKAtomCFun *atom = (PKAtomCFun *)pk_atom_alloc(lisp);
 
     if (call == PK_CALL_FUN) {
         atom->header.type = PK_ATOMTY_CFUN;
     } else {
         atom->header.type = PK_ATOMTY_CMACRO;
     }
-    atom->cfun.user_closure = user_closure;
-    atom->cfun.args = args;
-    atom->cfun.arity = arity;
-    atom->cfun.option_start = option_start;
-    atom->cfun.option_start = (arity == PK_INT_ARITY_OPTIONAL) ? (pk_u8)(args - 1) : args;
-    atom->cfun.as.opaque = opaque_fun;
+    
+    atom->user_closure = user_closure;
+    atom->fun = fun;
+    atom->arity = (PKArity) {
+        .type = (pk_u8)arity,
+        .args = args,
+        .options = options,
+    };
+        
     return atom;
 }
 
-pk_u8 pk_cfun_arity_conv(PK_ARITY arity) {
-    switch (arity) {
-        case PK_ARITY_NORMAL: return PK_INT_ARITY_NORMAL;
-        case PK_ARITY_OPTIONAL: return PK_INT_ARITY_OPTIONAL;
-        case PK_ARITY_VARIADIC: return PK_INT_ARITY_VARIADIC;
-        default: return PK_INT_ARITY_NORMAL;
-    }
-}
-
-PKAtom pk_cfun0(void *user_closure, PK_CALL call, PKFun0 fun) {
-    return pk_cfun_cons(user_closure, call, (void *)fun, 0, PK_INT_ARITY_NORMAL, 0);
-}
-
-PKAtom pk_cfun1(void *user_closure, PK_CALL call, PKFun1 fun, PK_ARITY arity) {
-    return pk_cfun_cons(user_closure, call, (void *)fun, 1, pk_cfun_arity_conv(arity), 1);
-}
-
-PKAtom pk_cfun2(void *user_closure, PK_CALL call, PKFun2 fun, PK_ARITY arity, pk_u8 optionals) {
-    if (optionals > 2) {
-        return pk_errors(pk_str("cannot have more than 2 optionals in pk_cfun2"));
-    }
-    return pk_cfun_cons(user_closure, call, (void *)fun, 2, pk_cfun_arity_conv(arity), 2 - optionals);
-}
-
-PKAtom pk_cfun3(void *user_closure, PK_CALL call, PKFun3 fun, PK_ARITY arity, pk_u8 optionals){
-    if (optionals > 3) {
-        return pk_errors(pk_str("cannot have more than 3 optionals in pk_cfun3"));
-    }
-    return pk_cfun_cons(user_closure, call, (void *)fun, 3, pk_cfun_arity_conv(arity), 3 - optionals);
-}
-
-PKAtom pk_lfun_exec(PKAtom lfun, size_t save) {
+PKAtom *pk_atom_lfun_exec(PKAtom *lfun, size_t save) {
     PKVM vm = pk_vm_init(lfun, save);
     return pk_vm_exec(&vm);
 }
 
-PKAtom pk_hexdump_(PKWriter *w, PKAtom lfun) {
-    pk_propagate(pk_writer_string(w, pk_str("*~HEX-DUMP~*\n")));
-    pk_propagate(pk_writer_string(w, pk_str("SECTION-CODE:\n")));
+PKAtomString *pk_hexdump_(Pocket lisp, PKWriter *w, PKAtomLFun *lfun) {
+    pk_writer_string(lisp, w, pk_str("*~HEX-DUMP~*\n"));
+    pk_writer_string(lisp, w, pk_str("SECTION-CODE:\n"));
     
-    for (size_t i = 0; i < lfun->lfun.bc.length; ++i) {
-        pk_propagate(pk_writer_string(w, pk_str("[")));
-        pk_propagate(pk_writer_fmt(w, "%zu", i));
-        pk_propagate(pk_writer_string(w, pk_str("] => ")));
+    for (size_t i = 0; i < lfun->bc.length; ++i) {
+        pk_writer_string(lisp, w, pk_str("["));
+        pk_writer_fmt(lisp, w, "%zu", i);
+        pk_writer_string(lisp, w, pk_str("] => "));
         
-        pk_u8 byte = lfun->lfun.bc.e[i];
+        pk_u8 byte = lfun->bc.e[i];
         PKStr ident = pk_ident_opcode(byte);
-        pk_propagate(pk_writer_string(w, ident));
+        pk_writer_string(lisp, w, ident);
         
         PK_OPCODE_TY ty = pk_opcode_ty(byte);
         
         switch (ty) {
             case PK_OPCODE_TY_LOAD: {
                 i++;
-                if (i >= lfun->lfun.bc.length) {
-                    return pk_errors(pk_str("bad bytecode"));
+                if (i >= lfun->bc.length) {
+                    pk_error(lisp);
+                    return lisp->cache.empty_string;
                 }
-                pk_u8 data = lfun->lfun.bc.e[i];
-                PKAtom atom = lfun->lfun.atoms.e[data];
-                
-                pk_propagate(pk_writer_string(w, pk_str(" => ")));
-                pk_propagate(pk_writer_atom(w, atom));
+                pk_u8 data = lfun->bc.e[i];
+                PKAtom *atom = lfun->atoms.e[data];
+                pk_writer_string(lisp, w, pk_str(" => "));
+                pk_writer_atom(lisp, w, atom);
                 break;
             }
             case PK_OPCODE_TY_LIT: {
                 i++;
-                if (i >= lfun->lfun.bc.length) {
-                    return pk_errors(pk_str("bad bytecode"));
+                if (i >= lfun->bc.length) {
+                    pk_error(lisp);
+                    return lisp->cache.empty_string;
                 }
-                pk_u8 data = lfun->lfun.bc.e[i];
+                pk_u8 data = lfun->bc.e[i];
                 
-                pk_propagate(pk_writer_string(w, pk_str(" => ")));
-                pk_propagate(pk_writer_fmt(w, "%u", data));
+                pk_writer_string(lisp, w, pk_str(" => "));
+                pk_writer_fmt(lisp, w, "%u", data);
                 break;
             }
             default: break;
         }
-        pk_propagate(pk_writer_newline(w));
+        pk_writer_newline(lisp, w);
     }
 
-    pk_propagate(pk_writer_newline(w));
+    pk_writer_newline(lisp, w);
     
-    pk_propagate(pk_writer_string(w, pk_str("SECTION-DATA:\n")));
-    for (size_t i = 0; i < lfun->lfun.atoms.length; ++i) {
-        pk_propagate(pk_writer_atom(w, lfun->lfun.atoms.e[i]));
-        pk_propagate(pk_writer_newline(w));
+    pk_writer_string(lisp, w, pk_str("SECTION-DATA:\n"));
+    for (size_t i = 0; i < lfun->atoms.length; ++i) {
+        pk_writer_atom(lisp, w, lfun->atoms.e[i]);
+        pk_writer_newline(lisp, w);
     }
     
-    pk_propagate(pk_writer_newline(w));
+    pk_writer_newline(lisp, w);
 
-    return pk_string(pk_writer_slice(w));
+    return pk_atom_string(lisp, pk_writer_slice(w));
 }
     
 PKAtom pk_hexdump(PKAtom lfun) {
     PKAtom a = lfun;
     if (pk_is_symbol(a)) {
         a = pk_get(PK_ENV_FUN, a);
-        pk_propagate(a);
+        a;
     }
-    pk_propagate(pk_ref_inc(a));
+    pk_ref_inc(a);
     
-    pk_propagate(pk_typecheck_lfun(a));
+    pk_typecheck_lfun(a);
     
     PKWriter w = PK_WRITER_EMPTY;
     PKAtom result = pk_hexdump_(&w, a);
-    pk_writer_deinit(&w);
+    pk_writer_deinit(lisp, &w);
     pk_ref_dec(a);
     
     return result;

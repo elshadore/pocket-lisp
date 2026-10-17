@@ -21,7 +21,8 @@ typedef uint64_t pk_u64;
 
 typedef struct PocketLispMachine_ *Pocket;
 
-typedef void (PKFun)(void *user_closure, Pocket lisp);
+typedef void (*PKFun)(void *user_closure, Pocket lisp);
+
 
 #define PK_PRINTF_FMT(fmt_, vargs_) __attribute__((format (printf, fmt_, vargs_)))
 
@@ -125,7 +126,8 @@ void pk_push_cons(Pocket lisp, int car, int cdr);
 void pk_push_list(Pocket lisp, int head, int tail);
 void pk_push_array(Pocket lisp, size_t count, int fill);
 void pk_push_table(Pocket lisp);
-void pk_push_cfun(Pocket lisp, void *user_closure, PKFun fun);
+void pk_push_cfun(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options);
+void pk_push_cmacro(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options);
 void pk_push_object(Pocket lisp, int type);
 
 void pk_car(Pocket lisp, int cons);

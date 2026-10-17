@@ -10,12 +10,19 @@ typedef enum PK_SYMTY_ {
     PK_SYMTY_KEYWORD,
 } PK_SYMTY;
 
+#define PK_ATOMS_EMPTY (PKAtoms){.e = NULL, .length = 0}
+
 typedef struct PKAtoms_ {
     PKAtom **e;
     size_t length;
 } PKAtoms;
 
-#define PK_ATOMS_EMPTY (PKAtoms){.e = NULL, .length = 0}
+#define PK_BLOB_EMPTY (PKBlob){.e = NULL, .length = 0}
+
+typedef struct PKBlob_ {
+    pk_u8 *e;
+    size_t length;
+} PKBlob;
 
 #define PK_ARRAY_EMPTY (PKArray){.e = NULL, .count = 0, .capacity = 0}
 
@@ -205,18 +212,17 @@ typedef struct PKAtomCons_ {
 #define PK_INT_ARITY_OPTIONAL (1)
 #define PK_INT_ARITY_VARIADIC (2)
 
-#define PK_CFUNC_ARG_0 (0)
-#define PK_CFUNC_ARG_1 (1)
-#define PK_CFUNC_ARG_2 (2)
-#define PK_CFUNC_ARG_3 (3)
+typedef struct PKArity_ {
+    pk_u8 type;
+    pk_u8 args;
+    pk_u8 options;
+} PKArity;
 
 typedef struct PKAtomCFun_ {
     PKAtomHeader header;
-    pk_u8 arity;
-    pk_u8 args;
-    pk_u8 option_start;
+    PKArity arity;
     void *user_closure;
-    PKFun *fun;
+    PKFun fun;
 } PKAtomCFun;
 
 #define PK_OP_ILLEGAL (0)
@@ -263,13 +269,8 @@ typedef enum PK_OPCODE_TY_ {
 
 typedef struct PKAtomLFun_ {
     PKAtomHeader header;
-    pk_u8 args;
-    pk_u8 arity;
-    pk_u8 option_start;
-    struct {
-        pk_u8 *e;
-        size_t length;
-    } bc;
+    PKArity arity;
+    PKBlob bc;
     PKAtoms atoms;
 } PKAtomLFun;
 
@@ -510,6 +511,8 @@ PKAtomKeyword *pk_atom_keywordc(Pocket lisp, char *ckeyword);
 bool pk_atom_symbol_cmp(PKAtomSymbol *symbol, PKStr comp);
 bool pk_atom_keyword_cmp(PKAtomKeyword *keyword, PKStr comp);
 
+PKAtomCFun *pk_atom_cfun(Pocket lisp, void *user_closure, PKFun fun, PK_CALL call, PK_ARITY arity, pk_u8 args, pk_u8 options);
+    
 PKAtom *pk_env_get(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol);
 PKAtom *pk_env_set(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol, PKAtom *value);
 PKAtom *pk_env_let(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol, PKAtom *value);
