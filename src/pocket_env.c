@@ -1,141 +1,58 @@
 #include "pocket_internals.h"
 
-PKAtom pk_get_raw(PK_ENV env, PKAtom symbol) {
-    if (!pk_is_symbol(symbol)) {
-        return pk_errors(pk_str("expected symbol"));
-    }
-
+PKAtom *pk_env_get(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol) {
     switch (env) {
         case PK_ENV_VAR: {
-            return symbol->symbol.var;
+            return symbol->var;
         }
         case PK_ENV_FUN: {
-            return symbol->symbol.fun;
+            return symbol->fun;
         }
         case PK_ENV_PROP: {
-            return symbol->symbol.prop;
+            return symbol->prop;
         }
-        default: break;
+        default: {
+            return lisp->cache.undefined;
+        }
     }
-
-    return pk_errors(pk_str("bad env property"));
 }
 
-PKAtom pk_set_raw(PK_ENV env, PKAtom symbol, PKAtom value) {
-    if (!pk_is_symbol(symbol)) {
-        return pk_errors(pk_str("expected symbol"));
-    }
-
-    pk_propagate(pk_ref_inc(value));
-    
-    PKAtom temp = pk_undefined();
+PKAtom *pk_env_set(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol, PKAtom *value) {
+    PKAtom *temp = lisp->cache.undefined;
 
     switch (env) {
         case PK_ENV_VAR: {
-            temp = symbol->symbol.var;
-            symbol->symbol.var = value;
+            temp = symbol->var;
+            symbol->var = value;
             break;
         }
         case PK_ENV_FUN: {
-            temp = symbol->symbol.fun;
-            symbol->symbol.fun = value;
+            temp = symbol->fun;
+            symbol->fun = value;
             break;
         }
         case PK_ENV_PROP: {
-            temp = symbol->symbol.prop;
-            symbol->symbol.prop = value;
+            temp = symbol->prop;
+            symbol->prop = value;
             break;
         }
-        default: return pk_errors(pk_str("bad env property"));
+        default: break;
     }
 
     return temp;
 }
 
-PKAtom pk_set(PK_ENV env, PKAtom symbol, PKAtom value) {
-    PKAtom temp = pk_set_raw(env, symbol, value);
-    pk_propagate(temp);
-
-    if (pk_is_undefined(temp)) {
-        return pk_nil();
-    } else {
-        return temp;
-    }
-}
-
-PKAtom pk_set_discard(PK_ENV env, PKAtom symbol, PKAtom value) {
-    PKAtom temp = pk_set_raw(env, symbol, value);
-    pk_propagate(temp);
-    pk_ref_dec(temp);
-    return pk_true();
-}
-
-PKAtom pk_list_env(PK_ENV env) {
-    PKAccum acc = pk_accum_new();
-    
-    for (PKPool *iter = PK_CORE.pool; iter != NULL; iter = iter->next) {
-        for (size_t i = 0; i < PK_POOL_MAX; ++i) {
-            PKAtom symbol = &iter->e[i];
-            if (!pk_is_symbol(symbol)) {
-                continue;
-            }
-            
-            PKAtom value = pk_get_raw(env, symbol);
-            if (pk_is_undefined(value)) {
-                continue;
-            }
-            
-            PKAtom pair = pk_cons(symbol, value);
-            pk_accum_push(&acc, pair);
-            pk_ref_dec(pair);
-        }
-    }
-    
-    return acc.head;
-}
-
-PKAtom pk_get(PK_ENV env, PKAtom symbol) {
-    PKAtom result = pk_get_raw(env, symbol);
-    pk_propagate(result);
-
-    if (pk_is_undefined(result)) {
-        return pk_nil();
-    } else {
-        return result;
-    }
-}
-
-bool pk_is_bound(PK_ENV env, PKAtom symbol) {
-    PKAtom fetch = pk_get_raw(env, symbol);
-    return !pk_is_undefined(fetch);
-}
-
-PKAtom pk_unbind(PK_ENV env, PKAtom symbol) {
-    PKAtom result = pk_set_raw(env, symbol, pk_undefined());
-    pk_propagate(result);
-
-    if (pk_is_undefined(result)) {
-        return pk_nil();
-    } else {
-        return result;
-    }
-}
-
-PKAtom pk_let(PK_ENV env, PKAtom symbol, PKAtom value) {
-    if (PK_CORE.lets.count >= PK_CORE.lets.capacity) {
-        size_t new_capacity = pk_grow_capacity(PK_CORE.lets.capacity, 32);
-        PKLet *new_e = pk_realloc(PK_CORE.lets.e, new_capacity * sizeof(PKLet));
-        if (new_e == NULL) {
-            return pk_errors(pk_str("out of memory"));
-        }
-        PK_CORE.lets.e = new_e;
-        PK_CORE.lets.capacity = new_capacity;
+PKAtom *pk_env_let(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol, PKAtom *value) {
+    if (lisp->lets.count >= lisp->lets.capacity) {
+        size_t new_capacity = pk_grow_capacity(lisp->lets.capacity, 32);
+        PKLet *new_e = pk_realloc(lisp, lisp->lets.e, new_capacity * sizeof(PKLet));
+        lisp->lets.e = new_e;
+        lisp->lets.capacity = new_capacity;
     }
 
-    PKAtom restore = pk_set_raw(env, symbol, value);
-    pk_propagate(restore);
+    PKAtom *restore = pk_env_set(lisp, env, symbol, value);
 
-    PK_CORE.lets.e[PK_CORE.lets.count++] = (PKLet) {
+    lisp->lets.e[lisp->lets.count++] = (PKLet) {
         .env = env,
         .symbol = symbol,
         .restore = restore,
@@ -144,11 +61,35 @@ PKAtom pk_let(PK_ENV env, PKAtom symbol, PKAtom value) {
     return restore;
 }
 
-void pk_let_unwind(size_t n) {
+void pk_env_let_unwind(Pocket lisp, size_t n) {
     for (size_t i = 0; i < n; ++i) {
-        size_t index = PK_CORE.lets.count - i - 1;
-        PKLet unwind = PK_CORE.lets.e[index];
-        pk_set(unwind.env, unwind.symbol, unwind.restore);
+        size_t index = lisp->lets.count - i - 1;
+        PKLet unwind = lisp->lets.e[index];
+        pk_env_set(lisp, unwind.env, unwind.symbol, unwind.restore);
     }
-    PK_CORE.lets.count -= n;
+    lisp->lets.count -= n;
 }
+
+PKAtom *pk_env_alist(Pocket lisp, PK_ENV env) {
+    PKAccum acc = pk_accum_new(lisp);
+    
+    for (PKPool *iter = lisp->pool; iter != NULL; iter = iter->next) {
+        for (size_t i = 0; i < PK_POOL_MAX; ++i) {
+            PKAtom *symbol = &iter->e[i];
+            if (!pk_atom_is_symbol(symbol)) {
+                continue;
+            }
+            
+            PKAtom *value = pk_env_get(lisp, env, (PKAtomSymbol *)symbol);
+            if (pk_atom_is_undefined(value)) {
+                continue;
+            }
+            
+            PKAtom *pair = (PKAtom *)pk_atom_cons(lisp, symbol, value);
+            pk_accum_push(&acc, pair);
+        }
+    }
+    
+    return acc.head;
+}
+

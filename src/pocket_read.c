@@ -545,7 +545,6 @@ PKAtom *pk_read_atom_from_str(Pocket lisp, PKStr string, PK_MODE mode) {
     return acc.head;
 }
     
-PKAtom *pk_read_atom_from_string(Pocket lisp, PKAtom *string, PK_MODE mode) {
-    PKAtomString *atom = pk_atom_assert_string(lisp, string);
-    return pk_read_atom_from_str(lisp, atom->str, mode);
+PKAtom *pk_read_atom_from_string(Pocket lisp, PKAtomString *string, PK_MODE mode) {
+    return pk_read_atom_from_str(lisp, string->str, mode);
 }

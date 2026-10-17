@@ -1,68 +1,64 @@
 #include "pocket_internals.h"
 
-PKAtom pk_symbol(PKStr string) {
-    PKAtom interned = pk_hashmap_get_str(&PK_CORE.symbolizer, string);
-    if (!pk_is_undefined(interned)) {
-        pk_propagate(pk_ref_inc(interned));
-        return interned;
+PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr string) {
+    PKAtom *interned = pk_hashmap_get_str(&lisp->symbolizer, string);
+    if (!pk_atom_is_undefined(interned)) {
+        return (PKAtomSymbol *)interned;
     }
     
-    PKAtom atom = pk_atom_alloc();
-    pk_propagate(atom);
+    PKAtomSymbol *result = (PKAtomSymbol *)pk_atom_alloc(lisp);
 
-    PKAtom name = pk_string(string);
-    pk_propagate(name);
+    PKAtomString *name = pk_atom_string(lisp, string);
 
-    atom->header.type = PK_ATOMTY_SYMBOL;
-    atom->symbol.var = pk_undefined();
-    atom->symbol.fun = pk_undefined();
-    atom->symbol.prop = pk_undefined();
-    atom->symbol.name = name;
-    atom->symbol.type_type = PK_TYPETY_NOTYPE;
-    atom->symbol.slots = PK_SLOTMAP_EMPTY;
-    atom->symbol.methods = PK_HASHMAP_EMPTY;
-    atom->symbol.owned_memory = 0;
+    result->header.type = PK_ATOMTY_SYMBOL;
+    result->var = lisp->cache.undefined;
+    result->fun = lisp->cache.undefined;
+    result->prop = lisp->cache.undefined;
+    result->name = name;
+    result->type_type = PK_TYPETY_NOTYPE;
+    result->slots = PK_SLOTMAP_EMPTY;
+    result->methods = PK_HASHMAP_EMPTY;
+    result->owned_memory = 0;
 
-    pk_propagate(pk_hashmap_insert(&PK_CORE.symbolizer, name, atom));
+    pk_hashmap_insert(&lisp->symbolizer, (PKAtom *)name, (PKAtom *)result);
     
-    return atom;
+    return result;
 }
 
-PKAtom pk_symbolc(char *csymbol) {
+PKAtomSymbol *pk_atom_symbolc(Pocket lisp, char *csymbol) {
     PKStr symbol = pk_str_from_cstr(csymbol);
-    return pk_symbol(symbol);
+    return pk_atom_symbol(lisp, symbol);
 }
 
-PKAtom pk_keyword(PKStr keyword) {
-    PKAtom atom = pk_atom_alloc();
-    pk_propagate(atom);
+PKAtomKeyword *pk_atom_keyword(Pocket lisp, PKStr keyword) {
+    PKAtomKeyword *result = (PKAtomKeyword *)pk_atom_alloc(lisp);
 
-    PKStr dupe = PK_STR_EMPTY;
-    pk_propagate(pk_str_dupe(keyword, &dupe));
+    PKStr dupe = pk_str_dupe(lisp, keyword);
 
-    atom->header.type = PK_ATOMTY_KEYWORD;
-    atom->keyword.id = dupe;
+    result->header.type = PK_ATOMTY_KEYWORD;
+    result->id = dupe;
 
-    return atom;
-}
-bool pk_symbol_qeq(PKAtom symbol, PKStr comp) {
-    if (!pk_is_symbol(symbol)) {
-        return false;
-    }
-    return pk_str_eq(symbol->symbol.name->string.str, comp);
+    return result;
 }
 
-bool pk_keyword_qeq(PKAtom keyword, PKStr comp) {
-    if (!pk_is_keyword(keyword)) {
-        return false;
-    }
-    return pk_str_eq(keyword->keyword.id, comp);
+PKAtomKeyword *pk_atom_keywordc(Pocket lisp, char *ckeyword) {
+    PKStr keyword = pk_str_from_cstr(ckeyword);
+    return pk_atom_keyword(lisp, keyword);
 }
 
-bool pk_is_symbol(PKAtom atom) {
+bool pk_atom_is_symbol(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_SYMBOL;
 }
 
-bool pk_is_keyword(PKAtom atom) {
+bool pk_atom_is_keyword(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_KEYWORD;
 }
+
+bool pk_atom_symbol_cmp(PKAtomSymbol *symbol, PKStr comp) {
+    return pk_str_eq(symbol->name->str, comp);
+}
+
+bool pk_atom_keyword_cmp(PKAtomKeyword *keyword, PKStr comp) {
+    return pk_str_eq(keyword->id, comp);
+}
+

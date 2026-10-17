@@ -1,7 +1,125 @@
 #include "pocket_internals.h"
 
+int pk_top(Pocket lisp) {
+    return (int)pk_frame_length(lisp);
+}
+
+void pk_set_top(Pocket lisp, int new_top) {
+    (void)new_top;
+    fprintf(stderr, "TODO: pk_set_top()\n");
+    pk_error(lisp);
+}
+
+int pk_sp_absolute(Pocket lisp, int stack_pointer) {
+    int top = pk_top(lisp);
+    if (stack_pointer >= 0) {
+        return stack_pointer;
+    } else {
+        return top - (-stack_pointer - 1);
+    }
+}
+
+int pk_sp_relative(Pocket lisp, int stack_pointer) {
+    int top = pk_top(lisp);
+    if (stack_pointer <= 0) {
+        return stack_pointer;
+    } else {
+        return -(top - (stack_pointer - 1));
+    }
+}
+
+size_t pk_sp_index(Pocket lisp, int stack_pointer) {
+    int top = pk_top(lisp);
+    size_t absolute = 0;
+    if (top <= 0) {
+        pk_error(lisp);
+        return 0;
+    }
+
+    absolute = (size_t)pk_sp_absolute(lisp, stack_pointer);
+    if (absolute <= 0) {
+        pk_error(lisp);
+        return 0;
+    }
+
+    size_t index = absolute + lisp->current_frame.stack_offset - 1;
+    if (index > lisp->stack.count) {
+        pk_error(lisp);
+        return 0;
+    }
+
+    return index;
+}
+
+void pk_pop(Pocket lisp){
+    (void)pk_stack_pop(lisp);
+}
+
+void pk_pop2(Pocket lisp){
+    (void)pk_stack_pop(lisp);
+    (void)pk_stack_pop(lisp);
+}
+
+void pk_pop3(Pocket lisp){
+    (void)pk_stack_pop(lisp);
+    (void)pk_stack_pop(lisp);
+    (void)pk_stack_pop(lisp);
+}
+
+void pk_popn(Pocket lisp, size_t n){
+    for (size_t i = 0; i < n; ++i) {
+        (void)pk_stack_pop(lisp);
+    }
+}
+
+void pk_swap(Pocket lisp, int a, int b){
+    size_t ia = pk_sp_index(lisp, a);
+    size_t ib = pk_sp_index(lisp, b);
+    PKAtom *temp = lisp->stack.e[ia];
+    lisp->stack.e[ia] = lisp->stack.e[ib];
+    lisp->stack.e[ib] = temp;
+}
+
+void pk_dig(Pocket lisp, int stack_pointer){
+    pk_stack_push(lisp, pk_stack_get(lisp, stack_pointer));
+}
+
+void pk_dig_to(Pocket lisp, int from, int to){
+    size_t ia = pk_sp_index(lisp, from);
+    size_t ib = pk_sp_index(lisp, to);
+    lisp->stack.e[ib] = lisp->stack.e[ia];
+}
+
+void pk_swap_pop2(Pocket lisp){
+    PKAtoms slice = pk_stack_slice_down(lisp, 2);
+    slice.e[1] = slice.e[0];
+    pk_stack_pop_unchecked(lisp, 1);
+}
+
+void pk_swap_pop3(Pocket lisp){
+    PKAtoms slice = pk_stack_slice_down(lisp, 3);
+    slice.e[2] = slice.e[0];
+    pk_stack_pop_unchecked(lisp, 2);
+}
+
 void pk_stack_push(Pocket lisp, PKAtom *atom) {
     pk_array_push(lisp, &lisp->stack, atom, 128);
+}
+
+PKAtom *pk_stack_get(Pocket lisp, int stack_pointer) {
+    if (stack_pointer == 0) {
+        return lisp->cache.nil;
+    } else {
+        return lisp->stack.e[pk_sp_index(lisp, stack_pointer)];
+    }
+    
+}
+
+PKAtom *pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *value) {
+    size_t index = pk_sp_index(lisp, stack_pointer);
+    PKAtom *result = lisp->stack.e[index];
+    lisp->stack.e[index] = value;
+    return result;
 }
 
 PKAtom *pk_stack_head(Pocket lisp) {

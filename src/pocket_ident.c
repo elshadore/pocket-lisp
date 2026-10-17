@@ -65,9 +65,9 @@ PKStr pk_ident_atomty(pk_u8 ty) {
 
 PKStr pk_ident_arity(pk_u8 arity) {
     switch (arity) {
-        case PK_ARITY_NORMAL: return pk_str("NORMAL");
-        case PK_ARITY_OPTIONAL: return pk_str("OPTIONAL");
-        case PK_ARITY_VARIADIC: return pk_str("VARIADIC");
+        case PK_INT_ARITY_NORMAL: return pk_str("NORMAL");
+        case PK_INT_ARITY_OPTIONAL: return pk_str("OPTIONAL");
+        case PK_INT_ARITY_VARIADIC: return pk_str("VARIADIC");
         default: return pk_str("UNKNOWN");
     }
 }

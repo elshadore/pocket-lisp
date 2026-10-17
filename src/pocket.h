@@ -148,10 +148,10 @@ void pk_get(Pocket lisp, PK_ENV env, int symbol);
 void pk_get_raw(Pocket lisp, PK_ENV env, int symbol);
 bool pk_is_bound(Pocket lisp, PK_ENV env, int symbol);
 void pk_unbind(Pocket lisp, PK_ENV env, int symbol);
-void pk_env_list(Pocket lisp, PK_ENV env);
+// void pk_env_list(Pocket lisp, PK_ENV env);
 
 void pk_print(Pocket lisp, int atom);
-void pk_puts(Pocket lisp, int atom);
+void pk_write(Pocket lisp, int atom);
 void pk_format(Pocket lisp, int atom);
 void pk_read(Pocket lisp, int string, PK_MODE mode);
 void pk_eval(Pocket lisp, int expr, PK_MODE mode);

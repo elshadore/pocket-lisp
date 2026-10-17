@@ -1,41 +1,33 @@
 #include "pocket_internals.h"
 
-void pk_puts_str(PKStr string) {
-    fprintf(stderr, "%.*s", (int)string.length, string.c);
-}
-
-void pk_print_str(PKStr string) {
-    fprintf(stderr, "%.*s\n", (int)string.length, string.c);
-}
-
-PKAtom pk_print(PKAtom atom) {
-    if (pk_is_string(atom)) {
-        pk_print_str(atom->string.str);
-        return pk_true();
+void pk_atom_print(Pocket lisp, PKAtom *atom) {
+    if (pk_atom_is_string(atom)) {
+        PKAtomString *string = (PKAtomString *)atom;
+        fprintf(stderr, "%.*s\n", (int)string->str.length, string->str.c);
     } else {
         PKWriter w = PK_WRITER_EMPTY;
-        PKAtom result = pk_writer_atom(&w, atom);
-        pk_writer_deinit(&w);
-        return result;
+        pk_writer_atom(lisp, &w, atom);
+        fprintf(stderr, "%.*s\n", (int)w.count, w.c);
+        pk_writer_deinit(lisp, &w);
     }
 }
 
-PKAtom pk_puts(PKAtom atom) {
-    if (pk_is_string(atom)) {
-        pk_puts_str(atom->string.str);
-        return pk_true();
+void pk_atom_write(Pocket lisp, PKAtom *atom) {
+    if (pk_atom_is_string(atom)) {
+        PKAtomString *string = (PKAtomString *)atom;
+        fprintf(stderr, "%.*s", (int)string->str.length, string->str.c);
     } else {
         PKWriter w = PK_WRITER_EMPTY;
-        PKAtom result = pk_writer_atom(&w, atom);
-        pk_writer_deinit(&w);
-        return result;
+        pk_writer_atom(lisp, &w, atom);
+        fprintf(stderr, "%.*s", (int)w.count, w.c);
+        pk_writer_deinit(lisp, &w);
     }
 }
 
-PKAtom pk_format(PKAtom atom) {
+PKAtomString *pk_atom_format(Pocket lisp, PKAtom *atom) {
     PKWriter w = PK_WRITER_EMPTY;
-    pk_propagate(pk_writer_atom(&w, atom));
-    PKAtom result = pk_string(pk_writer_slice(&w));
-    pk_writer_deinit(&w);
+    pk_writer_atom(lisp, &w, atom);
+    PKAtomString *result = pk_atom_string(lisp, pk_writer_slice(&w));
+    pk_writer_deinit(lisp, &w);
     return result;
 }
