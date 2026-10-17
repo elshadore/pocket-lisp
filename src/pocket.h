@@ -19,12 +19,9 @@ typedef uint16_t pk_u16;
 typedef uint32_t pk_u32;
 typedef uint64_t pk_u64;
 
-typedef union PKAtomData_ *PKAtom;
+typedef struct PocketLispMachine_ *Pocket;
 
-typedef PKAtom (PKFun0)(void *user_closure);
-typedef PKAtom (PKFun1)(void *user_closure, PKAtom arg1);
-typedef PKAtom (PKFun2)(void *user_closure, PKAtom arg1, PKAtom arg2);
-typedef PKAtom (PKFun3)(void *user_closure, PKAtom arg1, PKAtom arg2, PKAtom arg3);
+typedef void (PKFun)(void *user_closure, Pocket lisp);
 
 #define PK_PRINTF_FMT(fmt_, vargs_) __attribute__((format (printf, fmt_, vargs_)))
 
@@ -32,13 +29,6 @@ typedef struct PKStr_ {
     char *c;
     size_t length;
 } PKStr;
-
-typedef struct PKAtoms_ {
-    PKAtom *e;
-    size_t length;
-} PKAtoms;
-
-#define PK_ATOMS_EMPTY (PKAtoms){.e = NULL, .length = 0}
 
 typedef enum PK_ENV_ {
     PK_ENV_VAR = 0,
@@ -98,159 +88,115 @@ typedef enum PK_TYPE_ {
 #define pk_str(text_) (PKStr) {.c = (text_), .length = (sizeof(text_) - 1)}
 #define PK_STR_EMPTY (PKStr){.c = NULL, .length = 0}
 
-#define pk_propagate(atom_) do { \
-    return atom_; \
-} while(0)
-
 #define pk_alen(array_) (sizeof(array_) / sizeof(*array_))
 
-bool pk_init(void);
-void pk_deinit(void);
+Pocket pk_init(void *user_env);
+void pk_deinit(Pocket lisp);
 
-PKAtom pk_ref_inc(PKAtom atom);
-PKAtom pk_ref_inc_many(PKAtoms atoms);
-void pk_ref_dec(PKAtom atom);
-void pk_ref_dec_many(PKAtoms atoms);
+void pk_pop(Pocket lisp);
+void pk_pop2(Pocket lisp);
+void pk_pop3(Pocket lisp);
+void pk_popn(Pocket lisp, size_t n);
+void pk_swap(Pocket lisp, int a, int b);
+void pk_dig(Pocket lisp, int stack_pointer);
+void pk_dig_to(Pocket lisp, int from, int to);
+void pk_swap_pop2(Pocket lisp);
+void pk_swap_pop3(Pocket lisp);
 
-PKAtom pk_true(void);
-PKAtom pk_nil(void);
-PKAtom pk_bool(bool boolean);
-PKAtom pk_int(int integer);
-PKAtom pk_float(float floater);
-PKAtom pk_string(PKStr string);
-PKAtom pk_stringc(char *cstring);
-PKAtom pk_symbol(PKStr symbol);
-PKAtom pk_symbolc(char *csymbol);
-PKAtom pk_gensym(void);
-PKAtom pk_keyword(PKStr keyword);
-PKAtom pk_keywordc(char *ckeyword);
-PKAtom pk_cons(PKAtom car, PKAtom cdr);
-PKAtom pk_list(PKAtoms atoms);
-PKAtom pk_list2(PKAtom first, PKAtom second);
-PKAtom pk_list3(PKAtom first, PKAtom second, PKAtom third);
-PKAtom pk_list_packed(PKAtoms atoms);
-PKAtom pk_list_flatten(PKAtoms lists);
-PKAtom pk_array(PKAtoms atoms);
-PKAtom pk_table(void);
-PKAtom pk_object_new(PKAtom type);
+int pk_top(Pocket lisp);
+void pk_set_top(Pocket lisp, int new_top);
+int pk_sp_absolute(Pocket lisp, int stack_pointer);
+int pk_sp_relative(Pocket lisp, int stack_pointer);
 
-PKAtom pk_car(PKAtom cons);
-PKAtom pk_cdr(PKAtom cons);
-PKAtom pk_car_discard(PKAtom cons);
-PKAtom pk_cdr_discard(PKAtom cons);
+void pk_push_nil(Pocket lisp);
+void pk_push_true(Pocket lisp);
+void pk_push_bool(Pocket lisp, bool boolean);
+void pk_push_undefined(Pocket lisp);
+void pk_push_int(Pocket lisp, int integer);
+void pk_push_float(Pocket lisp, float floater);
+void pk_push_string(Pocket lisp, PKStr string);
+void pk_push_stringc(Pocket lisp, char *cstring);
+void pk_push_symbol(Pocket lisp, PKStr symbol);
+void pk_push_symbolc(Pocket lisp, char *csymbol);
+void pk_push_gensym(Pocket lisp);
+void pk_push_keyword(Pocket lisp, PKStr keyword);
+void pk_push_keywordc(Pocket lisp, char *ckeyword);
+void pk_push_cons(Pocket lisp, int car, int cdr);
+void pk_push_list(Pocket lisp, int head, int tail);
+void pk_push_array(Pocket lisp, size_t count, int fill);
+void pk_push_table(Pocket lisp);
+void pk_push_cfun(Pocket lisp, void *user_closure, PKFun fun);
+void pk_push_object(Pocket lisp, int type);
 
-PKAtom pk_set_car(PKAtom cons, PKAtom new_car);
-PKAtom pk_set_cdr(PKAtom cons, PKAtom new_cdr);
+void pk_car(Pocket lisp, int cons);
+void pk_cdr(Pocket lisp, int cons);
+void pk_car_strict(Pocket lisp, int cons);
+void pk_cdr_strict(Pocket lisp, int cons);
 
-PKAtom pk_cfun0(void *user_closure, PK_CALL call, PKFun0 fun);
-PKAtom pk_cfun1(void *user_closure, PK_CALL call, PKFun1 fun, PK_ARITY arity);
-PKAtom pk_cfun2(void *user_closure, PK_CALL call, PKFun2 fun, PK_ARITY arity, pk_u8 optionals);
-PKAtom pk_cfun3(void *user_closure, PK_CALL call, PKFun3 fun, PK_ARITY arity, pk_u8 optionals);
+void pk_set_car(Pocket lisp, int cons, int newcar);
+void pk_set_cdr(Pocket lisp, int cons, int newcdr);
 
-PKAtom pk_add(PKAtom lhs, PKAtom rhs);
-PKAtom pk_sub(PKAtom lhs, PKAtom rhs);
-PKAtom pk_mul(PKAtom lhs, PKAtom rhs);
-PKAtom pk_div(PKAtom lhs, PKAtom rhs);
-PKAtom pk_mod(PKAtom lhs, PKAtom rhs);
-    
-PKAtom pk_lt(PKAtom lhs, PKAtom rhs);
-PKAtom pk_lte(PKAtom lhs, PKAtom rhs);
-PKAtom pk_gt(PKAtom lhs, PKAtom rhs);
-PKAtom pk_gte(PKAtom lhs, PKAtom rhs);
-bool pk_eq(PKAtom lhs, PKAtom rhs);
+void pk_add(Pocket lisp, int lhs, int rhs);
+void pk_sub(Pocket lisp, int lhs, int rhs);
+void pk_mul(Pocket lisp, int lhs, int rhs);
+void pk_div(Pocket lisp, int lhs, int rhs);
+void pk_mod(Pocket lisp, int lhs, int rhs);
 
-PKAtom pk_set(PK_ENV env, PKAtom symbol, PKAtom value);
-PKAtom pk_set_discard(PK_ENV env, PKAtom symbol, PKAtom value);
-PKAtom pk_get(PK_ENV env, PKAtom symbol);
-PKAtom pk_set_raw(PK_ENV env, PKAtom symbol, PKAtom value);
-PKAtom pk_get_raw(PK_ENV env, PKAtom symbol);
-PKAtom pk_list_env(PK_ENV env);
-PKAtom pk_let(PK_ENV env, PKAtom symbol, PKAtom value);
-bool pk_is_bound(PK_ENV env, PKAtom symbol);
-PKAtom pk_unbind(PK_ENV env, PKAtom symbol);
+void pk_let(Pocket lisp, PK_ENV env, int symbol, int value);
+void pk_set(Pocket lisp, PK_ENV env, int symbol, int value);
+void pk_get(Pocket lisp, PK_ENV env, int symbol);
+void pk_get_raw(Pocket lisp, PK_ENV env, int symbol);
+bool pk_is_bound(Pocket lisp, PK_ENV env, int symbol);
+void pk_unbind(Pocket lisp, PK_ENV env, int symbol);
+void pk_env_list(Pocket lisp, PK_ENV env);
 
-PKAtom pk_print(PKAtom atom);
-PKAtom pk_puts(PKAtom atom);
-PKAtom pk_format(PKAtom atom);
-PKAtom pk_read(PKAtom string, PK_MODE mode);
-PKAtom pk_read_str(PKStr string, PK_MODE mode);
-PKAtom pk_eval(PKAtom expr, PK_MODE mode);
-PKAtom pk_apply(PK_CALL call, PKAtom fun, PKAtom args);
-PKAtom pk_compile(PK_CALL type, PKAtom value, PK_MODE mode);
-PKAtom pk_macroexpand1(PKAtom atom);
-PKAtom pk_macroexpand(PKAtom atom);
+void pk_print(Pocket lisp, int atom);
+void pk_puts(Pocket lisp, int atom);
+void pk_format(Pocket lisp, int atom);
+void pk_read(Pocket lisp, int string, PK_MODE mode);
+void pk_eval(Pocket lisp, int expr, PK_MODE mode);
+void pk_apply(Pocket lisp, PK_CALL call, int fun, int args);
+void pk_fcall(Pocket lisp, PK_CALL call, size_t args);
+void pk_pcall(Pocket lisp, PK_CALL call, size_t args);
+void pk_compile(Pocket lisp, PK_CALL type, int value, PK_MODE mode);
+void pk_macroexpand1(Pocket lisp, int atom);
+void pk_macroexpand(Pocket lisp, int atom);
 
-PKAtom pk_funcall0(PK_CALL call, PKAtom fn);
-PKAtom pk_funcall1(PK_CALL call, PKAtom fn, PKAtom arg1);
-PKAtom pk_funcall2(PK_CALL call, PKAtom fn, PKAtom arg1, PKAtom arg2);
-PKAtom pk_funcall3(PK_CALL call, PKAtom fn, PKAtom arg1, PKAtom arg2, PKAtom arg3);
+void pk_throw(Pocket lisp, int symbol, int value);
+void pk_error(Pocket lisp);
+// void pk_error(Pocket lisp, int message);
+void pk_error_oom(Pocket lisp);
 
-PKAtom pk_reverse(PKAtom atom);
+bool pk_is_type(Pocket lisp, int atom, PK_TYPE check);
+void pk_assert_type(Pocket lisp, int atom, PK_TYPE check);
 
-PKAtom pk_throw(PKAtom type, PKAtom contents);
-PKAtom pk_throw_type(PKAtom throw);
-PKAtom pk_throw_contents(PKAtom throw);
-PKAtom pk_error(PKAtom message);
-PKAtom pk_errors(PKStr message);
-PKAtom pk_error_oom(void);
-PKAtom pk_error_type(PK_TYPE expected, PKAtom found);
-    
-bool pk_is_type(PKAtom atom, PK_TYPE type);
-bool pk_is_nil(PKAtom atom);
-bool pk_is_undefined(PKAtom atom);
-bool pk_is_true(PKAtom atom);
-bool pk_is_int(PKAtom atom);
-bool pk_is_float(PKAtom atom);
-bool pk_is_number(PKAtom atom);
-bool pk_is_string(PKAtom atom);
-bool pk_is_symbol(PKAtom atom);
-bool pk_is_keyword(PKAtom atom);
-bool pk_is_cons(PKAtom atom);
-bool pk_is_cfun(PKAtom atom);
-bool pk_is_lfun(PKAtom atom);
-bool pk_is_function(PKAtom atom);
-bool pk_is_macro(PKAtom atom);
-bool pk_is_cobject(PKAtom object);
-bool pk_is_lobject(PKAtom object);
-bool pk_is_object(PKAtom object);
+void pk_deftype_lisp(Pocket lisp, int symbol, int slots);
+void pk_deftype_c_owned(Pocket lisp, int symbol, size_t size);
+void pk_deftype_c_user(Pocket lisp, int symbol);
+void pk_slot_set(Pocket lisp, int object, int slot, int value);
+void pk_slot_get(Pocket lisp, int object, int slot);
+void pk_method_set(Pocket lisp, int type, int symbol, int method);
+void pk_method_get(Pocket lisp, int type, int symbol);
+void pk_method_get_raw(Pocket lisp, int type, int symbol);
 
-PKAtom pk_typecheck(PKAtom atom, PK_TYPE check);
-PKAtom pk_typecheck_nil(PKAtom atom);
-PKAtom pk_typecheck_number(PKAtom atom);
-PKAtom pk_typecheck_string(PKAtom atom);
-PKAtom pk_typecheck_symbol(PKAtom atom);
-PKAtom pk_typecheck_keyword(PKAtom atom);
-PKAtom pk_typecheck_cons(PKAtom atom);
-PKAtom pk_typecheck_lfun(PKAtom atom);
-PKAtom pk_typecheck_cfun(PKAtom atom);
-PKAtom pk_typecheck_function(PKAtom atom);
-PKAtom pk_typecheck_object(PKAtom object);
-PKAtom pk_typecheck_cobject(PKAtom object);
-PKAtom pk_typecheck_lobject(PKAtom object);
+bool pk_lt(Pocket lisp, int lhs, int rhs);
+bool pk_lte(Pocket lisp, int lhs, int rhs);
+bool pk_gt(Pocket lisp, int lhs, int rhs);
+bool pk_gte(Pocket lisp, int lhs, int rhs);
+bool pk_eq(Pocket lisp, int lhs, int rhs);
 
-PKAtom pk_deftype_lisp(PKAtom symbol, PKAtoms slots);
-PKAtom pk_deftype_c_owned(PKAtom symbol, size_t size);
-PKAtom pk_deftype_c_user(PKAtom symbol);
+void pk_slice(Pocket lisp, int seq, int head, int tail);
+void pk_reverse(Pocket lisp, int seq);
+void pk_flatten(Pocket lisp, int seq);
 
-PKAtom pk_slot_set(PKAtom object, PKAtom slot, PKAtom value);
-PKAtom pk_slot_get(PKAtom object, PKAtom slot);
+void *pk_cobject_data(Pocket lisp, int cobject);
+size_t pk_cobject_size(Pocket lisp, int cobject);
 
-PKAtom pk_method_set(PKAtom type, PKAtom symbol, PKAtom method);
-PKAtom pk_method_get(PKAtom type, PKAtom symbol);
-PKAtom pk_method_get_raw(PKAtom type, PKAtom symbol);
+PKStr pk_to_string(Pocket lisp, int atom);
+int pk_to_int(Pocket lisp, int number);
+float pk_to_float(Pocket lisp, int number);
 
-void *pk_cobject_data(PKAtom atom);
-size_t pk_cobject_size(PKAtom atom);
-
-PKStr pk_to_string(PKAtom atom);
-PK_TYPE pk_type_of(PKAtom atom);
-int pk_to_int(PKAtom atom);
-float pk_to_float(PKAtom atom);
-
-bool pk_string_qeq(PKAtom string, PKStr comp);
-bool pk_symbol_qeq(PKAtom symbol, PKStr comp);
-bool pk_keyword_qeq(PKAtom keyword, PKStr comp);
-
-PKAtom pk_hexdump(PKAtom lfun);
+void pk_hexdump(Pocket lisp, int lfun);
+void pk_stackdump(Pocket lisp);
 
 #endif // POCKET_LISP_H

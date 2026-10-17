@@ -9,6 +9,7 @@
 
 #include "pocket_env.c"
 #include "pocket_eval.c"
+#include "pocket_frame.c"
 #include "pocket_fs.c"
 #include "pocket_function.c"
 #include "pocket_hashmap.c"
@@ -31,6 +32,7 @@
 #include "pocket_text.c"
 #include "pocket_throw.c"
 #include "pocket_type.c"
+#include "pocket_user.c"
 #include "pocket_utils.c"
 #include "pocket_vm.c"
 #include "pocket_writer.c"

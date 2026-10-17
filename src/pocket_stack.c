@@ -1,67 +1,7 @@
 #include "pocket_internals.h"
 
-PKAtom pk_frame_push(size_t arity) {
-    if (PK_CORE.frames.count >= PK_CORE.frames.capacity) {
-        size_t new_capacity = pk_grow_capacity(PK_CORE.frames.capacity, 16);
-        PKFrame *new_e = pk_realloc(PK_CORE.frames.e, new_capacity * sizeof(PKFrame));
-        if (new_e == NULL) {
-            return pk_error_oom();
-        }
-        PK_CORE.frames.e = new_e;
-        PK_CORE.frames.capacity = new_capacity;
-    }
-    
-    size_t stack_offset = PK_CORE.stack.count - arity;
-    size_t lets_offset = PK_CORE.lets.count;
-    
-    PK_CORE.frames.e[PK_CORE.frames.count++] = PK_CORE.current_frame;
-
-    PK_CORE.current_frame = (PKFrame) {
-        .stack_offset = stack_offset,
-        .let_offset = lets_offset,
-    };
-
-    return pk_true();
-}
-
-PKAtom pk_frame_pushc(PKAtoms atoms) {
-    pk_propagate(pk_frame_push(0));
-    for (size_t i = 0; i < atoms.length; ++i) {
-        pk_stack_push(atoms.e[i]);
-    }
-    return pk_true();
-}
-    
-void pk_frame_unwind(void) {
-    PKFrame unwind = PK_CORE.frames.e[PK_CORE.frames.count - 1];
-    size_t stack_count = PK_CORE.current_frame.stack_offset;
-    size_t diff = PK_CORE.stack.count - stack_count;
-    size_t lets_unwind = PK_CORE.lets.count - PK_CORE.current_frame.let_offset;
-    pk_let_unwind(lets_unwind);
-    
-    for (size_t i = 0; i < diff; ++i) {
-        size_t index = PK_CORE.stack.count - i - 1;
-        pk_ref_dec(PK_CORE.stack.e[index]);
-    }
-    
-    PK_CORE.stack.count = stack_count;
-    PK_CORE.frames.count -= 1;
-    PK_CORE.current_frame = unwind;
-}
-
-void pk_frame_clear(void) {
-    size_t diff = PK_CORE.stack.count - PK_CORE.current_frame.stack_offset;
-    for (size_t i = 0; i < diff; ++i) {
-        size_t index = PK_CORE.stack.count - i - 1;
-        pk_ref_dec(PK_CORE.stack.e[index]);
-    }
-    PK_CORE.stack.count = PK_CORE.current_frame.stack_offset;
-}
-
-PKAtom pk_stack_push(PKAtom atom) {
-    pk_propagate(pk_array_push(&PK_CORE.stack, atom, 128));
-    
-    return atom;
+void pk_stack_push(Pocket lisp, PKAtom atom) {
+    pk_array_push(&lisp->stack, atom, 128);
 }
 
 PKAtom pk_stack_head() {

@@ -3,15 +3,24 @@
 
 #include "pocket.h"
 
+typedef union PKAtomData_ PKAtom;
+
 typedef enum PK_SYMTY_ {
     PK_SYMTY_SYMBOL = 0,
     PK_SYMTY_KEYWORD,
 } PK_SYMTY;
 
+typedef struct PKAtoms_ {
+    PKAtom **e;
+    size_t length;
+} PKAtoms;
+
+#define PK_ATOMS_EMPTY (PKAtoms){.e = NULL, .length = 0}
+
 #define PK_ARRAY_EMPTY (PKArray){.e = NULL, .count = 0, .capacity = 0}
 
 typedef struct PKArray_ {
-    PKAtom *e;
+    PKAtom **e;
     size_t count;
     size_t capacity;
 } PKArray;
@@ -29,8 +38,8 @@ typedef struct PKBytes_ {
 #define PK_HASHMAP_SLOT_DELETED (2)
 
 typedef struct PKHashmapSlot_ {
-    PKAtom key;
-    PKAtom value;
+    PKAtom *key;
+    PKAtom *value;
     pk_u8 state;
 } PKHashmapSlot;
 
@@ -46,7 +55,7 @@ typedef struct PKHashmap_ {
 #define PK_SLOTMAP_SLOT_OCCUPIED (1)
 
 typedef struct PKSlotmapSlot_ {
-    PKAtom symbol;
+    PKAtom *symbol;
     size_t index;
     pk_u8 state;
 } PKSlotmapSlot;
@@ -84,7 +93,7 @@ typedef struct PKCompiler_ {
 } PKCompiler;
 
 typedef struct PKVM_ {
-    PKAtom lfun;
+    PKAtom *lfun;
     size_t curr;
     size_t save;
     pk_u8 op;
@@ -95,8 +104,9 @@ typedef struct PKVM_ {
 } PKVM;
 
 typedef struct PKAccum_ {
-    PKAtom head;
-    PKAtom tail;
+    Pocket lisp;
+    PKAtom *head;
+    PKAtom *tail;
 } PKAccum;
 
 #define PK_CALLCONV_EMPTY (PKCallConv){.args = 0, .variadic_count = 0, .variadic = false, .push_extra_nil = false}
@@ -148,7 +158,7 @@ struct PKAtomFree_ {
 #define PK_NUMTY_FLOAT (1)
 
 typedef struct PKAtomNumber_ {
-    PKAtomHeader header;
+    PKAtomHeader *header;
     pk_u8 num_type;
     union {
         int i;
@@ -171,10 +181,10 @@ typedef struct PKAtomString_ {
 typedef struct PKAtomSymbol_ {
     PKAtomHeader header;
     pk_u8 type_type;
-    PKAtom var;
-    PKAtom fun;
-    PKAtom prop;
-    PKAtom name;
+    PKAtom *var;
+    PKAtom *fun;
+    PKAtom *prop;
+    PKAtom *name;
     PKSlotmap slots;
     PKHashmap methods;
     size_t owned_memory;
@@ -187,8 +197,8 @@ typedef struct PKAtomKeyword_ {
 
 typedef struct PKAtomCons_ {
     PKAtomHeader header;
-    PKAtom car;
-    PKAtom cdr;
+    PKAtom *car;
+    PKAtom *cdr;
 } PKAtomCons;
 
 #define PK_INT_ARITY_NORMAL (0)
@@ -206,13 +216,7 @@ typedef struct PKAtomCFun_ {
     pk_u8 args;
     pk_u8 option_start;
     void *user_closure;
-    union {
-        void *opaque;
-        PKFun0 *fun0;
-        PKFun1 *fun1;
-        PKFun2 *fun2;
-        PKFun3 *fun3;
-    } as;
+    PKFun *fun;
 } PKAtomCFun;
 
 #define PK_OP_ILLEGAL (0)
@@ -271,14 +275,14 @@ typedef struct PKAtomLFun_ {
 
 typedef struct PKAtomCObject_ {
     PKAtomHeader header;
-    PKAtom type;
+    PKAtom *type;
     void *data;
 } PKAtomCObject;
 
 typedef struct PKAtomLObject_ {
-    PKAtomHeader header;
-    PKAtom type;
-    PKAtoms slots;
+    PKAtomHeader *header;
+    PKAtom *type;
+    PKAtoms *slots;
 } PKAtomLObject;
 
 typedef union PKAtomData_ {
@@ -314,8 +318,8 @@ typedef struct PKFrames {
 
 typedef struct PKLet_ {
     PK_ENV env;
-    PKAtom symbol;
-    PKAtom restore;
+    PKAtom *symbol;
+    PKAtom *restore;
 } PKLet;
 
 #define PK_LETS_EMPTY (PKLets){.e = NULL, .count = 0, .capacity = 0}
@@ -335,6 +339,12 @@ struct PKPool_ {
 };
 
 #define PK_CACHE_EMPTY (PKCache) { \
+    .atom_true = NULL, \
+    .nil = NULL, \
+    .undefined = NULL, \
+    \
+    .empty_string = NULL, \
+    \
     .lambda = NULL, \
     .macro = NULL, \
     \
@@ -361,33 +371,39 @@ struct PKPool_ {
 }
 
 typedef struct PKCache_ {
-    PKAtom lambda;
-    PKAtom macro;
+    PKAtom *atom_true;
+    PKAtom *nil;
+    PKAtom *undefined;
+
+    PKAtomString *empty_string;
     
-    PKAtom progn;
-    PKAtom sym_if;
-    PKAtom sym_while;
-    PKAtom sym_and;
-    PKAtom sym_or;
-    PKAtom error;
-    PKAtom throw;
-    PKAtom var;
-    PKAtom fvar;
-    PKAtom let;
-    PKAtom let_star;
-    PKAtom protect;
-    PKAtom unwind_protect;
-    PKAtom flet;
-    PKAtom flet_star;
-    PKAtom block;
-    PKAtom apply;
-    PKAtom macro_apply;
+    PKAtomSymbol *lambda;
+    PKAtomSymbol *macro;
     
-    PKAtom quote;
-    PKAtom quasiquote;
-    PKAtom unquote;
-    PKAtom unquote_splice;
-    PKAtom string_substitute;
+    PKAtomSymbol *progn;
+    PKAtomSymbol *sym_if;
+    PKAtomSymbol *sym_while;
+    PKAtomSymbol *sym_and;
+    PKAtomSymbol *sym_or;
+    PKAtomSymbol *error;
+    PKAtomSymbol *throw;
+    PKAtomSymbol *var;
+    PKAtomSymbol *fvar;
+    PKAtomSymbol *let;
+    PKAtomSymbol *let_star;
+    PKAtomSymbol *protect;
+    PKAtomSymbol *unwind_protect;
+    PKAtomSymbol *flet;
+    PKAtomSymbol *flet_star;
+    PKAtomSymbol *block;
+    PKAtomSymbol *apply;
+    PKAtomSymbol *macro_apply;
+    
+    PKAtomSymbol *quote;
+    PKAtomSymbol *quasiquote;
+    PKAtomSymbol *unquote;
+    PKAtomSymbol *unquote_splice;
+    PKAtomSymbol *string_substitute;
     
 } PKCache;
 
@@ -415,83 +431,94 @@ typedef struct PocketLispMachine_ {
     bool initialized;
 } PocketLispMachine;
 
-extern PocketLispMachine PK_CORE;
-
-#define pk_frame_length() \
-    ((PK_CORE.stack.count) - (PK_CORE.current_frame.stack_offset))
-
-#define pk_writer_str(w_, string_) \
-    pk_writer_string(w_, pk_str(string_))
-
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);
     
-void *pk_malloc(size_t size);
-void *pk_realloc(void *ptr, size_t new_size);
-void pk_free(void *ptr);
+void *pk_malloc(Pocket lisp, size_t size);
+void *pk_realloc(Pocket lisp, void *ptr, size_t new_size);
+void pk_free(Pocket lisp, void *ptr);
 
-PKAtom pk_pool_expand(void);
-PKAtom pk_atom_alloc(void);
-void pk_atom_free(PKAtom atom);
+void pk_pool_expand(Pocket lisp);
 
-PKAtom pk_string_empty(void);
-PKAtom pk_string_alloc(size_t length);
-PKAtom pk_string_nomemcpy(PKStr string);
-PKAtom pk_string_cat(PKAtoms strings);
-PKAtom pk_string_cat_part(PKAtom atom, PKStr *part, PKAtom *owned);
+PKAtom *pk_atom_alloc(Pocket lisp);
+void pk_atom_free(Pocket lisp, PKAtom *atom);
 
-PKAtom pk_undefined(void);
+bool pk_atom_eq(PKAtom *lhs, PKAtom *rhs);
+size_t pk_atom_hash(PKAtom *atom);
 
-PKAtom pk_lfun_exec(PKAtom lfun, size_t save);    
+bool pk_atom_is_nil(PKAtom *atom);
+bool pk_atom_is_true(PKAtom *atom);
+bool pk_atom_is_cons(PKAtom *atom);
+bool pk_atom_is_string(PKAtom *atom);
+bool pk_atom_is_symbol(PKAtom *atom);
+bool pk_atom_is_keyword(PKAtom *atom);
+
+PKAtomCons *pk_atom_assert_cons(Pocket lisp, PKAtom *atom);
+PKAtomString *pk_atom_assert_number(Pocket lisp, PKAtom *atom);
+PKAtomString *pk_atom_assert_string(Pocket lisp, PKAtom *atom);
+PKAtomSymbol *pk_atom_assert_symbol(Pocket lisp, PKAtom *atom);
+PKAtomKeyword *pk_atom_assert_keyword(Pocket lisp, PKAtom *atom);
+
+PKAtomString *pk_atom_string_nomemcpy(Pocket lisp, PKStr string);
+PKAtomString *pk_atom_string(Pocket lisp, PKStr string);
+PKAtomString *pk_atom_string_alloc(Pocket lisp, size_t length);
+PKAtomString *pk_atom_stringc(Pocket lisp, char *cstring);
+PKAtomString *pk_atom_string_cat(Pocket lisp, PKAtoms atoms);
+bool pk_atom_string_cmp(PKAtomString *string, PKStr comp);
+
+PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);
+PKAtomCons *pk_atom_list1(Pocket lisp, PKAtom *first);
+PKAtomCons *pk_atom_list2(Pocket lisp, PKAtom *first, PKAtom *second);
+PKAtomCons *pk_atom_list3(Pocket lisp, PKAtom *first, PKAtom *second, PKAtom *third);
+
+PKAtom *pk_lfun_exec(PKAtom *lfun, size_t save);    
 
 void pk_print_str(PKStr string);
 
-PKAtom pk_error_message(PKStr prefix, PKAtom atom);
+void pk_frame_push(Pocket lisp, size_t arity);
+void pk_frame_clear(Pocket lisp);
+void pk_frame_unwind(Pocket lisp);
+size_t pk_frame_length(Pocket lisp);
 
-PKAtom pk_frame_push(size_t arity);
-PKAtom pk_frame_pushc(PKAtoms atoms);
-void pk_frame_clear(void);
-void pk_frame_unwind(void);
-
-PKAtom pk_stack_push(PKAtom atom);
-PKAtom pk_stack_funcall(PK_CALL call, pk_u8 arity);
-PKAtom pk_stack_head();
-PKAtom pk_stack_pop();
+void pk_stack_push(Pocket lisp, PKAtom *atom);
+PKAtom *pk_stack_funcall(PK_CALL call, pk_u8 arity);
+PKAtom *pk_stack_head();
+PKAtom *pk_stack_pop();
 void pk_stack_pop_unchecked(size_t n);
-PKAtoms pk_stack_slice();
+PKAtoms *pk_stack_slice();
 
-PKAtom pk_stack_slice_down(size_t depth, PKAtoms *output);
-PKAtom pk_stack_op_list(size_t depth);
-PKAtom pk_stack_op_list_packed(size_t depth);
-PKAtom pk_stack_op_list_merge(size_t depth);
-PKAtom pk_stack_op_strcat(size_t depth);
-PKAtom pk_stack_op_dig(size_t depth);
-PKAtom pk_stack_op_car(bool strict);
-PKAtom pk_stack_op_cdr(bool strict);
+PKAtom *pk_stack_slice_down(size_t depth, PKAtoms **output);
+PKAtom *pk_stack_op_list(size_t depth);
+PKAtom *pk_stack_op_list_packed(size_t depth);
+PKAtom *pk_stack_op_list_merge(size_t depth);
+PKAtom *pk_stack_op_strcat(size_t depth);
+PKAtom *pk_stack_op_dig(size_t depth);
+PKAtom *pk_stack_op_car(bool strict);
+PKAtom *pk_stack_op_cdr(bool strict);
 void pk_stack_reset_to(size_t count);
     
 void pk_let_unwind(size_t n);
 
-PKAtom pk_read_atom(PKReader *r);
-PKAtom pk_read_barred(PKReader *r, PKWriter *w, PK_SYMTY type);
+PKAtom *pk_read_atom(PKReader *r);
+PKAtom *pk_read_barred(PKReader *r, PKWriter *w, PK_SYMTY type);
     
 void pk_writer_deinit(PKWriter *w);
-PKAtom pk_writer_expand(PKWriter *w, size_t needed);
-PKAtom pk_writer_char(PKWriter *w, char c);
-PKAtom pk_writer_cstr(PKWriter *w, const char *cstr);
-PKAtom pk_writer_string(PKWriter *w, PKStr string);
-PKAtom pk_writer_string_escaped(PKWriter *w, PKStr string);
-PK_PRINTF_FMT(2, 3) PKAtom pk_writer_fmt(PKWriter *w, const char *fmt, ...);
-PKAtom pk_writer_int(PKWriter *w, int integer);
-PKAtom pk_writer_float(PKWriter *w, float floater);
-PKAtom pk_writer_address(PKWriter *w, size_t address);
-PKAtom pk_writer_newline(PKWriter *w);
+PKAtom *pk_writer_expand(PKWriter *w, size_t needed);
+PKAtom *pk_writer_char(PKWriter *w, char c);
+PKAtom *pk_writer_cstr(PKWriter *w, const char *cstr);
+PKAtom *pk_writer_string(PKWriter *w, PKStr string);
+PKAtom *pk_writer_string_escaped(PKWriter *w, PKStr string);
+PK_PRINTF_FMT(2, 3) PKAtom *pk_writer_fmt(PKWriter *w, const char *fmt, ...);
+PKAtom *pk_writer_int(PKWriter *w, int integer);
+PKAtom *pk_writer_float(PKWriter *w, float floater);
+PKAtom *pk_writer_address(PKWriter *w, size_t address);
+PKAtom *pk_writer_newline(PKWriter *w);
 PKStr pk_writer_slice(PKWriter *w);
 void pk_writer_reset(PKWriter *w);
-PKAtom pk_writer_symbol_name(PKWriter *w, PKStr name);
-PKAtom pk_writer_atom(PKWriter *w, PKAtom atom);
+PKAtom *pk_writer_symbol_name(PKWriter *w, PKStr name);
+PKAtom *pk_writer_atom(PKWriter *w, PKAtom *atom);
     
-PKAtom pk_str_alloc(size_t length, PKStr *output);
-PKAtom pk_str_dupe(PKStr input, PKStr *output);
+PKStr pk_str_alloc(Pocket lisp, size_t length);
+PKStr pk_str_dupe(Pocket lisp, PKStr input);
 PKStr pk_str_from_cstr(char *cstr);
 bool pk_str_eq(PKStr a, PKStr b);
 bool pk_str_needs_bars(PKStr string);
@@ -507,45 +534,43 @@ char pk_char_from_hex(pk_u8 byte);
 bool pk_char_is_hex(char c);
 pk_u8 pk_char_to_hex(char c);
 
-PKAccum pk_accum_new(void);
-PKAtom pk_accum_push(PKAccum *acc, PKAtom atom);
-void pk_cons_link(PKAtom tail, PKAtom cons);
+PKAccum pk_accum_new(Pocket lisp);
+void pk_accum_push(PKAccum *acc, PKAtom atom);
 
-PKAtom pk_array_push(PKArray *array, PKAtom atom, size_t init_capacity);
-void pk_array_deinit(PKArray *array);
-PKAtom pk_bytes_push(PKBytes *bytes, pk_u8 byte, size_t init_capacity);
-void pk_bytes_deinit(PKBytes *bytes);
-void pk_atoms_free(PKAtoms *atoms);
+void pk_array_push(Pocket lisp, PKArray *array, PKAtom *atom, size_t init_capacity);
+void pk_array_deinit(Pocket lisp, PKArray *array);
+void pk_bytes_push(Pocket lisp, PKBytes *bytes, pk_u8 byte, size_t init_capacity);
+void pk_bytes_deinit(Pocket lisp, PKBytes *bytes);
+void pk_atoms_free(Pocket lisp, PKAtoms *atoms);
     
-PKAtom pk_hashmap_insert(PKHashmap *map, PKAtom key, PKAtom value);
-PKAtom pk_hashmap_get_str(PKHashmap *map, PKStr key);
-PKAtom pk_hashmap_get(PKHashmap *map, PKAtom key);
-PKAtom pk_hashmap_remove(PKHashmap *map, PKAtom key);
+PKAtom *pk_hashmap_insert(PKHashmap *map, PKAtom *key, PKAtom *value);
+PKAtom *pk_hashmap_get_str(PKHashmap *map, PKStr key);
+PKAtom *pk_hashmap_get(PKHashmap *map, PKAtom *key);
+PKAtom *pk_hashmap_remove(PKHashmap *map, PKAtom *key);
 void pk_hashmap_deinit(PKHashmap *map);
 
-size_t pk_slotmap_index(PKSlotmap *map, PKAtom symbol);
-PKSlotmapSlot *pk_slotmap_find(PKSlotmap *map, PKAtom symbol);
-bool pk_slotmap_index_of(PKSlotmap *map, PKAtom symbol, size_t *index);
-PKAtom pk_slotmap_insert(PKSlotmap *map, PKAtom symbol, size_t *index);
-PKAtom pk_slotmap_reserve(PKSlotmap *map, size_t count);
+size_t pk_slotmap_index(PKSlotmap *map, PKAtom *symbol);
+PKSlotmapSlot *pk_slotmap_find(PKSlotmap *map, PKAtom *symbol);
+bool pk_slotmap_index_of(PKSlotmap *map, PKAtom *symbol, size_t *index);
+PKAtom *pk_slotmap_insert(PKSlotmap *map, PKAtom *symbol, size_t *index);
+PKAtom *pk_slotmap_reserve(PKSlotmap *map, size_t count);
 void pk_slotmap_deinit(PKSlotmap *map);
     
 size_t pk_hash_djb2(PKStr string);
 size_t pk_hash_pointer(void *ptr);
-size_t pk_hash(PKAtom atom);
 
-PKAtom pk_cmp_patch_byte(PKCompiler *c, pk_u8 addr, pk_u8 byte);
-PKAtom pk_cmp_push_byte(PKCompiler *c, pk_u8 byte);
-PKAtom pk_cmp_push_any(PKCompiler *c, size_t value);
-PKAtom pk_cmp_push_atom(PKCompiler *c, PKAtom atom);
-PKAtom pk_cmp_load_nil(PKCompiler *c);
-PKAtom pk_cmp_load_true(PKCompiler *c);
-PKAtom pk_cmp_load(PKCompiler *c, PKAtom atom);
+PKAtom *pk_cmp_patch_byte(PKCompiler *c, pk_u8 addr, pk_u8 byte);
+PKAtom *pk_cmp_push_byte(PKCompiler *c, pk_u8 byte);
+PKAtom *pk_cmp_push_any(PKCompiler *c, size_t value);
+PKAtom *pk_cmp_push_atom(PKCompiler *c, PKAtom *atom);
+PKAtom *pk_cmp_load_nil(PKCompiler *c);
+PKAtom *pk_cmp_load_true(PKCompiler *c);
+PKAtom *pk_cmp_load(PKCompiler *c, PKAtom *atom);
     
-PKAtom pk_compile_value(PKCompiler *c, PKAtom value);
-PKAtom pk_compile_lambda(PK_CALL type, PKAtom args, PKAtom body);
-PKAtom pk_compile_atom(PKCompiler *c, PKAtom value);
-PKAtom pk_compile_strsub(PKCompiler *c, PKStr string);
+PKAtom *pk_compile_value(PKCompiler *c, PKAtom *value);
+PKAtom *pk_compile_lambda(PK_CALL type, PKAtom *args, PKAtom *body);
+PKAtom *pk_compile_atom(PKCompiler *c, PKAtom *value);
+PKAtom *pk_compile_strsub(PKCompiler *c, PKStr string);
 
 PKStr pk_ident_opcode(pk_u8 op);
 PKStr pk_ident_atomty(pk_u8 ty);
@@ -554,24 +579,21 @@ PKStr pk_ident_env(PK_ENV env);
 PKStr pk_ident_type(PK_TYPE ty);
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
     
-PKAtom pk_macroexpand1_(PKAtom atom, bool *expanded);
+PKAtom *pk_macroexpand1_(PKAtom *atom, bool *expanded);
 
-PKAtom pk_error_corrupted_memory(void);
-PKAtom pk_error_refcount_overflow(void);
-
-PKAtom pk_std_load(void);
+PKAtom *pk_std_load(void);
 void pk_deinit_cache(void);
 
-PKAtom pk_fs_slurp_str(PKStr file_path);
-PKAtom pk_fs_slurp(PKAtom file_path);
-PKAtom pk_fs_read_user_input(void);
+PKAtom *pk_fs_slurp_str(PKStr file_path);
+PKAtom *pk_fs_slurp(PKAtom *file_path);
+PKAtom *pk_fs_read_user_input(void);
 
-PKVM pk_vm_init(PKAtom lfun, size_t save);
-PKAtom pk_vm_exec(PKVM *vm);
+PKVM pk_vm_init(PKAtom *lfun, size_t save);
+PKAtom *pk_vm_exec(PKVM *vm);
 
 #ifdef POCKET_CFLAG_DEBUG
 void pk_debug_leakcheck(void);
-PKAtom pk_debug_dump(const char *tag, PK_DUMP opt);
+PKAtom *pk_debug_dump(const char *tag, PK_DUMP opt);
 #endif
     
 #endif // POCKET_LISP_INTERNALS_H

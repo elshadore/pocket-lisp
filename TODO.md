@@ -4,10 +4,10 @@ The todo list for POCKET LISP
 ## TODAY
 ### LUA Stack Update
   Update the API to a LUA like api with `setjmp` `longjmp` errors / throws.
-  - [ ] Remove Errors and Throws
-  - [ ] Remove Refcounting
+  - [x] Remove Errors and Throws
+  - [x] Remove Refcounting
   - [ ] Add Stack Logic
-  - [ ] Add Stack API
+  - [x] Add Stack API
     - pop
     - popn
     - insert

@@ -1,22 +1,28 @@
 #include "pocket_internals.h"
 
-PKAtom pk_str_dupe(PKStr input, PKStr *output) {
+PKStr pk_str_alloc(Pocket lisp, size_t length) {
+    if (length == 0) {
+        return PK_STR_EMPTY;
+    }
+    char *buffer = pk_malloc(lisp, length * sizeof(char));
+    return (PKStr) {
+        .c = buffer,
+        .length = length,
+    };
+}
+
+PKStr pk_str_dupe(Pocket lisp, PKStr input) {
     if (input.length == 0) {
-        *output = PK_STR_EMPTY;
-        return pk_true();
+        return PK_STR_EMPTY;
     }
-    char *buffer = pk_malloc(input.length * sizeof(char));
-    if (buffer == NULL) {
-        return pk_error_oom();
-    }
+    char *buffer = pk_malloc(lisp, input.length * sizeof(char));
     
     (void)memcpy(buffer, input.c, input.length);
-    *output = (PKStr) {
+    
+    return (PKStr) {
         .c = buffer,
         .length = input.length,
     };
-
-    return pk_true();
 }
 
 PKStr pk_str_from_cstr(char *cstr) {

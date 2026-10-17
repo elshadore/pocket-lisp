@@ -1,43 +1,14 @@
 #include "pocket_internals.h"
 
-PKAtomData PK_ATOM_UNDEFINED = (PKAtomData) {
-    .header = (PKAtomHeader) {
-        .type = PK_ATOMTY_UNDEFINED,
-        .flags = PK_ATOMFLAG_IMMORTAL,
-    }
-};
-
-PKAtomData PK_ATOM_TRUE = (PKAtomData) {
-    .header = (PKAtomHeader) {
-        .type = PK_ATOMTY_TRUE,
-        .flags = PK_ATOMFLAG_IMMORTAL,
-    }
-};
-
-PKAtom pk_undefined(void) {
-    return &PK_ATOM_UNDEFINED;
-}
-
-PKAtom pk_true() {
-    return &PK_ATOM_TRUE;
-}
-PKAtom pk_bool(bool boolean) {
-    if (boolean) {
-        return pk_true();
-    } else {
-        return pk_nil();
-    }
-}
-
-bool pk_is_true(PKAtom atom) {
+bool pk_atom_is_true(PKAtom *atom) {
     return atom->header.type != PK_ATOMTY_NIL;
 }
 
-bool pk_is_undefined(PKAtom atom) {
+bool pk_atom_is_undefined(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_UNDEFINED;
 }
 
-bool pk_is_type(PKAtom atom, PK_TYPE type) {
+bool pk_atom_is_type(PKAtom *atom, PK_TYPE type) {
     if (type == PK_TYPE_TRUE) {
         if (atom->header.type == PK_ATOMTY_NIL) {
             return false;
@@ -91,48 +62,31 @@ bool pk_is_type(PKAtom atom, PK_TYPE type) {
     }
 }
 
-PKAtom pk_typecheck(PKAtom atom, PK_TYPE check) {
-    if (pk_is_type(atom, check)) {
-        return pk_true();
-    } else {
-        return pk_error_type(check, atom);
-    }
-}
-
-PKAtom pk_typecheck_symbol(PKAtom atom) {
-    return pk_typecheck(atom, PK_TYPE_SYMBOL);
-}
-
-PKAtom pk_typecheck_keyword(PKAtom atom) {
-    return pk_typecheck(atom, PK_TYPE_KEYWORD);
-}
-
-PKAtom pk_reverse(PKAtom atom) {
+PKAtom *pk_atom_reverse(Pocket lisp, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_STRING: {
-            PKStr dupe = PK_STR_EMPTY;
-            pk_propagate(pk_str_dupe(atom->string.str, &dupe));
+            PKStr dupe = pk_str_dupe(lisp, atom->string.str);
             pk_str_reverse_mut(dupe);
             return pk_string_nomemcpy(dupe);
         }
         case PK_ATOMTY_CONS: {
-            PKAtom acc = pk_nil();
-            PKAtom iter = atom;
-            while (pk_is_cons(iter)) {
-                PKAtom a = pk_cons(iter->cons.car, acc);
-                pk_propagate(a);
-                pk_ref_dec(acc);
-                acc = a;
+            PKAtom *acc = lisp->cache.nil;
+            PKAtom *iter = atom;
+            while (pk_atom_is_cons(iter)) {
+                acc = (PKAtom *)pk_atom_cons(lisp, iter->cons.car, acc);
                 iter = iter->cons.cdr;
             }
             return acc;
         }
-        case PK_ATOMTY_NIL: return pk_nil();
-        default: return pk_error_type(PK_TYPE_SEQ, atom);
+        case PK_ATOMTY_NIL: return lisp->cache.nil;
+        default: {
+            pk_error(lisp, 0);
+            return lisp->cache.nil;
+        }
     }
 }
 
-bool pk_eq(PKAtom lhs, PKAtom rhs) {
+bool pk_atom_eq(PKAtom *lhs, PKAtom *rhs) {
     if (lhs == rhs) {
         return true;
     }
@@ -164,7 +118,7 @@ bool pk_eq(PKAtom lhs, PKAtom rhs) {
     }
 }
 
-size_t pk_hash(PKAtom atom) {
+size_t pk_atom_hash(PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_STRING: {
             return pk_hash_djb2(atom->string.str);

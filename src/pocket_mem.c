@@ -8,33 +8,36 @@ size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity) {
     }
 }
 
-void *pk_malloc(size_t size) {
-    return malloc(size);
+void *pk_malloc(Pocket lisp, size_t size) {
+    void *result = malloc(size);
+    if ((result == NULL) && (size > 0)) {
+        pk_error_oom(lisp);
+    }
+    return result;
 }
 
-void *pk_realloc(void *ptr, size_t new_size) {
-    return realloc(ptr, new_size);
+void *pk_realloc(Pocket lisp, void *ptr, size_t new_size) {
+    void *result = realloc(ptr, new_size);
+    if ((result == NULL) && (new_size > 0)) {
+        pk_error_oom(lisp);
+    }
+    return result;
 }
 
-void pk_free(void *ptr) {
+void pk_free(Pocket lisp, void *ptr) {
+    (void)lisp;
     free(ptr);
 }
 
-PKAtom pk_pool_expand(void) {
-    if (!PK_CORE.initialized) {
-        if (!pk_init()) {
-            return pk_error_oom();
-        }
-    }
-    
-    PKPool *pool = (PKPool *)pk_malloc(sizeof(PKPool));
+void pk_pool_expand(Pocket lisp) {
+    PKPool *pool = (PKPool *)pk_malloc(lisp, sizeof(PKPool));
     if (pool == NULL) {
-        return pk_error_oom();
+        pk_error_oom(lisp);
     }
 
     for (size_t i = 0; i < (PK_POOL_MAX - 1); ++i) {
-        PKAtom a = &pool->e[i];
-        PKAtom b = &pool->e[i + 1];
+        PKAtom *a = &pool->e[i];
+        PKAtom *b = &pool->e[i + 1];
         a->free = (PKAtomFree) {
             .header = (PKAtomHeader) {
                 .type = PK_ATOMTY_FREE,
@@ -51,78 +54,62 @@ PKAtom pk_pool_expand(void) {
         .next = NULL,
     };
 
-    pool->next = PK_CORE.pool;
-    PK_CORE.pool = pool;
-    PK_CORE.free = (PKAtomFree *)&pool->e[0];
-    
-    return pk_true();
+    pool->next = lisp->pool;
+    lisp->pool = pool;
+    lisp->free = (PKAtomFree *)&pool->e[0];
 }
 
-PKAtom pk_atom_alloc(void) {
-    if (PK_CORE.free == NULL) {
-        pk_propagate(pk_pool_expand());
-        if (PK_CORE.free == NULL) {
-            // The pool just expanded, so it has to hand out an atom.
-            return pk_error_corrupted_memory();
-        }
+PKAtom *pk_atom_alloc(Pocket lisp) {
+    if (lisp->free == NULL) {
+        pk_pool_expand(lisp);
     }
-    PKAtomFree *free = PK_CORE.free;
-    PK_CORE.free = free->next;
     
-    PKAtom atom = (PKAtom)free;
-    return atom;
+    PKAtomFree *result = lisp->free;
+    lisp->free = result->next;
+    
+    return (PKAtom *)result;
 }
 
-void pk_atom_free(PKAtom atom) {
+void pk_atom_free(Pocket lisp, PKAtom *atom) {
     pk_u8 type = atom->header.type;
     if ((type == PK_ATOMTY_FREE) || ((atom->header.flags & PK_ATOMFLAG_IMMORTAL) != 0)) {
         return;
     }
     switch (type) {
         case PK_ATOMTY_STRING: {
-            pk_free(atom->string.str.c);
+            pk_free(lisp, atom->string.str.c);
             break;
         }
         case PK_ATOMTY_KEYWORD: {
-            pk_free(atom->keyword.id.c);
+            pk_free(lisp, atom->keyword.id.c);
             break;
         }
         case PK_ATOMTY_LFUN: {
-            pk_ref_dec_many(atom->lfun.atoms);
-            pk_free(atom->lfun.bc.e);
-            pk_free(atom->lfun.atoms.e);
+            pk_free(lisp, atom->lfun.bc.e);
+            pk_free(lisp, atom->lfun.atoms.e);
             break;
         }
         case PK_ATOMTY_LMACRO: {
-            pk_ref_dec_many(atom->lmacro.atoms);
-            pk_free(atom->lmacro.bc.e);
-            pk_free(atom->lmacro.atoms.e);
+            pk_free(lisp, atom->lmacro.bc.e);
+            pk_free(lisp, atom->lmacro.atoms.e);
             break;
         }
         case PK_ATOMTY_SYMBOL: {
-            pk_ref_dec(atom->symbol.name);
-            pk_ref_dec(atom->symbol.var);
-            pk_ref_dec(atom->symbol.fun);
-            pk_ref_dec(atom->symbol.prop);
             pk_slotmap_deinit(&atom->symbol.slots);
             pk_hashmap_deinit(&atom->symbol.methods);
             break;
         }
         case PK_ATOMTY_LOBJECT: {
-            pk_ref_dec(atom->lobject.type);
             pk_atoms_free(&atom->lobject.slots);
             break;
         }
         case PK_ATOMTY_COBJECT: {
-            pk_ref_dec(atom->cobject.type);
             if (atom->cobject.type->symbol.type_type == PK_TYPETY_C_OWNED) {
-                pk_free(atom->cobject.data);
+                pk_free(lisp, atom->cobject.data);
             }
             break;
         }
         case PK_ATOMTY_CONS: {
-            pk_ref_dec(atom->cons.car);
-            pk_ref_dec(atom->cons.cdr);
             break;
         }
         default: break;
@@ -131,6 +118,6 @@ void pk_atom_free(PKAtom atom) {
         .type = PK_ATOMTY_FREE,
         .flags = PK_ATOMFLAG_NONE,
     };
-    atom->free.next = PK_CORE.free;
-    PK_CORE.free = (PKAtomFree *)atom;
+    atom->free.next = lisp->free;
+    lisp->free = (PKAtomFree *)atom;
 }

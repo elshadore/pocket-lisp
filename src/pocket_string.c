@@ -1,131 +1,75 @@
 #include "pocket_internals.h"
 
-PKAtomData PK_ATOM_STRING_EMPTY = (PKAtomData) {
-    .string = (PKAtomString) {
-        .header.type = PK_ATOMTY_STRING,
-        .header.flags = PK_ATOMFLAG_IMMORTAL,
-        .str = PK_STR_EMPTY,
-    }
-};
-
-PKAtom pk_string_empty(void) {
-    return &PK_ATOM_STRING_EMPTY;
-}
-
-PKAtom pk_string_nomemcpy(PKStr string) {
+PKAtomString *pk_atom_string_nomemcpy(Pocket lisp, PKStr string) {
     if (string.length == 0) {
-        return pk_string_empty();
+        return lisp->cache.empty_string;
     }
 
-    PKAtom atom = pk_atom_alloc();
-    pk_propagate(atom);
+    PKAtomString *result = (PKAtomString *)pk_atom_alloc(lisp);
     
-    atom->header.type = PK_ATOMTY_STRING;
-    atom->string.str = string;
+    result->header.type = PK_ATOMTY_STRING;
+    result->str = string;
     
-    return atom;
+    return result;
 }
 
-PKAtom pk_string(PKStr string) {
+PKAtomString *pk_atom_string(Pocket lisp, PKStr string) {
     if (string.length == 0) {
-        return pk_string_empty();
+        return lisp->cache.empty_string;
     }
 
-    PKStr dupe = PK_STR_EMPTY;
-    pk_propagate(pk_str_dupe(string, &dupe));
+    PKStr dupe = pk_str_dupe(lisp, string);
     
-    return pk_string_nomemcpy(dupe);
+    return pk_atom_string_nomemcpy(lisp, dupe);
 }
 
-PKAtom pk_string_alloc(size_t length) {
+PKAtomString *pk_atom_string_alloc(Pocket lisp, size_t length) {
     if (length == 0) {
-        return pk_string_empty();
+        return lisp->cache.empty_string;
     }
 
-    PKAtom atom = pk_atom_alloc();
-    pk_propagate(atom);
+    PKStr buffer = pk_str_alloc(lisp, length);
     
-    PKStr buffer = PK_STR_EMPTY;
-    pk_propagate(pk_str_alloc(length, &buffer));
-    
-    atom->header.type = PK_ATOMTY_STRING;
-    atom->string.str = buffer;
-    
-    return atom;
+    return pk_atom_string_nomemcpy(lisp, buffer);
 }
 
-PKAtom pk_stringc(char *cstring) {
+PKAtomString *pk_atom_stringc(Pocket lisp, char *cstring) {
     PKStr string = pk_str_from_cstr(cstring);
-    return pk_string(string);
+    return pk_atom_string(lisp, string);
 }
 
-PKAtom pk_string_cat_part(PKAtom atom, PKStr *part, PKAtom *owned) {
-    if (pk_is_string(atom)) {
-        *part = atom->string.str;
-        *owned = pk_nil();
-        return pk_true();
-    }
-    
-    PKAtom result = pk_format(atom);
-    pk_propagate(result);
-    *part = result->string.str;
-    *owned = result;
-    return pk_true();
-}
-
-PKAtom pk_string_cat(PKAtoms strings) {
-    size_t length = 0;
-    for (size_t i = 0; i < strings.length; ++i) {
-        PKStr part = PK_STR_EMPTY;
-        PKAtom owned = pk_nil();
-        pk_string_cat_part(strings.e[i], &part, &owned);
-        pk_ref_dec(owned);
-        length += part.length;
-    }
-    PKAtom atom = pk_string_alloc(length);
-    
-    pk_propagate(atom);
-
-    {
-        size_t offset = 0;
-        for (size_t i = 0; i < strings.length; ++i) {
-            PKStr part = PK_STR_EMPTY;
-            PKAtom owned = pk_nil();
-            PKAtom result = pk_string_cat_part(strings.e[i], &part, &owned);
-            pk_propagate(result);
-            if (part.length > 0) {
-                memcpy(atom->string.str.c + offset, part.c, part.length);
-                offset += part.length;
-            }
-            pk_ref_dec(owned);
+PKAtomString *pk_atom_string_cat_(PKWriter *w, Pocket lisp, PKAtoms atoms) {
+    for (size_t i = 0; i < atoms.length; ++i) {
+        PKAtom *atom = atoms.e[i];
+        if (pk_atom_is_string(atom)) {
+            pk_writer_string(w, atom->string.str);
+        } else {
+            pk_writer_atom(w, atom);
         }
     }
-    return atom;
+    return pk_atom_string(lisp, pk_writer_slice(w));
+}
+    
+PKAtomString *pk_atom_string_cat(Pocket lisp, PKAtoms atoms) {
+    PKWriter w = PK_WRITER_EMPTY;
+    PKAtomString *result = pk_atom_string_cat_(&w, lisp, atoms);
+    pk_writer_deinit(&w);
+    return result;
 }
 
-bool pk_is_string(PKAtom atom) {
+bool pk_atom_is_string(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_STRING;
 }
 
-PKAtom pk_typecheck_string(PKAtom atom) {
-    if (pk_is_string(atom)) {
-        return pk_true();
+PKAtomString *pk_atom_assert_string(Pocket lisp, PKAtom *atom) {
+    if (pk_atom_is_string(atom)) {
+        return (PKAtomString *)atom;
     } else {
-        return pk_errors(pk_str("expected string"));
+        pk_error(lisp);
+        return lisp->cache.empty_string;
     }
 }
 
-PKStr pk_to_string(PKAtom atom) {
-    if (!pk_is_string(atom)) {
-        return PK_STR_EMPTY;
-    } else {
-        return atom->string.str;
-    }
-}
-
-bool pk_string_qeq(PKAtom string, PKStr comp) {
-    if (!pk_is_string(string)) {
-        return false;
-    }
-    return pk_str_eq(string->string.str, comp);
+bool pk_atom_string_cmp(PKAtomString *string, PKStr comp) {
+    return pk_str_eq(string->str, comp);
 }
