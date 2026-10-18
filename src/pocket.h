@@ -123,6 +123,7 @@ void pk_push_symbolc(Pocket lisp, char *csymbol);
 void pk_push_keyword(Pocket lisp, PKStr keyword);
 void pk_push_keywordc(Pocket lisp, char *ckeyword);
 void pk_push_cons(Pocket lisp, int car, int cdr);
+void pk_list(Pocket lisp, int head, int tail);
 void pk_push_cfun(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options);
 void pk_push_cmacro(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options);
 
@@ -146,12 +147,15 @@ void pk_get(Pocket lisp, PK_ENV env, int symbol);
 void pk_get_raw(Pocket lisp, PK_ENV env, int symbol);
 bool pk_is_bound(Pocket lisp, PK_ENV env, int symbol);
 void pk_unbind(Pocket lisp, PK_ENV env, int symbol);
-// void pk_env_list(Pocket lisp, PK_ENV env);
+void pk_env_list(Pocket lisp, PK_ENV env);
 
 void pk_print(Pocket lisp, int atom);
 void pk_write(Pocket lisp, int atom);
 void pk_format(Pocket lisp, int atom);
+void pk_hexdump(Pocket lisp, int atom);
 void pk_read(Pocket lisp, int string, PK_MODE mode);
+void pk_slurp(Pocket lisp, int file_path);
+void pk_read_user_input(Pocket lisp);
 void pk_eval(Pocket lisp, int expr, PK_MODE mode);
 void pk_apply(Pocket lisp, PK_CALL call, int fun, int args);
 void pk_fcall(Pocket lisp, PK_CALL call, size_t args);

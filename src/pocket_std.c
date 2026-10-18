@@ -1,77 +1,43 @@
 #include "pocket_internals.h"
 #include "pocket_std.h"
 
-#define pk_std_args(lisp_) (pk_frame_length(lisp_))
+#define PK_TEMPLATE_ARITH(fun_name_, op_) \
+    void fun_name_(void *user_closure, Pocket lisp) { \
+        int top = pk_top(lisp); \
+        (void)user_closure; \
+        if (top == 0) { \
+            pk_push_int(lisp, 0); \
+            return; \
+        } \
+        pk_dig(lisp, 1); \
+        for (int i = 2; i <= top; ++i) { \
+            op_(lisp, -1, i); \
+            pk_swap(lisp, -1, -2); \
+            pk_pop(lisp); \
+        } \
+    }
 
-void pk_fun_add(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    size_t n = pk_std_args(lisp);
-    if (n == 0) {
-        pk_push_int(lisp, 0);
-        return;
-    }
-    PKAtoms args = pk_stack_slice_down(lisp, n);
-    PKAtom *acc = args.e[0];
-    for (size_t i = 1; i < n; ++i) {
-        acc = pk_atom_add(lisp, acc, args.e[i]);
-    }
-    pk_stack_push(lisp, acc);
-}
-
-void pk_fun_sub(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    size_t n = pk_std_args(lisp);
-    if (n == 0) {
-        pk_push_int(lisp, 0);
-        return;
-    }
-    PKAtoms args = pk_stack_slice_down(lisp, n);
-    PKAtom *acc = args.e[0];
-    for (size_t i = 1; i < n; ++i) {
-        acc = pk_atom_sub(lisp, acc, args.e[i]);
-    }
-    pk_stack_push(lisp, acc);
-}
-
-void pk_fun_mul(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    size_t n = pk_std_args(lisp);
-    if (n == 0) {
-        pk_push_int(lisp, 1);
-        return;
-    }
-    PKAtoms args = pk_stack_slice_down(lisp, n);
-    PKAtom *acc = args.e[0];
-    for (size_t i = 1; i < n; ++i) {
-        acc = pk_atom_mul(lisp, acc, args.e[i]);
-    }
-    pk_stack_push(lisp, acc);
-}
-
-void pk_fun_div(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    size_t n = pk_std_args(lisp);
-    if (n == 0) {
-        pk_push_int(lisp, 1);
-        return;
-    }
-    PKAtoms args = pk_stack_slice_down(lisp, n);
-    PKAtom *acc = args.e[0];
-    for (size_t i = 1; i < n; ++i) {
-        acc = pk_atom_div(lisp, acc, args.e[i]);
-    }
-    pk_stack_push(lisp, acc);
-}
+PK_TEMPLATE_ARITH(pk_fun_add, pk_add)
+PK_TEMPLATE_ARITH(pk_fun_sub, pk_sub)
+PK_TEMPLATE_ARITH(pk_fun_mul, pk_mul)
+PK_TEMPLATE_ARITH(pk_fun_div, pk_div)
 
 void pk_fun_mod(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_stack_push(lisp, pk_atom_mod(lisp, pk_stack_get(lisp, -2), pk_stack_get(lisp, -1)));
+    pk_mod(lisp, 1, 2);
 }
 
 #define PK_TEMPLATE_CMP(fun_name_, op_) \
     void fun_name_(void *user_closure, Pocket lisp) { \
+        int top = pk_top(lisp); \
         (void)user_closure; \
-        pk_push_bool(lisp, op_(lisp, 1, 2)); \
+        for (int i = 1; i < top; ++i) { \
+            if (!op_(lisp, i, i + 1)) { \
+                pk_push_bool(lisp, false); \
+                return; \
+            } \
+        } \
+        pk_push_bool(lisp, true); \
     }
 
 PK_TEMPLATE_CMP(pk_fun_lt, pk_lt)
@@ -82,74 +48,70 @@ PK_TEMPLATE_CMP(pk_fun_eq, pk_eq)
 
 void pk_fun_cons(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_stack_push(lisp, (PKAtom *)pk_atom_cons(lisp, pk_stack_get(lisp, -2), pk_stack_get(lisp, -1)));
+    pk_push_cons(lisp, 1, 2);
 }
 
 void pk_fun_list(void *user_closure, Pocket lisp) {
+    int top = pk_top(lisp);
     (void)user_closure;
-    size_t n = pk_std_args(lisp);
-    if (n == 0) {
+    if (top == 0) {
         pk_push_nil(lisp);
         return;
     }
-    // A variadic c function keeps its arguments as separate slots, so the
-    // frame slice is the argument list already.
-    pk_stack_push(lisp, pk_atom_list(lisp, pk_stack_slice_down(lisp, n)));
+    pk_list(lisp, 1, top);
 }
 
 void pk_fun_car(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_stack_op_car(lisp);
+    pk_car(lisp, 1);
 }
 
 void pk_fun_cdr(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_stack_op_cdr(lisp);
+    pk_cdr(lisp, 1);
 }
 
 void pk_fun_set_car(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_stack_push(lisp, pk_atom_set_car(lisp, pk_stack_get(lisp, -2), pk_stack_get(lisp, -1)));
+    pk_car_strict(lisp, 1);
+    pk_set_car(lisp, 1, 2);
 }
 
 void pk_fun_set_cdr(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_stack_push(lisp, pk_atom_set_cdr(lisp, pk_stack_get(lisp, -2), pk_stack_get(lisp, -1)));
+    pk_cdr_strict(lisp, 1);
+    pk_set_cdr(lisp, 1, 2);
 }
 
 #define PK_TEMPLATE_ENV_SET(fun_name_, env_) \
     void fun_name_(void *user_closure, Pocket lisp) { \
         (void)user_closure; \
-        pk_atom_assert_symbol(lisp, pk_stack_get(lisp, -2)); \
-        pk_env_set(lisp, env_, (PKAtomSymbol *)pk_stack_get(lisp, -2), pk_stack_get(lisp, -1)); \
-        pk_stack_push(lisp, pk_stack_get(lisp, -1)); \
+        pk_set(lisp, env_, 1, 2); \
     }
 
 #define PK_TEMPLATE_ENV_GET(fun_name_, env_) \
     void fun_name_(void *user_closure, Pocket lisp) { \
         (void)user_closure; \
-        pk_atom_assert_symbol(lisp, pk_stack_get(lisp, -1)); \
-        pk_stack_push(lisp, pk_env_get(lisp, env_, (PKAtomSymbol *)pk_stack_get(lisp, -1))); \
+        pk_get(lisp, env_, 1); \
     }
 
 #define PK_TEMPLATE_ENV_BOUND(fun_name_, env_) \
     void fun_name_(void *user_closure, Pocket lisp) { \
         (void)user_closure; \
-        pk_atom_assert_symbol(lisp, pk_stack_get(lisp, -1)); \
-        pk_stack_push(lisp, pk_atom_bool(lisp, !pk_atom_is_undefined(pk_env_get(lisp, env_, (PKAtomSymbol *)pk_stack_get(lisp, -1))))); \
+        pk_push_bool(lisp, pk_is_bound(lisp, env_, 1)); \
     }
 
 #define PK_TEMPLATE_ENV_UNBIND(fun_name_, env_) \
     void fun_name_(void *user_closure, Pocket lisp) { \
         (void)user_closure; \
-        pk_atom_assert_symbol(lisp, pk_stack_get(lisp, -1)); \
-        pk_stack_push(lisp, pk_env_set(lisp, env_, (PKAtomSymbol *)pk_stack_get(lisp, -1), lisp->cache.undefined)); \
+        pk_unbind(lisp, env_, 1); \
+        pk_push_nil(lisp); \
     }
 
 #define PK_TEMPLATE_ENV_LIST(fun_name_, env_) \
     void fun_name_(void *user_closure, Pocket lisp) { \
         (void)user_closure; \
-        pk_stack_push(lisp, pk_env_alist(lisp, env_)); \
+        pk_env_list(lisp, env_); \
     }
 
 PK_TEMPLATE_ENV_SET(pk_fun_set, PK_ENV_VAR)
@@ -172,57 +134,85 @@ PK_TEMPLATE_ENV_LIST(pk_fun_list_vars, PK_ENV_VAR)
 PK_TEMPLATE_ENV_LIST(pk_fun_list_funs, PK_ENV_FUN)
 PK_TEMPLATE_ENV_LIST(pk_fun_list_props, PK_ENV_PROP)
 
+void pk_fun_funcatch(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_assert_type(lisp, 1, PK_TYPE_SYMBOL);
+    pk_fcall(lisp, PK_CALL_FUN, 0);
+}
+
+void pk_fun_throw(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_throw(lisp, 1, 2);
+}
+
+void pk_fun_error(void *user_closure, Pocket lisp) {
+    PKWriter w = PK_WRITER_EMPTY;
+    (void)user_closure;
+    pk_writer_cstr(lisp, &w, "error: ");
+    pk_writer_atom(lisp, &w, pk_stack_get(lisp, 1));
+    pk_errors(lisp, pk_writer_slice(&w));
+}
+
+void pk_fun_hexdump(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_hexdump(lisp, 1);
+}
+
 void pk_fun_read(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, -1));
-    pk_stack_push(lisp, pk_read_atom_from_string(lisp, string, PK_MODE_EXPRESSION));
+    pk_read(lisp, 1, PK_MODE_EXPRESSION);
 }
 
 void pk_fun_read_list(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, -1));
-    pk_stack_push(lisp, pk_read_atom_from_string(lisp, string, PK_MODE_EXPRLIST));
+    pk_read(lisp, 1, PK_MODE_EXPRLIST);
 }
 
 void pk_fun_apply(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_atom_apply(lisp, PK_CALL_FUN, pk_stack_get(lisp, -2), pk_stack_get(lisp, -1));
+    pk_apply(lisp, PK_CALL_FUN, 1, 2);
 }
 
 void pk_fun_macro_apply(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_atom_apply(lisp, PK_CALL_MACRO, pk_stack_get(lisp, -2), pk_stack_get(lisp, -1));
+    pk_apply(lisp, PK_CALL_MACRO, 1, 2);
 }
 
 void pk_fun_funcall(void *user_closure, Pocket lisp) {
+    int top = pk_top(lisp);
     (void)user_closure;
-    pk_atom_apply(lisp, PK_CALL_FUN, pk_stack_get(lisp, -2), pk_stack_get(lisp, -1));
+    if (top < 2) {
+        pk_push_nil(lisp);
+        return;
+    }
+    pk_list(lisp, 2, top);
+    pk_apply(lisp, PK_CALL_FUN, 1, -1);
 }
 
 void pk_fun_eval(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_atom_eval(lisp, pk_stack_get(lisp, -1), PK_MODE_EXPRESSION);
+    pk_eval(lisp, 1, PK_MODE_EXPRESSION);
 }
 
 void pk_fun_evlist(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_atom_eval(lisp, pk_stack_get(lisp, -1), PK_MODE_EXPRLIST);
+    pk_eval(lisp, 1, PK_MODE_EXPRLIST);
 }
 
 void pk_fun_compile(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_stack_push(lisp, pk_atom_compile(lisp, PK_CALL_FUN, pk_stack_get(lisp, -1), PK_MODE_EXPRESSION));
+    pk_compile(lisp, PK_CALL_FUN, 1, PK_MODE_EXPRESSION);
 }
 
 void pk_fun_print(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_atom_print(lisp, pk_stack_get(lisp, -1));
+    pk_print(lisp, 1);
     pk_push_nil(lisp);
 }
 
 void pk_fun_puts(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_atom_print(lisp, pk_stack_get(lisp, -1));
+    pk_print(lisp, 1);
     fputc('\n', stdout);
     fflush(stdout);
     pk_push_nil(lisp);
@@ -230,52 +220,27 @@ void pk_fun_puts(void *user_closure, Pocket lisp) {
 
 void pk_fun_format(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_stack_push(lisp, (PKAtom *)pk_atom_format(lisp, pk_stack_get(lisp, -1)));
+    pk_format(lisp, 1);
 }
 
 void pk_fun_macroexpand1(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    (void)pk_macroexpand1_(lisp, -1);
+    pk_macroexpand1(lisp, 1);
 }
 
 void pk_fun_macroexpand(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    (void)pk_macroexpand_(lisp, -1);
+    pk_macroexpand(lisp, 1);
 }
 
 void pk_fun_fs_slurp(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, -1));
-    pk_stack_push(lisp, (PKAtom *)pk_fs_slurp(lisp, string));
+    pk_slurp(lisp, 1);
 }
 
 void pk_fun_fs_read_user_input(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_stack_push(lisp, pk_fs_read_user_input(lisp));
-}
-
-void pk_fun_funcatch(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_atom_assert_symbol(lisp, pk_stack_get(lisp, -2));
-    pk_fcall(lisp, PK_CALL_FUN, 0);
-}
-
-void pk_fun_throw(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_throw(lisp, -2, -1);
-}
-
-void pk_fun_error(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    PKWriter w = PK_WRITER_EMPTY;
-    pk_writer_cstr(lisp, &w, "error: ");
-    pk_writer_atom(lisp, &w, pk_stack_get(lisp, -1));
-    pk_errors(lisp, pk_writer_slice(&w));
-}
-
-void pk_fun_hexdump(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_stack_push(lisp, (PKAtom *)pk_atom_hexdump(lisp, pk_stack_get(lisp, -1)));
+    pk_read_user_input(lisp);
 }
 
 void pk_fload(Pocket lisp, PKStr name, pk_u8 nargs, PK_ARITY arity, PKFun fun) {
@@ -296,13 +261,13 @@ void pk_std_load_cfun(Pocket lisp) {
     PK_FLOAD_N(pk_str("%"), 2, pk_fun_mod);
     PK_FLOAD_N(pk_str("mod"), 2, pk_fun_mod);
 
-    PK_FLOAD_N(pk_str("<"), 2, pk_fun_lt);
-    PK_FLOAD_N(pk_str("<="), 2, pk_fun_lte);
-    PK_FLOAD_N(pk_str(">"), 2, pk_fun_gt);
-    PK_FLOAD_N(pk_str(">="), 2, pk_fun_gte);
+    PK_FLOAD_V(pk_str("<"), pk_fun_lt);
+    PK_FLOAD_V(pk_str("<="), pk_fun_lte);
+    PK_FLOAD_V(pk_str(">"), pk_fun_gt);
+    PK_FLOAD_V(pk_str(">="), pk_fun_gte);
 
-    PK_FLOAD_N(pk_str("="), 2, pk_fun_eq);
-    PK_FLOAD_N(pk_str("eq?"), 2, pk_fun_eq);
+    PK_FLOAD_V(pk_str("="), pk_fun_eq);
+    PK_FLOAD_V(pk_str("eq?"), pk_fun_eq);
 
     PK_FLOAD_N(pk_str("cons"), 2, pk_fun_cons);
     PK_FLOAD_V(pk_str("list"), pk_fun_list);

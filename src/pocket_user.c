@@ -58,6 +58,19 @@ void pk_push_cons(Pocket lisp, int car, int cdr) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_cons(lisp, acar, acdr));
 }
 
+void pk_list(Pocket lisp, int head, int tail) {
+    size_t a = pk_sp_index(lisp, head);
+    size_t b = pk_sp_index(lisp, tail);
+
+    if (a <= b) {
+        PKAtoms atoms = (PKAtoms) { .e = &lisp->stack.e[a], .length = (b - a) + 1 };
+        pk_stack_push(lisp, pk_atom_list(lisp, atoms));
+    } else {
+        PKAtoms atoms = (PKAtoms) { .e = &lisp->stack.e[b], .length = (a - b) + 1 };
+        pk_stack_push(lisp, pk_atom_list_rev(lisp, atoms));
+    }
+}
+
 void pk_push_cfun(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_cfun(lisp, user_closure, fun, PK_CALL_FUN, arity, args, options));
 }
@@ -133,7 +146,8 @@ void pk_let(Pocket lisp, PK_ENV env, int symbol, int value) {
 void pk_set(Pocket lisp, PK_ENV env, int symbol, int value) {
     PKAtom *asymbol = pk_stack_get(lisp, symbol);
     PKAtom *avalue = pk_stack_get(lisp, value);
-    pk_stack_push(lisp, pk_env_set(lisp, env, pk_atom_assert_symbol(lisp, asymbol), avalue));
+    (void)pk_env_set(lisp, env, pk_atom_assert_symbol(lisp, asymbol), avalue);
+    pk_stack_push(lisp, avalue);
 }
 
 void pk_get(Pocket lisp, PK_ENV env, int symbol) {
@@ -156,7 +170,9 @@ void pk_unbind(Pocket lisp, PK_ENV env, int symbol) {
     (void)pk_env_set(lisp, env, pk_atom_assert_symbol(lisp, asymbol), lisp->cache.undefined);
 }
 
-// void pk_env_list(Pocket lisp, PK_ENV env);
+void pk_env_list(Pocket lisp, PK_ENV env) {
+    pk_stack_push(lisp, pk_env_alist(lisp, env));
+}
 
 void pk_print(Pocket lisp, int atom) {
     pk_atom_print(lisp, pk_stack_get(lisp, atom));
@@ -170,10 +186,23 @@ void pk_format(Pocket lisp, int atom) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_format(lisp, pk_stack_get(lisp, atom)));
 }
 
+void pk_hexdump(Pocket lisp, int atom) {
+    pk_stack_push(lisp, (PKAtom *)pk_atom_hexdump(lisp, pk_stack_get(lisp, atom)));
+}
+
 void pk_read(Pocket lisp, int string, PK_MODE mode) {
     PKAtom *astring = pk_stack_get(lisp, string);
     PKAtom *result = pk_read_atom_from_string(lisp, pk_atom_assert_string(lisp, astring), mode);
     pk_stack_push(lisp, result);
+}
+
+void pk_slurp(Pocket lisp, int file_path) {
+    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, file_path));
+    pk_stack_push(lisp, (PKAtom *)pk_fs_slurp(lisp, string));
+}
+
+void pk_read_user_input(Pocket lisp) {
+    pk_stack_push(lisp, pk_fs_read_user_input(lisp));
 }
 
 void pk_eval(Pocket lisp, int expr, PK_MODE mode) {
