@@ -68,7 +68,7 @@
     `(funcatch ,symbol (lambda () ,@body)))
 
 (defmacro block (symbol :rest body)
-    `(funcatch ,symbol (lambda () ,@body)))
+    `(funcatch ',symbol (lambda () ,@body)))
 
 (defmacro break (symbol value)
-    `(throw ,symbol ,value))
+    `(throw ',symbol ,value))
