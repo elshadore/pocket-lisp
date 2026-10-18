@@ -4,16 +4,21 @@ int pk_top(Pocket lisp) {
     return (int)pk_frame_length(lisp);
 }
 
-void pk_set_top(Pocket lisp, int new_top) {
-    size_t frame_offset = lisp->current_frame.stack_offset;
-    size_t top = frame_offset + (size_t)new_top;
+void pk_set_top(Pocket lisp, int stack_pointer) {
+    int absolute = pk_sp_absolute(lisp, stack_pointer);
 
-    if ((new_top < 0) || (top > lisp->stack.count)) {
-        pk_error(lisp);
+    if (absolute <= 0) {
+        pk_errors(lisp, pk_str("stack underflow"));
         return;
     }
 
-    lisp->stack.count = top;
+    size_t count = lisp->current_frame.stack_offset + (size_t)absolute;
+
+    while (lisp->stack.count < count) {
+        pk_array_push(lisp, &lisp->stack, lisp->cache.nil, 128);
+    }
+
+    lisp->stack.count = count;
 }
 
 int pk_sp_absolute(Pocket lisp, int stack_pointer) {

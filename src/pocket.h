@@ -106,7 +106,7 @@ void pk_swap_pop2(Pocket lisp);
 void pk_swap_pop3(Pocket lisp);
 
 int pk_top(Pocket lisp);
-void pk_set_top(Pocket lisp, int new_top);
+void pk_set_top(Pocket lisp, int stack_pointer);
 int pk_sp_absolute(Pocket lisp, int stack_pointer);
 int pk_sp_relative(Pocket lisp, int stack_pointer);
 

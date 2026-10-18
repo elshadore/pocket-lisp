@@ -157,7 +157,7 @@ void pk_fcall(Pocket lisp, PK_CALL call, size_t args) {
 }
 
 void pk_pcall(Pocket lisp, PK_CALL call, size_t args) {
-    int top = pk_top(lisp);
-    pk_fcall(lisp, call, args);
-    pk_set_top(lisp, top - (int)args);
+    (void)call;
+    (void)args;
+    pk_errors(lisp, pk_str("pk_pcall is not the way this function should work"));
 }
