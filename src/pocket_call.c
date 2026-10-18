@@ -27,8 +27,8 @@ PKCallConv pk_callconv_(Pocket lisp, PK_FUNTY type, pk_u8 args, PKArity arity) {
                 return PK_CALLCONV_EMPTY;
             } else {
                 return (PKCallConv) {
-                    .args = args,
-                    .extra_nils = args - min,
+                    .args = arity.args,
+                    .extra_nils = arity.args - args,
                     .variadic_count = 0,
                 };
             }

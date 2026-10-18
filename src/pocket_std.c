@@ -95,6 +95,12 @@ void pk_fun_set_cdr(void *user_closure, Pocket lisp) {
         pk_get(lisp, env_, 1); \
     }
 
+#define PK_TEMPLATE_ENV_GET_RAW(fun_name_, env_) \
+    void fun_name_(void *user_closure, Pocket lisp) { \
+        (void)user_closure; \
+        pk_get_raw(lisp, env_, 1); \
+    }
+
 #define PK_TEMPLATE_ENV_BOUND(fun_name_, env_) \
     void fun_name_(void *user_closure, Pocket lisp) { \
         (void)user_closure; \
@@ -121,6 +127,10 @@ PK_TEMPLATE_ENV_SET(pk_fun_pset, PK_ENV_PROP)
 PK_TEMPLATE_ENV_GET(pk_fun_get, PK_ENV_VAR)
 PK_TEMPLATE_ENV_GET(pk_fun_fget, PK_ENV_FUN)
 PK_TEMPLATE_ENV_GET(pk_fun_pget, PK_ENV_PROP)
+
+PK_TEMPLATE_ENV_GET_RAW(pk_fun_get_raw, PK_ENV_VAR)
+PK_TEMPLATE_ENV_GET_RAW(pk_fun_fget_raw, PK_ENV_FUN)
+PK_TEMPLATE_ENV_GET_RAW(pk_fun_pget_raw, PK_ENV_PROP)
 
 PK_TEMPLATE_ENV_BOUND(pk_fun_bound, PK_ENV_VAR)
 PK_TEMPLATE_ENV_BOUND(pk_fun_fbound, PK_ENV_FUN)
@@ -278,6 +288,10 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("get"), .fun = pk_fun_get, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("fget"), .fun = pk_fun_fget, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("pget"), .fun = pk_fun_pget, .args = 1, .arity = PK_ARITY_NORMAL},
+        
+        {.symbol = pk_str("get-raw"), .fun = pk_fun_get_raw, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("fget-raw"), .fun = pk_fun_fget_raw, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("pget-raw"), .fun = pk_fun_pget_raw, .args = 1, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("bound?"), .fun = pk_fun_bound, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("fbound?"), .fun = pk_fun_fbound, .args = 1, .arity = PK_ARITY_NORMAL},

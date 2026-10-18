@@ -188,7 +188,7 @@ void pk_set(Pocket lisp, PK_ENV env, int symbol, int value) {
 
 void pk_get(Pocket lisp, PK_ENV env, int symbol) {
     PKAtom *asymbol = pk_stack_get(lisp, symbol);
-    pk_stack_push(lisp, pk_env_get(lisp, env, pk_atom_assert_symbol(lisp, asymbol)));
+    pk_stack_push(lisp, pk_env_get_strict(lisp, env, pk_atom_assert_symbol(lisp, asymbol)));
 }
 
 bool pk_is_bound(Pocket lisp, PK_ENV env, int symbol) {
