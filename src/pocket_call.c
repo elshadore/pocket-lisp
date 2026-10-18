@@ -90,10 +90,15 @@ PKCallConv pk_callconv(Pocket lisp, PKAtom *function, pk_u8 args) {
 }
 
 void pk_fcall(Pocket lisp, PK_CALL call, size_t args) {
+    if (args > UINT8_MAX) {
+        pk_errorf(lisp, "pk_fcall: %zu args exceeds the maximum of %u", args, UINT8_MAX);
+        return;
+    }
+
     PKAtoms slice = pk_stack_slice_down(lisp, args + 1);
-    
+
     PKAtom *function = slice.e[0];
-    
+
     if (pk_atom_is_symbol(function)) {
         PKAtomSymbol *asym = (PKAtomSymbol *)function;
         function = pk_env_get(lisp, PK_ENV_FUN, asym);
@@ -103,10 +108,7 @@ void pk_fcall(Pocket lisp, PK_CALL call, size_t args) {
             return;
         }
     }
-    if (args > UINT8_MAX) {
-        pk_errorf(lisp, "pk_fcall: %zu args exceeds the maximum of %u", args, UINT8_MAX);
-        return;
-    }
+
     PKCallConv cc = pk_callconv(lisp, function, args);
     
     for (size_t i = 0; i < cc.extra_nils; ++i) {

@@ -57,6 +57,8 @@ PKStr pk_ident_atomty(pk_u8 ty) {
         case PK_ATOMTY_TABLE: return pk_str("TABLE");
         case PK_ATOMTY_CFUN: return pk_str("CFUN");
         case PK_ATOMTY_LFUN: return pk_str("LFUN");
+        case PK_ATOMTY_CMACRO: return pk_str("CMACRO");
+        case PK_ATOMTY_LMACRO: return pk_str("LMACRO");
         case PK_ATOMTY_LOBJECT: return pk_str("LOBJECT");
         case PK_ATOMTY_COBJECT: return pk_str("COBJECT");
         default: return pk_str("UNKNOWN");
@@ -84,14 +86,18 @@ PKStr pk_ident_env(PK_ENV env) {
 PKStr pk_ident_type(PK_TYPE ty) {
     switch (ty) {
         case PK_TYPE_UNKNOWN: return pk_str("unknown");
+        case PK_TYPE_TRUE: return pk_str("true");
         case PK_TYPE_THROW: return pk_str("throw");
+        case PK_TYPE_ERROR: return pk_str("error");
         case PK_TYPE_NUMBER: return pk_str("number");
+        case PK_TYPE_NIL: return pk_str("nil");
         case PK_TYPE_INTEGER: return pk_str("integer");
         case PK_TYPE_FLOAT: return pk_str("float");
         case PK_TYPE_STRING: return pk_str("string");
         case PK_TYPE_SYMBOL: return pk_str("symbol");
         case PK_TYPE_KEYWORD: return pk_str("keyword");
         case PK_TYPE_CONS: return pk_str("cons");
+        case PK_TYPE_LIST: return pk_str("list");
         case PK_TYPE_SEQ: return pk_str("seq");
         case PK_TYPE_FUNCTION: return pk_str("function");
         case PK_TYPE_CFUN: return pk_str("cfun");
@@ -109,8 +115,8 @@ PKStr pk_ident_type(PK_TYPE ty) {
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
     switch (op) {
         case PK_OP_LOAD: return PK_OPCODE_TY_LOAD;
-        case PK_OP_LOAD_NIL: return PK_OPCODE_TY_LOAD;
-        case PK_OP_LOAD_TRUE: return PK_OPCODE_TY_LOAD;
+        case PK_OP_LOAD_NIL: return PK_OPCODE_TY_NORMAL;
+        case PK_OP_LOAD_TRUE: return PK_OPCODE_TY_NORMAL;
         case PK_OP_GET_VAR: return PK_OPCODE_TY_LOAD;
         case PK_OP_GET_FUN: return PK_OPCODE_TY_LOAD;
         case PK_OP_GET_PROP: return PK_OPCODE_TY_LOAD;

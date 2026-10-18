@@ -117,7 +117,7 @@ PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom) {
             return lisp->cache.empty_string;
         }
     }
-    PKAtomLFun *lfun = pk_atom_assert_lfun(lisp, atom);
+    PKAtomLFun *lfun = pk_atom_assert_lfun(lisp, a);
     return pk_lfun_hexdump(lisp, lfun);
 }
 

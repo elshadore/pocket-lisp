@@ -2,8 +2,6 @@
 
 bool pk_macroexpand1_(Pocket lisp, int atom);
 
-bool pk_macroexpand_list(Pocket lisp, int list);
-
 bool pk_macroexpand_list(Pocket lisp, int list) {
     size_t abs = pk_sp_index(lisp, list);
 
@@ -32,6 +30,108 @@ bool pk_macroexpand_list(Pocket lisp, int list) {
     return expanded;
 }
 
+bool pk_macroexpand_is_literal(Pocket lisp, PKAtom *head) {
+    return (head == (PKAtom *)lisp->cache.quote) ||
+           (head == (PKAtom *)lisp->cache.quasiquote);
+}
+
+bool pk_macroexpand_is_let(Pocket lisp, PKAtom *head) {
+    return (head == (PKAtom *)lisp->cache.let) ||
+           (head == (PKAtom *)lisp->cache.let_star) ||
+           (head == (PKAtom *)lisp->cache.flet) ||
+           (head == (PKAtom *)lisp->cache.flet_star);
+}
+
+bool pk_macroexpand_is_lambda(Pocket lisp, PKAtom *head) {
+    return (head == (PKAtom *)lisp->cache.lambda) ||
+           (head == (PKAtom *)lisp->cache.macro);
+}
+
+bool pk_macroexpand_special_(Pocket lisp, size_t abs, PKAtom *head) {
+    PKAtom *form = lisp->stack.e[abs];
+    PKAtomCons *rest = pk_atom_assert_cons(lisp, form->cons.cdr);
+
+    PKAtom *data = rest->car;
+    PKAtom *body = rest->cdr;
+
+    bool is_lambda = pk_macroexpand_is_lambda(lisp, head);
+
+    bool expanded = false;
+    size_t count = 0;
+
+    pk_stack_push(lisp, head);
+    count += 1;
+
+    if (is_lambda) {
+        pk_stack_push(lisp, data);
+        count += 1;
+    } else {
+        PKAtom *iter = (PKAtom *)pk_atom_assert_cons(lisp, data);
+
+        size_t pairs = 0;
+        while (pk_atom_is_cons(iter)) {
+            PKAtom *binding = iter->cons.car;
+
+            if (pk_atom_is_cons(binding)) {
+                PKAtomCons *b = (PKAtomCons *)binding;
+
+                pk_stack_push(lisp, b->car);
+
+                if (pk_atom_is_cons(b->cdr)) {
+                    pk_stack_push(lisp, b->cdr->cons.car);
+                    expanded |= pk_macroexpand1_(lisp, -1);
+                } else {
+                    pk_stack_push(lisp, lisp->cache.nil);
+                }
+            } else {
+                pk_stack_push(lisp, binding);
+                pk_stack_push(lisp, lisp->cache.nil);
+            }
+
+            pk_stack_op_list(lisp, 2);
+
+            pairs += 1;
+            iter = iter->cons.cdr;
+        }
+
+        if (pairs == 0) {
+            pk_stack_push(lisp, lisp->cache.nil);
+        } else {
+            pk_stack_op_list(lisp, pairs);
+        }
+
+        count += 1;
+    }
+
+    size_t forms = 0;
+    while (pk_atom_is_cons(body)) {
+        pk_stack_push(lisp, body->cons.car);
+        expanded |= pk_macroexpand1_(lisp, -1);
+        forms += 1;
+        body = body->cons.cdr;
+    }
+
+    if (!pk_atom_is_nil(body)) {
+        pk_stack_push(lisp, body);
+        expanded |= pk_macroexpand1_(lisp, -1);
+        forms += 1;
+    }
+
+    if (forms == 0) {
+        pk_stack_push(lisp, lisp->cache.nil);
+        forms = 1;
+    }
+
+    count += forms;
+
+    pk_stack_op_list(lisp, count);
+
+    lisp->stack.e[abs] = pk_stack_head(lisp);
+    pk_pop(lisp);
+
+    return expanded;
+}
+
 bool pk_macroexpand1_(Pocket lisp, int atom) {
     size_t abs = pk_sp_index(lisp, atom);
 
@@ -43,6 +143,14 @@ bool pk_macroexpand1_(Pocket lisp, int atom) {
     PKAtom *head = a->cons.car;
 
     if (pk_atom_is_symbol(head)) {
+        if (pk_macroexpand_is_literal(lisp, head)) {
+            return false;
+        }
+
+        if (pk_macroexpand_is_let(lisp, head) || pk_macroexpand_is_lambda(lisp, head)) {
+            return pk_macroexpand_special_(lisp, abs, head);
+        }
+
         PKAtomSymbol *asymbol = (PKAtomSymbol *)head;
         PKAtom *get = pk_env_get(lisp, PK_ENV_FUN, asymbol);
         if (pk_atom_is_macro(get)) {

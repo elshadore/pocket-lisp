@@ -81,6 +81,7 @@ void pk_slotmap_insert(Pocket lisp, PKSlotmap *map, PKAtom *symbol) {
         .index = map->count,
         .state = PK_SLOTMAP_SLOT_OCCUPIED,
     };
+    map->count += 1;
 }
 
 void pk_slotmap_deinit(Pocket lisp, PKSlotmap *map) {

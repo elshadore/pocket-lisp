@@ -60,6 +60,7 @@ void pk_gc_mark(Pocket lisp, PKAtom *atom) {
             pk_gc_mark(lisp, (PKAtom *)symbol->fun);
             pk_gc_mark(lisp, (PKAtom *)symbol->prop);
             pk_gc_mark_slotmap(lisp, &symbol->slots);
+            pk_gc_mark_hashmap(lisp, &symbol->methods);
             break;
         }
         case PK_ATOMTY_LFUN: {
@@ -71,7 +72,12 @@ void pk_gc_mark(Pocket lisp, PKAtom *atom) {
             break;
         }
         case PK_ATOMTY_LOBJECT: {
+            pk_gc_mark(lisp, atom->lobject.type);
             pk_gc_mark_atoms(lisp, atom->lobject.slots);
+            break;
+        }
+        case PK_ATOMTY_COBJECT: {
+            pk_gc_mark(lisp, atom->cobject.type);
             break;
         }
         default: break;

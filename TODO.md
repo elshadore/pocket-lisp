@@ -20,11 +20,6 @@ The todo list for POCKET LISP
   - [ ] pk_protect
   
 ## Notes
-- [ ] Reimplement Error Messages
-  This can be a broader thing of having cfmt for strings, symbols, ect..
-  - `pk_error` - int message
-  - `pk_errors` - PKStr message
-  - `pk_errorf` - c format
 - [ ] Add Garbage Collection
 - [ ] Macroexpand has removed the code for checking lets
 - [ ] underscored internal functions should be `pk_atom_*` instead

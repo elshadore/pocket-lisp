@@ -24,21 +24,23 @@ void pk_debug_stackdump(Pocket lisp, const char *tag) {
 
     pk_writer_newline(lisp, &w);
 
-    pk_debug_stackdump_stack(lisp, &w, 0, lisp->stack.count - 1, pk_stack_slice(lisp));
-    size_t acc = lisp->current_frame.stack_offset;
-    
+    pk_debug_stackdump_stack(lisp, &w, 0, lisp->stack.count, pk_stack_slice(lisp));
+
     for (size_t i = 0; i < lisp->frames.count; ++i) {
         size_t index = lisp->frames.count - i - 1;
-        
+
         PKFrame *frame = &lisp->frames.e[index];
-        acc += frame->stack_offset;
-        
+
+        if (frame->stack_offset > lisp->stack.count) {
+            continue;
+        }
+
         PKAtoms stack = (PKAtoms) {
             .e = lisp->stack.e + frame->stack_offset,
-            .length = lisp->stack.count - acc,
+            .length = lisp->stack.count - frame->stack_offset,
         };
-        
-        pk_debug_stackdump_stack(lisp, &w, i + 1, acc + 1, stack);
+
+        pk_debug_stackdump_stack(lisp, &w, i + 1, lisp->stack.count, stack);
     }
     
     pk_writer_cstr(lisp, &w, "--DEBUG-DUMP-STACK-END--");

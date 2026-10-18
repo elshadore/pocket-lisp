@@ -41,20 +41,19 @@ int pk_sp_relative(Pocket lisp, int stack_pointer) {
 
 size_t pk_sp_index(Pocket lisp, int stack_pointer) {
     int top = pk_top(lisp);
-    size_t absolute = 0;
     if (top <= 0) {
         pk_errorf(lisp, "pk_sp_index: stack is empty, cannot resolve stack pointer %d", stack_pointer);
         return 0;
     }
 
-    absolute = (size_t)pk_sp_absolute(lisp, stack_pointer);
+    int absolute = pk_sp_absolute(lisp, stack_pointer);
     if (absolute <= 0) {
-        pk_errorf(lisp, "pk_sp_index: stack pointer %d resolves to base of frame (top is %d)", stack_pointer, top);
+        pk_errorf(lisp, "pk_sp_index: stack pointer %d resolves outside the frame (top is %d)", stack_pointer, top);
         return 0;
     }
 
-    size_t index = absolute + lisp->current_frame.stack_offset - 1;
-    if (index > lisp->stack.count) {
+    size_t index = (size_t)absolute + lisp->current_frame.stack_offset - 1;
+    if (index >= lisp->stack.count) {
         pk_errorf(lisp, "pk_sp_index: stack pointer %d resolves to index %zu, past stack count %zu",
             stack_pointer, index, lisp->stack.count);
         return 0;
@@ -171,6 +170,9 @@ void pk_stack_set_unchecked(Pocket lisp, size_t count) {
 
 PKAtoms pk_stack_slice(Pocket lisp) {
     size_t offset = lisp->current_frame.stack_offset;
+    if (offset > lisp->stack.count) {
+        return PK_ATOMS_EMPTY;
+    }
     return (PKAtoms) {
         .e = lisp->stack.e + offset,
         .length = lisp->stack.count - offset,
@@ -193,7 +195,7 @@ PKAtoms pk_stack_slice_down(Pocket lisp, size_t depth) {
 }
 
 void pk_stack_op_dig(Pocket lisp, size_t index) {
-    PKAtoms slice = pk_stack_slice_down(lisp, index);
+    PKAtoms slice = pk_stack_slice_down(lisp, index + 1);
     return pk_stack_push(lisp, slice.e[0]);
 }
 
