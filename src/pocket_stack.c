@@ -43,19 +43,20 @@ size_t pk_sp_index(Pocket lisp, int stack_pointer) {
     int top = pk_top(lisp);
     size_t absolute = 0;
     if (top <= 0) {
-        pk_error(lisp);
+        pk_errorf(lisp, "pk_sp_index: stack is empty, cannot resolve stack pointer %d", stack_pointer);
         return 0;
     }
 
     absolute = (size_t)pk_sp_absolute(lisp, stack_pointer);
     if (absolute <= 0) {
-        pk_error(lisp);
+        pk_errorf(lisp, "pk_sp_index: stack pointer %d resolves to base of frame (top is %d)", stack_pointer, top);
         return 0;
     }
 
     size_t index = absolute + lisp->current_frame.stack_offset - 1;
     if (index > lisp->stack.count) {
-        pk_error(lisp);
+        pk_errorf(lisp, "pk_sp_index: stack pointer %d resolves to index %zu, past stack count %zu",
+            stack_pointer, index, lisp->stack.count);
         return 0;
     }
 
@@ -143,7 +144,7 @@ PKAtom *pk_stack_head(Pocket lisp) {
 
 PKAtom *pk_stack_head_strict(Pocket lisp) {
     if (pk_frame_length(lisp) == 0) {
-        pk_error(lisp);
+        pk_errorf(lisp, "pk_stack_head_strict: stack underflow, frame holds %zu values", pk_frame_length(lisp));
         return lisp->cache.nil;
     } else {
         return lisp->stack.e[lisp->stack.count - 1];
@@ -152,7 +153,7 @@ PKAtom *pk_stack_head_strict(Pocket lisp) {
 
 PKAtom *pk_stack_pop(Pocket lisp) {
     if (pk_frame_length(lisp) == 0) {
-        pk_error(lisp);
+        pk_errorf(lisp, "pk_stack_pop: stack underflow, frame holds %zu values", pk_frame_length(lisp));
         return lisp->cache.nil;
     }
     PKAtom *result = lisp->stack.e[lisp->stack.count - 1];
@@ -180,7 +181,7 @@ PKAtoms pk_stack_slice_down(Pocket lisp, size_t depth) {
     PKAtoms slice = pk_stack_slice(lisp);
     
     if (depth > slice.length) {
-        pk_error(lisp);
+        pk_errorf(lisp, "pk_stack_slice_down: wanted %zu values, frame only holds %zu", depth, slice.length);
         return PK_ATOMS_EMPTY;
     }
     

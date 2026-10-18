@@ -74,7 +74,8 @@ PKAtomString *pk_atom_assert_string(Pocket lisp, PKAtom *atom) {
     if (pk_atom_is_string(atom)) {
         return (PKAtomString *)atom;
     } else {
-        pk_error(lisp);
+        PKStr ty = pk_ident_atomty(atom->header.type);
+        pk_errorf(lisp, "pk_atom_assert_string: expected a string, got %.*s", (int)ty.length, ty.c);
         return lisp->cache.empty_string;
     }
 }

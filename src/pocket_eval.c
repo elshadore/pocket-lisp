@@ -7,7 +7,7 @@ void pk_atom_apply(Pocket lisp, PK_CALL call, PKAtom *fun, PKAtom *args) {
     PKAtom *iter = args;
     while (pk_atom_is_cons(iter)) {
         if (count == UINT8_MAX) {
-            pk_error(lisp);
+            pk_errorf(lisp, "pk_atom_apply: more than %u arguments", UINT8_MAX);
             return;
         }
         pk_stack_push(lisp, iter->cons.car);

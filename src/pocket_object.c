@@ -86,7 +86,8 @@ PKAtom *pk_slot_get_(Pocket lisp, PKAtom *object, PKAtom *slot) {
 
 void *pk_cobject_data_(Pocket lisp, PKAtom *atom) {
     if (atom->header.type != PK_ATOMTY_COBJECT) {
-        pk_error(lisp);
+        PKStr ty = pk_ident_atomty(atom->header.type);
+        pk_errorf(lisp, "pk_cobject_data_: expected a cobject, got %.*s", (int)ty.length, ty.c);
         return NULL;
     } else {
         return atom->cobject.data;
@@ -95,7 +96,8 @@ void *pk_cobject_data_(Pocket lisp, PKAtom *atom) {
 
 size_t pk_cobject_size_(Pocket lisp, PKAtom *atom) {
     if (atom->header.type != PK_ATOMTY_COBJECT) {
-        pk_error(lisp);
+        PKStr ty = pk_ident_atomty(atom->header.type);
+        pk_errorf(lisp, "pk_cobject_size_: expected a cobject, got %.*s", (int)ty.length, ty.c);
         return 0;
     }
     return pk_atom_assert_symbol(lisp, atom->cobject.type)->owned_memory;

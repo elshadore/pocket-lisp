@@ -3,11 +3,11 @@
 PKAtomCFun *pk_atom_cfun(Pocket lisp, void *user_closure, PKFun fun, PK_CALL call, PK_ARITY arity, pk_u8 args, pk_u8 options) {
     if (arity == PK_ARITY_OPTIONAL) {
         if (options == 0) {
-            pk_error(lisp);
+            pk_errorf(lisp, "pk_atom_cfun: optional arity requires at least 1 optional, got 0");
             return NULL;
         }
         if (options > args) {
-            pk_error(lisp);
+            pk_errorf(lisp, "pk_atom_cfun: %u options exceeds the %u declared args", options, args);
             return NULL;
         }
     }
@@ -59,7 +59,8 @@ PKAtomString *pk_lfun_hexdump_(Pocket lisp, PKWriter *w, PKAtomLFun *lfun) {
             case PK_OPCODE_TY_LOAD: {
                 i++;
                 if (i >= lfun->bc.length) {
-                    pk_error(lisp);
+                    pk_errorf(lisp, "pk_lfun_hexdump_: bytecode truncated, operand missing at offset %zu of %zu",
+                        i, lfun->bc.length);
                     return lisp->cache.empty_string;
                 }
                 pk_u8 data = lfun->bc.e[i];
@@ -71,7 +72,8 @@ PKAtomString *pk_lfun_hexdump_(Pocket lisp, PKWriter *w, PKAtomLFun *lfun) {
             case PK_OPCODE_TY_LIT: {
                 i++;
                 if (i >= lfun->bc.length) {
-                    pk_error(lisp);
+                    pk_errorf(lisp, "pk_lfun_hexdump_: bytecode truncated, operand missing at offset %zu of %zu",
+                        i, lfun->bc.length);
                     return lisp->cache.empty_string;
                 }
                 pk_u8 data = lfun->bc.e[i];
@@ -110,7 +112,8 @@ PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom) {
     if (pk_atom_is_symbol(a)) {
         a = pk_env_get(lisp, PK_ENV_FUN, (PKAtomSymbol *)a);
         if (pk_atom_is_undefined(a)) {
-            pk_error(lisp);
+            PKStr name = ((PKAtomSymbol *)atom)->name->str;
+            pk_errorf(lisp, "pk_atom_hexdump: undefined function %.*s", (int)name.length, name.c);
             return lisp->cache.empty_string;
         }
     }
@@ -132,14 +135,16 @@ bool pk_atom_is_function(PKAtom *atom) {
 
 PKAtomLFun *pk_atom_assert_lfun(Pocket lisp, PKAtom *atom) {
     if (!pk_atom_is_lfun(atom)) {
-        pk_error(lisp);
+        PKStr ty = pk_ident_atomty(atom->header.type);
+        pk_errorf(lisp, "pk_atom_assert_lfun: expected a lfun, got %.*s", (int)ty.length, ty.c);
     }
     return (PKAtomLFun *)atom;
 }
 
 PKAtomCFun *pk_atom_assert_cfun(Pocket lisp, PKAtom *atom) {
     if (!pk_atom_is_cfun(atom)) {
-        pk_error(lisp);
+        PKStr ty = pk_ident_atomty(atom->header.type);
+        pk_errorf(lisp, "pk_atom_assert_cfun: expected a cfun, got %.*s", (int)ty.length, ty.c);
     }
     return (PKAtomCFun *)atom;
 }

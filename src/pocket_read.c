@@ -10,7 +10,7 @@ void pk_reader_error_(Pocket lisp, PKReader *r, PKWriter *w, PKStr error_message
     pk_writer_fmt(
         lisp,
         w,
-        "READER-ERROR:\n  curr: [%zu / %zu]\n  bol = %zu\n  line = %zu\n  char = %c\n  error:",
+        "reader error:\n  curr: [%zu / %zu]\n  bol = %zu\n  line = %zu\n  char = %c\n  error:",
         r->curr,
         r->str.length,
         r->bol + 1,
@@ -20,10 +20,7 @@ void pk_reader_error_(Pocket lisp, PKReader *r, PKWriter *w, PKStr error_message
 
     pk_writer_string(lisp, w, error_message);
     pk_writer_newline(lisp, w);
-    PKStr temp = pk_writer_slice(w);
-    
-    fprintf(stderr, "TEMPORARY READER ERROR: %.*s\n", (int)temp.length, temp.c);
-    pk_error(lisp);
+    pk_errors(lisp, pk_writer_slice(w));
 }
 
 void pk_reader_error(Pocket lisp, PKReader *r, PKStr error_message) {

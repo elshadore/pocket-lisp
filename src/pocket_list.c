@@ -15,7 +15,8 @@ PKAtom *pk_atom_car(Pocket lisp, PKAtom *atom) {
         case PK_ATOMTY_NIL: return lisp->cache.nil;
         case PK_ATOMTY_CONS: return atom->cons.car;
         default:{
-            pk_error(lisp);
+            PKStr ty = pk_ident_atomty(atom->header.type);
+            pk_errorf(lisp, "pk_atom_car: expected a cons or nil, got %.*s", (int)ty.length, ty.c);
             return lisp->cache.nil;
         }
     }
@@ -26,7 +27,8 @@ PKAtom *pk_atom_cdr(Pocket lisp, PKAtom *atom) {
         case PK_ATOMTY_NIL: return lisp->cache.nil;
         case PK_ATOMTY_CONS: return atom->cons.cdr;
         default:{
-            pk_error(lisp);
+            PKStr ty = pk_ident_atomty(atom->header.type);
+            pk_errorf(lisp, "pk_atom_cdr: expected a cons or nil, got %.*s", (int)ty.length, ty.c);
             return lisp->cache.nil;
         }
     }
@@ -152,7 +154,8 @@ PKAtom *pk_atom_list_flatten(Pocket lisp, PKAtoms lists) {
                 break;
             }
             default: {
-                pk_error(lisp);
+                PKStr ty = pk_ident_atomty(atom->header.type);
+                pk_errorf(lisp, "pk_atom_list_flatten: expected a list, got %.*s", (int)ty.length, ty.c);
                 break;
             }
         }
@@ -172,7 +175,8 @@ PKAtom *pk_atom_assert_nil(Pocket lisp, PKAtom *atom) {
     if (pk_atom_is_nil(atom)) {
         return atom;
     } else {
-        pk_error(lisp);
+        PKStr ty = pk_ident_atomty(atom->header.type);
+        pk_errorf(lisp, "pk_atom_assert_nil: expected nil, got %.*s", (int)ty.length, ty.c);
         return atom;
     }
 }
@@ -181,7 +185,8 @@ PKAtomCons *pk_atom_assert_cons(Pocket lisp, PKAtom *atom) {
     if (pk_atom_is_cons(atom)) {
         return (PKAtomCons *)atom;
     } else {
-        pk_error(lisp);
+        PKStr ty = pk_ident_atomty(atom->header.type);
+        pk_errorf(lisp, "pk_atom_assert_cons: expected a cons, got %.*s", (int)ty.length, ty.c);
         return NULL;
     }
 }

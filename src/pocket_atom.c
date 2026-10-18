@@ -106,7 +106,8 @@ PKAtom *pk_atom_reverse(Pocket lisp, PKAtom *atom) {
         }
         case PK_ATOMTY_NIL: return lisp->cache.nil;
         default: {
-            pk_error(lisp);
+            PKStr ty = pk_ident_atomty(atom->header.type);
+            pk_errorf(lisp, "pk_atom_reverse: expected a string or cons, got %.*s", (int)ty.length, ty.c);
             return lisp->cache.nil;
         }
     }

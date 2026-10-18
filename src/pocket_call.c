@@ -4,7 +4,8 @@ PKCallConv pk_callconv_(Pocket lisp, PK_FUNTY type, pk_u8 args, PKArity arity) {
     switch (arity.type) {
         case PK_INT_ARITY_NORMAL: {
             if (args != arity.args) {
-                pk_error(lisp);
+                pk_errorf(lisp, "pk_callconv_: %s function expects exactly %u args, got %u",
+                    type == PK_FUNTY_LISP ? "lisp" : "c", arity.args, args);
                 return PK_CALLCONV_EMPTY;
             } else {
                 return (PKCallConv) {
@@ -17,10 +18,12 @@ PKCallConv pk_callconv_(Pocket lisp, PK_FUNTY type, pk_u8 args, PKArity arity) {
         case PK_INT_ARITY_OPTIONAL: {
             pk_u8 min = arity.args - arity.options;
             if (args < min) {
-                pk_error(lisp);
+                pk_errorf(lisp, "pk_callconv_: %s function expects at least %u args (of %u, %u optional), got %u",
+                    type == PK_FUNTY_LISP ? "lisp" : "c", min, arity.args, arity.options, args);
                 return PK_CALLCONV_EMPTY;
             } else if (args > arity.args) {
-                pk_error(lisp);
+                pk_errorf(lisp, "pk_callconv_: %s function expects at most %u args (of %u, %u optional), got %u",
+                    type == PK_FUNTY_LISP ? "lisp" : "c", arity.args, arity.args, arity.options, args);
                 return PK_CALLCONV_EMPTY;
             } else {
                 return (PKCallConv) {
@@ -60,12 +63,13 @@ PKCallConv pk_callconv_(Pocket lisp, PK_FUNTY type, pk_u8 args, PKArity arity) {
                     };
                 }
             } else {
-                pk_error(lisp);
+                pk_errorf(lisp, "pk_callconv_: %s function expects at least %u args, got %u",
+                    type == PK_FUNTY_LISP ? "lisp" : "c", arity.args, args);
                 return PK_CALLCONV_EMPTY;
             }
         }
         default: {
-            pk_error(lisp);
+            pk_errorf(lisp, "pk_callconv_: unknown arity type %u", arity.type);
             return PK_CALLCONV_EMPTY;
         }
     }
@@ -78,7 +82,8 @@ PKCallConv pk_callconv(Pocket lisp, PKAtom *function, pk_u8 args) {
         case PK_ATOMTY_CMACRO: return pk_callconv_(lisp, PK_FUNTY_C, args, function->cmacro.arity);
         case PK_ATOMTY_LMACRO: return pk_callconv_(lisp, PK_FUNTY_LISP, args, function->lmacro.arity);
         default: {
-            pk_error(lisp);
+            PKStr ty = pk_ident_atomty(function->header.type);
+            pk_errorf(lisp, "pk_callconv: expected a function, got %.*s", (int)ty.length, ty.c);
             return PK_CALLCONV_EMPTY;
         }
     }
@@ -93,12 +98,13 @@ void pk_fcall(Pocket lisp, PK_CALL call, size_t args) {
         PKAtomSymbol *asym = (PKAtomSymbol *)function;
         function = pk_env_get(lisp, PK_ENV_FUN, asym);
         if (pk_atom_is_undefined(function)) {
-            pk_error(lisp);
+            PKStr name = asym->name->str;
+            pk_errorf(lisp, "pk_fcall: undefined function %.*s", (int)name.length, name.c);
             return;
         }
     }
     if (args > UINT8_MAX) {
-        pk_error(lisp);
+        pk_errorf(lisp, "pk_fcall: %zu args exceeds the maximum of %u", args, UINT8_MAX);
         return;
     }
     PKCallConv cc = pk_callconv(lisp, function, args);
@@ -124,7 +130,8 @@ void pk_fcall(Pocket lisp, PK_CALL call, size_t args) {
                     break;
                 }
                 default: {
-                    pk_error(lisp);
+                    PKStr ty = pk_ident_atomty(function->header.type);
+                    pk_errorf(lisp, "pk_fcall: expected a cfun or lfun, got %.*s", (int)ty.length, ty.c);
                     break;
                 }
             }
@@ -141,14 +148,15 @@ void pk_fcall(Pocket lisp, PK_CALL call, size_t args) {
                     break;
                 }
                 default: {
-                    pk_error(lisp);
+                    PKStr ty = pk_ident_atomty(function->header.type);
+                    pk_errorf(lisp, "pk_fcall: expected a cmacro or lmacro, got %.*s", (int)ty.length, ty.c);
                     break;
                 }
             }
             break;
         }
         default: {
-            pk_error(lisp);
+            pk_errorf(lisp, "pk_fcall: unknown call mode %d", call);
             break;
         }
     }

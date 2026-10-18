@@ -57,7 +57,8 @@ void pk_slotmap_rehash(Pocket lisp, PKSlotmap *map, size_t new_capacity) {
 
 void pk_slotmap_insert(Pocket lisp, PKSlotmap *map, PKAtom *symbol) {
     if (pk_slotmap_get(lisp, map, symbol) != NULL) {
-        pk_error(lisp);
+        PKStr name = ((PKAtomSymbol *)symbol)->name->str;
+        pk_errorf(lisp, "pk_slotmap_insert: slot key %.*s is already defined", (int)name.length, name.c);
         return;
     }
 
