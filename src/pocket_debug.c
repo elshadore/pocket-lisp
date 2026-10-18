@@ -140,7 +140,9 @@ void pk_debug_leakcheck(Pocket lisp, const char *tag) {
                     break;
                 }
                 case PK_ATOMTY_CONS: {
-                    pk_writer_fmt(lisp, &w, "car ty=%u cdr ty=%u", atom->cons.car->header.type, atom->cons.cdr->header.type);
+                    PKStr carty = pk_ident_atomty(atom->cons.car->header.type);
+                    PKStr cdrty = pk_ident_atomty(atom->cons.cdr->header.type);
+                    pk_writer_fmt(lisp, &w, "[car] => %.*s, [cdr] => %.*s", (int)carty.length, carty.c, (int)cdrty.length, cdrty.c);
                     break;
                 }
                 default: break;

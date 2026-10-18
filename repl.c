@@ -25,7 +25,6 @@ void run_repl(void *user_closure, Pocket lisp) {
 
     pk_push_symbol(lisp, pk_str("args"));
     pk_set(lisp, PK_ENV_VAR, -1, -2);
-    pk_debug_stackdump(lisp, "stack");
     pk_popn(lisp, repl->argc + 3);
 
     pk_push_string(lisp, pk_str(REPL_CODE));
