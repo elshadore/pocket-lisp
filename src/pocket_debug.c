@@ -1,5 +1,17 @@
 #include "pocket_internals.h"
 
+void pk_debug_stackdump_stack(Pocket lisp, PKWriter *w, size_t index, size_t start, PKAtoms stack) {
+    pk_writer_fmt(lisp, w, "[%zu] => ", index);
+    pk_writer_newline(lisp, w);
+
+    for (size_t i = 0; i < stack.length; ++i) {
+        size_t index = stack.length - i - 1;
+        pk_writer_fmt(lisp, w, "    [%zu][%d/%d] => ", start - i, -((int)i + 1), ((int)i + 1));
+        pk_writer_atom(lisp, w, stack.e[index]);
+        pk_writer_newline(lisp, w);
+    }
+}
+
 void pk_debug_stackdump(Pocket lisp, const char *tag) {
     PKWriter w = PK_WRITER_EMPTY;
 
@@ -12,17 +24,21 @@ void pk_debug_stackdump(Pocket lisp, const char *tag) {
 
     pk_writer_newline(lisp, &w);
 
-    pk_writer_cstr(lisp, &w, "STACK: ");
-    pk_writer_fmt(lisp, &w, "%zu", lisp->current_frame.stack_offset);
-    pk_writer_newline(lisp, &w);
-
-    for (size_t i = 0; i < lisp->stack.count; ++i) {
-        size_t index = lisp->stack.count - i - 1;
-        pk_writer_cstr(lisp, &w, "    [");
-        pk_writer_fmt(lisp, &w, "%d/%d", -((int)i + 1), ((int)i + 1));
-        pk_writer_cstr(lisp, &w, "] => ");
-        pk_writer_atom(lisp, &w, lisp->stack.e[index]);
-        pk_writer_newline(lisp, &w);
+    pk_debug_stackdump_stack(lisp, &w, 0, lisp->stack.count - 1, pk_stack_slice(lisp));
+    size_t acc = lisp->current_frame.stack_offset;
+    
+    for (size_t i = 0; i < lisp->frames.count; ++i) {
+        size_t index = lisp->frames.count - i - 1;
+        
+        PKFrame *frame = &lisp->frames.e[index];
+        acc += frame->stack_offset;
+        
+        PKAtoms stack = (PKAtoms) {
+            .e = lisp->stack.e + frame->stack_offset,
+            .length = lisp->stack.count - acc,
+        };
+        
+        pk_debug_stackdump_stack(lisp, &w, i + 1, acc + 1, stack);
     }
     
     pk_writer_cstr(lisp, &w, "--DEBUG-DUMP-STACK-END--");
