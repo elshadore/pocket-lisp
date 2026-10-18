@@ -20,7 +20,6 @@ The todo list for POCKET LISP
   - [ ] pk_protect
   
 ## Notes
-- [ ] Block does not look right
 - [ ] Add Garbage Collection
 - [ ] Macroexpand has removed the code for checking lets
 - [ ] underscored internal functions should be `pk_atom_*` instead

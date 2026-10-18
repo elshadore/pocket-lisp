@@ -76,7 +76,7 @@ void pk_vm_op_get(PKVM *vm, PK_ENV env) {
     pk_vm_inc(vm);
 
     PKAtomSymbol *symbol = pk_atom_assert_symbol(lisp, pk_vm_get_atom(vm, pk_vat(vm)));
-    pk_stack_push(lisp, pk_env_get(lisp, env, symbol));
+    pk_stack_push(lisp, pk_env_get_strict(lisp, env, symbol));
 
     pk_vm_inc(vm);
 }

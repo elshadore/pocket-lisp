@@ -17,6 +17,16 @@ PKAtom *pk_env_get(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol) {
     }
 }
 
+PKAtom *pk_env_get_strict(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol) {
+    PKAtom *result = pk_env_get(lisp, env, symbol);
+    if (pk_atom_is_undefined(result)) {
+        PKStr name = symbol->name->str;
+        pk_errorf(lisp, "symbol: %.*s, is undefined\n", (int)name.length, name.c);
+        return lisp->cache.nil;
+    }
+    return result;
+}
+    
 PKAtom *pk_env_set(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol, PKAtom *value) {
     PKAtom *temp = lisp->cache.undefined;
 
