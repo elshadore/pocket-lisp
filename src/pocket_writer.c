@@ -71,20 +71,26 @@ void pk_writer_string_escaped(Pocket lisp, PKWriter *w, PKStr string) {
     }
 }
 
-PK_PRINTF_FMT(3, 4) void pk_writer_fmt(Pocket lisp, PKWriter *w, const char *fmt, ...) {
-    va_list args;
-    
-    va_start(args, fmt);
-    size_t length = (size_t)vsnprintf(NULL, 0, fmt, args);
-    va_end(args);
+void pk_writer_vfmt(Pocket lisp, PKWriter *w, const char *fmt, va_list args) {
+    va_list measure;
+
+    va_copy(measure, args);
+    size_t length = (size_t)vsnprintf(NULL, 0, fmt, measure);
+    va_end(measure);
 
     pk_writer_expand(lisp, w, length + 1);
-    
-    va_start(args, fmt);
-    vsnprintf(w->c + w->count, length + 1, fmt, args);
-    va_end(args);
+
+    (void)vsnprintf(w->c + w->count, length + 1, fmt, args);
 
     w->count += length;
+}
+
+PK_PRINTF_FMT(3, 4) void pk_writer_fmt(Pocket lisp, PKWriter *w, const char *fmt, ...) {
+    va_list args;
+
+    va_start(args, fmt);
+    pk_writer_vfmt(lisp, w, fmt, args);
+    va_end(args);
 }
 
 void pk_writer_int(Pocket lisp, PKWriter *w, int integer) {

@@ -621,6 +621,7 @@ void pk_writer_char(Pocket lisp, PKWriter *w, char c);
 void pk_writer_cstr(Pocket lisp, PKWriter *w, const char *cstr);
 void pk_writer_string(Pocket lisp, PKWriter *w, PKStr string);
 void pk_writer_string_escaped(Pocket lisp, PKWriter *w, PKStr string);
+void pk_writer_vfmt(Pocket lisp, PKWriter *w, const char *fmt, va_list args);
 PK_PRINTF_FMT(3, 4) void pk_writer_fmt(Pocket lisp, PKWriter *w, const char *fmt, ...);
 void pk_writer_int(Pocket lisp, PKWriter *w, int integer);
 void pk_writer_address(Pocket lisp, PKWriter *w, size_t address);

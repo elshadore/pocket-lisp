@@ -32,12 +32,36 @@ void pk_push_stringc(Pocket lisp, char *cstring) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_stringc(lisp, cstring));
 }
 
+void pk_push_stringf(Pocket lisp, const char *fmt, ...) {
+    PKWriter w = PK_WRITER_EMPTY;
+    va_list args;
+
+    va_start(args, fmt);
+    pk_writer_vfmt(lisp, &w, fmt, args);
+    va_end(args);
+
+    pk_push_string(lisp, pk_writer_slice(&w));
+    pk_writer_deinit(lisp, &w);
+}
+
 void pk_push_symbol(Pocket lisp, PKStr symbol) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, symbol));
 }
 
 void pk_push_symbolc(Pocket lisp, char *csymbol) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_symbolc(lisp, csymbol));
+}
+
+void pk_push_symbolf(Pocket lisp, const char *fmt, ...) {
+    PKWriter w = PK_WRITER_EMPTY;
+    va_list args;
+
+    va_start(args, fmt);
+    pk_writer_vfmt(lisp, &w, fmt, args);
+    va_end(args);
+
+    pk_push_symbol(lisp, pk_writer_slice(&w));
+    pk_writer_deinit(lisp, &w);
 }
 
 void pk_push_gensym(Pocket lisp) {
@@ -50,6 +74,18 @@ void pk_push_keyword(Pocket lisp, PKStr keyword) {
 
 void pk_push_keywordc(Pocket lisp, char *ckeyword) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_keywordc(lisp, ckeyword));
+}
+
+void pk_push_keywordf(Pocket lisp, const char *fmt, ...) {
+    PKWriter w = PK_WRITER_EMPTY;
+    va_list args;
+
+    va_start(args, fmt);
+    pk_writer_vfmt(lisp, &w, fmt, args);
+    va_end(args);
+
+    pk_push_keyword(lisp, pk_writer_slice(&w));
+    pk_writer_deinit(lisp, &w);
 }
 
 void pk_push_cons(Pocket lisp, int car, int cdr) {

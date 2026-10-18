@@ -12,6 +12,17 @@ void pk_errors(Pocket lisp, PKStr message) {
     abort();
 }
 
+PK_PRINTF_FMT(2, 3) void pk_errorf(Pocket lisp, const char *fmt, ...) {
+    PKWriter w = PK_WRITER_EMPTY;
+    va_list args;
+
+    va_start(args, fmt);
+    pk_writer_vfmt(lisp, &w, fmt, args);
+    va_end(args);
+
+    pk_errors(lisp, pk_writer_slice(&w));
+}
+
 void pk_error_type(Pocket lisp, PK_TYPE expected, PKAtom *found) {
     PKWriter w = PK_WRITER_EMPTY;
     pk_writer_cstr(lisp, &w, "expected ");
