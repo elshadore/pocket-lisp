@@ -110,10 +110,13 @@ void pk_push_int(Pocket lisp, int integer);
 void pk_push_float(Pocket lisp, float floater);
 void pk_push_string(Pocket lisp, PKStr string);
 void pk_push_stringc(Pocket lisp, char *cstring);
+PK_PRINTF_FMT(2, 3) void pk_push_stringf(Pocket lisp, const char *fmt, ...);
 void pk_push_symbol(Pocket lisp, PKStr symbol);
 void pk_push_symbolc(Pocket lisp, char *csymbol);
+PK_PRINTF_FMT(2, 3)void pk_push_symbolf(Pocket lisp, const char *fmt, ...);
 void pk_push_keyword(Pocket lisp, PKStr keyword);
 void pk_push_keywordc(Pocket lisp, char *ckeyword);
+PK_PRINTF_FMT(2, 3)void pk_push_keywordf(Pocket lisp, const char *fmt, ...);
 void pk_push_cons(Pocket lisp, int car, int cdr);
 void pk_list(Pocket lisp, int head, int tail);
 void pk_push_cfun(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options);
@@ -158,6 +161,8 @@ void pk_macroexpand(Pocket lisp, int atom);
 
 void pk_throw(Pocket lisp, int symbol, int value);
 void pk_error(Pocket lisp);
+void pk_errors(Pocket lisp, PKStr message);
+PK_PRINTF_FMT(2, 3) void pk_errorf(Pocket lisp, const char *fmt, ...);
 void pk_error_oom(Pocket lisp);
 
 bool pk_is_type(Pocket lisp, int atom, PK_TYPE check);
