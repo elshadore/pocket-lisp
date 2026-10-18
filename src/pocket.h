@@ -86,7 +86,8 @@ typedef enum PK_TYPE_ {
     PK_TYPE_COBJECT,
 } PK_TYPE;
 
-#define pk_str(text_) (PKStr) {.c = (text_), .length = (sizeof(text_) - 1)}
+#define pk_str(text_) (PKStr) {.c = (text_), .length = ((sizeof(text_) / sizeof(char)) - 1)}
+
 #define PK_STR_EMPTY (PKStr){.c = NULL, .length = 0}
 
 #define pk_alen(array_) (sizeof(array_) / sizeof(*array_))

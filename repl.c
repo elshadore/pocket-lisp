@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
         .argv = argv,
     };
     
-    pk_push_cfun(lisp, &repl, run_repl);
+    pk_push_cfun(lisp, &repl, run_repl, 0, PK_ARITY_NORMAL, 0);
     pk_pcall(lisp, PK_CALL_FUN, 0);
     pk_deinit(lisp);
     
