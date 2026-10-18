@@ -702,6 +702,7 @@ PKAtom *pk_fs_read_user_input(Pocket lisp);
 PKVM pk_vm_init(Pocket lisp, PKAtom *lfun, size_t save);
 PKAtom *pk_vm_exec(Pocket lisp, PKVM *vm);
 
+void pk_gc_mark_cache(Pocket lisp);
 void pk_gc_mark(Pocket lisp, PKAtom *atom);
 void pk_gc_collect(Pocket lisp);
 

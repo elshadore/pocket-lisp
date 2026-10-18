@@ -12,6 +12,39 @@ bool pk_atom_is_marked(PKAtom *atom) {
     return (atom->header.flags & PK_ATOMFLAG_MARKED) != 0;
 }
 
+void pk_gc_mark_cache(Pocket lisp) {
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.nil);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.atom_true);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.undefined);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.empty_string);
+
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.lambda);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.macro);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.progn);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.sym_if);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.sym_while);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.sym_and);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.sym_or);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.error);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.throw);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.var);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.fvar);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.let);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.let_star);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.protect);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.unwind_protect);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.flet);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.flet_star);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.block);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.apply);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.macro_apply);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.quote);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.quasiquote);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.unquote);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.unquote_splice);
+    pk_gc_mark(lisp, (PKAtom *)lisp->cache.string_substitute);
+}
+
 void pk_gc_mark_hashmap(Pocket lisp, PKHashmap *map) {
     for (size_t i = 0; i < map->capacity; ++i) {
         PKHashmapSlot *slot = &map->e[i];
@@ -86,6 +119,8 @@ void pk_gc_mark(Pocket lisp, PKAtom *atom) {
 
 void pk_gc_collect(Pocket lisp) {
     // Mark
+    pk_gc_mark_cache(lisp);
+
     for (size_t i = 0; i < lisp->stack.count; ++i) {
         pk_gc_mark(lisp, (PKAtom *)lisp->stack.e[i]);
     }

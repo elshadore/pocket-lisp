@@ -164,6 +164,7 @@ void pk_fcall(Pocket lisp, PK_CALL call, size_t args) {
     }
     
     pk_frame_return(lisp);
+    pk_gc_collect(lisp);
 }
 
 void pk_pcall(Pocket lisp, PK_CALL call, size_t args) {

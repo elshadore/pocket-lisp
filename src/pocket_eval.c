@@ -27,6 +27,7 @@ void pk_atom_eval_(Pocket lisp, PKAtom *expr) {
     
 void pk_atom_evlist_(Pocket lisp, PKAtom *exprlist) {
     pk_frame_push(lisp, 0);
+    pk_stack_push(lisp, exprlist);
     PKAtom *iter = exprlist;
     while (pk_atom_is_cons(iter)) {
         pk_atom_eval_(lisp, iter->cons.car);
