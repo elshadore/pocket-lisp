@@ -333,3 +333,7 @@ void *pk_cobject_data(Pocket lisp, int cobject) {
 size_t pk_cobject_size(Pocket lisp, int cobject) {
     return pk_cobject_size_(lisp, pk_stack_get(lisp, cobject));
 }
+
+void pk_error(Pocket lisp, int message) {
+    pk_error_atom(lisp, pk_stack_get(lisp, message));
+}

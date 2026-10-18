@@ -160,7 +160,7 @@ void pk_macroexpand1(Pocket lisp, int atom);
 void pk_macroexpand(Pocket lisp, int atom);
 
 void pk_throw(Pocket lisp, int symbol, int value);
-void pk_error(Pocket lisp);
+void pk_error(Pocket lisp, int message);
 void pk_errors(Pocket lisp, PKStr message);
 PK_PRINTF_FMT(2, 3) void pk_errorf(Pocket lisp, const char *fmt, ...);
 void pk_error_oom(Pocket lisp);

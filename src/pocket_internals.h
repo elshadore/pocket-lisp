@@ -453,7 +453,7 @@ void pk_pool_expand(Pocket lisp);
 PKAtom *pk_atom_alloc(Pocket lisp);
 void pk_atom_free(Pocket lisp, PKAtom *atom);
 
-void pk_errors(Pocket lisp, PKStr message);
+void pk_error_atom(Pocket lisp, PKAtom *message);
 void pk_error_type(Pocket lisp, PK_TYPE expected, PKAtom *found);
 
 bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);

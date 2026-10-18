@@ -146,11 +146,8 @@ void pk_fun_throw(void *user_closure, Pocket lisp) {
 }
 
 void pk_fun_error(void *user_closure, Pocket lisp) {
-    PKWriter w = PK_WRITER_EMPTY;
     (void)user_closure;
-    pk_writer_cstr(lisp, &w, "error: ");
-    pk_writer_atom(lisp, &w, pk_stack_get(lisp, 1));
-    pk_errors(lisp, pk_writer_slice(&w));
+    pk_error(lisp, 1);
 }
 
 void pk_fun_hexdump(void *user_closure, Pocket lisp) {

@@ -1,9 +1,11 @@
 #include "pocket_internals.h"
 
-void pk_error(Pocket lisp) {
-    (void)lisp;
-    fprintf(stderr, "error\n");
-    abort();
+void pk_error_atom(Pocket lisp, PKAtom *message) {
+    PKWriter w = PK_WRITER_EMPTY;
+    pk_writer_string(lisp, &w, pk_str("error: "));
+    pk_writer_atom(lisp, &w, message);
+    pk_internal_println(lisp, pk_writer_slice(&w));
+    pk_writer_deinit(lisp, &w);
 }
 
 void pk_errors(Pocket lisp, PKStr message) {
