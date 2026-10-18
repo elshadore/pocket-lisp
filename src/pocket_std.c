@@ -253,7 +253,29 @@ void pk_fload(Pocket lisp, PKStr name, pk_u8 nargs, PK_ARITY arity, PKFun fun) {
 #define PK_FLOAD_N(name_, nargs_, fun_) pk_fload(lisp, name_, nargs_, PK_ARITY_NORMAL, fun_)
 #define PK_FLOAD_V(name_, fun_) pk_fload(lisp, name_, 0, PK_ARITY_VARIADIC, fun_)
 
+typedef struct PKFunLoad_ {
+    PKStr symbol;
+    PKFun fun;
+    pk_u8 args;
+    PK_ARITY arity;
+    pk_u8 options;
+} PKFunLoad;
+
 void pk_std_load_cfun(Pocket lisp) {
+    PKFunLoad funs[] = {
+        {.symbol = pk_str("+"), .fun = pk_fun_add, .args = 2, .arity = PK_ARITY_VARIADIC},
+    };
+    
+    size_t length = pk_alen(funs);
+    
+    for (size_t i = 0; i < length; ++i) {
+        PKFunLoad fun = funs[i];
+        pk_push_symbol(lisp, fun.symbol);
+        pk_push_cfun(lisp, NULL, fun.fun, fun.args, fun.arity, fun.options);
+        pk_set(lisp, PK_ENV_FUN, -2, -1);
+        pk_pop3(lisp);
+    }
+    
     PK_FLOAD_V(pk_str("+"), pk_fun_add);
     PK_FLOAD_V(pk_str("-"), pk_fun_sub);
     PK_FLOAD_V(pk_str("*"), pk_fun_mul);
