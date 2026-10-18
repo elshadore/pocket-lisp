@@ -12,6 +12,7 @@
 #include "pocket_frame.c"
 #include "pocket_fs.c"
 #include "pocket_function.c"
+#include "pocket_gc.c"
 #include "pocket_hashmap.c"
 #include "pocket_list.c"
 #include "pocket_ident.c"

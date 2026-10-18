@@ -20,7 +20,6 @@ The todo list for POCKET LISP
   - [ ] pk_protect
   
 ## Notes
-- [ ] Debug needs to have good stackdump
 - [ ] Reimplement Error Messages
   This can be a broader thing of having cfmt for strings, symbols, ect..
   - `pk_error` - int message

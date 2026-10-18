@@ -155,7 +155,8 @@ typedef struct PKCallConv_ {
 #define PK_ATOMTY_COBJECT (20)
 
 #define PK_ATOMFLAG_NONE (0)
-#define PK_ATOMFLAG_IMMORTAL (1 << 0)
+#define PK_ATOMFLAG_MARKED (1 << 0)
+#define PK_ATOMFLAG_IMMORTAL (1 << 1)
 
 typedef struct PKAtomHeader_ {
     pk_u8 type;
@@ -698,5 +699,8 @@ PKAtom *pk_fs_read_user_input(Pocket lisp);
 
 PKVM pk_vm_init(Pocket lisp, PKAtom *lfun, size_t save);
 PKAtom *pk_vm_exec(Pocket lisp, PKVM *vm);
+
+void pk_gc_mark(Pocket lisp, PKAtom *atom);
+void pk_gc_collect(Pocket lisp);
 
 #endif // POCKET_LISP_INTERNALS_H
