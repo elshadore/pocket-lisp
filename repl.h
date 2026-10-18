@@ -21,7 +21,7 @@
 "  (read-eval-print (caddr args)))\n" \
 "\n" \
 "(while repl/running\n" \
-"  (puts \"LISP>> \")\n" \
+"  (write \"LISP>> \")\n" \
 "  (var input (fs/read-user-input))\n" \
 "  (if input\n" \
 "      (read-eval-print input)\n" \

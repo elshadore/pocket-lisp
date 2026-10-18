@@ -211,11 +211,9 @@ void pk_fun_print(void *user_closure, Pocket lisp) {
     pk_push_nil(lisp);
 }
 
-void pk_fun_puts(void *user_closure, Pocket lisp) {
+void pk_fun_write(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_print(lisp, 1);
-    fputc('\n', stdout);
-    fflush(stdout);
+    pk_write(lisp, 1);
     pk_push_nil(lisp);
 }
 
@@ -308,7 +306,7 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("macro-apply"), .fun = pk_fun_macro_apply, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("funcall"), .fun = pk_fun_funcall, .args = 1, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("print"), .fun = pk_fun_print, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("puts"), .fun = pk_fun_puts, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("write"), .fun = pk_fun_write, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("eval"), .fun = pk_fun_eval, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("evlist"), .fun = pk_fun_evlist, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("format"), .fun = pk_fun_format, .args = 1, .arity = PK_ARITY_NORMAL},
