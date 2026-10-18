@@ -420,7 +420,7 @@ typedef struct PKCache_ {
     .lets = PK_LETS_EMPTY, \
     .frames = PK_FRAMES_EMPTY, \
     .symbolizer = PK_HASHMAP_EMPTY, \
-    .gensym_count = 0, \
+    .gensym_counter = 0, \
     .current_frame = PK_FRAME_EMPTY, \
     .pool = NULL, \
     .free = NULL, \
@@ -434,7 +434,7 @@ typedef struct PocketLispMachine_ {
     PKFrames frames;
     PKFrame current_frame;
     PKHashmap symbolizer;
-    size_t gensym_count;
+    size_t gensym_counter;
     PKPool *pool;
     PKAtomFree *free;
     PKCache cache;
@@ -455,7 +455,7 @@ void pk_atom_free(Pocket lisp, PKAtom *atom);
 void pk_errors(Pocket lisp, PKStr message);
 void pk_error_type(Pocket lisp, PK_TYPE expected, PKAtom *found);
 
-bool pk_atom_eq(PKAtom *lhs, PKAtom *rhs);
+bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 size_t pk_atom_hash(PKAtom *atom);
 
 bool pk_atom_is_nil(PKAtom *atom);
@@ -518,16 +518,17 @@ PKAtom *pk_atom_sub(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 PKAtom *pk_atom_mul(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 PKAtom *pk_atom_div(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 PKAtom *pk_atom_mod(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
-PKAtom *pk_atom_lt(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
-PKAtom *pk_atom_lte(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
-PKAtom *pk_atom_gt(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
-PKAtom *pk_atom_gte(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+bool pk_atom_lt(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+bool pk_atom_lte(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+bool pk_atom_gt(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+bool pk_atom_gte(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 
 int pk_atom_as_int(PKAtom *atom);
 int pk_atom_to_int(Pocket lisp, PKAtom *atom);
 float pk_atom_as_float(PKAtom *atom);
 float pk_atom_to_float(Pocket lisp, PKAtom *atom);
 
+PKAtomSymbol *pk_atom_gensym(Pocket lisp);
 PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr symbol);
 PKAtomSymbol *pk_atom_symbolc(Pocket lisp, char *csymbol);
 PKAtomKeyword *pk_atom_keyword(Pocket lisp, PKStr keyword);
@@ -659,7 +660,7 @@ PKAtom *pk_hashmap_remove(Pocket lisp, PKHashmap *map, PKAtom *key);
 void pk_hashmap_deinit(Pocket lisp, PKHashmap *map);
 
 size_t pk_slotmap_hash(PKSlotmap *map, PKAtom *symbol);
-PKSlotmapSlot *pk_slotmap_get(PKSlotmap *map, PKAtom *symbol);
+PKSlotmapSlot *pk_slotmap_get(Pocket lisp, PKSlotmap *map, PKAtom *symbol);
 void pk_slotmap_insert(Pocket lisp, PKSlotmap *map, PKAtom *symbol);
 void pk_slotmap_deinit(Pocket lisp, PKSlotmap *map);
     

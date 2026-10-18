@@ -59,7 +59,7 @@ static bool pk_assert_lobject(Pocket lisp, PKAtom *atom) {
 static size_t pk_slot_index(Pocket lisp, PKAtom *object, PKAtom *slot) {
     PKAtomSymbol *type = pk_atom_assert_symbol(lisp, object->lobject.type);
     pk_atom_assert_symbol(lisp, slot);
-    PKSlotmapSlot *found = pk_slotmap_get(&type->slots, slot);
+    PKSlotmapSlot *found = pk_slotmap_get(lisp, &type->slots, slot);
     if (found == NULL) {
         PKWriter w = PK_WRITER_EMPTY;
         pk_writer_cstr(lisp, &w, "no such slot: ");

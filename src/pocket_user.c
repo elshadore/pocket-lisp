@@ -41,12 +41,7 @@ void pk_push_symbolc(Pocket lisp, char *csymbol) {
 }
 
 void pk_push_gensym(Pocket lisp) {
-    PKWriter w = PK_WRITER_EMPTY;
-    pk_writer_cstr(lisp, &w, "__gensym_");
-    pk_writer_fmt(lisp, &w, "%zu", lisp->gensym_count);
-    lisp->gensym_count += 1;
-    pk_push_symbol(lisp, pk_writer_slice(&w));
-    pk_writer_deinit(lisp, &w);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_gensym(lisp));
 }
 
 void pk_push_keyword(Pocket lisp, PKStr keyword) {
@@ -205,15 +200,12 @@ void pk_get_raw(Pocket lisp, PK_ENV env, int symbol) {
     pk_stack_push(lisp, pk_env_get(lisp, env, pk_atom_assert_symbol(lisp, pk_stack_get(lisp, symbol))));
 }
 
-void pk_eq(Pocket lisp, int lhs, int rhs) {
-    pk_stack_push(lisp, pk_atom_bool(lisp, pk_atom_eq(pk_stack_get(lisp, lhs), pk_stack_get(lisp, rhs))));
-}
-
 #define PK_TEMPLATE_USER_CMP(fun_name_, op_) \
-    void fun_name_(Pocket lisp, int lhs, int rhs) { \
-        pk_stack_push(lisp, pk_atom_bool(lisp, pk_atom_is_true(op_(lisp, pk_stack_get(lisp, lhs), pk_stack_get(lisp, rhs))))); \
+    bool fun_name_(Pocket lisp, int lhs, int rhs) { \
+        return op_(lisp, pk_stack_get(lisp, lhs), pk_stack_get(lisp, rhs)); \
     }
 
+PK_TEMPLATE_USER_CMP(pk_eq, pk_atom_eq)
 PK_TEMPLATE_USER_CMP(pk_lt, pk_atom_lt)
 PK_TEMPLATE_USER_CMP(pk_lte, pk_atom_lte)
 PK_TEMPLATE_USER_CMP(pk_gt, pk_atom_gt)

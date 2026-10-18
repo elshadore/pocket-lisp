@@ -62,7 +62,7 @@ void pk_cmp_push_atom(PKCompiler *c, PKAtom *atom) {
 
     for (size_t i = 0; i < c->atoms.count; ++i) {
         PKAtom *cmp = c->atoms.e[i];
-        if (pk_atom_eq(atom, cmp)) {
+        if (pk_atom_eq(c->lisp, atom, cmp)) {
             c->addr = (pk_u8)i;
             return;
         }

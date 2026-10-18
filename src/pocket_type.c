@@ -17,7 +17,7 @@ void pk_deftype_lisp_(Pocket lisp, PKAtomSymbol *symbol, PKAtoms slots) {
     for (size_t i = 0; i < slots.length; ++i) {
         PKAtom *slot = (PKAtom *)pk_atom_assert_symbol(lisp, slots.e[i]);
         for (size_t j = 0; j < i; ++j) {
-            if (pk_atom_eq(slot, slots.e[j])) {
+            if (pk_atom_eq(lisp, slot, slots.e[j])) {
                 PKWriter w = PK_WRITER_EMPTY;
                 pk_writer_cstr(lisp, &w, "slot already defined: ");
                 pk_writer_atom(lisp, &w, slot);

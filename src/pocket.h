@@ -175,11 +175,11 @@ void pk_method_set(Pocket lisp, int type, int symbol, int method);
 void pk_method_get(Pocket lisp, int type, int symbol);
 void pk_method_get_raw(Pocket lisp, int type, int symbol);
 
-void pk_lt(Pocket lisp, int lhs, int rhs);
-void pk_lte(Pocket lisp, int lhs, int rhs);
-void pk_gt(Pocket lisp, int lhs, int rhs);
-void pk_gte(Pocket lisp, int lhs, int rhs);
-void pk_eq(Pocket lisp, int lhs, int rhs);
+bool pk_lt(Pocket lisp, int lhs, int rhs);
+bool pk_lte(Pocket lisp, int lhs, int rhs);
+bool pk_gt(Pocket lisp, int lhs, int rhs);
+bool pk_gte(Pocket lisp, int lhs, int rhs);
+bool pk_eq(Pocket lisp, int lhs, int rhs);
 
 void pk_reverse(Pocket lisp, int seq);
 

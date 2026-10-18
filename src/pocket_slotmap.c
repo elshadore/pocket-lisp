@@ -8,7 +8,7 @@ size_t pk_slotmap_hash(PKSlotmap *map, PKAtom *symbol) {
     return pk_atom_hash(symbol) & (map->capacity - 1);
 }
 
-PKSlotmapSlot *pk_slotmap_get(PKSlotmap *map, PKAtom *symbol) {
+PKSlotmapSlot *pk_slotmap_get(Pocket lisp, PKSlotmap *map, PKAtom *symbol) {
     if (map->capacity == 0) {
         return NULL;
     }
@@ -20,7 +20,7 @@ PKSlotmapSlot *pk_slotmap_get(PKSlotmap *map, PKAtom *symbol) {
         if (slot->state == PK_SLOTMAP_SLOT_UNOCCUPIED) {
             return NULL;
         }
-        if ((slot->state == PK_SLOTMAP_SLOT_OCCUPIED) && pk_atom_eq(slot->symbol, symbol)) {
+        if ((slot->state == PK_SLOTMAP_SLOT_OCCUPIED) && pk_atom_eq(lisp, slot->symbol, symbol)) {
             return slot;
         }
         index = (index + 1) & (map->capacity - 1);
@@ -56,7 +56,7 @@ void pk_slotmap_rehash(Pocket lisp, PKSlotmap *map, size_t new_capacity) {
 }
 
 void pk_slotmap_insert(Pocket lisp, PKSlotmap *map, PKAtom *symbol) {
-    if (pk_slotmap_get(map, symbol) != NULL) {
+    if (pk_slotmap_get(lisp, map, symbol) != NULL) {
         pk_error(lisp);
         return;
     }

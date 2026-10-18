@@ -112,7 +112,8 @@ PKAtom *pk_atom_reverse(Pocket lisp, PKAtom *atom) {
     }
 }
 
-bool pk_atom_eq(PKAtom *lhs, PKAtom *rhs) {
+bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
+    (void)lisp;
     if (lhs == rhs) {
         return true;
     }

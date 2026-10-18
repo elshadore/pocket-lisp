@@ -71,18 +71,14 @@ void pk_fun_mod(void *user_closure, Pocket lisp) {
 #define PK_TEMPLATE_CMP(fun_name_, op_) \
     void fun_name_(void *user_closure, Pocket lisp) { \
         (void)user_closure; \
-        pk_stack_push(lisp, op_(lisp, pk_stack_get(lisp, -2), pk_stack_get(lisp, -1))); \
+        pk_push_bool(lisp, op_(lisp, 1, 2)); \
     }
 
-PK_TEMPLATE_CMP(pk_fun_lt, pk_atom_lt)
-PK_TEMPLATE_CMP(pk_fun_lte, pk_atom_lte)
-PK_TEMPLATE_CMP(pk_fun_gt, pk_atom_gt)
-PK_TEMPLATE_CMP(pk_fun_gte, pk_atom_gte)
-
-void pk_fun_eq(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_stack_push(lisp, pk_atom_bool(lisp, pk_atom_eq(pk_stack_get(lisp, -2), pk_stack_get(lisp, -1))));
-}
+PK_TEMPLATE_CMP(pk_fun_lt, pk_lt)
+PK_TEMPLATE_CMP(pk_fun_lte, pk_lte)
+PK_TEMPLATE_CMP(pk_fun_gt, pk_gt)
+PK_TEMPLATE_CMP(pk_fun_gte, pk_gte)
+PK_TEMPLATE_CMP(pk_fun_eq, pk_eq)
 
 void pk_fun_cons(void *user_closure, Pocket lisp) {
     (void)user_closure;

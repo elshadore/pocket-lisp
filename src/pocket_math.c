@@ -122,43 +122,43 @@ float pk_atom_as_float(PKAtom *atom) {
     switch (nlhs->num_type) { \
         case PK_NUMTY_INT: { \
             switch (nrhs->num_type) { \
-                case PK_NUMTY_INT: return pk_atom_bool(lisp, nlhs->as.i op_ nrhs->as.i); \
-                case PK_NUMTY_FLOAT: return pk_atom_bool(lisp, (float)nlhs->as.i op_ nrhs->as.f); \
+                case PK_NUMTY_INT: return  nlhs->as.i op_ nrhs->as.i; \
+                case PK_NUMTY_FLOAT: return  (float)nlhs->as.i op_ nrhs->as.f; \
                 default: { \
                     pk_error(lisp); \
-                    return lisp->cache.nil; \
+                    return false; \
                 } \
             } \
         } \
         case PK_NUMTY_FLOAT: { \
             switch (nrhs->num_type) { \
-                case PK_NUMTY_INT: return pk_atom_bool(lisp, nlhs->as.f op_ (float)nrhs->as.i); \
-                case PK_NUMTY_FLOAT: return pk_atom_bool(lisp, nlhs->as.f op_ nrhs->as.f); \
+                case PK_NUMTY_INT: return  nlhs->as.f op_ (float)nrhs->as.i; \
+                case PK_NUMTY_FLOAT: return  nlhs->as.f op_ nrhs->as.f; \
                 default: { \
                     pk_error(lisp); \
-                    return lisp->cache.nil; \
+                    return false; \
                 } \
             } \
         } \
         default: { \
             pk_error(lisp); \
-            return lisp->cache.nil; \
+            return false; \
         } \
     }
 
-PKAtom *pk_atom_lt(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
+bool pk_atom_lt(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
     PK_TEMPLATE_MATH_LOGIC_OP(<)
 }
 
-PKAtom *pk_atom_lte(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
+bool pk_atom_lte(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
     PK_TEMPLATE_MATH_LOGIC_OP(<=)
 }
 
-PKAtom *pk_atom_gt(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
+bool pk_atom_gt(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
     PK_TEMPLATE_MATH_LOGIC_OP(>)
 }
 
-PKAtom *pk_atom_gte(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
+bool pk_atom_gte(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
     PK_TEMPLATE_MATH_LOGIC_OP(>=)
 }
 

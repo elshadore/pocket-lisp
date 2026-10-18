@@ -40,7 +40,7 @@ void pk_hashmap_rehash(Pocket lisp, PKHashmap *map, size_t new_capacity) {
     pk_free(lisp, old_e);
 }
 
-PKHashmapSlot *pk_hashmap_find(PKHashmap *map, PKAtom *key, bool *found, size_t *vacancy) {
+PKHashmapSlot *pk_hashmap_find(Pocket lisp, PKHashmap *map, PKAtom *key, bool *found, size_t *vacancy) {
     size_t index = pk_hashmap_index(map, key);
     size_t first_vacancy = SIZE_MAX;
 
@@ -48,7 +48,7 @@ PKHashmapSlot *pk_hashmap_find(PKHashmap *map, PKAtom *key, bool *found, size_t 
         PKHashmapSlot *slot = &map->e[index];
         switch (slot->state) {
             case PK_HASHMAP_SLOT_OCCUPIED: {
-                if (pk_atom_eq(slot->key, key)) {
+                if (pk_atom_eq(lisp, slot->key, key)) {
                     *found = true;
                     *vacancy = index;
                     return slot;
@@ -84,7 +84,7 @@ PKAtom *pk_hashmap_insert(Pocket lisp, PKHashmap *map, PKAtom *key, PKAtom *valu
 
     bool found = false;
     size_t vacancy = 0;
-    PKHashmapSlot *slot = pk_hashmap_find(map, key, &found, &vacancy);
+    PKHashmapSlot *slot = pk_hashmap_find(lisp, map, key, &found, &vacancy);
     if (found) {
         PKAtom *old_value = slot->value;
         slot->value = value;
@@ -95,7 +95,7 @@ PKAtom *pk_hashmap_insert(Pocket lisp, PKHashmap *map, PKAtom *key, PKAtom *valu
         pk_hashmap_rehash(lisp, map, pk_grow_capacity(map->capacity, PK_HASHMAP_INIT_CAPACITY));
         bool ignored = false;
         size_t ignored_vacancy = 0;
-        slot = pk_hashmap_find(map, key, &ignored, &ignored_vacancy);
+        slot = pk_hashmap_find(lisp, map, key, &ignored, &ignored_vacancy);
         if (slot != NULL) {
             PKAtom *old_value = slot->value;
             slot->value = value;
@@ -144,7 +144,7 @@ PKAtom *pk_hashmap_get(Pocket lisp, PKHashmap *map, PKAtom *key) {
 
     bool found = false;
     size_t vacancy = 0;
-    PKHashmapSlot *slot = pk_hashmap_find(map, key, &found, &vacancy);
+    PKHashmapSlot *slot = pk_hashmap_find(lisp, map, key, &found, &vacancy);
     if (!found) {
         return lisp->cache.undefined;
     }
@@ -158,7 +158,7 @@ PKAtom *pk_hashmap_remove(Pocket lisp, PKHashmap *map, PKAtom *key) {
 
     bool found = false;
     size_t vacancy = 0;
-    PKHashmapSlot *slot = pk_hashmap_find(map, key, &found, &vacancy);
+    PKHashmapSlot *slot = pk_hashmap_find(lisp, map, key, &found, &vacancy);
     if (!found) {
         return lisp->cache.undefined;
     }
