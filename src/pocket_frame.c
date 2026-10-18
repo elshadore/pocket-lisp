@@ -42,6 +42,12 @@ void pk_frame_return(Pocket lisp) {
     lisp->stack.e[lisp->stack.count - 1] = result;
 }
 
+void pk_frame_return_push(Pocket lisp) {
+    PKAtom *result = pk_stack_head(lisp);
+    pk_frame_unwind(lisp);
+    pk_stack_push(lisp, result);
+}
+
 size_t pk_frame_length(Pocket lisp) {
     return lisp->stack.count - lisp->current_frame.stack_offset;
 }

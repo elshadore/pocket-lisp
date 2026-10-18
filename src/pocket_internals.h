@@ -574,6 +574,7 @@ void pk_frame_push(Pocket lisp, size_t arity);
 void pk_frame_unwind(Pocket lisp);
 void pk_frame_clear(Pocket lisp);
 void pk_frame_return(Pocket lisp);
+void pk_frame_return_push(Pocket lisp);
 size_t pk_frame_length(Pocket lisp);
 
 void pk_stack_push(Pocket lisp, PKAtom *atom);

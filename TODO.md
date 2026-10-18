@@ -27,12 +27,12 @@ The todo list for POCKET LISP
 - [ ] `pk_set_top` needs to convert from stack_pointer to index
 - [ ] `Pocket` should not be cached in PKVM and PKCompiler
 - [ ] Debug needs to hack good stackdump
-- [ ] Gensym logic needs to be placed in `pocket_symbol.c`
+- [x] Gensym logic needs to be placed in `pocket_symbol.c`
 - [ ] Reimplement Error Messages
   - `pk_error` - int message
   - `pk_errors` - PKStr message
   - `pk_errorf` - c format
-- [ ] `pk_lt`, `pk_lte`, `pk_gt` ... are wrong, should return boolean
+- [x] `pk_lt`, `pk_lte`, `pk_gt` ... are wrong, should return boolean
 
 ## User Review
 Stuff that I need to do a personal deep dive into.

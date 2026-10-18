@@ -138,7 +138,7 @@ void pk_vm_op_exec(PKVM *vm) {
             break;
         }
         case PK_OP_BLOCK_END: {
-            pk_frame_return(lisp);
+            pk_frame_return_push(lisp);
             pk_vm_inc(vm);
             break;
         }
