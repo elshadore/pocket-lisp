@@ -243,16 +243,6 @@ void pk_fun_fs_read_user_input(void *user_closure, Pocket lisp) {
     pk_read_user_input(lisp);
 }
 
-void pk_fload(Pocket lisp, PKStr name, pk_u8 nargs, PK_ARITY arity, PKFun fun) {
-    pk_push_symbol(lisp, name);
-    pk_push_cfun(lisp, NULL, fun, nargs, arity, 0);
-    pk_set(lisp, PK_ENV_FUN, -2, -1);
-    pk_pop3(lisp);
-}
-
-#define PK_FLOAD_N(name_, nargs_, fun_) pk_fload(lisp, name_, nargs_, PK_ARITY_NORMAL, fun_)
-#define PK_FLOAD_V(name_, fun_) pk_fload(lisp, name_, 0, PK_ARITY_VARIADIC, fun_)
-
 typedef struct PKFunLoad_ {
     PKStr symbol;
     PKFun fun;
@@ -264,10 +254,73 @@ typedef struct PKFunLoad_ {
 void pk_std_load_cfun(Pocket lisp) {
     PKFunLoad funs[] = {
         {.symbol = pk_str("+"), .fun = pk_fun_add, .args = 2, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str("-"), .fun = pk_fun_sub, .args = 2, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str("*"), .fun = pk_fun_mul, .args = 2, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str("/"), .fun = pk_fun_div, .args = 2, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str("%"), .fun = pk_fun_mod, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("mod"), .fun = pk_fun_mod, .args = 2, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("<"), .fun = pk_fun_lt, .args = 2, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str("<="), .fun = pk_fun_lte, .args = 2, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str(">"), .fun = pk_fun_gt, .args = 2, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str(">="), .fun = pk_fun_gte, .args = 2, .arity = PK_ARITY_VARIADIC},
+
+        {.symbol = pk_str("="), .fun = pk_fun_eq, .args = 2, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str("eq?"), .fun = pk_fun_eq, .args = 2, .arity = PK_ARITY_VARIADIC},
+
+        {.symbol = pk_str("cons"), .fun = pk_fun_cons, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("list"), .fun = pk_fun_list, .args = 0, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str("car"), .fun = pk_fun_car, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("cdr"), .fun = pk_fun_cdr, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("set-car"), .fun = pk_fun_set_car, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("set-cdr"), .fun = pk_fun_set_cdr, .args = 2, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("set"), .fun = pk_fun_set, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("fset"), .fun = pk_fun_fset, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("pset"), .fun = pk_fun_pset, .args = 2, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("get"), .fun = pk_fun_get, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("fget"), .fun = pk_fun_fget, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("pget"), .fun = pk_fun_pget, .args = 1, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("bound?"), .fun = pk_fun_bound, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("fbound?"), .fun = pk_fun_fbound, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("pbound?"), .fun = pk_fun_pbound, .args = 1, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("unbind"), .fun = pk_fun_unbind, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("funbind"), .fun = pk_fun_funbind, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("punbind"), .fun = pk_fun_punbind, .args = 1, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("list-vars"), .fun = pk_fun_list_vars, .args = 0, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("list-funs"), .fun = pk_fun_list_funs, .args = 0, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("list-props"), .fun = pk_fun_list_props, .args = 0, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("funcatch"), .fun = pk_fun_funcatch, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("throw"), .fun = pk_fun_throw, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("error"), .fun = pk_fun_error, .args = 1, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("hexdump"), .fun = pk_fun_hexdump, .args = 1, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("read"), .fun = pk_fun_read, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("read-list"), .fun = pk_fun_read_list, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("apply"), .fun = pk_fun_apply, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("macro-apply"), .fun = pk_fun_macro_apply, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("funcall"), .fun = pk_fun_funcall, .args = 0, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str("print"), .fun = pk_fun_print, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("puts"), .fun = pk_fun_puts, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("eval"), .fun = pk_fun_eval, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("evlist"), .fun = pk_fun_evlist, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("format"), .fun = pk_fun_format, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("compile"), .fun = pk_fun_compile, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("macroexpand1"), .fun = pk_fun_macroexpand1, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("macroexpand"), .fun = pk_fun_macroexpand, .args = 1, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("fs/slurp"), .fun = pk_fun_fs_slurp, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("fs/read-user-input"), .fun = pk_fun_fs_read_user_input, .args = 0, .arity = PK_ARITY_NORMAL},
     };
-    
+
     size_t length = pk_alen(funs);
-    
+
     for (size_t i = 0; i < length; ++i) {
         PKFunLoad fun = funs[i];
         pk_push_symbol(lisp, fun.symbol);
@@ -275,71 +328,6 @@ void pk_std_load_cfun(Pocket lisp) {
         pk_set(lisp, PK_ENV_FUN, -2, -1);
         pk_pop3(lisp);
     }
-    
-    PK_FLOAD_V(pk_str("+"), pk_fun_add);
-    PK_FLOAD_V(pk_str("-"), pk_fun_sub);
-    PK_FLOAD_V(pk_str("*"), pk_fun_mul);
-    PK_FLOAD_V(pk_str("/"), pk_fun_div);
-    PK_FLOAD_N(pk_str("%"), 2, pk_fun_mod);
-    PK_FLOAD_N(pk_str("mod"), 2, pk_fun_mod);
-
-    PK_FLOAD_V(pk_str("<"), pk_fun_lt);
-    PK_FLOAD_V(pk_str("<="), pk_fun_lte);
-    PK_FLOAD_V(pk_str(">"), pk_fun_gt);
-    PK_FLOAD_V(pk_str(">="), pk_fun_gte);
-
-    PK_FLOAD_V(pk_str("="), pk_fun_eq);
-    PK_FLOAD_V(pk_str("eq?"), pk_fun_eq);
-
-    PK_FLOAD_N(pk_str("cons"), 2, pk_fun_cons);
-    PK_FLOAD_V(pk_str("list"), pk_fun_list);
-    PK_FLOAD_N(pk_str("car"), 1, pk_fun_car);
-    PK_FLOAD_N(pk_str("cdr"), 1, pk_fun_cdr);
-    PK_FLOAD_N(pk_str("set-car"), 2, pk_fun_set_car);
-    PK_FLOAD_N(pk_str("set-cdr"), 2, pk_fun_set_cdr);
-
-    PK_FLOAD_N(pk_str("set"), 2, pk_fun_set);
-    PK_FLOAD_N(pk_str("fset"), 2, pk_fun_fset);
-    PK_FLOAD_N(pk_str("pset"), 2, pk_fun_pset);
-
-    PK_FLOAD_N(pk_str("get"), 1, pk_fun_get);
-    PK_FLOAD_N(pk_str("fget"), 1, pk_fun_fget);
-    PK_FLOAD_N(pk_str("pget"), 1, pk_fun_pget);
-
-    PK_FLOAD_N(pk_str("bound?"), 1, pk_fun_bound);
-    PK_FLOAD_N(pk_str("fbound?"), 1, pk_fun_fbound);
-    PK_FLOAD_N(pk_str("pbound?"), 1, pk_fun_pbound);
-
-    PK_FLOAD_N(pk_str("unbind"), 1, pk_fun_unbind);
-    PK_FLOAD_N(pk_str("funbind"), 1, pk_fun_funbind);
-    PK_FLOAD_N(pk_str("punbind"), 1, pk_fun_punbind);
-
-    PK_FLOAD_N(pk_str("list-vars"), 0, pk_fun_list_vars);
-    PK_FLOAD_N(pk_str("list-funs"), 0, pk_fun_list_funs);
-    PK_FLOAD_N(pk_str("list-props"), 0, pk_fun_list_props);
-
-    PK_FLOAD_N(pk_str("funcatch"), 2, pk_fun_funcatch);
-    PK_FLOAD_N(pk_str("throw"), 2, pk_fun_throw);
-    PK_FLOAD_N(pk_str("error"), 1, pk_fun_error);
-
-    PK_FLOAD_N(pk_str("hexdump"), 1, pk_fun_hexdump);
-
-    PK_FLOAD_N(pk_str("read"), 1, pk_fun_read);
-    PK_FLOAD_N(pk_str("read-list"), 1, pk_fun_read_list);
-    PK_FLOAD_N(pk_str("apply"), 2, pk_fun_apply);
-    PK_FLOAD_N(pk_str("macro-apply"), 2, pk_fun_macro_apply);
-    PK_FLOAD_V(pk_str("funcall"), pk_fun_funcall);
-    PK_FLOAD_N(pk_str("print"), 1, pk_fun_print);
-    PK_FLOAD_N(pk_str("puts"), 1, pk_fun_puts);
-    PK_FLOAD_N(pk_str("eval"), 1, pk_fun_eval);
-    PK_FLOAD_N(pk_str("evlist"), 1, pk_fun_evlist);
-    PK_FLOAD_N(pk_str("format"), 1, pk_fun_format);
-    PK_FLOAD_N(pk_str("compile"), 1, pk_fun_compile);
-    PK_FLOAD_N(pk_str("macroexpand1"), 1, pk_fun_macroexpand1);
-    PK_FLOAD_N(pk_str("macroexpand"), 1, pk_fun_macroexpand);
-
-    PK_FLOAD_N(pk_str("fs/slurp"), 1, pk_fun_fs_slurp);
-    PK_FLOAD_N(pk_str("fs/read-user-input"), 0, pk_fun_fs_read_user_input);
 }
 
 void pk_std_load_lfun(Pocket lisp) {
