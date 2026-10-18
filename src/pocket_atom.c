@@ -1,5 +1,31 @@
 #include "pocket_internals.h"
 
+PKAtom *pk_atom_new_nil(Pocket lisp) {
+    PKAtom *result = pk_atom_alloc(lisp);
+    result->header.type = PK_ATOMTY_NIL;
+    return result;
+}
+
+PKAtom *pk_atom_new_true(Pocket lisp) {
+    PKAtom *result = pk_atom_alloc(lisp);
+    result->header.type = PK_ATOMTY_TRUE;
+    return result;
+}
+
+PKAtom *pk_atom_new_undefined(Pocket lisp) {
+    PKAtom *result = pk_atom_alloc(lisp);
+    result->header.type = PK_ATOMTY_UNDEFINED;
+    return result;
+}
+
+PKAtom *pk_atom_bool(Pocket lisp, bool boolean) {
+    if (boolean) {
+        return lisp->cache.atom_true;
+    } else {
+        return lisp->cache.nil;
+    }
+}
+
 bool pk_atom_is_true(PKAtom *atom) {
     return atom->header.type != PK_ATOMTY_NIL;
 }

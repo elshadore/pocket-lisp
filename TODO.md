@@ -6,18 +6,34 @@ The todo list for POCKET LISP
   Update the API to a LUA like api with `setjmp` `longjmp` errors / throws.
   - [x] Remove Errors and Throws
   - [x] Remove Refcounting
-  - [ ] Add Stack Logic
+  - [x] Add Stack Logic
   - [x] Add Stack API
     - pop
     - popn
     - insert
     - ...
-  - [ ] C Funcall Update
-  - [ ] Update STD + pocket_user.c
+  - [x] C Funcall Update
+  - [x] Update STD + pocket_user.c
   - [ ] Add Garbage Collection
-  - [ ] Remove pk_propagate
+  - [x] Remove pk_propagate
   - [ ] Add `setjmp` `longjmp` errors / throws
   - [ ] pk_protect
+  
+## Notes
+- [ ] repl.c is wrong needs to use the user api
+- [ ] Pocket STD is wrong (needs to use the user api)
+- [ ] Macroexpand has removed the code for checking lets
+- [ ] underscored internal functions should be `pk_atom_*` instead
+- [ ] `pk_set_top` needs to convert from stack_pointer to index
+- [ ] `Pocket` should not be cached in PKVM and PKCompiler
+- [ ] Debug needs to hack good stackdump
+- [ ] Gensym logic needs to be placed in `pocket_symbol.c`
+
+## User Review
+Stuff that I need to do a deep dive into.
+- [ ] Compiler
+- [ ] VM
+- [ ] Hashmap
 
 ## TOMORROW
 - [ ] Object System

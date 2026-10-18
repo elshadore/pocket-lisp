@@ -1,55 +1,55 @@
 #include "pocket_internals.h"
 
-PKAtom pk_fs_slurp_str(PKStr file_path) {
+PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path) {
     if (file_path.length == 0) {
-        return pk_errors(pk_str("empty file path"));
+        pk_errors(lisp, pk_str("empty file path"));
     }
-    char *cfile_path = pk_malloc((file_path.length + 1) * sizeof(char));
+
+    char *cfile_path = (char *)pk_malloc(lisp, (file_path.length + 1) * sizeof(char));
     (void)memcpy(cfile_path, file_path.c, file_path.length);
     cfile_path[file_path.length] = '\0';
 
     FILE *file = fopen(cfile_path, "r");
-    pk_free(cfile_path);
+    pk_free(lisp, cfile_path);
     if (file == NULL) {
-        return pk_errors(pk_str("cannot open file"));
+        pk_errors(lisp, pk_str("cannot open file"));
     }
 
     fseek(file, 0, SEEK_END);
     long length = ftell(file);
     if (length < 0) {
         fclose(file);
-        return pk_errors(pk_str("cannot get file size"));
+        pk_errors(lisp, pk_str("cannot get file size"));
     }
     rewind(file);
-    
-    PKAtom result = pk_string_alloc(length);
-    
-    size_t read = fread(result->string.str.c, 1, (size_t)length, file);
+
+    PKAtomString *result = pk_atom_string_alloc(lisp, (size_t)length);
+
+    size_t read = fread(result->str.c, 1, (size_t)length, file);
     fclose(file);
-    
+
     if ((size_t)length != read) {
-        return pk_errors(pk_str("cannot read file"));
+        pk_errors(lisp, pk_str("cannot read file"));
     }
-    
+
     return result;
 }
 
-PKAtom pk_fs_slurp(PKAtom file_path) {
-    pk_propagate(pk_typecheck_string(file_path));
-    return pk_fs_slurp_str(file_path->string.str);
+PKAtomString *pk_fs_slurp(Pocket lisp, PKAtomString *file_path) {
+    return pk_fs_slurp_str(lisp, file_path->str);
 }
 
 #define READ_BUFFER_MAX (1024)
 
 char READ_BUFFER[READ_BUFFER_MAX];
 
-PKAtom pk_fs_read_user_input(void) {
+PKAtom *pk_fs_read_user_input(Pocket lisp) {
     size_t i = 0;
     for (;;) {
         int c = getc(stdin);
         if (c == EOF) {
             if (i == 0) {
-                return pk_nil();
+                return lisp->cache.nil;
             }
             break;
         }
@@ -57,7 +57,7 @@ PKAtom pk_fs_read_user_input(void) {
             break;
         }
         if (i == READ_BUFFER_MAX) {
-            return pk_errors(pk_str("input too long"));
+            pk_errors(lisp, pk_str("input too long"));
         }
         READ_BUFFER[i] = (char)c;
         i += 1;
@@ -67,5 +67,5 @@ PKAtom pk_fs_read_user_input(void) {
         .c = READ_BUFFER,
         .length = i,
     };
-    return pk_string(slice);
+    return (PKAtom *)pk_atom_string(lisp, slice);
 }

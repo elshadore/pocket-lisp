@@ -1,169 +1,83 @@
 #include "pocket_internals.h"
 
-PocketLispMachine PK_CORE = POCKET_LISP_MACHINE_EMPTY;
+void pk_init_cache(Pocket lisp) {
+    PKCache *c = &lisp->cache;
+    
+    c->nil = pk_atom_new_nil(lisp);
+    c->atom_true = pk_atom_new_true(lisp);
+    c->undefined = pk_atom_new_undefined(lisp);
+    c->empty_string = pk_atom_string_new_empty(lisp);
 
-PKAtom pk_init_symbols(void) {
-    PK_CORE.cache.lambda = pk_symbol(pk_str("lambda"));
-    pk_propagate(PK_CORE.cache.lambda);
-    
-    PK_CORE.cache.macro = pk_symbol(pk_str("macro"));
-    pk_propagate(PK_CORE.cache.macro);
-    
-    PK_CORE.cache.progn = pk_symbol(pk_str("progn"));
-    pk_propagate(PK_CORE.cache.progn);
-    
-    PK_CORE.cache.sym_if = pk_symbol(pk_str("if"));
-    pk_propagate(PK_CORE.cache.sym_if);
-    
-    PK_CORE.cache.sym_while = pk_symbol(pk_str("while"));
-    pk_propagate(PK_CORE.cache.sym_while);
-    
-    PK_CORE.cache.sym_and = pk_symbol(pk_str("and"));
-    pk_propagate(PK_CORE.cache.sym_and);
-    
-    PK_CORE.cache.sym_or = pk_symbol(pk_str("or"));
-    pk_propagate(PK_CORE.cache.sym_or);
-    
-    PK_CORE.cache.error = pk_symbol(pk_str("error"));
-    pk_propagate(PK_CORE.cache.error);
-    
-    PK_CORE.cache.throw = pk_symbol(pk_str("throw"));
-    pk_propagate(PK_CORE.cache.throw);
-    
-    PK_CORE.cache.var = pk_symbol(pk_str("var"));
-    pk_propagate(PK_CORE.cache.var);
-    
-    PK_CORE.cache.fvar = pk_symbol(pk_str("fvar"));
-    pk_propagate(PK_CORE.cache.fvar);
-    
-    PK_CORE.cache.let = pk_symbol(pk_str("let"));
-    pk_propagate(PK_CORE.cache.let);
-    
-    PK_CORE.cache.let_star = pk_symbol(pk_str("let*"));
-    pk_propagate(PK_CORE.cache.let_star);
-
-    PK_CORE.cache.protect = pk_symbol(pk_str("protect"));
-    pk_propagate(PK_CORE.cache.protect);
-
-    PK_CORE.cache.unwind_protect = pk_symbol(pk_str("unwind-protect"));
-    pk_propagate(PK_CORE.cache.unwind_protect);
-    
-    PK_CORE.cache.flet = pk_symbol(pk_str("flet"));
-    pk_propagate(PK_CORE.cache.flet);
-    
-    PK_CORE.cache.flet_star = pk_symbol(pk_str("flet*"));
-    pk_propagate(PK_CORE.cache.flet_star);
-    
-    PK_CORE.cache.block = pk_symbol(pk_str("block"));
-    pk_propagate(PK_CORE.cache.block);
-    
-    PK_CORE.cache.apply = pk_symbol(pk_str("apply"));
-    pk_propagate(PK_CORE.cache.apply);
-    
-    PK_CORE.cache.macro_apply = pk_symbol(pk_str("macro-apply"));
-    pk_propagate(PK_CORE.cache.macro_apply);
-    
-    PK_CORE.cache.quote = pk_symbol(pk_str("quote"));
-    pk_propagate(PK_CORE.cache.quote);
-    
-    PK_CORE.cache.quasiquote = pk_symbol(pk_str("quasiquote"));
-    pk_propagate(PK_CORE.cache.quasiquote);
-    
-    PK_CORE.cache.unquote = pk_symbol(pk_str("unquote"));
-    pk_propagate(PK_CORE.cache.unquote);
-    
-    PK_CORE.cache.unquote_splice = pk_symbol(pk_str("unquote-splice"));
-    pk_propagate(PK_CORE.cache.unquote_splice);
-    
-    PK_CORE.cache.string_substitute = pk_symbol(pk_str("string-substitute"));
-    pk_propagate(PK_CORE.cache.string_substitute);
-    
-    return pk_true();
+    c->lambda = pk_atom_symbol(lisp, pk_str("lambda"));
+    c->macro = pk_atom_symbol(lisp, pk_str("macro"));
+    c->progn = pk_atom_symbol(lisp, pk_str("progn"));
+    c->sym_if = pk_atom_symbol(lisp, pk_str("if"));
+    c->sym_while = pk_atom_symbol(lisp, pk_str("while"));
+    c->sym_and = pk_atom_symbol(lisp, pk_str("and"));
+    c->sym_or = pk_atom_symbol(lisp, pk_str("or"));
+    c->error = pk_atom_symbol(lisp, pk_str("error"));
+    c->throw = pk_atom_symbol(lisp, pk_str("throw"));
+    c->var = pk_atom_symbol(lisp, pk_str("var"));
+    c->fvar = pk_atom_symbol(lisp, pk_str("fvar"));
+    c->let = pk_atom_symbol(lisp, pk_str("let"));
+    c->let_star = pk_atom_symbol(lisp, pk_str("let*"));
+    c->protect = pk_atom_symbol(lisp, pk_str("protect"));
+    c->unwind_protect = pk_atom_symbol(lisp, pk_str("unwind-protect"));
+    c->flet = pk_atom_symbol(lisp, pk_str("flet"));
+    c->flet_star = pk_atom_symbol(lisp, pk_str("flet*"));
+    c->block = pk_atom_symbol(lisp, pk_str("block"));
+    c->apply = pk_atom_symbol(lisp, pk_str("apply"));
+    c->macro_apply = pk_atom_symbol(lisp, pk_str("macro-apply"));
+    c->quote = pk_atom_symbol(lisp, pk_str("quote"));
+    c->quasiquote = pk_atom_symbol(lisp, pk_str("quasiquote"));
+    c->unquote = pk_atom_symbol(lisp, pk_str("unquote"));
+    c->unquote_splice = pk_atom_symbol(lisp, pk_str("unquote-splice"));
+    c->string_substitute = pk_atom_symbol(lisp, pk_str("string-substitute"));
 }
 
-PKAtom pk_init2(void) {
-    pk_propagate(pk_init_symbols());
-    pk_propagate(pk_std_load());
-    return pk_true();
-}
+Pocket pk_init(void *user_env) {
+    (void)user_env;
 
-bool pk_init(void) {
-    if (PK_CORE.initialized) {
-        return true;
+    Pocket lisp = (Pocket)malloc(sizeof(PocketLispMachine));
+    if (lisp == NULL) {
+        return NULL;
     }
-    
-    PK_CORE.initialized = true;
-    
-    pk_init2();
-    
-    return true;
+
+    *lisp = POCKET_LISP_MACHINE_EMPTY;
+
+    pk_init_cache(lisp);
+
+    lisp->initialized = true;
+
+    pk_std_load(lisp);
+
+    return lisp;
 }
 
-void pk_deinit_cache(void) {
-    pk_ref_dec(PK_CORE.cache.lambda);
-    pk_ref_dec(PK_CORE.cache.macro);
-    pk_ref_dec(PK_CORE.cache.progn);
-    pk_ref_dec(PK_CORE.cache.sym_if);
-    pk_ref_dec(PK_CORE.cache.sym_while);
-    pk_ref_dec(PK_CORE.cache.sym_and);
-    pk_ref_dec(PK_CORE.cache.sym_or);
-    pk_ref_dec(PK_CORE.cache.error);
-    pk_ref_dec(PK_CORE.cache.throw);
-    pk_ref_dec(PK_CORE.cache.var);
-    pk_ref_dec(PK_CORE.cache.fvar);
-    pk_ref_dec(PK_CORE.cache.let);
-    pk_ref_dec(PK_CORE.cache.let_star);
-    pk_ref_dec(PK_CORE.cache.protect);
-    pk_ref_dec(PK_CORE.cache.unwind_protect);
-    pk_ref_dec(PK_CORE.cache.flet);
-    pk_ref_dec(PK_CORE.cache.flet_star);
-    pk_ref_dec(PK_CORE.cache.block);
-    pk_ref_dec(PK_CORE.cache.apply);
-    pk_ref_dec(PK_CORE.cache.macro_apply);
-    pk_ref_dec(PK_CORE.cache.quote);
-    pk_ref_dec(PK_CORE.cache.quasiquote);
-    pk_ref_dec(PK_CORE.cache.unquote);
-    pk_ref_dec(PK_CORE.cache.unquote_splice);
-    pk_ref_dec(PK_CORE.cache.string_substitute);
-}
-
-void pk_deinit(void) {
-    if (!PK_CORE.initialized) {
+void pk_deinit(Pocket lisp) {
+    if ((lisp == NULL) || (!lisp->initialized)) {
         return;
     }
 
-    pk_array_deinit(&PK_CORE.stack);
-    pk_free(PK_CORE.frames.e);
-    pk_free(PK_CORE.lets.e);
-    pk_deinit_cache();
-    pk_hashmap_deinit(&PK_CORE.symbolizer);
-
-    // Symbol Deinit
-    // We don't have an easy to interact with environment yet. Our environment currently
-    // is just the symbol objects themselves scattered across the memory pool. This code
-    // is essentially an environment deinit function.
-    for (PKPool *iter = PK_CORE.pool; iter != NULL; iter = iter->next) {
-        for (size_t i = 0; i < PK_POOL_MAX; ++i) {
-            PKAtom atom = &iter->e[i];
-            if (atom->header.type == PK_ATOMTY_SYMBOL) {
-                pk_ref_dec(atom);
-            }
-        }
-    }
+    pk_free(lisp, lisp->stack.e);
+    pk_free(lisp, lisp->frames.e);
+    pk_free(lisp, lisp->lets.e);
+    pk_hashmap_deinit(lisp, &lisp->symbolizer);
 
     #ifdef POCKET_CFLAG_DEBUG
-    pk_debug_leakcheck();
+    pk_debug_leakcheck(lisp);
     #endif
 
     {
-        PKPool *iter = PK_CORE.pool;
+        PKPool *iter = lisp->pool;
         while (iter != NULL) {
             PKPool *pool = iter;
             iter = iter->next;
-            pk_free(pool);
+            pk_free(lisp, pool);
         }
     }
-    
-    PK_CORE = POCKET_LISP_MACHINE_EMPTY;
-}
 
+    *lisp = POCKET_LISP_MACHINE_EMPTY;
+
+    pk_free(lisp, lisp);
+}

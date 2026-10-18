@@ -22,7 +22,7 @@
 #include "pocket_object.c"
 #include "pocket_print.c"
 #include "pocket_read.c"
-#include "pocket_ref.c"
+
 #include "pocket_stack.c"
 #include "pocket_slotmap.c"
 #include "pocket_std.c"

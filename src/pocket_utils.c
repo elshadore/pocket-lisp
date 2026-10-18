@@ -1,11 +1,15 @@
 #include "pocket_internals.h"
 
-PKAccum pk_accum_new(Pocket lisp) {
+PKAccum pk_accum_new_with(Pocket lisp, PKAtom *init) {
     return (PKAccum) {
         .lisp = lisp,
-        .head = lisp->cache.nil,
-        .tail = lisp->cache.nil,
+        .head = init,
+        .tail = init,
     };
+}
+    
+PKAccum pk_accum_new(Pocket lisp) {
+    return pk_accum_new_with(lisp, lisp->cache.nil);
 }
 
 void pk_accum_push(PKAccum *acc, PKAtom *atom) {
@@ -13,10 +17,10 @@ void pk_accum_push(PKAccum *acc, PKAtom *atom) {
 
     if (pk_atom_is_nil(acc->head)) {
         acc->head = (PKAtom *)cons;
-        acc->tail = (PKAtom *)cons;
     } else {
-        acc->tail = (PKAtom *)cons;
+        acc->tail->cons.cdr = (PKAtom *)cons;
     }
+    acc->tail = (PKAtom *)cons;
 }
 
 void pk_array_push(Pocket lisp, PKArray *array, PKAtom *atom, size_t init_capacity) {

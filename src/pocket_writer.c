@@ -146,13 +146,13 @@ void pk_writer_simple_object(Pocket lisp, PKWriter *w, void *obj, PKStr name) {
     pk_writer_char(lisp, w, '>');
 }
 
-void pk_writer_simple_function(Pocket lisp, PKWriter *w, void *obj, PKStr type, pk_u8 args, pk_u8 arity) {
+void pk_writer_simple_function(Pocket lisp, PKWriter *w, void *obj, PKStr type, PKArity arity) {
     pk_writer_string(lisp, w, pk_str("&<"));
     pk_writer_string(lisp, w, type);
     pk_writer_string(lisp, w, pk_str("::"));
-    pk_writer_fmt(lisp, w, "%u", args);
+    pk_writer_fmt(lisp, w, "%u", arity.args);
     pk_writer_string(lisp, w, pk_str(":"));
-    pk_writer_string(lisp, w, pk_ident_arity(arity));
+    pk_writer_string(lisp, w, pk_ident_arity(arity.type));
     pk_writer_string(lisp, w, pk_str("::"));
     pk_writer_address(lisp, w, (size_t)obj);
     pk_writer_char(lisp, w, '>');
@@ -209,7 +209,7 @@ void pk_writer_atom(Pocket lisp, PKWriter *w, PKAtom *atom) {
             break;
         }
         case PK_ATOMTY_SYMBOL: {
-            pk_writer_symbol_name(lisp, w, atom->symbol.name->string.str);
+            pk_writer_symbol_name(lisp, w, atom->symbol.name->str);
             break;
         }
         case PK_ATOMTY_KEYWORD: {
@@ -237,19 +237,19 @@ void pk_writer_atom(Pocket lisp, PKWriter *w, PKAtom *atom) {
             break;
         }
         case PK_ATOMTY_CFUN: {
-            pk_writer_simple_function(lisp, w, atom, pk_str("CFUN"), atom->cfun.args, atom->cfun.arity);
+            pk_writer_simple_function(lisp, w, atom, pk_str("CFUN"), atom->cfun.arity);
             break;
         }
         case PK_ATOMTY_LFUN: {
-            pk_writer_simple_function(lisp, w, atom, pk_str("LFUN"), atom->lfun.args, atom->lfun.arity);
+            pk_writer_simple_function(lisp, w, atom, pk_str("LFUN"), atom->lfun.arity);
             break;
         }
         case PK_ATOMTY_CMACRO: {
-            pk_writer_simple_function(lisp, w, atom, pk_str("CMACRO"), atom->cmacro.args, atom->cmacro.arity);
+            pk_writer_simple_function(lisp, w, atom, pk_str("CMACRO"), atom->cmacro.arity);
             break;
         }
         case PK_ATOMTY_LMACRO: {
-            pk_writer_simple_function(lisp, w, atom, pk_str("LMACRO"), atom->lmacro.args, atom->lmacro.arity);
+            pk_writer_simple_function(lisp, w, atom, pk_str("LMACRO"), atom->lmacro.arity);
             break;
         }
         default: {

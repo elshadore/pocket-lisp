@@ -87,11 +87,11 @@ PKCallConv pk_callconv(Pocket lisp, PKAtom *function, pk_u8 args) {
 void pk_fcall(Pocket lisp, PK_CALL call, size_t args) {
     PKAtoms slice = pk_stack_slice_down(lisp, args + 1);
     
-    PKAtom *symbol = slice.e[args];
-    PKAtom *function = symbol;
+    PKAtom *function = slice.e[0];
     
     if (pk_atom_is_symbol(function)) {
-        function = pk_env_get(lisp, PK_ENV_FUN, (PKAtomSymbol *)function);
+        PKAtomSymbol *asym = (PKAtomSymbol *)function;
+        function = pk_env_get(lisp, PK_ENV_FUN, asym);
         if (pk_atom_is_undefined(function)) {
             pk_error(lisp);
             return;
@@ -115,23 +115,37 @@ void pk_fcall(Pocket lisp, PK_CALL call, size_t args) {
     switch (call) {
         case PK_CALL_FUN: {
             switch (function->header.type) {
-                case PK_ATOMTY_CFUN: pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
-                case PK_ATOMTY_LFUN: pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
+                case PK_ATOMTY_CFUN: {
+                    pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
+                    break;
+                }
+                case PK_ATOMTY_LFUN: {
+                    pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
+                    break;
+                }
                 default: {
                     pk_error(lisp);
                     break;
                 }
             }
+            break;
         }
         case PK_CALL_MACRO: {
             switch (function->header.type) {
-                case PK_ATOMTY_CMACRO: pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
-                case PK_ATOMTY_LMACRO: pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
+                case PK_ATOMTY_CMACRO: {
+                    pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
+                    break;
+                }
+                case PK_ATOMTY_LMACRO: {
+                    pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
+                    break;
+                }
                 default: {
                     pk_error(lisp);
                     break;
                 }
             }
+            break;
         }
         default: {
             pk_error(lisp);
@@ -140,4 +154,10 @@ void pk_fcall(Pocket lisp, PK_CALL call, size_t args) {
     }
     
     pk_frame_return(lisp);
+}
+
+void pk_pcall(Pocket lisp, PK_CALL call, size_t args) {
+    int top = pk_top(lisp);
+    pk_fcall(lisp, call, args);
+    pk_set_top(lisp, top - (int)args);
 }

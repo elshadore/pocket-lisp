@@ -534,7 +534,7 @@ PKAtom *pk_read_atom_from_str(Pocket lisp, PKStr string, PK_MODE mode) {
     }
 
     PKAtom *cons = (PKAtom *)pk_atom_list1(lisp, first);
-    PKAccum acc = (PKAccum){.head = cons, .tail = cons};
+    PKAccum acc = pk_accum_new_with(lisp, cons);
 
     while (!pk_reader_is_finished(&r)) {
         PKAtom *atom = pk_read_atom(lisp, &r);

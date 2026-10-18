@@ -12,15 +12,14 @@ void run_repl(void *user_closure, Pocket lisp) {
     Repl *repl = (Repl *)user_closure;
 
     {
+        // Each argument is consed onto the front of the list, so walk the argv
+        // backwards to keep them in order.
         pk_push_nil(lisp);
-        for (int i = 0; i < repl->argc; ++i) {
+        for (int i = repl->argc - 1; i >= 0; --i) {
             pk_push_stringc(lisp, repl->argv[i]);
-            pk_push_cons(lisp, -1, -2);
-            pk_swap_pop3(lisp);
+            pk_stack_set(lisp, -2, (PKAtom *)pk_atom_cons(lisp, pk_stack_get(lisp, -1), pk_stack_get(lisp, -2)));
+            pk_pop(lisp);
         }
-
-        pk_reverse(lisp, -1);
-        pk_swap_pop2(lisp);
     }
     
     pk_push_symbol(lisp, pk_str("args"));

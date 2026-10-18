@@ -120,16 +120,11 @@ void pk_push_string(Pocket lisp, PKStr string);
 void pk_push_stringc(Pocket lisp, char *cstring);
 void pk_push_symbol(Pocket lisp, PKStr symbol);
 void pk_push_symbolc(Pocket lisp, char *csymbol);
-void pk_push_gensym(Pocket lisp);
 void pk_push_keyword(Pocket lisp, PKStr keyword);
 void pk_push_keywordc(Pocket lisp, char *ckeyword);
 void pk_push_cons(Pocket lisp, int car, int cdr);
-void pk_push_list(Pocket lisp, int head, int tail);
-void pk_push_array(Pocket lisp, size_t count, int fill);
-void pk_push_table(Pocket lisp);
 void pk_push_cfun(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options);
 void pk_push_cmacro(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options);
-void pk_push_object(Pocket lisp, int type);
 
 void pk_car(Pocket lisp, int cons);
 void pk_cdr(Pocket lisp, int cons);
@@ -167,13 +162,11 @@ void pk_macroexpand(Pocket lisp, int atom);
 
 void pk_throw(Pocket lisp, int symbol, int value);
 void pk_error(Pocket lisp);
-// void pk_error(Pocket lisp, int message);
 void pk_error_oom(Pocket lisp);
 
 bool pk_is_type(Pocket lisp, int atom, PK_TYPE check);
 void pk_assert_type(Pocket lisp, int atom, PK_TYPE check);
 
-void pk_deftype_lisp(Pocket lisp, int symbol, int slots);
 void pk_deftype_c_owned(Pocket lisp, int symbol, size_t size);
 void pk_deftype_c_user(Pocket lisp, int symbol);
 void pk_slot_set(Pocket lisp, int object, int slot, int value);
@@ -182,24 +175,19 @@ void pk_method_set(Pocket lisp, int type, int symbol, int method);
 void pk_method_get(Pocket lisp, int type, int symbol);
 void pk_method_get_raw(Pocket lisp, int type, int symbol);
 
-bool pk_lt(Pocket lisp, int lhs, int rhs);
-bool pk_lte(Pocket lisp, int lhs, int rhs);
-bool pk_gt(Pocket lisp, int lhs, int rhs);
-bool pk_gte(Pocket lisp, int lhs, int rhs);
-bool pk_eq(Pocket lisp, int lhs, int rhs);
+void pk_lt(Pocket lisp, int lhs, int rhs);
+void pk_lte(Pocket lisp, int lhs, int rhs);
+void pk_gt(Pocket lisp, int lhs, int rhs);
+void pk_gte(Pocket lisp, int lhs, int rhs);
+void pk_eq(Pocket lisp, int lhs, int rhs);
 
-void pk_slice(Pocket lisp, int seq, int head, int tail);
 void pk_reverse(Pocket lisp, int seq);
-void pk_flatten(Pocket lisp, int seq);
 
 void *pk_cobject_data(Pocket lisp, int cobject);
 size_t pk_cobject_size(Pocket lisp, int cobject);
 
-PKStr pk_to_string(Pocket lisp, int atom);
 int pk_to_int(Pocket lisp, int number);
 float pk_to_float(Pocket lisp, int number);
 
-void pk_hexdump(Pocket lisp, int lfun);
-void pk_stackdump(Pocket lisp);
 
 #endif // POCKET_LISP_H

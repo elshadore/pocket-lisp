@@ -5,9 +5,15 @@ int pk_top(Pocket lisp) {
 }
 
 void pk_set_top(Pocket lisp, int new_top) {
-    (void)new_top;
-    fprintf(stderr, "TODO: pk_set_top()\n");
-    pk_error(lisp);
+    size_t frame_offset = lisp->current_frame.stack_offset;
+    size_t top = frame_offset + (size_t)new_top;
+
+    if ((new_top < 0) || (top > lisp->stack.count)) {
+        pk_error(lisp);
+        return;
+    }
+
+    lisp->stack.count = top;
 }
 
 int pk_sp_absolute(Pocket lisp, int stack_pointer) {

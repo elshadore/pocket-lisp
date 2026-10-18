@@ -95,16 +95,16 @@ void pk_atom_free(Pocket lisp, PKAtom *atom) {
             break;
         }
         case PK_ATOMTY_SYMBOL: {
-            pk_slotmap_deinit(&atom->symbol.slots);
-            pk_hashmap_deinit(&atom->symbol.methods);
+            pk_slotmap_deinit(lisp, &atom->symbol.slots);
+            pk_hashmap_deinit(lisp, &atom->symbol.methods);
             break;
         }
         case PK_ATOMTY_LOBJECT: {
-            pk_atoms_free(&atom->lobject.slots);
+            pk_atoms_free(lisp, &atom->lobject.slots);
             break;
         }
         case PK_ATOMTY_COBJECT: {
-            if (atom->cobject.type->symbol.type_type == PK_TYPETY_C_OWNED) {
+            if (pk_atom_assert_symbol(lisp, atom->cobject.type)->type_type == PK_TYPETY_C_OWNED) {
                 pk_free(lisp, atom->cobject.data);
             }
             break;

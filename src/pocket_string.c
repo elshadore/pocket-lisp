@@ -1,5 +1,14 @@
 #include "pocket_internals.h"
 
+PKAtomString *pk_atom_string_new_empty(Pocket lisp) {
+    PKAtomString *result = (PKAtomString *)pk_atom_alloc(lisp);
+    
+    result->header.type = PK_ATOMTY_STRING;
+    result->str = PK_STR_EMPTY;
+    
+    return result;
+}
+
 PKAtomString *pk_atom_string_nomemcpy(Pocket lisp, PKStr string) {
     if (string.length == 0) {
         return lisp->cache.empty_string;
@@ -42,9 +51,9 @@ PKAtomString *pk_atom_string_cat_(PKWriter *w, Pocket lisp, PKAtoms atoms) {
     for (size_t i = 0; i < atoms.length; ++i) {
         PKAtom *atom = atoms.e[i];
         if (pk_atom_is_string(atom)) {
-            pk_writer_string(w, atom->string.str);
+            pk_writer_string(lisp, w, atom->string.str);
         } else {
-            pk_writer_atom(w, atom);
+            pk_writer_atom(lisp, w, atom);
         }
     }
     return pk_atom_string(lisp, pk_writer_slice(w));
@@ -53,7 +62,7 @@ PKAtomString *pk_atom_string_cat_(PKWriter *w, Pocket lisp, PKAtoms atoms) {
 PKAtomString *pk_atom_string_cat(Pocket lisp, PKAtoms atoms) {
     PKWriter w = PK_WRITER_EMPTY;
     PKAtomString *result = pk_atom_string_cat_(&w, lisp, atoms);
-    pk_writer_deinit(&w);
+    pk_writer_deinit(lisp, &w);
     return result;
 }
 

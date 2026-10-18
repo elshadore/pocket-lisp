@@ -21,11 +21,9 @@ bool pk_strsub_inc(PKStrSub *sub) {
     return true;
 }
 
-PKAtom pk_strsub_ince(PKStrSub *sub) {
+void pk_strsub_ince(PKStrSub *sub) {
     if (!pk_strsub_inc(sub)) {
-        return pk_errors(pk_str("string sub out of bounds"));
-    } else {
-        return pk_true();
+        pk_errors(sub->cmp->lisp, pk_str("string sub out of bounds"));
     }
 }
 
@@ -33,12 +31,11 @@ void pk_strsub_mark(PKStrSub *sub) {
     sub->mark = sub->curr;
 }
 
-PKAtom pk_compile_strsub_value(PKStrSub *sub, PKStr string) {
-    PKAtom read = pk_read_str(string, PK_MODE_EXPRESSION);
-    pk_propagate(read);
-    pk_propagate(pk_compile_value(sub->cmp, read));
-    pk_ref_dec(read);
-    return pk_true();
+void pk_compile_strsub_value(PKStrSub *sub, PKStr string) {
+    Pocket lisp = sub->cmp->lisp;
+
+    PKAtom *read = pk_read_atom_from_str(lisp, string, PK_MODE_EXPRESSION);
+    pk_compile_value(sub->cmp, read);
 }
 
 PKStr pk_strsub_slice(PKStrSub *sub) {
@@ -48,82 +45,77 @@ PKStr pk_strsub_slice(PKStrSub *sub) {
     };
 }
 
-PKAtom pk_compile_strsub_(PKStrSub *sub) {
+void pk_compile_strsub_(PKStrSub *sub) {
+    Pocket lisp = sub->cmp->lisp;
+
     size_t count = 0;
     pk_strsub_mark(sub);
-    
+
     do {
         if (pk_strsub_at(sub) == '\\') {
-            pk_propagate(pk_strsub_ince(sub));
+            pk_strsub_ince(sub);
             if (pk_strsub_at(sub) != '{') {
-                return pk_errors(pk_str("bad escape"));
+                pk_errors(lisp, pk_str("bad escape"));
             }
-            pk_propagate(pk_writer_char(&sub->w, '{'));
-            pk_propagate(pk_strsub_ince(sub));
+            pk_writer_char(lisp, &sub->w, '{');
+            pk_strsub_ince(sub);
         } else if (pk_strsub_at(sub) == '{') {
             if (sub->w.count > 0) {
-                PKAtom before = pk_string(pk_writer_slice(&sub->w));
-                pk_propagate(before);
-                pk_propagate(pk_cmp_load(sub->cmp, before));
-                pk_ref_dec(before);
+                pk_cmp_load(sub->cmp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(&sub->w)));
                 count += 1;
             }
-                
+
             pk_writer_reset(&sub->w);
-            pk_propagate(pk_strsub_ince(sub));
-            
+            pk_strsub_ince(sub);
+
             pk_strsub_mark(sub);
             while (pk_strsub_at(sub) != '}') {
-                pk_propagate(pk_strsub_ince(sub));
+                pk_strsub_ince(sub);
             }
             {
                 PKStr slice = pk_strsub_slice(sub);
                 if (slice.length == 0) {
-                    return pk_errors(pk_str("empty sub"));
+                    pk_errors(lisp, pk_str("empty sub"));
                 }
-                pk_propagate(pk_compile_strsub_value(sub, slice));
+                pk_compile_strsub_value(sub, slice);
                 pk_strsub_mark(sub);
             }
 
             count += 1;
         } else {
-            pk_propagate(pk_writer_char(&sub->w, pk_strsub_at(sub)));
+            pk_writer_char(lisp, &sub->w, pk_strsub_at(sub));
         }
     } while (pk_strsub_inc(sub));
-    
+
     if (sub->w.count > 0) {
-        PKAtom before = pk_string(pk_writer_slice(&sub->w));
-        pk_propagate(before);
-        pk_propagate(pk_cmp_load(sub->cmp, before));
-        pk_ref_dec(before);
+        pk_cmp_load(sub->cmp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(&sub->w)));
         count += 1;
     }
 
     if (count > 1) {
-        pk_propagate(pk_cmp_push_byte(sub->cmp, PK_OP_STRCAT));
-        pk_propagate(pk_cmp_push_any(sub->cmp, count));
+        pk_cmp_push_byte(sub->cmp, PK_OP_STRCAT);
+        pk_cmp_push_any(sub->cmp, count);
     }
-    
-    return pk_true();
 }
 
-PKAtom pk_compile_strsub(PKCompiler *c, PKStr string) {
+void pk_compile_strsub(PKCompiler *c, PKStr string) {
+    Pocket lisp = c->lisp;
+
     if (string.length == 0) {
-        pk_propagate(pk_cmp_push_atom(c, pk_string_empty()));
-        return pk_true();
+        pk_cmp_load(c, (PKAtom *)lisp->cache.empty_string);
+        return;
     }
-    
+
     PKStrSub sub = (PKStrSub) {
         .c = string.c[0],
         .string = string,
         .curr = 0,
+        .mark = 0,
         .cmp = c,
         .w = PK_WRITER_EMPTY,
     };
 
-    PKAtom result = pk_compile_strsub_(&sub);
-    
-    pk_writer_deinit(&sub.w);
+    pk_compile_strsub_(&sub);
 
-    return result;
+    pk_writer_deinit(lisp, &sub.w);
 }

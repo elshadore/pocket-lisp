@@ -1,7 +1,7 @@
 #include "pocket_internals.h"
 
 PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr string) {
-    PKAtom *interned = pk_hashmap_get_str(&lisp->symbolizer, string);
+    PKAtom *interned = pk_hashmap_get_str(lisp, &lisp->symbolizer, string);
     if (!pk_atom_is_undefined(interned)) {
         return (PKAtomSymbol *)interned;
     }
@@ -20,7 +20,7 @@ PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr string) {
     result->methods = PK_HASHMAP_EMPTY;
     result->owned_memory = 0;
 
-    pk_hashmap_insert(&lisp->symbolizer, (PKAtom *)name, (PKAtom *)result);
+    pk_hashmap_insert(lisp, &lisp->symbolizer, (PKAtom *)name, (PKAtom *)result);
     
     return result;
 }
@@ -62,3 +62,21 @@ bool pk_atom_keyword_cmp(PKAtomKeyword *keyword, PKStr comp) {
     return pk_str_eq(keyword->id, comp);
 }
 
+
+PKAtomSymbol *pk_atom_assert_symbol(Pocket lisp, PKAtom *atom) {
+    if (pk_atom_is_symbol(atom)) {
+        return (PKAtomSymbol *)atom;
+    } else {
+        pk_error_type(lisp, PK_TYPE_SYMBOL, atom);
+        return NULL;
+    }
+}
+
+PKAtomKeyword *pk_atom_assert_keyword(Pocket lisp, PKAtom *atom) {
+    if (pk_atom_is_keyword(atom)) {
+        return (PKAtomKeyword *)atom;
+    } else {
+        pk_error_type(lisp, PK_TYPE_KEYWORD, atom);
+        return NULL;
+    }
+}
