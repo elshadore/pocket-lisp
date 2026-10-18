@@ -65,7 +65,7 @@ void pk_deinit(Pocket lisp) {
     pk_hashmap_deinit(lisp, &lisp->symbolizer);
 
     #ifdef POCKET_CFLAG_DEBUG
-    pk_debug_leakcheck(lisp);
+    pk_debug_leakcheck(lisp, "pk_deinit()");
     #endif
 
     {

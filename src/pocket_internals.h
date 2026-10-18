@@ -566,6 +566,8 @@ PKAtom *pk_method_set_(Pocket lisp, PKAtom *type, PKAtom *symbol, PKAtom *method
 PKAtom *pk_method_get_raw_(Pocket lisp, PKAtom *type, PKAtom *symbol);
 PKAtom *pk_method_get_(Pocket lisp, PKAtom *type, PKAtom *symbol);
 
+void pk_internal_print(Pocket lisp, PKStr print);
+void pk_internal_println(Pocket lisp, PKStr print);
 void pk_atom_print(Pocket lisp, PKAtom *atom);
 void pk_atom_write(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_format(Pocket lisp, PKAtom *atom);
@@ -697,9 +699,4 @@ PKAtom *pk_fs_read_user_input(Pocket lisp);
 PKVM pk_vm_init(Pocket lisp, PKAtom *lfun, size_t save);
 PKAtom *pk_vm_exec(Pocket lisp, PKVM *vm);
 
-#ifdef POCKET_CFLAG_DEBUG
-void pk_debug_leakcheck(Pocket lisp);
-void pk_debug_dump(Pocket lisp, const char *tag, PK_DUMP opt);
-#endif
-    
 #endif // POCKET_LISP_INTERNALS_H

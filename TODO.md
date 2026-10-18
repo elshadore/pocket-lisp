@@ -20,17 +20,17 @@ The todo list for POCKET LISP
   - [ ] pk_protect
   
 ## Notes
-- [ ] repl.c is wrong needs to use the user api
-- [ ] Pocket STD is wrong (needs to use the user api)
-- [ ] Macroexpand has removed the code for checking lets
-- [ ] underscored internal functions should be `pk_atom_*` instead
-- [ ] `pk_set_top` needs to convert from stack_pointer to index
-- [ ] `Pocket` should not be cached in PKVM and PKCompiler
-- [ ] Debug needs to hack good stackdump
+- [ ] Debug needs to have good stackdump
 - [ ] Reimplement Error Messages
+  This can be a broader thing of having cfmt for strings, symbols, ect..
   - `pk_error` - int message
   - `pk_errors` - PKStr message
   - `pk_errorf` - c format
+- [ ] Add Garbage Collection
+- [ ] Macroexpand has removed the code for checking lets
+- [ ] underscored internal functions should be `pk_atom_*` instead
+- [ ] `Pocket` should not be cached in PKVM and PKCompiler
+- [ ] If we call a Lisp function from withing the VM we should not use the C stack to create a new VM, but reuse the old one.
 
 ## User Review
 Stuff that I need to do a personal deep dive into.

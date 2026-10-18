@@ -23,7 +23,6 @@ typedef struct PocketLispMachine_ *Pocket;
 
 typedef void (*PKFun)(void *user_closure, Pocket lisp);
 
-
 #define PK_PRINTF_FMT(fmt_, vargs_) __attribute__((format (printf, fmt_, vargs_)))
 
 typedef struct PKStr_ {
@@ -47,13 +46,6 @@ typedef enum PK_ARITY_ {
     PK_ARITY_OPTIONAL,
     PK_ARITY_VARIADIC,
 } PK_ARITY;
-
-typedef enum PK_DUMP_ {
-    PK_DUMP_NONE = 0,
-    PK_DUMP_STACK = (1 << 0),
-    PK_DUMP_ENV = (1 << 1),
-    PK_DUMP_ALL = PK_DUMP_STACK | PK_DUMP_ENV,
-} PK_DUMP;
 
 typedef enum PK_CALL_ {
     PK_CALL_FUN = 0,
@@ -193,5 +185,11 @@ size_t pk_cobject_size(Pocket lisp, int cobject);
 int pk_to_int(Pocket lisp, int number);
 float pk_to_float(Pocket lisp, int number);
 
+#ifdef POCKET_CFLAG_DEBUG
+void pk_debug_leakcheck(Pocket lisp, const char *tag);
+void pk_debug_stackdump(Pocket lisp, const char *tag);
+void pk_debug_envdump(Pocket lisp, const char *tag);
+#endif
+    
 
 #endif // POCKET_LISP_H
