@@ -157,14 +157,17 @@ void pk_hexdump(Pocket lisp, int atom);
 void pk_read(Pocket lisp, int string, PK_MODE mode);
 void pk_slurp(Pocket lisp, int file_path);
 void pk_read_user_input(Pocket lisp);
-void pk_eval(Pocket lisp, int expr, PK_MODE mode);
-void pk_apply(Pocket lisp, PK_CALL call, int fun, int args);
-PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args);
-void pk_protect(Pocket lisp);
-void pk_catch(Pocket lisp, int symbol);
 void pk_compile(Pocket lisp, PK_CALL type, int value, PK_MODE mode);
 void pk_macroexpand1(Pocket lisp, int atom);
 void pk_macroexpand(Pocket lisp, int atom);
+
+PK_RES pk_eval(Pocket lisp, int expr, PK_MODE mode);
+PK_RES pk_apply(Pocket lisp, PK_CALL call, int fun, int args);
+PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args);
+
+void pk_protect(Pocket lisp);
+// void pk_catch(Pocket lisp, int symbol);
+// void pk_propagate(Pocket lisp);
 
 void pk_throw(Pocket lisp, int symbol, int value);
 void pk_error(Pocket lisp, int message);

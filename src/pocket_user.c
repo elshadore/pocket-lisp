@@ -241,12 +241,14 @@ void pk_read_user_input(Pocket lisp) {
     pk_stack_push(lisp, pk_fs_read_user_input(lisp));
 }
 
-void pk_eval(Pocket lisp, int expr, PK_MODE mode) {
+PK_RES pk_eval(Pocket lisp, int expr, PK_MODE mode) {
     pk_atom_eval(lisp, pk_stack_get(lisp, expr), mode);
+    return PK_OK;
 }
 
-void pk_apply(Pocket lisp, PK_CALL call, int fun, int args) {
+PK_RES pk_apply(Pocket lisp, PK_CALL call, int fun, int args) {
     pk_atom_apply(lisp, call, pk_stack_get(lisp, fun), pk_stack_get(lisp, args));
+    return PK_OK;
 }
 
 void pk_compile(Pocket lisp, PK_CALL type, int value, PK_MODE mode) {

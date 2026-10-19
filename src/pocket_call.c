@@ -118,9 +118,6 @@ PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
         pk_stack_op_list(lisp, cc.variadic_count);
     }
 
-    jmp_buf buf;
-    setjmp(buf);
-
     pk_frame_push(lisp, cc.args);
 
     switch (call) {
@@ -172,8 +169,6 @@ PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
     return PK_OK;
 }
 
-void pk_pcall(Pocket lisp, PK_CALL call, size_t args) {
-    (void)call;
-    (void)args;
-    pk_errors(lisp, pk_str("pk_pcall is not the way this function should work"));
+void pk_protect(Pocket lisp) {
+    lisp->current_frame.mode = PK_FRAME_MODE_PROTECT;
 }

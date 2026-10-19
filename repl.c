@@ -28,6 +28,7 @@ void run_repl(void *user_closure, Pocket lisp) {
 
     pk_push_string(lisp, pk_str(REPL_CODE));
     pk_read(lisp, -1, PK_MODE_EXPRLIST);
+    pk_protect(lisp);
     pk_eval(lisp, -1, PK_MODE_EXPRLIST);
 }
 
@@ -42,7 +43,8 @@ int main(int argc, char **argv) {
         .argc = argc,
         .argv = argv,
     };
-    
+
+    pk_protect(lisp);
     pk_push_cfun(lisp, &repl, run_repl, 0, PK_ARITY_NORMAL, 0);
     pk_funcall(lisp, PK_CALL_FUN, 0);
     pk_deinit(lisp);

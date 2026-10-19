@@ -319,10 +319,10 @@ struct PKJmp_ {
     .stack_offset = 0, \
     .let_offset = 0, \
     .jmp = NULL, \
+    .mode = PK_FRAME_MODE_NORMAL, \
 }
 
 #define PK_FRAME_MODE_NORMAL (0)
-#define PK_FRAME_MODE_CATCH (1)
 #define PK_FRAME_MODE_PROTECT (1)
 
 typedef struct PKFrame_ {
