@@ -321,16 +321,19 @@ struct PKJmp_ {
 #define PK_FRAME_EMPTY (PKFrame){ \
     .stack_offset = 0, \
     .let_offset = 0, \
+    .catch = NULL, \
     .jmp = NULL, \
     .mode = PK_FRAME_MODE_PROTECT, \
 }
 
 #define PK_FRAME_MODE_NORMAL (0)
 #define PK_FRAME_MODE_PROTECT (1)
+#define PK_FRAME_MODE_CATCH (1)
 
 typedef struct PKFrame_ {
     size_t stack_offset;
     size_t let_offset;
+    PKAtomSymbol *catch;
     PKJmp *jmp;
     pk_u8 mode;
 } PKFrame;

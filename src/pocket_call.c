@@ -214,6 +214,18 @@ PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
     }
 }
 
+void pk_atom_catch(Pocket lisp, PKAtomSymbol *symbol) {
+    if (lisp->current_frame.mode == PK_FRAME_MODE_PROTECT) {
+        return;
+    }
+    lisp->current_frame.mode = PK_FRAME_MODE_CATCH;
+    lisp->current_frame.catch = symbol;
+}
+
 void pk_protect(Pocket lisp) {
     lisp->current_frame.mode = PK_FRAME_MODE_PROTECT;
+}
+
+void pk_catch(Pocket lisp, int symbol) {
+    pk_atom_catch(lisp, pk_atom_assert_symbol(lisp, pk_stack_get(lisp, symbol)));
 }
