@@ -118,9 +118,12 @@ void pk_gc_mark(Pocket lisp, PKAtom *atom) {
 }
 
 void pk_gc_collect(Pocket lisp) {
-    // Mark
     pk_gc_mark_cache(lisp);
+    pk_gc_collect_no_cache(lisp);
+}
 
+void pk_gc_collect_no_cache(Pocket lisp) {
+    // Mark
     for (size_t i = 0; i < lisp->stack.count; ++i) {
         pk_gc_mark(lisp, (PKAtom *)lisp->stack.e[i]);
     }

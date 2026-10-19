@@ -704,5 +704,6 @@ PKAtom *pk_vm_exec(Pocket lisp, PKVM *vm);
 void pk_gc_mark_cache(Pocket lisp);
 void pk_gc_mark(Pocket lisp, PKAtom *atom);
 void pk_gc_collect(Pocket lisp);
+void pk_gc_collect_no_cache(Pocket lisp);
 
 #endif // POCKET_LISP_INTERNALS_H

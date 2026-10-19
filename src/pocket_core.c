@@ -59,10 +59,14 @@ void pk_deinit(Pocket lisp) {
         return;
     }
 
-    pk_free(lisp, lisp->stack.e);
+    pk_array_deinit(lisp, &lisp->stack);
     pk_free(lisp, lisp->frames.e);
+    lisp->frames = PK_FRAMES_EMPTY;
     pk_free(lisp, lisp->lets.e);
+    lisp->lets = PK_LETS_EMPTY;
     pk_hashmap_deinit(lisp, &lisp->symbolizer);
+
+    pk_gc_collect_no_cache(lisp);
 
     #ifdef POCKET_CFLAG_DEBUG
     pk_debug_leakcheck(lisp, "pk_deinit()");
