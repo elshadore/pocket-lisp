@@ -12,8 +12,6 @@ PKVM pk_vm_init(Pocket lisp, PKAtom *lfun, size_t save) {
         .opcode = PK_OP_ILLEGAL,
         .finished = false,
         .yielded = false,
-        .protected = false,
-        .protect_offset = 0,
     };
 }
 
@@ -275,13 +273,12 @@ void pk_vm_op_exec(PKVM *vm) {
             break;
         }
         case PK_OP_PROTECT_BEGIN: {
-            vm->protected = true;
-            vm->protect_offset = lisp->stack.count;
+            pk_frame_push_mode(lisp, 0, PK_FRAME_MODE_PROTECT);
             pk_vm_inc(vm);
             break;
         }
         case PK_OP_PROTECT_END: {
-            vm->protected = false;
+            pk_frame_return_push(lisp);
             pk_vm_inc(vm);
             break;
         }

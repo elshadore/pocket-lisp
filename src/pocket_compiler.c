@@ -574,28 +574,24 @@ void pk_compile_evlist_except_last(PKCompiler *c, PKAtom *args) {
     }
 }
 
-bool pk_protect_begin(PKCompiler *c) {
-    bool outer = (c->protect_depth == 0);
-    if (outer) {
-        pk_cmp_push_byte(c, PK_OP_PROTECT_BEGIN);
-    }
-    c->protect_depth += 1;
-    return outer;
-}
+void pk_compile_protect_evlist(PKCompiler *c, PKAtom *args) {
+    PKAtom *iter = args;
 
-void pk_protect_end(PKCompiler *c, bool outer) {
-    c->protect_depth -= 1;
-    if (outer) {
-        pk_cmp_push_byte(c, PK_OP_PROTECT_END);
+    while (pk_atom_is_cons(iter)) {
+        PKAtom *lfun = pk_atom_compile(c->lisp, PK_CALL_FUN, iter->cons.car, PK_MODE_EXPRESSION);
+        pk_cmp_load(c, lfun);
+        pk_cmp_push_byte(c, PK_OP_CALL);
+        pk_cmp_push_byte(c, 0);
+        iter = iter->cons.cdr;
     }
 }
 
 void pk_compile_protect(PKCompiler *c, PKAtom *args) {
-    bool outer = pk_protect_begin(c);
+    pk_cmp_push_byte(c, PK_OP_PROTECT_BEGIN);
 
-    pk_compile_evlist(c, args);
+    pk_compile_protect_evlist(c, args);
 
-    pk_protect_end(c, outer);
+    pk_cmp_push_byte(c, PK_OP_PROTECT_END);
 }
 
 void pk_compile_unwind_protect(PKCompiler *c, PKAtom *args) {
@@ -606,7 +602,7 @@ void pk_compile_unwind_protect(PKCompiler *c, PKAtom *args) {
 
     PKAtom *last = pk_cons_last(c->lisp, args);
 
-    bool outer = pk_protect_begin(c);
+    pk_cmp_push_byte(c, PK_OP_PROTECT_BEGIN);
 
     pk_compile_evlist_except_last(c, args);
 
@@ -614,7 +610,7 @@ void pk_compile_unwind_protect(PKCompiler *c, PKAtom *args) {
     pk_compile_value(c, last);
     pk_cmp_push_byte(c, PK_OP_BLOCK_POP);
 
-    pk_protect_end(c, outer);
+    pk_cmp_push_byte(c, PK_OP_PROTECT_END);
 }
 
 void pk_compile_quasiquote(PKCompiler *c, PKAtom *value) {

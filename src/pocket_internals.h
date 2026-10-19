@@ -111,8 +111,6 @@ typedef struct PKVM_ {
     pk_u8 opcode;
     bool finished;
     bool yielded;
-    bool protected;
-    size_t protect_offset;
 } PKVM;
 
 typedef struct PKAccum_ {
@@ -609,6 +607,7 @@ void pk_atom_write(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_format(Pocket lisp, PKAtom *atom);
 
 void pk_frame_push(Pocket lisp, size_t arity);
+void pk_frame_push_mode(Pocket lisp, size_t arity, pk_u8 mode);
 void pk_frame_unwind(Pocket lisp);
 void pk_frame_clear(Pocket lisp);
 void pk_frame_return(Pocket lisp);
