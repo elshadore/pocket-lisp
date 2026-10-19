@@ -2,6 +2,7 @@
 The todo list for POCKET LISP
 
 ## Notes
+- [ ] Var should return it's new value let setq does.
 - [ ] Move the throw stuff into the Lisp Environment itself.
   `pk_gets(lisp, pk_str("throw-type"))`
   `pk_gets(lisp, pk_str("throw-value"))`
@@ -18,7 +19,6 @@ Stuff that I need to do a personal deep dive into.
 - [ ] VM
 
 ## TODAY
-- [ ] Special Form: setq, fsetq, psetq
 - [ ] Var should destructure bind ???
 - [ ] Special Forms
   - [ ] defvar, defun, defmacro
