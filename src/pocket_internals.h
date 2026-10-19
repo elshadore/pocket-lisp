@@ -385,6 +385,9 @@ struct PKPool_ {
     .throw = NULL, \
     .var = NULL, \
     .fvar = NULL, \
+    .setq = NULL, \
+    .fsetq = NULL, \
+    .psetq = NULL, \
     .let = NULL, \
     .let_star = NULL, \
     .flet = NULL, \
@@ -420,6 +423,9 @@ typedef struct PKCache_ {
     PKAtomSymbol *throw;
     PKAtomSymbol *var;
     PKAtomSymbol *fvar;
+    PKAtomSymbol *setq;
+    PKAtomSymbol *fsetq;
+    PKAtomSymbol *psetq;
     PKAtomSymbol *let;
     PKAtomSymbol *let_star;
     PKAtomSymbol *protect;

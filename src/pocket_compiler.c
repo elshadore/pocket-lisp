@@ -573,6 +573,31 @@ void pk_compile_evlist_except_last(PKCompiler *c, PKAtom *args) {
     }
 }
 
+void pk_compile_set(PKCompiler *c, PKAtom *args, PK_ENV env) {
+    PKAtomCons *a = pk_atom_assert_cons(c->lisp, args);
+    PKAtomCons *b = pk_atom_assert_cons(c->lisp, a->cdr);
+    (void)pk_atom_assert_nil(c->lisp, b->cdr);
+    pk_atom_assert_symbol(c->lisp, a->car);
+
+    pk_cmp_load(c, a->car);
+    pk_compile_value(c, b->car);
+
+    switch (env) {
+        case PK_ENV_VAR: {
+            pk_cmp_push_byte(c, PK_OP_SET_VAR);
+            break;
+        }
+        case PK_ENV_FUN: {
+            pk_cmp_push_byte(c, PK_OP_SET_FUN);
+            break;
+        }
+        case PK_ENV_PROP: {
+            pk_cmp_push_byte(c, PK_OP_SET_PROP);
+            break;
+        }
+    }
+}
+
 void pk_compile_protect_evlist(PKCompiler *c, PKAtom *args) {
     PKAtom *iter = args;
 
@@ -807,6 +832,18 @@ void pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, bool 
         *is_special = true;
     } else if (symbol == lisp->cache.sym_or) {
         pk_compile_jmp(c, args, PK_OP_JMP_WHEN, PK_OP_LOAD_NIL);
+
+        *is_special = true;
+    } else if (symbol == lisp->cache.setq) {
+        pk_compile_set(c, args, PK_ENV_VAR);
+
+        *is_special = true;
+    } else if (symbol == lisp->cache.fsetq) {
+        pk_compile_set(c, args, PK_ENV_FUN);
+
+        *is_special = true;
+    } else if (symbol == lisp->cache.psetq) {
+        pk_compile_set(c, args, PK_ENV_PROP);
 
         *is_special = true;
     } else {

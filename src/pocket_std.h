@@ -11,12 +11,6 @@
 "(defmacro defvar (symbol :opt value)\n" \
 "   `(set ',symbol ,value))\n" \
 "  \n" \
-"(defmacro fsetq (symbol value)\n" \
-"   `(fset ',symbol ,value))\n" \
-"\n" \
-"(defmacro setq (symbol value)\n" \
-"   `(set ',symbol ,value))\n" \
-"\n" \
 "(defmacro when (cond :rest body)\n" \
 "    `(if ,cond (progn ,@body) nil))\n" \
 "    \n" \

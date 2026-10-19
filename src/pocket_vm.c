@@ -92,8 +92,6 @@ void pk_vm_op_set(PKVM *vm, PK_ENV env) {
 
     pk_stack_pop_unchecked(lisp, 1);
     lisp->stack.e[lisp->stack.count - 1] = slice.e[1];
-
-    pk_vm_inc(vm);
 }
 
 void pk_vm_op_exec(PKVM *vm) {

@@ -7,12 +7,6 @@
 (defmacro defvar (symbol :opt value)
    `(set ',symbol ,value))
   
-(defmacro fsetq (symbol value)
-   `(fset ',symbol ,value))
-
-(defmacro setq (symbol value)
-   `(set ',symbol ,value))
-
 (defmacro when (cond :rest body)
     `(if ,cond (progn ,@body) nil))
     
