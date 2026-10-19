@@ -26,9 +26,6 @@ The todo list for POCKET LISP
 - [ ] Remove ternary operator.
 - [ ] If we PROTECT all the way down to the base frame i.e we dont match on our throw. We should have a special error.
 - [ ] NIL and UNDEFINED should be static objects.
-- [ ] Compiler `protect` Special form should compile each expression to a function, then pk_funcall each one in protected mode. The vm bytecode protect ops can just create a protected block to run this code in.
-- [ ] Add Garbage Collection
-  Fix memory leaks
 - [ ] underscored internal functions should be `pk_atom_*` instead
 - [ ] `Pocket` should not be cached in PKVM and PKCompiler
 - [ ] If we call a Lisp function from withing the VM we should not use the C stack to create a new VM, but reuse the old one.

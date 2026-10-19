@@ -363,3 +363,19 @@ size_t pk_cobject_size(Pocket lisp, int cobject) {
 void pk_error(Pocket lisp, int message) {
     pk_error_atom(lisp, pk_stack_get(lisp, message));
 }
+
+void pk_push_throw_type(Pocket lisp) {
+    if (lisp->throw_symbol == NULL) {
+        pk_stack_push(lisp, lisp->cache.nil);
+    } else {
+        pk_stack_push(lisp, lisp->throw_symbol);
+    }
+}
+
+void pk_push_throw_value(Pocket lisp) {
+    if (lisp->throw_value == NULL) {
+        pk_stack_push(lisp, lisp->cache.nil);
+    } else {
+        pk_stack_push(lisp, lisp->throw_value);
+    }
+}

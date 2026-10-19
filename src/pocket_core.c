@@ -4,12 +4,14 @@ void pk_init_cache(Pocket lisp) {
     PKCache *c = &lisp->cache;
     
     c->nil = pk_atom_new_nil(lisp);
+    
+    lisp->throw_symbol = (PKAtom *)c->nil;
+    lisp->throw_value = (PKAtom *)c->nil;
+
     c->atom_true = pk_atom_new_true(lisp);
     c->undefined = pk_atom_new_undefined(lisp);
     c->empty_string = pk_atom_string_new_empty(lisp);
-
-    lisp->throw_symbol = (PKAtom *)c->nil;
-    lisp->throw_value = (PKAtom *)c->nil;
+    c->out_of_memory = pk_atom_string(lisp, pk_str("out of memory"));
 
     c->lambda = pk_atom_symbol(lisp, pk_str("lambda"));
     c->macro = pk_atom_symbol(lisp, pk_str("macro"));

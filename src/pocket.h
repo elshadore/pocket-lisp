@@ -168,6 +168,9 @@ void pk_protect(Pocket lisp);
 void pk_catch(Pocket lisp, int symbol);
 void pk_propagate(Pocket lisp);
 
+void pk_push_throw_type(Pocket lisp);
+void pk_push_throw_value(Pocket lisp);
+
 void pk_throw(Pocket lisp, int symbol, int value);
 void pk_error(Pocket lisp, int message);
 void pk_errors(Pocket lisp, PKStr message);

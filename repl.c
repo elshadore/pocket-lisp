@@ -27,10 +27,7 @@ void run_repl(void *user_closure, Pocket lisp) {
 
     pk_push_string(lisp, pk_str(REPL_CODE));
     pk_read(lisp, -1, PK_MODE_EXPRLIST);
-    pk_protect(lisp);
-    if (pk_eval(lisp, -1, PK_MODE_EXPRLIST) == PK_YIELDED) {
-        pk_atom_print(lisp, pk_error_value(lisp));
-    }
+    (void)pk_eval(lisp, -1, PK_MODE_EXPRLIST);
 }
 
 int main(int argc, char **argv) {

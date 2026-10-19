@@ -13,35 +13,38 @@ bool pk_atom_is_marked(PKAtom *atom) {
 }
 
 void pk_gc_mark_cache(Pocket lisp) {
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.nil);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.atom_true);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.undefined);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.empty_string);
+    PKCache *c = &lisp->cache;
+    
+    pk_gc_mark(lisp, (PKAtom *)c->nil);
+    pk_gc_mark(lisp, (PKAtom *)c->atom_true);
+    pk_gc_mark(lisp, (PKAtom *)c->undefined);
+    pk_gc_mark(lisp, (PKAtom *)c->empty_string);
+    pk_gc_mark(lisp, (PKAtom *)c->out_of_memory);
 
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.lambda);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.macro);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.progn);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.sym_if);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.sym_while);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.sym_and);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.sym_or);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.error);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.throw);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.var);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.fvar);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.let);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.let_star);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.protect);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.flet);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.flet_star);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.block);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.apply);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.macro_apply);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.quote);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.quasiquote);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.unquote);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.unquote_splice);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.string_substitute);
+    pk_gc_mark(lisp, (PKAtom *)c->lambda);
+    pk_gc_mark(lisp, (PKAtom *)c->macro);
+    pk_gc_mark(lisp, (PKAtom *)c->progn);
+    pk_gc_mark(lisp, (PKAtom *)c->sym_if);
+    pk_gc_mark(lisp, (PKAtom *)c->sym_while);
+    pk_gc_mark(lisp, (PKAtom *)c->sym_and);
+    pk_gc_mark(lisp, (PKAtom *)c->sym_or);
+    pk_gc_mark(lisp, (PKAtom *)c->error);
+    pk_gc_mark(lisp, (PKAtom *)c->throw);
+    pk_gc_mark(lisp, (PKAtom *)c->var);
+    pk_gc_mark(lisp, (PKAtom *)c->fvar);
+    pk_gc_mark(lisp, (PKAtom *)c->let);
+    pk_gc_mark(lisp, (PKAtom *)c->let_star);
+    pk_gc_mark(lisp, (PKAtom *)c->protect);
+    pk_gc_mark(lisp, (PKAtom *)c->flet);
+    pk_gc_mark(lisp, (PKAtom *)c->flet_star);
+    pk_gc_mark(lisp, (PKAtom *)c->block);
+    pk_gc_mark(lisp, (PKAtom *)c->apply);
+    pk_gc_mark(lisp, (PKAtom *)c->macro_apply);
+    pk_gc_mark(lisp, (PKAtom *)c->quote);
+    pk_gc_mark(lisp, (PKAtom *)c->quasiquote);
+    pk_gc_mark(lisp, (PKAtom *)c->unquote);
+    pk_gc_mark(lisp, (PKAtom *)c->unquote_splice);
+    pk_gc_mark(lisp, (PKAtom *)c->string_substitute);
 
     pk_gc_mark(lisp, lisp->throw_symbol);
     pk_gc_mark(lisp, lisp->throw_value);

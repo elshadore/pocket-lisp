@@ -373,6 +373,7 @@ struct PKPool_ {
     .undefined = NULL, \
     \
     .empty_string = NULL, \
+    .out_of_memory = NULL, \
     \
     .lambda = NULL, \
     .macro = NULL, \
@@ -405,6 +406,7 @@ typedef struct PKCache_ {
     PKAtom *undefined;
 
     PKAtomString *empty_string;
+    PKAtomString *out_of_memory;
     
     PKAtomSymbol *lambda;
     PKAtomSymbol *macro;
@@ -480,9 +482,9 @@ void pk_pool_expand(Pocket lisp);
 PKAtom *pk_atom_alloc(Pocket lisp);
 void pk_atom_free(Pocket lisp, PKAtom *atom);
 
+void pk_atom_throw(Pocket lisp, PKAtomSymbol *symbol, PKAtom *value);
 void pk_error_atom(Pocket lisp, PKAtom *message);
 void pk_error_type(Pocket lisp, PK_TYPE expected, PKAtom *found);
-void pk_throw_now(Pocket lisp);
 void pk_error_writer(Pocket lisp, PKWriter *w);
 PKAtom *pk_error_value(Pocket lisp);
 
