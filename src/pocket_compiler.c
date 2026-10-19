@@ -678,9 +678,22 @@ void pk_compile_var(PKCompiler *c, PKAtom *form, PK_ENV env) {
     PKAtomCons *a = pk_atom_assert_cons(c->lisp, form);
     PKAtomCons *b = pk_atom_assert_cons(c->lisp, a->cdr);
     (void)pk_atom_assert_nil(c->lisp, b->cdr);
-    pk_atom_assert_symbol(c->lisp, a->car);
 
     pk_compile_value(c, b->car);
+
+    if (pk_atom_is_cons(a->car)) {
+        size_t pushed = 0;
+        pk_compile_pattern_values(c, a->car, 0, false, &pushed);
+
+        size_t lets = 0;
+        pk_compile_pattern_symbols(c, a->car, false, &lets);
+
+        pk_compile_let_lets(c, env);
+        pk_cmp_push_any(c, lets);
+        return;
+    }
+
+    pk_atom_assert_symbol(c->lisp, a->car);
     pk_cmp_load(c, a->car);
 
     switch (env) {
