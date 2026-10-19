@@ -446,6 +446,7 @@ typedef struct PKCache_ {
     .symbolizer = PK_HASHMAP_EMPTY, \
     .gensym_counter = 0, \
     .yielded = false, \
+    .yield_frames_count = 0, \
     .current_frame = PK_FRAME_EMPTY, \
     .current_jmp = NULL, \
     .throw_symbol = NULL, \
@@ -456,6 +457,7 @@ typedef struct PKCache_ {
 }
 
 typedef struct PocketLispMachine_ {
+    size_t yield_frames_count;
     PKArray stack;
     PKLets lets;
     PKFrames frames;
