@@ -20,6 +20,7 @@ The todo list for POCKET LISP
   - [ ] pk_protect
   
 ## Notes
+- [ ] Remove ternary operator.
 - [ ] If we PROTECT all the way down to the base frame i.e we dont match on our throw. We should have a special error.
 - [ ] NIL and UNDEFINED should be static objects.
 - [ ] Are the catch related values in PKFrame vestigial.
