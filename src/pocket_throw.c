@@ -19,10 +19,10 @@ void pk_error_writer(Pocket lisp, PKWriter *w) {
 
 void pk_propagate(Pocket lisp) {
     if (lisp->throw_symbol == lisp->cache.nil) {
-        pk_errors(lisp, pk_str("pk_propagate: no active throw"));
-        return;
+        pk_errors(lisp, pk_str("not in a propagate context"));
+    } else {
+        pk_atom_throw(lisp, (PKAtomSymbol *)lisp->throw_symbol, lisp->throw_value);
     }
-    pk_atom_throw(lisp, (PKAtomSymbol *)lisp->throw_symbol, lisp->throw_value);
 }
 
 void pk_error_atom(Pocket lisp, PKAtom *message) {

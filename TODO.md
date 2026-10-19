@@ -1,24 +1,6 @@
 # TODO
 The todo list for POCKET LISP
 
-## TODAY
-### LUA Stack Update
-  Update the API to a LUA like api with `setjmp` `longjmp` errors / throws.
-  - [x] Remove Errors and Throws
-  - [x] Remove Refcounting
-  - [x] Add Stack Logic
-  - [x] Add Stack API
-    - pop
-    - popn
-    - insert
-    - ...
-  - [x] C Funcall Update
-  - [x] Update STD + pocket_user.c
-  - [x] Add Garbage Collection
-  - [x] Remove pk_propagate
-  - [ ] Add `setjmp` `longjmp` errors / throws
-  - [ ] pk_protect
-  
 ## Notes
 - [ ] Move the throw stuff into the Lisp Environment itself.
   `pk_gets(lisp, pk_str("throw-type"))`
@@ -35,7 +17,12 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Compiler
 - [ ] VM
 
-## TOMORROW
+## TODAY
+- [ ] Special Form: setq, fsetq, psetq
+- [ ] Var should destructure bind ???
+- [ ] Special Forms
+  - [ ] defvar, defun, defmacro
+  - [ ] defmacro and macro needs full destructuring bind
 - [ ] Object System
   - [ ] CObjects
   - [ ] LObjects
@@ -50,18 +37,11 @@ Stuff that I need to do a personal deep dive into.
   - [ ] Byte Blobs (Immutable like Strings)
   - [ ] StringArray (Mutable Append)
   - [ ] ByteArray (Mutable Append)
-- [ ] Var should destructure bind ???
-- [ ] Error Types
-  - Error Symbol + Message
-- [ ] Error Stack Traces
-  - debug-trace variable
-- [ ] Special Forms
-  - [ ] fn, λ, lambda
-  - [ ] defvar, defun, defmacro, defclass
-  - [ ] defmacro needs full destructuring bind
-- [ ] Special Form: setq, fsetq, psetq
 
 ## V1
+- [ ] Error Stack Traces
+  - debug-trace variable
+- [ ] defclass
 - [ ] Recursive Printing Check
 - [ ] Big Numbers
 - [ ] Unicode Strings (utf8)
@@ -89,6 +69,7 @@ Stuff that I need to do a personal deep dive into.
   - Not limited to 8bit args
 
 ## V2
+- [ ] fn, λ, lambda
 - [ ] Interpretter Objects
 - [ ] Lexical Capture
   - [ ] Upvalues
