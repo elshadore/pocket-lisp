@@ -1,6 +1,5 @@
 #include "./src/pocket.h"
 #include "./src/pocket_all.c"
-
 #include "repl.h"
 
 typedef struct Repl_ {
@@ -46,12 +45,13 @@ int main(int argc, char **argv) {
         .argv = argv,
     };
 
-    pk_protect(lisp);
     pk_push_cfun(lisp, &repl, run_repl, 0, PK_ARITY_NORMAL, 0);
     if (pk_funcall(lisp, PK_CALL_FUN, 0) == PK_YIELDED) {
-        pk_atom_print(lisp, pk_error_value(lisp));
+        pk_print(lisp, -1);
+        pk_deinit(lisp);
+        return 1;
+    } else {
+        pk_deinit(lisp);
+        return 0;
     }
-    pk_deinit(lisp);
-    
-    return 0;
 }
