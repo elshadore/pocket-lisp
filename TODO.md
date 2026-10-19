@@ -23,7 +23,6 @@ The todo list for POCKET LISP
 - [ ] Remove ternary operator.
 - [ ] If we PROTECT all the way down to the base frame i.e we dont match on our throw. We should have a special error.
 - [ ] NIL and UNDEFINED should be static objects.
-- [ ] Are the catch related values in PKFrame vestigial.
 - [ ] Compiler `protect` Special form should compile each expression to a function, then pk_funcall each one in protected mode. The vm bytecode protect ops can just create a protected block to run this code in.
 - [ ] Add Garbage Collection
   Fix memory leaks
