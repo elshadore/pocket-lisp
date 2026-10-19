@@ -351,7 +351,7 @@ void pk_std_load_lfun(Pocket lisp) {
     pk_push_string(lisp, pk_str(PK_STD_CODE));
     pk_read(lisp, -1, PK_MODE_EXPRLIST);
     pk_eval(lisp, -1, PK_MODE_EXPRLIST);
-    pk_pop(lisp);
+    pk_pop2(lisp);
 }
 
 void pk_std_load(Pocket lisp) {
