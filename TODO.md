@@ -19,7 +19,6 @@ Stuff that I need to do a personal deep dive into.
 - [ ] VM
 
 ## TODAY
-- [ ] Var should destructure bind ???
 - [ ] Special Forms
   - [ ] defvar, defun, defmacro
   - [ ] defmacro and macro needs full destructuring bind

@@ -310,6 +310,27 @@ void pk_compile_let_lets(PKCompiler *c, PK_ENV env) {
     }
 }
 
+void pk_compile_bind(PKCompiler *c, PKAtom *bind, PK_ENV env) {
+    switch (bind->header.type) {
+        case PK_ATOMTY_CONS: {
+            size_t pushed = 0;
+            pk_compile_pattern_values(c, bind, 0, false, &pushed);
+
+            size_t lets = 0;
+            pk_compile_pattern_symbols(c, bind, false, &lets);
+
+            pk_compile_let_lets(c, env);
+            pk_cmp_push_any(c, lets);
+            break;
+        }
+        case PK_ATOMTY_NIL: break;
+        default: {
+            pk_error_type(c->lisp, PK_TYPE_LIST, bind);
+            break;
+        }
+    }
+}
+
 void pk_compile_let_binding_value(PKCompiler *c, PKAtom *binding) {
     if (pk_atom_is_symbol(binding)) {
         pk_cmp_load_nil(c);
@@ -682,35 +703,27 @@ void pk_compile_var(PKCompiler *c, PKAtom *form, PK_ENV env) {
     pk_compile_value(c, b->car);
 
     if (pk_atom_is_cons(a->car)) {
-        size_t pushed = 0;
-        pk_compile_pattern_values(c, a->car, 0, false, &pushed);
+        pk_compile_bind(c, a->car, env);
+    } else {
+        pk_atom_assert_symbol(c->lisp, a->car);
+        pk_cmp_load(c, a->car);
 
-        size_t lets = 0;
-        pk_compile_pattern_symbols(c, a->car, false, &lets);
-
-        pk_compile_let_lets(c, env);
-        pk_cmp_push_any(c, lets);
-        return;
-    }
-
-    pk_atom_assert_symbol(c->lisp, a->car);
-    pk_cmp_load(c, a->car);
-
-    switch (env) {
-        case PK_ENV_VAR: {
-            pk_cmp_push_byte(c, PK_OP_LET_VAR);
-            pk_cmp_push_byte(c, 1);
-            break;
-        }
-        case PK_ENV_FUN: {
-            pk_cmp_push_byte(c, PK_OP_LET_FUN);
-            pk_cmp_push_byte(c, 1);
-            break;
-        }
-        case PK_ENV_PROP: {
-            pk_cmp_push_byte(c, PK_OP_LET_PROP);
-            pk_cmp_push_byte(c, 1);
-            break;
+        switch (env) {
+            case PK_ENV_VAR: {
+                pk_cmp_push_byte(c, PK_OP_LET_VAR);
+                pk_cmp_push_byte(c, 1);
+                break;
+            }
+            case PK_ENV_FUN: {
+                pk_cmp_push_byte(c, PK_OP_LET_FUN);
+                pk_cmp_push_byte(c, 1);
+                break;
+            }
+            case PK_ENV_PROP: {
+                pk_cmp_push_byte(c, PK_OP_LET_PROP);
+                pk_cmp_push_byte(c, 1);
+                break;
+            }
         }
     }
 }

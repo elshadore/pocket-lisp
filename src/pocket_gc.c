@@ -23,6 +23,11 @@ void pk_gc_mark_cache(Pocket lisp) {
 
     pk_gc_mark(lisp, (PKAtom *)c->lambda);
     pk_gc_mark(lisp, (PKAtom *)c->macro);
+    
+    pk_gc_mark(lisp, (PKAtom *)c->defvar);
+    pk_gc_mark(lisp, (PKAtom *)c->defun);
+    pk_gc_mark(lisp, (PKAtom *)c->defmacro);
+    
     pk_gc_mark(lisp, (PKAtom *)c->progn);
     pk_gc_mark(lisp, (PKAtom *)c->sym_if);
     pk_gc_mark(lisp, (PKAtom *)c->sym_while);

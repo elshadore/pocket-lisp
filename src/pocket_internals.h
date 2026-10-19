@@ -378,6 +378,10 @@ struct PKPool_ {
     .lambda = NULL, \
     .macro = NULL, \
     \
+    .defvar = NULL, \
+    .defun = NULL, \
+    .defmacro = NULL, \
+    \
     .progn = NULL, \
     .sym_if = NULL, \
     .sym_while = NULL, \
@@ -413,6 +417,10 @@ typedef struct PKCache_ {
     
     PKAtomSymbol *lambda;
     PKAtomSymbol *macro;
+    
+    PKAtomSymbol *defvar;
+    PKAtomSymbol *defun;
+    PKAtomSymbol *defmacro;
     
     PKAtomSymbol *progn;
     PKAtomSymbol *sym_if;
