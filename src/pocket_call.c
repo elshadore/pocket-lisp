@@ -228,12 +228,25 @@ PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
     return pk_jmp_leave(lisp, &jmp, PK_OK);
 }
 
-static PK_RES pk_jmp_catch(Pocket lisp, PKJmp *jmp) {
-    lisp->current_jmp = jmp->a_link_to_the_past;
-    lisp->yielded = true;
-    lisp->yield_frames_count = jmp->frames_count;
+PK_RES pk_jmp_catch(Pocket lisp, PKJmp *jmp) {
+    PKAtom *value = lisp->throw_value;
 
-    return pk_jmp_leave(lisp, jmp, PK_YIELDED);
+    lisp->current_jmp = jmp->a_link_to_the_past;
+
+    while (lisp->frames.count > jmp->frames_count) {
+        pk_frame_unwind(lisp);
+    }
+
+    lisp->stack.count = lisp->current_frame.stack_offset;
+    pk_stack_push(lisp, value);
+
+    lisp->yielded = false;
+    lisp->throw_symbol = lisp->cache.nil;
+    lisp->throw_value = lisp->cache.nil;
+
+    pk_gc_collect(lisp);
+
+    return PK_OK;
 }
 
 PK_RES pk_jmp_handle(Pocket lisp, PKJmp *jmp) {

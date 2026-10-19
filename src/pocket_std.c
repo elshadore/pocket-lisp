@@ -148,7 +148,7 @@ void pk_fun_funcatch(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_assert_type(lisp, 1, PK_TYPE_SYMBOL);
     pk_catch(lisp, 1);
-    pk_funcall(lisp, PK_CALL_FUN, 0);
+    (void)pk_funcall(lisp, PK_CALL_FUN, 0);
 }
 
 void pk_fun_propagate(void *user_closure, Pocket lisp) {
