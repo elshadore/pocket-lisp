@@ -22,7 +22,6 @@ The todo list for POCKET LISP
 ## Notes
 - [ ] Add Garbage Collection
   Fix memory leaks
-- [ ] Macroexpand has removed the code for checking lets
 - [ ] underscored internal functions should be `pk_atom_*` instead
 - [ ] `Pocket` should not be cached in PKVM and PKCompiler
 - [ ] If we call a Lisp function from withing the VM we should not use the C stack to create a new VM, but reuse the old one.
@@ -31,7 +30,6 @@ The todo list for POCKET LISP
 Stuff that I need to do a personal deep dive into.
 - [ ] Compiler
 - [ ] VM
-- [ ] Hashmap
 
 ## TOMORROW
 - [ ] Object System
@@ -55,6 +53,7 @@ Stuff that I need to do a personal deep dive into.
   - debug-trace variable
 
 ## V1
+- [ ] Recursive Printing Check
 - [ ] Special Forms
   - [ ] fn, λ, lambda
   - [ ] defvar, defun, defmacro, defclass

@@ -72,7 +72,7 @@ PKAtom *pk_atom_alloc(Pocket lisp) {
 
 void pk_atom_free(Pocket lisp, PKAtom *atom) {
     pk_u8 type = atom->header.type;
-    if ((type == PK_ATOMTY_FREE) || ((atom->header.flags & PK_ATOMFLAG_IMMORTAL) != 0)) {
+    if (type == PK_ATOMTY_FREE) {
         return;
     }
     switch (type) {
@@ -104,7 +104,7 @@ void pk_atom_free(Pocket lisp, PKAtom *atom) {
             break;
         }
         case PK_ATOMTY_COBJECT: {
-            if (pk_atom_assert_symbol(lisp, atom->cobject.type)->type_type == PK_TYPETY_C_OWNED) {
+            if (((PKAtomSymbol *)atom->cobject.type)->type_type == PK_TYPETY_C_OWNED) {
                 pk_free(lisp, atom->cobject.data);
             }
             break;

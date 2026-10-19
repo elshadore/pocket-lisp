@@ -156,7 +156,6 @@ typedef struct PKCallConv_ {
 
 #define PK_ATOMFLAG_NONE (0)
 #define PK_ATOMFLAG_MARKED (1 << 0)
-#define PK_ATOMFLAG_IMMORTAL (1 << 1)
 
 typedef struct PKAtomHeader_ {
     pk_u8 type;
