@@ -32,7 +32,6 @@ void pk_gc_mark_cache(Pocket lisp) {
     pk_gc_mark(lisp, (PKAtom *)lisp->cache.let);
     pk_gc_mark(lisp, (PKAtom *)lisp->cache.let_star);
     pk_gc_mark(lisp, (PKAtom *)lisp->cache.protect);
-    pk_gc_mark(lisp, (PKAtom *)lisp->cache.unwind_protect);
     pk_gc_mark(lisp, (PKAtom *)lisp->cache.flet);
     pk_gc_mark(lisp, (PKAtom *)lisp->cache.flet_star);
     pk_gc_mark(lisp, (PKAtom *)lisp->cache.block);

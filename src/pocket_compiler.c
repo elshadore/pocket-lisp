@@ -593,24 +593,7 @@ void pk_compile_protect(PKCompiler *c, PKAtom *args) {
     pk_cmp_push_byte(c, PK_OP_PROTECT_END);
 }
 
-void pk_compile_unwind_protect(PKCompiler *c, PKAtom *args) {
-    PKAtomCons *a = pk_atom_assert_cons(c->lisp, args);
-    if (!pk_atom_is_cons(a->cdr)) {
-        pk_errors(c->lisp, pk_str("bad unwind-protect"));
-    }
 
-    PKAtom *last = pk_cons_last(c->lisp, args);
-
-    pk_cmp_push_byte(c, PK_OP_PROTECT_BEGIN);
-
-    pk_compile_evlist_except_last(c, args);
-
-    pk_cmp_push_byte(c, PK_OP_BLOCK_BEGIN);
-    pk_compile_value(c, last);
-    pk_cmp_push_byte(c, PK_OP_BLOCK_POP);
-
-    pk_cmp_push_byte(c, PK_OP_PROTECT_END);
-}
 
 void pk_compile_quasiquote(PKCompiler *c, PKAtom *value) {
     PKAtom *spliced = NULL;
@@ -812,10 +795,6 @@ void pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, bool 
         *is_special = true;
     } else if (symbol == lisp->cache.protect) {
         pk_compile_protect(c, args);
-
-        *is_special = true;
-    } else if (symbol == lisp->cache.unwind_protect) {
-        pk_compile_unwind_protect(c, args);
 
         *is_special = true;
     } else if (symbol == lisp->cache.fvar) {

@@ -25,7 +25,6 @@ void pk_init_cache(Pocket lisp) {
     c->let = pk_atom_symbol(lisp, pk_str("let"));
     c->let_star = pk_atom_symbol(lisp, pk_str("let*"));
     c->protect = pk_atom_symbol(lisp, pk_str("protect"));
-    c->unwind_protect = pk_atom_symbol(lisp, pk_str("unwind-protect"));
     c->flet = pk_atom_symbol(lisp, pk_str("flet"));
     c->flet_star = pk_atom_symbol(lisp, pk_str("flet*"));
     c->block = pk_atom_symbol(lisp, pk_str("block"));

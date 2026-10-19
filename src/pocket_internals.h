@@ -421,7 +421,6 @@ typedef struct PKCache_ {
     PKAtomSymbol *let;
     PKAtomSymbol *let_star;
     PKAtomSymbol *protect;
-    PKAtomSymbol *unwind_protect;
     PKAtomSymbol *flet;
     PKAtomSymbol *flet_star;
     PKAtomSymbol *block;
