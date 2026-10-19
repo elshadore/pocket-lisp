@@ -65,10 +65,10 @@
    (cdr (cdr (cdr x))))
 
 (defmacro catch (symbol :rest body)
-    `(funcatch ,symbol (lambda () ,@body)))
+    `(protect ,@body))
 
 (defmacro block (symbol :rest body)
-    `(funcatch ',symbol (lambda () ,@body)))
+    `(protect ,@body))
 
 (defmacro break (symbol value)
     `(throw ',symbol ,value))

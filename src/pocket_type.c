@@ -6,7 +6,7 @@ PKAtomSymbol *pk_typecheck_new_type(Pocket lisp, PKAtom *atom) {
         PKWriter w = PK_WRITER_EMPTY;
         pk_writer_cstr(lisp, &w, "type already defined: ");
         pk_writer_atom(lisp, &w, atom);
-        pk_errors(lisp, pk_writer_slice(&w));
+        pk_error_writer(lisp, &w);
     }
     return symbol;
 }
@@ -21,7 +21,7 @@ void pk_deftype_lisp_(Pocket lisp, PKAtomSymbol *symbol, PKAtoms slots) {
                 PKWriter w = PK_WRITER_EMPTY;
                 pk_writer_cstr(lisp, &w, "slot already defined: ");
                 pk_writer_atom(lisp, &w, slot);
-                pk_errors(lisp, pk_writer_slice(&w));
+                pk_error_writer(lisp, &w);
             }
         }
     }

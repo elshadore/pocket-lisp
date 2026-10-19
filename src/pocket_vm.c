@@ -11,6 +11,7 @@ PKVM pk_vm_init(Pocket lisp, PKAtom *lfun, size_t save) {
         .op = lfun->lfun.bc.e[0],
         .opcode = PK_OP_ILLEGAL,
         .finished = false,
+        .yielded = false,
         .protected = false,
         .protect_offset = 0,
     };
@@ -128,7 +129,12 @@ void pk_vm_op_exec(PKVM *vm) {
         }
         case PK_OP_CALL: {
             pk_vm_inc(vm);
-            pk_funcall(lisp, PK_CALL_FUN, pk_vat(vm));
+            PK_RES res = pk_funcall(lisp, PK_CALL_FUN, pk_vat(vm));
+            if (res == PK_YIELDED) {
+                vm->finished = true;
+                vm->yielded = true;
+                return;
+            }
             pk_vm_inc(vm);
             break;
         }
@@ -290,12 +296,16 @@ void pk_vm_op_exec(PKVM *vm) {
     }
 }
 
-PKAtom *pk_vm_exec(Pocket lisp, PKVM *vm) {
+PK_RES pk_vm_exec(Pocket lisp, PKVM *vm) {
     vm->lisp = lisp;
 
     while (!vm->finished) {
         pk_vm_op_exec(vm);
     }
 
-    return pk_stack_head(lisp);
+    if (vm->yielded) {
+        return PK_YIELDED;
+    }
+
+    return PK_OK;
 }

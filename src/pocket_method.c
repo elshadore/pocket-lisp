@@ -7,14 +7,14 @@ PKAtom *pk_method_set_(Pocket lisp, PKAtom *type, PKAtom *symbol, PKAtom *method
         PKWriter w = PK_WRITER_EMPTY;
         pk_writer_cstr(lisp, &w, "expected function, got ");
         pk_writer_atom(lisp, &w, method);
-        pk_errors(lisp, pk_writer_slice(&w));
+        pk_error_writer(lisp, &w);
     }
 
     if (asymbol->type_type == PK_TYPETY_NOTYPE) {
         PKWriter w = PK_WRITER_EMPTY;
         pk_writer_cstr(lisp, &w, "not a type: ");
         pk_writer_atom(lisp, &w, type);
-        pk_errors(lisp, pk_writer_slice(&w));
+        pk_error_writer(lisp, &w);
     }
 
     PKAtom *old_method = pk_hashmap_insert(lisp, &asymbol->methods, symbol, method);

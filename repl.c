@@ -29,7 +29,9 @@ void run_repl(void *user_closure, Pocket lisp) {
     pk_push_string(lisp, pk_str(REPL_CODE));
     pk_read(lisp, -1, PK_MODE_EXPRLIST);
     pk_protect(lisp);
-    pk_eval(lisp, -1, PK_MODE_EXPRLIST);
+    if (pk_eval(lisp, -1, PK_MODE_EXPRLIST) == PK_YIELDED) {
+        pk_atom_print(lisp, pk_error_value(lisp));
+    }
 }
 
 int main(int argc, char **argv) {
@@ -46,7 +48,9 @@ int main(int argc, char **argv) {
 
     pk_protect(lisp);
     pk_push_cfun(lisp, &repl, run_repl, 0, PK_ARITY_NORMAL, 0);
-    pk_funcall(lisp, PK_CALL_FUN, 0);
+    if (pk_funcall(lisp, PK_CALL_FUN, 0) == PK_YIELDED) {
+        pk_atom_print(lisp, pk_error_value(lisp));
+    }
     pk_deinit(lisp);
     
     return 0;

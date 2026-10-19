@@ -1,5 +1,26 @@
 #include "pocket_internals.h"
 
+void pk_throw_now(Pocket lisp) {
+    if (lisp->current_jmp != NULL) {
+        longjmp(lisp->current_jmp->buf, 1);
+    }
+    fprintf(stderr, "error: unprotected\n");
+    abort();
+}
+
+void pk_error_writer(Pocket lisp, PKWriter *w) {
+    lisp->error = (PKAtom *)pk_atom_string(lisp, pk_writer_slice(w));
+    pk_writer_deinit(lisp, w);
+    pk_throw_now(lisp);
+}
+
+PKAtom *pk_error_value(Pocket lisp) {
+    if (lisp->error == NULL) {
+        return lisp->cache.nil;
+    }
+    return lisp->error;
+}
+
 void pk_error_atom(Pocket lisp, PKAtom *message) {
     PKWriter w = PK_WRITER_EMPTY;
     pk_writer_string(lisp, &w, pk_str("error: "));
@@ -9,9 +30,8 @@ void pk_error_atom(Pocket lisp, PKAtom *message) {
 }
 
 void pk_errors(Pocket lisp, PKStr message) {
-    (void)lisp;
-    fprintf(stderr, "error: %.*s\n", (int)message.length, message.c);
-    abort();
+    pk_internal_println(lisp, message);
+    pk_throw_now(lisp);
 }
 
 PK_PRINTF_FMT(2, 3) void pk_errorf(Pocket lisp, const char *fmt, ...) {
@@ -22,7 +42,7 @@ PK_PRINTF_FMT(2, 3) void pk_errorf(Pocket lisp, const char *fmt, ...) {
     pk_writer_vfmt(lisp, &w, fmt, args);
     va_end(args);
 
-    pk_errors(lisp, pk_writer_slice(&w));
+    pk_error_writer(lisp, &w);
 }
 
 void pk_error_type(Pocket lisp, PK_TYPE expected, PKAtom *found) {
@@ -31,23 +51,25 @@ void pk_error_type(Pocket lisp, PK_TYPE expected, PKAtom *found) {
     pk_writer_string(lisp, &w, pk_ident_type(expected));
     pk_writer_cstr(lisp, &w, ", got ");
     pk_writer_atom(lisp, &w, found);
-    pk_errors(lisp, pk_writer_slice(&w));
-    pk_writer_deinit(lisp, &w);
-    abort();
+    pk_error_writer(lisp, &w);
 }
 
 void pk_error_oom(Pocket lisp) {
-    pk_errors(lisp, pk_str("out of memory"));
-    abort();
+    pk_internal_println(lisp, pk_str("error: out of memory"));
+    pk_throw_now(lisp);
 }
 
 void pk_throw(Pocket lisp, int symbol, int value) {
+    lisp->throw_symbol = pk_stack_get(lisp, symbol);
+    lisp->throw_value = pk_stack_get(lisp, value);
+
     PKWriter w = PK_WRITER_EMPTY;
     pk_writer_cstr(lisp, &w, "throw ");
-    pk_writer_atom(lisp, &w, pk_stack_get(lisp, symbol));
+    pk_writer_atom(lisp, &w, lisp->throw_symbol);
     pk_writer_cstr(lisp, &w, " ");
-    pk_writer_atom(lisp, &w, pk_stack_get(lisp, value));
-    pk_errors(lisp, pk_writer_slice(&w));
+    pk_writer_atom(lisp, &w, lisp->throw_value);
+    pk_internal_println(lisp, pk_writer_slice(&w));
     pk_writer_deinit(lisp, &w);
-    abort();
+
+    pk_throw_now(lisp);
 }

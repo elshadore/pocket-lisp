@@ -31,13 +31,14 @@ PKAtomCFun *pk_atom_cfun(Pocket lisp, void *user_closure, PKFun fun, PK_CALL cal
     return atom;
 }
 
-void pk_atom_cfun_exec(Pocket lisp, PKAtomCFun *cfun) {
+PK_RES pk_atom_cfun_exec(Pocket lisp, PKAtomCFun *cfun) {
     (cfun->fun)(cfun->user_closure, lisp);
+    return PK_OK;
 }
 
-void pk_atom_lfun_exec(Pocket lisp, PKAtomLFun *lfun) {
+PK_RES pk_atom_lfun_exec(Pocket lisp, PKAtomLFun *lfun) {
     PKVM vm = pk_vm_init(lisp, (PKAtom *)lfun, 0);
-    (void)pk_vm_exec(lisp, &vm);
+    return pk_vm_exec(lisp, &vm);
 }
 
 PKAtomString *pk_lfun_hexdump_(Pocket lisp, PKWriter *w, PKAtomLFun *lfun) {

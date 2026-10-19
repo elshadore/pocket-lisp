@@ -241,14 +241,38 @@ void pk_read_user_input(Pocket lisp) {
     pk_stack_push(lisp, pk_fs_read_user_input(lisp));
 }
 
+PK_RES pk_eval_(Pocket lisp, int expr, PK_MODE mode) {
+    return pk_atom_eval(lisp, pk_stack_get(lisp, expr), mode);
+}
+
 PK_RES pk_eval(Pocket lisp, int expr, PK_MODE mode) {
-    pk_atom_eval(lisp, pk_stack_get(lisp, expr), mode);
-    return PK_OK;
+    if (lisp->current_frame.mode == PK_FRAME_MODE_PROTECT) {
+        PKJmp jmp;
+        pk_jmp_enter(lisp, &jmp);
+        if (setjmp(jmp.buf) != 0) {
+            return pk_jmp_leave(lisp, &jmp, PK_YIELDED);
+        }
+        return pk_jmp_leave(lisp, &jmp, pk_eval_(lisp, expr, mode));
+    } else {
+        return pk_eval_(lisp, expr, mode);
+    }
+}
+
+PK_RES pk_apply_(Pocket lisp, PK_CALL call, int fun, int args) {
+    return pk_atom_apply(lisp, call, pk_stack_get(lisp, fun), pk_stack_get(lisp, args));
 }
 
 PK_RES pk_apply(Pocket lisp, PK_CALL call, int fun, int args) {
-    pk_atom_apply(lisp, call, pk_stack_get(lisp, fun), pk_stack_get(lisp, args));
-    return PK_OK;
+    if (lisp->current_frame.mode == PK_FRAME_MODE_PROTECT) {
+        PKJmp jmp;
+        pk_jmp_enter(lisp, &jmp);
+        if (setjmp(jmp.buf) != 0) {
+            return pk_jmp_leave(lisp, &jmp, PK_YIELDED);
+        }
+        return pk_jmp_leave(lisp, &jmp, pk_apply_(lisp, call, fun, args));
+    } else {
+        return pk_apply_(lisp, call, fun, args);
+    }
 }
 
 void pk_compile(Pocket lisp, PK_CALL type, int value, PK_MODE mode) {

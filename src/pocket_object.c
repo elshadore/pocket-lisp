@@ -40,7 +40,7 @@ PKAtom *pk_object_new(Pocket lisp, PKAtom *type) {
             PKWriter w = PK_WRITER_EMPTY;
             pk_writer_cstr(lisp, &w, "not a type: ");
             pk_writer_atom(lisp, &w, type);
-            pk_errors(lisp, pk_writer_slice(&w));
+            pk_error_writer(lisp, &w);
             return lisp->cache.nil;
         }
     }
@@ -64,7 +64,7 @@ static size_t pk_slot_index(Pocket lisp, PKAtom *object, PKAtom *slot) {
         PKWriter w = PK_WRITER_EMPTY;
         pk_writer_cstr(lisp, &w, "no such slot: ");
         pk_writer_atom(lisp, &w, slot);
-        pk_errors(lisp, pk_writer_slice(&w));
+        pk_error_writer(lisp, &w);
         return 0;
     }
     return found->index;

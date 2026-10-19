@@ -1,5 +1,31 @@
 #include "pocket_internals.h"
 
+void pk_jmp_enter(Pocket lisp, PKJmp *jmp) {
+    jmp->a_link_to_the_past = lisp->current_jmp;
+    jmp->frames_count = lisp->frames.count;
+    lisp->current_jmp = jmp;
+}
+
+PK_RES pk_jmp_leave(Pocket lisp, PKJmp *jmp, PK_RES res) {
+    lisp->current_jmp = jmp->a_link_to_the_past;
+
+    if (res == PK_OK) {
+        return PK_OK;
+    }
+
+    while (lisp->frames.count > jmp->frames_count) {
+        pk_frame_unwind(lisp);
+    }
+
+    size_t base = lisp->current_frame.stack_offset;
+    lisp->stack.count = base;
+    pk_stack_push(lisp, lisp->cache.nil);
+
+    pk_gc_collect(lisp);
+
+    return PK_YIELDED;
+}
+
 PKCallConv pk_callconv_(Pocket lisp, PK_FUNTY type, pk_u8 args, PKArity arity) {
     switch (arity.type) {
         case PK_INT_ARITY_NORMAL: {
@@ -89,7 +115,7 @@ PKCallConv pk_callconv(Pocket lisp, PKAtom *function, pk_u8 args) {
     }
 }
 
-PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
+static PK_RES pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
     if (args > UINT8_MAX) {
         pk_errorf(lisp, "pk_fcall: %zu args exceeds the maximum of %u", args, UINT8_MAX);
         return PK_YIELDED;
@@ -120,15 +146,17 @@ PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
 
     pk_frame_push(lisp, cc.args);
 
+    PK_RES res = PK_OK;
+
     switch (call) {
         case PK_CALL_FUN: {
             switch (function->header.type) {
                 case PK_ATOMTY_CFUN: {
-                    pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
+                    res = pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
                     break;
                 }
                 case PK_ATOMTY_LFUN: {
-                    pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
+                    res = pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
                     break;
                 }
                 default: {
@@ -142,11 +170,11 @@ PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
         case PK_CALL_MACRO: {
             switch (function->header.type) {
                 case PK_ATOMTY_CMACRO: {
-                    pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
+                    res = pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
                     break;
                 }
                 case PK_ATOMTY_LMACRO: {
-                    pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
+                    res = pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
                     break;
                 }
                 default: {
@@ -163,10 +191,27 @@ PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
         }
     }
     
+    if (res == PK_YIELDED) {
+        return res;
+    }
+
     pk_frame_return(lisp);
     pk_gc_collect(lisp);
     
     return PK_OK;
+}
+
+PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
+    if (lisp->current_frame.mode == PK_FRAME_MODE_PROTECT) {
+        PKJmp jmp;
+        pk_jmp_enter(lisp, &jmp);
+        if (setjmp(jmp.buf) != 0) {
+            return pk_jmp_leave(lisp, &jmp, PK_YIELDED);
+        }
+        return pk_jmp_leave(lisp, &jmp, pk_funcall_(lisp, call, args));
+    } else {
+        return pk_funcall_(lisp, call, args);
+    }
 }
 
 void pk_protect(Pocket lisp) {

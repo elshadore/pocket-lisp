@@ -109,6 +109,7 @@ typedef struct PKVM_ {
     pk_u8 op;
     pk_u8 opcode;
     bool finished;
+    bool yielded;
     bool protected;
     size_t protect_offset;
 } PKVM;
@@ -313,13 +314,14 @@ typedef struct PKJmp_ PKJmp;
 struct PKJmp_ {
     jmp_buf buf;
     PKJmp *a_link_to_the_past;
+    size_t frames_count;
 };
 
 #define PK_FRAME_EMPTY (PKFrame){ \
     .stack_offset = 0, \
     .let_offset = 0, \
     .jmp = NULL, \
-    .mode = PK_FRAME_MODE_NORMAL, \
+    .mode = PK_FRAME_MODE_PROTECT, \
 }
 
 #define PK_FRAME_MODE_NORMAL (0)
@@ -439,6 +441,9 @@ typedef struct PKCache_ {
     .gensym_counter = 0, \
     .current_frame = PK_FRAME_EMPTY, \
     .current_jmp = NULL, \
+    .error = NULL, \
+    .throw_symbol = NULL, \
+    .throw_value = NULL, \
     .pool = NULL, \
     .free = NULL, \
     .cache = PK_CACHE_EMPTY, \
@@ -450,6 +455,9 @@ typedef struct PocketLispMachine_ {
     PKFrames frames;
     PKFrame current_frame;
     PKJmp *current_jmp;
+    PKAtom *error;
+    PKAtom *throw_symbol;
+    PKAtom *throw_value;
     PKHashmap symbolizer;
     size_t gensym_counter;
     PKPool *pool;
@@ -470,6 +478,9 @@ void pk_atom_free(Pocket lisp, PKAtom *atom);
 
 void pk_error_atom(Pocket lisp, PKAtom *message);
 void pk_error_type(Pocket lisp, PK_TYPE expected, PKAtom *found);
+void pk_throw_now(Pocket lisp);
+void pk_error_writer(Pocket lisp, PKWriter *w);
+PKAtom *pk_error_value(Pocket lisp);
 
 bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 size_t pk_atom_hash(PKAtom *atom);
@@ -561,8 +572,8 @@ PKAtom *pk_env_let(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol, PKAtom *value)
 void pk_env_let_unwind(Pocket lisp, size_t n);
 PKAtom *pk_env_alist(Pocket lisp, PK_ENV env);
     
-void pk_atom_cfun_exec(Pocket lisp, PKAtomCFun *cfun);
-void pk_atom_lfun_exec(Pocket lisp, PKAtomLFun *lfun);
+PK_RES pk_atom_cfun_exec(Pocket lisp, PKAtomCFun *cfun);
+PK_RES pk_atom_lfun_exec(Pocket lisp, PKAtomLFun *lfun);
 PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun);
 PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom);
 
@@ -595,6 +606,9 @@ void pk_frame_clear(Pocket lisp);
 void pk_frame_return(Pocket lisp);
 void pk_frame_return_push(Pocket lisp);
 size_t pk_frame_length(Pocket lisp);
+
+void pk_jmp_enter(Pocket lisp, PKJmp *jmp);
+PK_RES pk_jmp_leave(Pocket lisp, PKJmp *jmp, PK_RES res);
 
 void pk_stack_push(Pocket lisp, PKAtom *atom);
 size_t pk_sp_index(Pocket lisp, int stack_pointer);
@@ -702,8 +716,8 @@ PKStr pk_ident_env(PK_ENV env);
 PKStr pk_ident_type(PK_TYPE ty);
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
     
-void pk_atom_apply(Pocket lisp, PK_CALL call, PKAtom *fun, PKAtom *args);
-void pk_atom_eval(Pocket lisp, PKAtom *expr, PK_MODE mode);
+PK_RES pk_atom_apply(Pocket lisp, PK_CALL call, PKAtom *fun, PKAtom *args);
+PK_RES pk_atom_eval(Pocket lisp, PKAtom *expr, PK_MODE mode);
 bool pk_macroexpand1_(Pocket lisp, int atom);
 bool pk_macroexpand_(Pocket lisp, int atom);
 PKAtom *pk_atom_compile(Pocket lisp, PK_CALL type, PKAtom *value, PK_MODE mode);
@@ -715,7 +729,7 @@ PKAtomString *pk_fs_slurp(Pocket lisp, PKAtomString *file_path);
 PKAtom *pk_fs_read_user_input(Pocket lisp);
 
 PKVM pk_vm_init(Pocket lisp, PKAtom *lfun, size_t save);
-PKAtom *pk_vm_exec(Pocket lisp, PKVM *vm);
+PK_RES pk_vm_exec(Pocket lisp, PKVM *vm);
 
 void pk_gc_mark_cache(Pocket lisp);
 void pk_gc_mark(Pocket lisp, PKAtom *atom);

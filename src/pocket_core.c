@@ -8,6 +8,10 @@ void pk_init_cache(Pocket lisp) {
     c->undefined = pk_atom_new_undefined(lisp);
     c->empty_string = pk_atom_string_new_empty(lisp);
 
+    lisp->error = (PKAtom *)c->nil;
+    lisp->throw_symbol = (PKAtom *)c->nil;
+    lisp->throw_value = (PKAtom *)c->nil;
+
     c->lambda = pk_atom_symbol(lisp, pk_str("lambda"));
     c->macro = pk_atom_symbol(lisp, pk_str("macro"));
     c->progn = pk_atom_symbol(lisp, pk_str("progn"));
