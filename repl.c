@@ -1,4 +1,3 @@
-#define PK_CFLAG_DEBUG
 #include "./src/pocket.h"
 #include "./src/pocket_all.c"
 

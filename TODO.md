@@ -21,6 +21,7 @@ The todo list for POCKET LISP
   
 ## Notes
 - [ ] Add Garbage Collection
+  Fix memory leaks
 - [ ] Macroexpand has removed the code for checking lets
 - [ ] underscored internal functions should be `pk_atom_*` instead
 - [ ] `Pocket` should not be cached in PKVM and PKCompiler
