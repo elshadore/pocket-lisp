@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdarg.h>
-#include <setjmp.h>
 #include <string.h>
 #include <limits.h>
 
@@ -166,8 +165,8 @@ PK_RES pk_apply(Pocket lisp, PK_CALL call, int fun, int args);
 PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args);
 
 void pk_protect(Pocket lisp);
-// void pk_catch(Pocket lisp, int symbol);
-// void pk_propagate(Pocket lisp);
+void pk_catch(Pocket lisp, int symbol);
+void pk_propagate(Pocket lisp);
 
 void pk_throw(Pocket lisp, int symbol, int value);
 void pk_error(Pocket lisp, int message);

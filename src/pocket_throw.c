@@ -9,16 +9,17 @@ void pk_throw_now(Pocket lisp) {
 }
 
 void pk_error_writer(Pocket lisp, PKWriter *w) {
-    lisp->error = (PKAtom *)pk_atom_string(lisp, pk_writer_slice(w));
+    lisp->throw_symbol = (PKAtom *)lisp->cache.error;
+    lisp->throw_value = (PKAtom *)pk_atom_string(lisp, pk_writer_slice(w));
     pk_writer_deinit(lisp, w);
     pk_throw_now(lisp);
 }
 
 PKAtom *pk_error_value(Pocket lisp) {
-    if (lisp->error == NULL) {
+    if (lisp->throw_value == NULL) {
         return lisp->cache.nil;
     }
-    return lisp->error;
+    return lisp->throw_value;
 }
 
 void pk_error_atom(Pocket lisp, PKAtom *message) {

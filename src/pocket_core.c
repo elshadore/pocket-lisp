@@ -8,7 +8,6 @@ void pk_init_cache(Pocket lisp) {
     c->undefined = pk_atom_new_undefined(lisp);
     c->empty_string = pk_atom_string_new_empty(lisp);
 
-    lisp->error = (PKAtom *)c->nil;
     lisp->throw_symbol = (PKAtom *)c->nil;
     lisp->throw_value = (PKAtom *)c->nil;
 

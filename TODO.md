@@ -20,6 +20,7 @@ The todo list for POCKET LISP
   - [ ] pk_protect
   
 ## Notes
+- [ ] Compiler `protect` Special form should compile each expression to a function, then pk_funcall each one in protected mode. The vm bytecode protect ops can just create a protected block to run this code in.
 - [ ] Add Garbage Collection
   Fix memory leaks
 - [ ] underscored internal functions should be `pk_atom_*` instead

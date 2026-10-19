@@ -44,7 +44,6 @@ void pk_gc_mark_cache(Pocket lisp) {
     pk_gc_mark(lisp, (PKAtom *)lisp->cache.unquote_splice);
     pk_gc_mark(lisp, (PKAtom *)lisp->cache.string_substitute);
 
-    pk_gc_mark(lisp, lisp->error);
     pk_gc_mark(lisp, lisp->throw_symbol);
     pk_gc_mark(lisp, lisp->throw_value);
 }

@@ -2,6 +2,7 @@
 #define POCKET_LISP_INTERNALS_H
 
 #include "pocket.h"
+#include <setjmp.h>
 
 typedef union PKAtomData_ PKAtom;
 
@@ -441,7 +442,6 @@ typedef struct PKCache_ {
     .gensym_counter = 0, \
     .current_frame = PK_FRAME_EMPTY, \
     .current_jmp = NULL, \
-    .error = NULL, \
     .throw_symbol = NULL, \
     .throw_value = NULL, \
     .pool = NULL, \
@@ -455,7 +455,6 @@ typedef struct PocketLispMachine_ {
     PKFrames frames;
     PKFrame current_frame;
     PKJmp *current_jmp;
-    PKAtom *error;
     PKAtom *throw_symbol;
     PKAtom *throw_value;
     PKHashmap symbolizer;
