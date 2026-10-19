@@ -147,7 +147,13 @@ PK_TEMPLATE_ENV_LIST(pk_fun_list_props, PK_ENV_PROP)
 void pk_fun_funcatch(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_assert_type(lisp, 1, PK_TYPE_SYMBOL);
+    pk_catch(lisp, 1);
     pk_funcall(lisp, PK_CALL_FUN, 0);
+}
+
+void pk_fun_propagate(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_propagate(lisp);
 }
 
 void pk_fun_throw(void *user_closure, Pocket lisp) {
@@ -306,6 +312,7 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("list-props"), .fun = pk_fun_list_props, .args = 0, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("funcatch"), .fun = pk_fun_funcatch, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("propagate"), .fun = pk_fun_propagate, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("throw"), .fun = pk_fun_throw, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("error"), .fun = pk_fun_error, .args = 1, .arity = PK_ARITY_NORMAL},
 

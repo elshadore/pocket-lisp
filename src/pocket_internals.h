@@ -316,6 +316,8 @@ struct PKJmp_ {
     jmp_buf buf;
     PKJmp *a_link_to_the_past;
     size_t frames_count;
+    PKAtomSymbol *catch;
+    pk_u8 mode;
 };
 
 #define PK_FRAME_EMPTY (PKFrame){ \
@@ -328,7 +330,7 @@ struct PKJmp_ {
 
 #define PK_FRAME_MODE_NORMAL (0)
 #define PK_FRAME_MODE_PROTECT (1)
-#define PK_FRAME_MODE_CATCH (1)
+#define PK_FRAME_MODE_CATCH (2)
 
 typedef struct PKFrame_ {
     size_t stack_offset;
@@ -443,6 +445,7 @@ typedef struct PKCache_ {
     .frames = PK_FRAMES_EMPTY, \
     .symbolizer = PK_HASHMAP_EMPTY, \
     .gensym_counter = 0, \
+    .yielded = false, \
     .current_frame = PK_FRAME_EMPTY, \
     .current_jmp = NULL, \
     .throw_symbol = NULL, \
@@ -462,6 +465,7 @@ typedef struct PocketLispMachine_ {
     PKAtom *throw_value;
     PKHashmap symbolizer;
     size_t gensym_counter;
+    bool yielded;
     PKPool *pool;
     PKAtomFree *free;
     PKCache cache;
@@ -611,6 +615,7 @@ size_t pk_frame_length(Pocket lisp);
 
 void pk_jmp_enter(Pocket lisp, PKJmp *jmp);
 PK_RES pk_jmp_leave(Pocket lisp, PKJmp *jmp, PK_RES res);
+PK_RES pk_jmp_handle(Pocket lisp, PKJmp *jmp);
 
 void pk_stack_push(Pocket lisp, PKAtom *atom);
 size_t pk_sp_index(Pocket lisp, int stack_pointer);

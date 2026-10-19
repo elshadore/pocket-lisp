@@ -246,11 +246,11 @@ PK_RES pk_eval_(Pocket lisp, int expr, PK_MODE mode) {
 }
 
 PK_RES pk_eval(Pocket lisp, int expr, PK_MODE mode) {
-    if (lisp->current_frame.mode == PK_FRAME_MODE_PROTECT) {
+    if (lisp->current_frame.mode != PK_FRAME_MODE_NORMAL) {
         PKJmp jmp;
         pk_jmp_enter(lisp, &jmp);
         if (setjmp(jmp.buf) != 0) {
-            return pk_jmp_leave(lisp, &jmp, PK_YIELDED);
+            return pk_jmp_handle(lisp, &jmp);
         }
         return pk_jmp_leave(lisp, &jmp, pk_eval_(lisp, expr, mode));
     } else {
@@ -263,11 +263,11 @@ PK_RES pk_apply_(Pocket lisp, PK_CALL call, int fun, int args) {
 }
 
 PK_RES pk_apply(Pocket lisp, PK_CALL call, int fun, int args) {
-    if (lisp->current_frame.mode == PK_FRAME_MODE_PROTECT) {
+    if (lisp->current_frame.mode != PK_FRAME_MODE_NORMAL) {
         PKJmp jmp;
         pk_jmp_enter(lisp, &jmp);
         if (setjmp(jmp.buf) != 0) {
-            return pk_jmp_leave(lisp, &jmp, PK_YIELDED);
+            return pk_jmp_handle(lisp, &jmp);
         }
         return pk_jmp_leave(lisp, &jmp, pk_apply_(lisp, call, fun, args));
     } else {

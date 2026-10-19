@@ -16,6 +16,9 @@ void pk_frame_push(Pocket lisp, size_t arity) {
     lisp->current_frame = (PKFrame) {
         .stack_offset = stack_offset,
         .let_offset = lets_offset,
+        .catch = lisp->current_frame.catch,
+        .jmp = lisp->current_frame.jmp,
+        .mode = lisp->current_frame.mode,
     };
 }
 

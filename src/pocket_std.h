@@ -69,10 +69,10 @@
 "   (cdr (cdr (cdr x))))\n" \
 "\n" \
 "(defmacro catch (symbol :rest body)\n" \
-"    `(protect ,@body))\n" \
+"    `(funcatch ,symbol (lambda () ,@body)))\n" \
 "\n" \
 "(defmacro block (symbol :rest body)\n" \
-"    `(protect ,@body))\n" \
+"    `(funcatch ',symbol (lambda () ,@body)))\n" \
 "\n" \
 "(defmacro break (symbol value)\n" \
 "    `(throw ',symbol ,value))\n"

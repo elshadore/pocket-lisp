@@ -15,6 +15,14 @@ void pk_error_writer(Pocket lisp, PKWriter *w) {
     pk_throw_now(lisp);
 }
 
+void pk_propagate(Pocket lisp) {
+    if (lisp->throw_symbol == lisp->cache.nil) {
+        pk_errors(lisp, pk_str("pk_propagate: no active throw"));
+        return;
+    }
+    pk_throw_now(lisp);
+}
+
 PKAtom *pk_error_value(Pocket lisp) {
     if (lisp->throw_value == NULL) {
         return lisp->cache.nil;
