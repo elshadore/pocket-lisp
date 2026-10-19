@@ -98,7 +98,6 @@ typedef struct PKCompiler_ {
     PKArray atoms;
     PK_CALL type;
     pk_u8 addr;
-    size_t protect_depth;
     bool transferred;
 } PKCompiler;
 

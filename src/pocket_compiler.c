@@ -23,7 +23,6 @@ PKCompiler pk_cmp_new(Pocket lisp, PK_CALL type) {
         .bc = PK_BYTES_EMPTY,
         .type = type,
         .addr = 0,
-        .protect_depth = 0,
         .transferred = false,
     };
 }
