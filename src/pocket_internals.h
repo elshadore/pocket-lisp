@@ -152,6 +152,11 @@ typedef struct PKCallConv_ {
 #define PK_ATOMTY_LMACRO (18)
 #define PK_ATOMTY_LOBJECT (19)
 #define PK_ATOMTY_COBJECT (20)
+#define PK_ATOMTY_CHARACTER (21)
+#define PK_ATOMTY_BLOB (22)
+#define PK_ATOMTY_STRING_ARRAY (23)
+#define PK_ATOMTY_BYTE_ARRAY (24)
+#define PK_ATOMTY_STREAM (25)
 
 #define PK_ATOMFLAG_NONE (0)
 #define PK_ATOMFLAG_MARKED (1 << 0)
@@ -292,6 +297,41 @@ typedef struct PKAtomLObject_ {
     PKAtoms slots;
 } PKAtomLObject;
 
+typedef struct PKAtomChar_ {
+    PKAtomHeader header;
+    char c;
+} PKAtomChar;
+
+typedef struct PKAtomBlob_ {
+    PKAtomHeader header;
+    PKBlob b;
+} PKAtomBlob;
+
+typedef struct PKAtomArray_ {
+    PKAtomHeader header;
+    PKArray a;
+} PKAtomArray;
+
+typedef struct PKAtomTable_ {
+    PKAtomHeader header;
+    PKHashmap t;
+} PKAtomTable;
+
+typedef struct PKAtomStringArray_ {
+    PKAtomHeader header;
+    PKWriter w;
+} PKAtomStringArray;
+
+typedef struct PKAtomByteArray_ {
+    PKAtomHeader header;
+    PKBytes b;
+} PKAtomByteArray;
+
+typedef struct PKAtomStream_ {
+    PKAtomHeader header;
+    FILE *f;
+} PKAtomStream;
+
 typedef union PKAtomData_ {
     PKAtomHeader header;
     PKAtomFree free;
@@ -306,6 +346,13 @@ typedef union PKAtomData_ {
     PKAtomLFun lmacro;
     PKAtomCObject cobject;
     PKAtomLObject lobject;
+    PKAtomChar character;
+    PKAtomBlob blob;
+    PKAtomArray array;
+    PKAtomTable table;
+    PKAtomStringArray string_array;
+    PKAtomByteArray byte_array;
+    PKAtomStream stream;
 } PKAtomData;
 
 typedef struct PKJmp_ PKJmp;
