@@ -47,15 +47,13 @@ Pocket pk_init(void *user_env) {
 
     pk_init_cache(lisp);
 
-    lisp->initialized = true;
-
     pk_std_load(lisp);
 
     return lisp;
 }
 
 void pk_deinit(Pocket lisp) {
-    if ((lisp == NULL) || (!lisp->initialized)) {
+    if (lisp == NULL) {
         return;
     }
 

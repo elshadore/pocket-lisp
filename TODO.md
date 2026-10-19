@@ -14,7 +14,7 @@ The todo list for POCKET LISP
     - ...
   - [x] C Funcall Update
   - [x] Update STD + pocket_user.c
-  - [ ] Add Garbage Collection
+  - [x] Add Garbage Collection
   - [x] Remove pk_propagate
   - [ ] Add `setjmp` `longjmp` errors / throws
   - [ ] pk_protect
@@ -51,14 +51,14 @@ Stuff that I need to do a personal deep dive into.
   - Error Symbol + Message
 - [ ] Error Stack Traces
   - debug-trace variable
-
-## V1
-- [ ] Recursive Printing Check
 - [ ] Special Forms
   - [ ] fn, λ, lambda
   - [ ] defvar, defun, defmacro, defclass
   - [ ] defmacro needs full destructuring bind
 - [ ] Special Form: setq, fsetq, psetq
+
+## V1
+- [ ] Recursive Printing Check
 - [ ] Big Numbers
 - [ ] Unicode Strings (utf8)
 - [ ] Emacs Mode

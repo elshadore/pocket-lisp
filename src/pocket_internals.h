@@ -309,11 +309,27 @@ typedef union PKAtomData_ {
     PKAtomLObject lobject;
 } PKAtomData;
 
-#define PK_FRAME_EMPTY (PKFrame){0}
+typedef struct PKJmp_ PKJmp;
+struct PKJmp_ {
+    jmp_buf buf;
+    PKJmp *a_link_to_the_past;
+};
+
+#define PK_FRAME_EMPTY (PKFrame){ \
+    .stack_offset = 0, \
+    .let_offset = 0, \
+    .jmp = NULL, \
+}
+
+#define PK_FRAME_MODE_NORMAL (0)
+#define PK_FRAME_MODE_CATCH (1)
+#define PK_FRAME_MODE_PROTECT (1)
 
 typedef struct PKFrame_ {
     size_t stack_offset;
     size_t let_offset;
+    PKJmp *jmp;
+    pk_u8 mode;
 } PKFrame;
 
 #define PK_FRAMES_EMPTY (PKFrames){.e = NULL, .count = 0, .capacity = 0}
@@ -422,10 +438,10 @@ typedef struct PKCache_ {
     .symbolizer = PK_HASHMAP_EMPTY, \
     .gensym_counter = 0, \
     .current_frame = PK_FRAME_EMPTY, \
+    .current_jmp = NULL, \
     .pool = NULL, \
     .free = NULL, \
     .cache = PK_CACHE_EMPTY, \
-    .initialized = false, \
 }
 
 typedef struct PocketLispMachine_ {
@@ -433,12 +449,12 @@ typedef struct PocketLispMachine_ {
     PKLets lets;
     PKFrames frames;
     PKFrame current_frame;
+    PKJmp *current_jmp;
     PKHashmap symbolizer;
     size_t gensym_counter;
     PKPool *pool;
     PKAtomFree *free;
     PKCache cache;
-    bool initialized;
 } PocketLispMachine;
 
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);

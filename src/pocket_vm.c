@@ -128,7 +128,7 @@ void pk_vm_op_exec(PKVM *vm) {
         }
         case PK_OP_CALL: {
             pk_vm_inc(vm);
-            pk_fcall(lisp, PK_CALL_FUN, pk_vat(vm));
+            pk_funcall(lisp, PK_CALL_FUN, pk_vat(vm));
             pk_vm_inc(vm);
             break;
         }

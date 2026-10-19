@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdarg.h>
+#include <setjmp.h>
 #include <string.h>
 #include <limits.h>
 
@@ -29,6 +30,11 @@ typedef struct PKStr_ {
     char *c;
     size_t length;
 } PKStr;
+
+typedef enum PK_RES_ {
+    PK_YIELDED = 0,
+    PK_OK = 1,
+} PK_RES;
 
 typedef enum PK_ENV_ {
     PK_ENV_VAR = 0,
@@ -153,8 +159,9 @@ void pk_slurp(Pocket lisp, int file_path);
 void pk_read_user_input(Pocket lisp);
 void pk_eval(Pocket lisp, int expr, PK_MODE mode);
 void pk_apply(Pocket lisp, PK_CALL call, int fun, int args);
-void pk_fcall(Pocket lisp, PK_CALL call, size_t args);
-void pk_pcall(Pocket lisp, PK_CALL call, size_t args);
+PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args);
+void pk_protect(Pocket lisp);
+void pk_catch(Pocket lisp, int symbol);
 void pk_compile(Pocket lisp, PK_CALL type, int value, PK_MODE mode);
 void pk_macroexpand1(Pocket lisp, int atom);
 void pk_macroexpand(Pocket lisp, int atom);

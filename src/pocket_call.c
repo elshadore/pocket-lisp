@@ -89,10 +89,10 @@ PKCallConv pk_callconv(Pocket lisp, PKAtom *function, pk_u8 args) {
     }
 }
 
-void pk_fcall(Pocket lisp, PK_CALL call, size_t args) {
+PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
     if (args > UINT8_MAX) {
         pk_errorf(lisp, "pk_fcall: %zu args exceeds the maximum of %u", args, UINT8_MAX);
-        return;
+        return PK_YIELDED;
     }
 
     PKAtoms slice = pk_stack_slice_down(lisp, args + 1);
@@ -105,7 +105,7 @@ void pk_fcall(Pocket lisp, PK_CALL call, size_t args) {
         if (pk_atom_is_undefined(function)) {
             PKStr name = asym->name->str;
             pk_errorf(lisp, "pk_fcall: undefined function %.*s", (int)name.length, name.c);
-            return;
+            return PK_YIELDED;
         }
     }
 
@@ -117,7 +117,10 @@ void pk_fcall(Pocket lisp, PK_CALL call, size_t args) {
     if (cc.variadic_count > 0) {
         pk_stack_op_list(lisp, cc.variadic_count);
     }
-    
+
+    jmp_buf buf;
+    setjmp(buf);
+
     pk_frame_push(lisp, cc.args);
 
     switch (call) {
@@ -165,6 +168,8 @@ void pk_fcall(Pocket lisp, PK_CALL call, size_t args) {
     
     pk_frame_return(lisp);
     pk_gc_collect(lisp);
+    
+    return PK_OK;
 }
 
 void pk_pcall(Pocket lisp, PK_CALL call, size_t args) {

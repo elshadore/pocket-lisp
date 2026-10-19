@@ -147,7 +147,7 @@ PK_TEMPLATE_ENV_LIST(pk_fun_list_props, PK_ENV_PROP)
 void pk_fun_funcatch(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_assert_type(lisp, 1, PK_TYPE_SYMBOL);
-    pk_fcall(lisp, PK_CALL_FUN, 0);
+    pk_funcall(lisp, PK_CALL_FUN, 0);
 }
 
 void pk_fun_throw(void *user_closure, Pocket lisp) {
