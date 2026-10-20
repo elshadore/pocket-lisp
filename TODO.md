@@ -8,7 +8,6 @@ Stuff that I need to do a personal deep dive into.
 
 ## TODAY
 - [ ] Make Project Public on Github
-- [ ] Zig Build System
 - [ ] Special Forms
   - [ ] defvar, defun, defmacro
   - [ ] defmacro and macro needs full destructuring bind
@@ -28,8 +27,6 @@ Stuff that I need to do a personal deep dive into.
   - [ ] ByteArray (Mutable Append)
 
 ## Notes
-- [ ] Add the ability to compile static and dynamic library to build.zig
-  - C export symbols? PK_API
 - [ ] Var should return it's new value let setq does.
 - [ ] Move the throw stuff into the Lisp Environment itself.
   `pk_gets(lisp, pk_str("throw-type"))`
