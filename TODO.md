@@ -8,9 +8,6 @@ Stuff that I need to do a personal deep dive into.
 - [ ] VM
 
 ## TODAY
-- [ ] Special Forms
-  - [ ] defvar, defun, defmacro
-  - [ ] defmacro and macro needs full destructuring bind
 - [ ] Object System
   - [ ] CObjects
   - [ ] LObjects

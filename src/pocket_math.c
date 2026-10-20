@@ -96,6 +96,24 @@ float pk_atom_to_float(Pocket lisp, PKAtom *atom) {
     }
 }
 
+pk_u8 pk_atom_to_byte(Pocket lisp, PKAtom *atom) {
+    PKAtomNumber *number = pk_atom_assert_number(lisp, atom);
+    switch (number->num_type) {
+        case PK_NUMTY_INT: {
+            if(number->as.i < 0 || number->as.i > UINT8_MAX) {
+                pk_errorf(lisp, "integer: %d, is outside byte range 0..255", number->as.i);
+                return 0;
+            } else {
+                return (pk_u8)number->as.i;
+            }
+        }
+        default: {
+            pk_errors(lisp, pk_str("cannot convert a float to a byte"));
+            return 0;
+        }
+    }
+}
+
 int pk_atom_as_int(PKAtom *atom) {
     if (!pk_atom_is_number(atom)) {
         return 0;
