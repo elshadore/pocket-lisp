@@ -1,5 +1,4 @@
 #include "./src/pocket.h"
-#include "./src/pocket_all.c"
 #include "repl.h"
 
 typedef struct Repl_ {

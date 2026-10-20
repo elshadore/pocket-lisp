@@ -565,6 +565,8 @@ bool pk_atom_is_keyword(PKAtom *atom);
 bool pk_atom_is_cfun(PKAtom *atom);
 bool pk_atom_is_lfun(PKAtom *atom);
 bool pk_atom_is_function(PKAtom *atom);
+bool pk_atom_is_type(PKAtom *atom, PK_TYPE type);
+PKAtom *pk_atom_reverse(Pocket lisp, PKAtom *atom);
 bool pk_atom_is_macro(PKAtom *atom);
 
 PKAtom *pk_atom_assert_nil(Pocket lisp, PKAtom *atom);

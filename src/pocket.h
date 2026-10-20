@@ -202,7 +202,7 @@ size_t pk_cobject_size(Pocket lisp, int cobject);
 int pk_to_int(Pocket lisp, int number);
 float pk_to_float(Pocket lisp, int number);
 
-#ifdef POCKET_CFLAG_DEBUG
+#ifdef PK_CFLAG_DEBUG
 void pk_debug_leakcheck(Pocket lisp, const char *tag);
 void pk_debug_stackdump(Pocket lisp, const char *tag);
 void pk_debug_envdump(Pocket lisp, const char *tag);

@@ -1,5 +1,6 @@
 #include "pocket_internals.h"
 
+#ifdef PK_CFLAG_DEBUG
 void pk_debug_stackdump_stack(Pocket lisp, PKWriter *w, size_t index, size_t start, PKAtoms stack) {
     pk_writer_fmt(lisp, w, "[%zu] => ", index);
     pk_writer_newline(lisp, w);
@@ -162,3 +163,4 @@ void pk_debug_leakcheck(Pocket lisp, const char *tag) {
 
     pk_writer_deinit(lisp, &w);
 }
+#endif // PK_CFLAG_DEBUG

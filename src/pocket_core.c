@@ -78,7 +78,7 @@ void pk_deinit(Pocket lisp) {
 
     pk_gc_collect_no_cache(lisp);
 
-    #ifdef POCKET_CFLAG_DEBUG
+    #ifdef PK_CFLAG_DEBUG
     pk_debug_leakcheck(lisp, "pk_deinit()");
     #endif
 
