@@ -7,7 +7,6 @@ Stuff that I need to do a personal deep dive into.
 - [ ] VM
 
 ## TODAY
-- [ ] Make Project Public on Github
 - [ ] Special Forms
   - [ ] defvar, defun, defmacro
   - [ ] defmacro and macro needs full destructuring bind

@@ -1,4 +1,4 @@
-# Pocket LISP
+# Pocket Lisp
 
 ⚠️ This project is currently under development and not yet finished ⚠️
 
