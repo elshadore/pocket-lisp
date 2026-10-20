@@ -358,10 +358,10 @@ typedef union PKAtomData_ {
 typedef struct PKJmp_ PKJmp;
 struct PKJmp_ {
     jmp_buf buf;
-    PKJmp *a_link_to_the_past;
+    pk_u8 mode;
     size_t frames_count;
     PKAtomSymbol *catch;
-    pk_u8 mode;
+    PKJmp *a_link_to_the_past;
 };
 
 #define PK_FRAME_EMPTY (PKFrame){ \

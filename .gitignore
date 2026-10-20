@@ -1,2 +1,4 @@
 /out/
 /.agent-shell/
+.zig-cache/
+zig-out/

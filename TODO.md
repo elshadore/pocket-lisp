@@ -1,24 +1,13 @@
 # TODO
 The todo list for POCKET LISP
 
-## Notes
-- [ ] Var should return it's new value let setq does.
-- [ ] Move the throw stuff into the Lisp Environment itself.
-  `pk_gets(lisp, pk_str("throw-type"))`
-  `pk_gets(lisp, pk_str("throw-value"))`
-- [ ] Remove ternary operator.
-- [ ] If we PROTECT all the way down to the base frame i.e we dont match on our throw. We should have a special error.
-- [ ] NIL and UNDEFINED should be static objects.
-- [ ] underscored internal functions should be `pk_atom_*` instead
-- [ ] `Pocket` should not be cached in PKVM and PKCompiler
-- [ ] If we call a Lisp function from withing the VM we should not use the C stack to create a new VM, but reuse the old one.
-
 ## User Review
 Stuff that I need to do a personal deep dive into.
 - [ ] Compiler
 - [ ] VM
 
 ## TODAY
+- [ ] Zig Build System
 - [ ] Special Forms
   - [ ] defvar, defun, defmacro
   - [ ] defmacro and macro needs full destructuring bind
@@ -36,6 +25,18 @@ Stuff that I need to do a personal deep dive into.
   - [ ] Byte Blobs (Immutable like Strings)
   - [ ] StringArray (Mutable Append)
   - [ ] ByteArray (Mutable Append)
+
+## Notes
+- [ ] Var should return it's new value let setq does.
+- [ ] Move the throw stuff into the Lisp Environment itself.
+  `pk_gets(lisp, pk_str("throw-type"))`
+  `pk_gets(lisp, pk_str("throw-value"))`
+- [ ] Remove ternary operator.
+- [ ] If we PROTECT all the way down to the base frame i.e we dont match on our throw. We should have a special error.
+- [ ] NIL and UNDEFINED should be static objects.
+- [ ] underscored internal functions should be `pk_atom_*` instead
+- [ ] `Pocket` should not be cached in PKVM and PKCompiler
+- [ ] If we call a Lisp function from withing the VM we should not use the C stack to create a new VM, but reuse the old one.
 
 ## V1
 - [ ] Error Stack Traces
