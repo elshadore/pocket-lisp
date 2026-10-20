@@ -17,12 +17,7 @@ Stuff that I need to do a personal deep dive into.
   - [ ] Streams
   - [ ] Char (Unicode)
     - printing and reading `^\space`
-  - [ ] Byte Type
-  - [ ] Array
   - [ ] Table
-  - [ ] Byte Blobs (Immutable like Strings)
-  - [ ] StringArray (Mutable Append)
-  - [ ] ByteArray (Mutable Append)
 - [ ] Var should return it's new value let setq does.
 
 ## Notes
