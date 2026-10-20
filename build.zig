@@ -1,6 +1,88 @@
 const std = @import("std");
 
+fn guardAppend(out: *std.ArrayList(u8), gpa: std.mem.Allocator, dst_base: []const u8) !void {
+    for (dst_base) |c| {
+        try out.append(gpa, switch (c) {
+            'a'...'z' => c - 'a' + 'A',
+            '.', '-' => '_',
+            else => c,
+        });
+    }
+}
+
+fn escapeAppend(out: *std.ArrayList(u8), gpa: std.mem.Allocator, line: []const u8) !void {
+    try out.appendSlice(gpa, " \"");
+    for (line) |c| {
+        switch (c) {
+            '\\' => try out.appendSlice(gpa, "\\\\"),
+            '"' => try out.appendSlice(gpa, "\\\""),
+            else => try out.append(gpa, c),
+        }
+    }
+    try out.appendSlice(gpa, "\\n\"");
+}
+
+fn pk2h(b: *std.Build, io: std.Io, src: []const u8, dst: []const u8, prefix: []const u8) !void {
+    const gpa = b.allocator;
+    const code = try std.Io.Dir.cwd().readFileAlloc(io, src, gpa, .limited(16 * 1024 * 1024));
+    defer gpa.free(code);
+
+    const dst_base = std.Io.Dir.path.basename(dst);
+
+    var out: std.ArrayList(u8) = .empty;
+    defer out.deinit(gpa);
+
+    try out.appendSlice(gpa, "#ifndef ");
+    try guardAppend(&out, gpa, dst_base);
+    try out.appendSlice(gpa, "\n#define ");
+    try guardAppend(&out, gpa, dst_base);
+    try out.appendSlice(gpa, "\n\n#define ");
+    try out.appendSlice(gpa, prefix);
+    try out.appendSlice(gpa, "_CODE \\\n");
+
+    const body = if (std.mem.endsWith(u8, code, "\n")) code[0 .. code.len - 1] else code;
+
+    var lines = std.mem.splitScalar(u8, body, '\n');
+    var first = true;
+    while (lines.next()) |line| {
+        if (first) {
+            first = false;
+        } else {
+            try out.appendSlice(gpa, " \\\n");
+        }
+        try escapeAppend(&out, gpa, line);
+    }
+
+    try out.appendSlice(gpa, "\n\n#endif // ");
+    try guardAppend(&out, gpa, dst_base);
+    try out.appendSlice(gpa, "\n");
+
+    const old = std.Io.Dir.cwd().readFileAlloc(io, dst, gpa, .limited(16 * 1024 * 1024)) catch null;
+    if (old) |o| {
+        defer gpa.free(o);
+        if (std.mem.eql(u8, o, out.items)) return;
+    }
+
+    try std.Io.Dir.cwd().writeFile(io, .{
+        .sub_path = dst,
+        .data = out.items,
+    });
+}
+
 pub fn build(b: *std.Build) void {
+    var threaded: std.Io.Threaded = .init(b.allocator, .{});
+    defer threaded.deinit();
+    const io = threaded.io();
+
+    pk2h(b, io, "repl.pk", "repl.h", "REPL") catch |err| {
+        std.debug.print("pk2h: repl.pk -> repl.h failed: {t}\n", .{err});
+        std.process.exit(1);
+    };
+    pk2h(b, io, "src/lisp/std.pk", "src/pocket_std.h", "PK_STD") catch |err| {
+        std.debug.print("pk2h: src/lisp/std.pk -> src/pocket_std.h failed: {t}\n", .{err});
+        std.process.exit(1);
+    };
+
     const optimize = b.standardOptimizeOption(.{ .preferred_optimize_mode = .Debug });
     const debug = b.option(bool, "debug", "Enable PK_CFLAG_DEBUG") orelse true;
 
@@ -73,25 +155,6 @@ pub fn build(b: *std.Build) void {
     if (debug) {
         root.addCMacro("PK_CFLAG_DEBUG", "1");
     }
-
-    const pk2h = b.addExecutable(.{
-        .name = "pk2h",
-        .root_module = b.createModule(.{
-            .target = b.resolveTargetQuery(.{}),
-            .root_source_file = b.path("tools/pk2h.zig"),
-        }),
-    });
-
-    const gen_repl = b.addRunArtifact(pk2h);
-    gen_repl.addArgs(&.{ "repl.pk", "repl.h", "REPL" });
-    gen_repl.addFileInput(b.path("repl.pk"));
-
-    const gen_std = b.addRunArtifact(pk2h);
-    gen_std.addArgs(&.{ "src/lisp/std.pk", "src/pocket_std.h", "PK_STD" });
-    gen_std.addFileInput(b.path("src/lisp/std.pk"));
-
-    exe.step.dependOn(&gen_repl.step);
-    exe.step.dependOn(&gen_std.step);
 
     b.installArtifact(exe);
 
