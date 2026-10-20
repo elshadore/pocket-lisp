@@ -4,6 +4,7 @@ The todo list for POCKET LISP
 ## User Review
 Stuff that I need to do a personal deep dive into.
 - [ ] Compiler
+  - Really need the testing suite for this lmao.
 - [ ] VM
 
 ## TODAY

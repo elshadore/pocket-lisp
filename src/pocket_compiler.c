@@ -193,6 +193,9 @@ void pk_compile_pattern_values_(PKCompiler *c, PKAtom *pattern, pk_u8 *path, siz
             if ((pk_atom_keyword_cmp((PKAtomKeyword *)atom, pk_str("opt"))) ||
                 (pk_atom_keyword_cmp((PKAtomKeyword *)atom, pk_str("optional")))) {
                 optional = true;
+                if ((!pk_atom_is_cons(tail)) || (!pk_atom_is_symbol(tail->cons.car))) {
+                    pk_errors(c->lisp, pk_str("bad destructure"));
+                }
             } else if (pk_atom_keyword_cmp((PKAtomKeyword *)atom, pk_str("rest"))) {
                 if ((!pk_atom_is_cons(tail)) || (!pk_atom_is_symbol(tail->cons.car)) || (!pk_atom_is_nil(tail->cons.cdr))) {
                     pk_errors(c->lisp, pk_str("bad destructure"));
@@ -215,6 +218,9 @@ void pk_compile_pattern_values_(PKCompiler *c, PKAtom *pattern, pk_u8 *path, siz
             pk_cmp_push_byte(c, pk_pattern_car_op(optional));
             *pushed += 1;
         } else if (pk_atom_is_cons(atom)) {
+            if (optional) {
+                pk_errors(c->lisp, pk_str("bad destructure"));
+            }
             pk_compile_pattern_descend(c->lisp, path, length, index);
             pk_compile_pattern_values_(c, atom, path, length + index + 1, base, bias, pushed, optional);
         } else {
@@ -247,6 +253,9 @@ void pk_compile_pattern_symbols_(PKCompiler *c, PKAtom *pattern, bool optional, 
             if ((pk_atom_keyword_cmp((PKAtomKeyword *)atom, pk_str("opt"))) ||
                 (pk_atom_keyword_cmp((PKAtomKeyword *)atom, pk_str("optional")))) {
                 optional = true;
+                if ((!pk_atom_is_cons(tail)) || (!pk_atom_is_symbol(tail->cons.car))) {
+                    pk_errors(c->lisp, pk_str("bad destructure"));
+                }
             } else if (pk_atom_keyword_cmp((PKAtomKeyword *)atom, pk_str("rest"))) {
                 if ((!pk_atom_is_cons(tail)) || (!pk_atom_is_symbol(tail->cons.car)) || (!pk_atom_is_nil(tail->cons.cdr))) {
                     pk_errors(c->lisp, pk_str("bad destructure"));
@@ -261,6 +270,9 @@ void pk_compile_pattern_symbols_(PKCompiler *c, PKAtom *pattern, bool optional, 
             pk_cmp_load(c, atom);
             *leaves += 1;
         } else if (pk_atom_is_cons(atom)) {
+            if (optional) {
+                pk_errors(c->lisp, pk_str("bad destructure"));
+            }
             pk_compile_pattern_symbols_(c, atom, optional, leaves);
         } else {
             pk_errors(c->lisp, pk_str("bad destructure"));
@@ -972,11 +984,14 @@ PKAtomLFun *pk_compile_lambda_(PKCompiler *c, PKAtom *args, PKAtom *body) {
     pk_u8 option_start = 0;
     bool optional = false;
     bool variadic = false;
+    bool patterns = false;
 
     {
         PKAtom *iter = args;
         while (pk_atom_is_cons(iter)) {
             PKAtom *atom = iter->cons.car;
+            PKAtom *tail = iter->cons.cdr;
+
             if (pk_atom_is_keyword(atom)) {
                 PKAtomKeyword *keyword = (PKAtomKeyword *)atom;
                 if (variadic) {
@@ -992,10 +1007,20 @@ PKAtomLFun *pk_compile_lambda_(PKCompiler *c, PKAtom *args, PKAtom *body) {
                         optional = true;
                     }
                     arity = PK_INT_ARITY_OPTIONAL;
+
+                    if ((!pk_atom_is_cons(tail)) || (!pk_atom_is_symbol(tail->cons.car))) {
+                        pk_errors(c->lisp, pk_str("bad destructure"));
+                    }
                 }
             } else {
-                pk_atom_assert_symbol(c->lisp, atom);
-                pk_cmp_load(c, atom);
+                if (pk_atom_is_cons(atom)) {
+                    if (optional || variadic) {
+                        pk_errors(c->lisp, pk_str("bad destructure"));
+                    }
+                    patterns = true;
+                } else {
+                    pk_atom_assert_symbol(c->lisp, atom);
+                }
 
                 if (variadic) {
                     (void)pk_atom_assert_nil(c->lisp, iter->cons.cdr);
@@ -1016,6 +1041,69 @@ PKAtomLFun *pk_compile_lambda_(PKCompiler *c, PKAtom *args, PKAtom *body) {
     }
 
     pk_u8 lets = variadic ? (pk_u8)(nargs + 1) : nargs;
+
+    if (patterns) {
+        size_t pushed = 0;
+        pk_u8 slots = lets;
+        size_t index = 0;
+
+        PKAtom *iter = args;
+        while (pk_atom_is_cons(iter)) {
+            PKAtom *atom = iter->cons.car;
+
+            if (pk_atom_is_keyword(atom)) {
+                iter = iter->cons.cdr;
+                continue;
+            }
+
+            size_t bias = (slots - 1) - index;
+
+            if (pk_atom_is_symbol(atom)) {
+                pk_cmp_push_byte(c, PK_OP_DIG);
+                pk_cmp_push_any(c, pushed + bias);
+                pushed += 1;
+            } else {
+                pk_compile_pattern_values(c, atom, bias, false, &pushed);
+            }
+
+            index += 1;
+            iter = iter->cons.cdr;
+        }
+
+        {
+            size_t leaves = 0;
+
+            iter = args;
+            while (pk_atom_is_cons(iter)) {
+                PKAtom *atom = iter->cons.car;
+
+                if (pk_atom_is_keyword(atom)) {
+                    iter = iter->cons.cdr;
+                    continue;
+                }
+
+                if (pk_atom_is_symbol(atom)) {
+                    pk_cmp_load(c, atom);
+                    leaves += 1;
+                } else {
+                    pk_compile_pattern_symbols(c, atom, false, &leaves);
+                }
+
+                iter = iter->cons.cdr;
+            }
+
+            lets = (pk_u8)leaves;
+        }
+    } else {
+        PKAtom *iter = args;
+        while (pk_atom_is_cons(iter)) {
+            PKAtom *atom = iter->cons.car;
+            if ((!pk_atom_is_keyword(atom)) && pk_atom_is_symbol(atom)) {
+                pk_cmp_load(c, atom);
+            }
+            iter = iter->cons.cdr;
+        }
+    }
 
     if (lets > 0) {
         pk_cmp_push_byte(c, PK_OP_LET_VAR);
