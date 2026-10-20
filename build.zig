@@ -84,8 +84,7 @@ pub fn build(b: *std.Build) void {
     generatePocketLispSrcHeader(b, io, "repl/repl.pk", "repl/repl.h", "REPL");
     generatePocketLispSrcHeader(b, io, "src/lisp/std.pk", "src/pocket_std.h", "PK_STD");
 
-    const optimize = b.standardOptimizeOption(.{ .preferred_optimize_mode = .Debug });
-    const debug = b.option(bool, "debug", "Enable PK_CFLAG_DEBUG") orelse true;
+    const optimize = b.standardOptimizeOption(.{});
 
     const root = b.createModule(.{
         .target = b.resolveTargetQuery(.{}),
@@ -153,7 +152,7 @@ pub fn build(b: *std.Build) void {
         .flags = &flags,
     });
 
-    if (debug) {
+    if (optimize == .Debug) {
         root.addCMacro("PK_CFLAG_DEBUG", "1");
     }
 

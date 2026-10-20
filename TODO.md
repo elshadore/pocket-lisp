@@ -29,8 +29,9 @@ Stuff that I need to do a personal deep dive into.
 
 ## Notes
 - [ ] Debug in build.zig should be enabled for all debug releases.
-- [ ] repl should be in it's own file
-- [ ] pocket.h should be in include
+- [ ] Add hardware / os target to build.zig
+- [ ] Add the ability to compile static and dynamic library to build.zig
+  - C export symbols? PK_API
 - [ ] Var should return it's new value let setq does.
 - [ ] Move the throw stuff into the Lisp Environment itself.
   `pk_gets(lisp, pk_str("throw-type"))`
