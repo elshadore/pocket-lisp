@@ -76,18 +76,21 @@ fn generatePocketLispSrcHeader(b: *std.Build, io: std.Io, src: []const u8, dst: 
 }
 
 pub fn build(b: *std.Build) void {
-    var threaded: std.Io.Threaded = .init(b.allocator, .{});
-    defer threaded.deinit();
-    
-    const io = threaded.io();
+    {
+        var threaded: std.Io.Threaded = .init(b.allocator, .{});
+        defer threaded.deinit();
 
-    generatePocketLispSrcHeader(b, io, "repl/repl.pk", "repl/repl.h", "REPL");
-    generatePocketLispSrcHeader(b, io, "src/lisp/std.pk", "src/pocket_std.h", "PK_STD");
+        const io = threaded.io();
 
+        generatePocketLispSrcHeader(b, io, "repl/repl.pk", "repl/repl.h", "REPL");
+        generatePocketLispSrcHeader(b, io, "src/lisp/std.pk", "src/pocket_std.h", "PK_STD");
+        
+    }
     const optimize = b.standardOptimizeOption(.{});
+    const target = b.standardTargetOptions(.{});
 
     const root = b.createModule(.{
-        .target = b.resolveTargetQuery(.{}),
+        .target = target,
         .optimize = optimize,
         .link_libc = true,
     });
