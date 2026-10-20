@@ -1,5 +1,35 @@
 #include "pocket_internals.h"
 
+PKBlob pk_blob_alloc(Pocket lisp, size_t length) {
+    if (length == 0) {
+        return PK_BLOB_EMPTY;
+    }
+    pk_u8 *buffer = pk_malloc(lisp, length * sizeof(pk_u8));
+    return (PKBlob) {
+        .e = buffer,
+        .length = length,
+    };
+}
+
+PKBlob pk_blob_dupe(Pocket lisp, PKBlob input) {
+    if (input.length == 0) {
+        return PK_BLOB_EMPTY;
+    }
+    pk_u8 *buffer = pk_malloc(lisp, input.length * sizeof(pk_u8));
+    
+    (void)memcpy(buffer, input.e, input.length);
+    
+    return (PKBlob) {
+        .e = buffer,
+        .length = input.length,
+    };
+}
+
+void pk_blob_free(Pocket lisp, PKBlob *blob) {
+    pk_free(lisp, blob->e);
+    *blob = PK_BLOB_EMPTY;
+}
+
 PKAccum pk_accum_new_with(Pocket lisp, PKAtom *init) {
     return (PKAccum) {
         .lisp = lisp,

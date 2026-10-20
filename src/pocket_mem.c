@@ -109,6 +109,26 @@ void pk_atom_free(Pocket lisp, PKAtom *atom) {
             }
             break;
         }
+        case PK_ATOMTY_BLOB: {
+            pk_blob_free(lisp, &atom->blob.b);
+            break;
+        }
+        case PK_ATOMTY_ARRAY: {
+            pk_array_deinit(lisp, &atom->array.a);
+            break;
+        }
+        case PK_ATOMTY_STRING_ARRAY: {
+            pk_writer_deinit(lisp, &atom->string_array.w);
+            break;
+        }
+        case PK_ATOMTY_BYTE_ARRAY: {
+            pk_bytes_deinit(lisp, &atom->byte_array.b);
+            break;
+        }
+        case PK_ATOMTY_TABLE: {
+            pk_hashmap_deinit(lisp, &atom->table.t);
+            break;
+        }
         case PK_ATOMTY_CONS: {
             break;
         }

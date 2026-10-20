@@ -109,6 +109,7 @@ pub fn build(b: *std.Build) void {
     const srcFiles = [_][]const u8{
         "src/pocket_array.c",
         "src/pocket_atom.c",
+        "src/pocket_blob.c",
         "src/pocket_call.c",
         "src/pocket_compiler.c",
         "src/pocket_core.c",

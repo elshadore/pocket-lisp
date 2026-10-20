@@ -633,6 +633,10 @@ PKAtomKeyword *pk_atom_keywordc(Pocket lisp, char *ckeyword);
 bool pk_atom_symbol_cmp(PKAtomSymbol *symbol, PKStr comp);
 bool pk_atom_keyword_cmp(PKAtomKeyword *keyword, PKStr comp);
 
+PKAtomBlob *pk_atom_blob_new_empty(Pocket lisp);
+PKAtomBlob *pk_atom_blob_nomemcpy(Pocket lisp, PKBlob blob);
+PKAtomBlob *pk_atom_blob(Pocket lisp, PKBlob blob);
+
 PKAtomCFun *pk_atom_cfun(Pocket lisp, void *user_closure, PKFun fun, PK_CALL call, PK_ARITY arity, pk_u8 args, pk_u8 options);
 
 PKAtomArray *pk_atom_array(Pocket lisp, PKAtoms init);
@@ -761,6 +765,10 @@ char pk_char_from_hex(pk_u8 byte);
 bool pk_char_is_hex(char c);
 pk_u8 pk_char_to_hex(char c);
 
+PKBlob pk_blob_alloc(Pocket lisp, size_t length);
+PKBlob pk_blob_dupe(Pocket lisp, PKBlob input);
+void pk_blob_free(Pocket lisp, PKBlob *blob);
+    
 PKAccum pk_accum_new(Pocket lisp);
 PKAccum pk_accum_new_with(Pocket lisp, PKAtom *init);
 void pk_accum_push(PKAccum *acc, PKAtom *atom);
