@@ -755,6 +755,41 @@ void pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, bool 
         pk_cmp_load(c, (PKAtom *)lfun);
 
         *is_special = true;
+    } else if ((symbol == lisp->cache.defun) || (symbol == lisp->cache.defmacro)) {
+        PKAtomCons *a = pk_atom_assert_cons(lisp, args);
+        (void)pk_atom_assert_symbol(lisp, a->car);
+        PKAtomCons *b = pk_atom_assert_cons(lisp, a->cdr);
+
+        PK_CALL call = PK_CALL_FUN;
+        if (symbol == lisp->cache.defmacro) {
+            call = PK_CALL_MACRO;
+        }
+
+        PKAtomLFun *lfun = pk_compile_lambda(lisp, call, b->car, b->cdr);
+
+        pk_cmp_load(c, a->car);
+        pk_cmp_load(c, (PKAtom *)lfun);
+        pk_cmp_push_byte(c, PK_OP_SET_FUN);
+
+        *is_special = true;
+    } else if (symbol == lisp->cache.defvar) {
+        PKAtomCons *a = pk_atom_assert_cons(lisp, args);
+        (void)pk_atom_assert_symbol(lisp, a->car);
+
+        pk_cmp_load(c, a->car);
+
+        if (pk_atom_is_cons(a->cdr)) {
+            PKAtomCons *b = pk_atom_assert_cons(lisp, a->cdr);
+            (void)pk_atom_assert_nil(lisp, b->cdr);
+            pk_compile_value(c, b->car);
+        } else {
+            (void)pk_atom_assert_nil(lisp, a->cdr);
+            pk_cmp_load_nil(c);
+        }
+
+        pk_cmp_push_byte(c, PK_OP_SET_VAR);
+
+        *is_special = true;
     } else if (symbol == lisp->cache.quote) {
         PKAtomCons *a = pk_atom_assert_cons(lisp, args);
         (void)pk_atom_assert_nil(lisp, a->cdr);

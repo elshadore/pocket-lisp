@@ -1,12 +1,3 @@
-(fset 'defmacro (macro (symbol args :rest body)
-   `(fset ',symbol (macro ,args ,@body))))
-
-(defmacro defun (symbol args :rest body)
-   `(fset ',symbol (lambda ,args ,@body)))
-
-(defmacro defvar (symbol :opt value)
-   `(set ',symbol ,value))
-  
 (defmacro when (cond :rest body)
     `(if ,cond (progn ,@body) nil))
     

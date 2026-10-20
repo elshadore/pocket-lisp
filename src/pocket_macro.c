@@ -47,6 +47,11 @@ bool pk_macroexpand_is_lambda(Pocket lisp, PKAtom *head) {
            (head == (PKAtom *)lisp->cache.macro);
 }
 
+bool pk_macroexpand_is_def(Pocket lisp, PKAtom *head) {
+    return (head == (PKAtom *)lisp->cache.defun) ||
+           (head == (PKAtom *)lisp->cache.defmacro);
+}
+
 bool pk_macroexpand_special_(Pocket lisp, size_t abs, PKAtom *head) {
     PKAtom *form = lisp->stack.e[abs];
     PKAtomCons *rest = pk_atom_assert_cons(lisp, form->cons.cdr);
@@ -55,12 +60,27 @@ bool pk_macroexpand_special_(Pocket lisp, size_t abs, PKAtom *head) {
     PKAtom *body = rest->cdr;
 
     bool is_lambda = pk_macroexpand_is_lambda(lisp, head);
+    bool is_def = pk_macroexpand_is_def(lisp, head);
+    PKAtom *def_symbol = NULL;
+
+    if (is_def) {
+        PKAtomCons *def = pk_atom_assert_cons(lisp, body);
+        def_symbol = data;
+        data = def->car;
+        body = def->cdr;
+        is_lambda = true;
+    }
 
     bool expanded = false;
     size_t count = 0;
 
     pk_stack_push(lisp, head);
     count += 1;
+
+    if (is_def) {
+        pk_stack_push(lisp, def_symbol);
+        count += 1;
+    }
 
     if (is_lambda) {
         pk_stack_push(lisp, data);
@@ -147,7 +167,8 @@ bool pk_macroexpand1_(Pocket lisp, int atom) {
             return false;
         }
 
-        if (pk_macroexpand_is_let(lisp, head) || pk_macroexpand_is_lambda(lisp, head)) {
+        if (pk_macroexpand_is_let(lisp, head) || pk_macroexpand_is_lambda(lisp, head) ||
+            pk_macroexpand_is_def(lisp, head)) {
             return pk_macroexpand_special_(lisp, abs, head);
         }
 

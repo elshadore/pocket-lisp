@@ -19,6 +19,7 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Types
   - [ ] Streams
   - [ ] Char (Unicode)
+    - printing and reading `^\space`
   - [ ] Byte Type
   - [ ] Array
   - [ ] Table
@@ -32,8 +33,9 @@ Stuff that I need to do a personal deep dive into.
   `pk_gets(lisp, pk_str("throw-type"))`
   `pk_gets(lisp, pk_str("throw-value"))`
 - [ ] Remove ternary operator.
-- [ ] If we PROTECT all the way down to the base frame i.e we dont match on our throw. We should have a special error.
 - [ ] underscored internal functions should be `pk_atom_*` instead
+- [ ] special forms should be implemented on the symbol itself. rather than if else in the code.
+  so we can tell if a symbol is a special form in the environment
 
 ## V1
 - [ ] Error Stack Traces

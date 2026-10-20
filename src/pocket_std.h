@@ -2,15 +2,6 @@
 #define POCKET_STD_H
 
 #define PK_STD_CODE \
- "(fset 'defmacro (macro (symbol args :rest body)\n" \
- "   `(fset ',symbol (macro ,args ,@body))))\n" \
- "\n" \
- "(defmacro defun (symbol args :rest body)\n" \
- "   `(fset ',symbol (lambda ,args ,@body)))\n" \
- "\n" \
- "(defmacro defvar (symbol :opt value)\n" \
- "   `(set ',symbol ,value))\n" \
- "  \n" \
  "(defmacro when (cond :rest body)\n" \
  "    `(if ,cond (progn ,@body) nil))\n" \
  "    \n" \
