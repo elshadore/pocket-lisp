@@ -27,6 +27,7 @@ Stuff that I need to do a personal deep dive into.
   - [ ] ByteArray (Mutable Append)
 
 ## Notes
+- [ ] Debug in build.zig should be enabled for all debug releases.
 - [ ] Var should return it's new value let setq does.
 - [ ] Move the throw stuff into the Lisp Environment itself.
   `pk_gets(lisp, pk_str("throw-type"))`
