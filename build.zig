@@ -68,10 +68,10 @@ fn generatePocketLispSrcHeader_(b: *std.Build, io: std.Io, src: []const u8, dst:
         .data = out.items,
     });
 }
-    
+
 fn generatePocketLispSrcHeader(b: *std.Build, io: std.Io, src: []const u8, dst: []const u8, prefix: []const u8) void {
     generatePocketLispSrcHeader_(b, io, src, dst, prefix) catch |err| {
-        std.debug.panic("generatePocketLispSrcHeader(): {s} => {s}, failed: {}", .{src, dst, err});
+        std.debug.panic("generatePocketLispSrcHeader(): {s} => {s}, failed: {}", .{ src, dst, err });
     };
 }
 
@@ -84,7 +84,6 @@ pub fn build(b: *std.Build) void {
 
         generatePocketLispSrcHeader(b, io, "repl/repl.pk", "repl/repl.h", "REPL");
         generatePocketLispSrcHeader(b, io, "src/lisp/std.pk", "src/pocket_std.h", "PK_STD");
-        
     }
     const optimize = b.standardOptimizeOption(.{});
     const target = b.standardTargetOptions(.{});
@@ -107,6 +106,43 @@ pub fn build(b: *std.Build) void {
         else => "-O2",
     };
 
+    const srcFiles = [_][]const u8{
+        "src/pocket_atom.c",
+        "src/pocket_call.c",
+        "src/pocket_compiler.c",
+        "src/pocket_core.c",
+        "src/pocket_debug.c",
+        "src/pocket_env.c",
+        "src/pocket_eval.c",
+        "src/pocket_frame.c",
+        "src/pocket_fs.c",
+        "src/pocket_function.c",
+        "src/pocket_gc.c",
+        "src/pocket_hashmap.c",
+        "src/pocket_ident.c",
+        "src/pocket_list.c",
+        "src/pocket_macro.c",
+        "src/pocket_math.c",
+        "src/pocket_mem.c",
+        "src/pocket_method.c",
+        "src/pocket_object.c",
+        "src/pocket_print.c",
+        "src/pocket_read.c",
+        "src/pocket_slotmap.c",
+        "src/pocket_stack.c",
+        "src/pocket_std.c",
+        "src/pocket_string.c",
+        "src/pocket_strsub.c",
+        "src/pocket_symbol.c",
+        "src/pocket_text.c",
+        "src/pocket_throw.c",
+        "src/pocket_type.c",
+        "src/pocket_user.c",
+        "src/pocket_utils.c",
+        "src/pocket_vm.c",
+        "src/pocket_writer.c",
+    };
+
     const flags = [_][]const u8{
         "-std=c99",
         "-Wall",
@@ -114,52 +150,57 @@ pub fn build(b: *std.Build) void {
         "-Werror",
         optimize_flag,
     };
+    const exeFiles = [_][]const u8{"repl/repl.c"} ++ srcFiles;
     root.addCSourceFiles(.{
-        .files = &.{
-            "repl/repl.c",
-            "src/pocket_atom.c",
-            "src/pocket_call.c",
-            "src/pocket_compiler.c",
-            "src/pocket_core.c",
-            "src/pocket_debug.c",
-            "src/pocket_env.c",
-            "src/pocket_eval.c",
-            "src/pocket_frame.c",
-            "src/pocket_fs.c",
-            "src/pocket_function.c",
-            "src/pocket_gc.c",
-            "src/pocket_hashmap.c",
-            "src/pocket_ident.c",
-            "src/pocket_list.c",
-            "src/pocket_macro.c",
-            "src/pocket_math.c",
-            "src/pocket_mem.c",
-            "src/pocket_method.c",
-            "src/pocket_object.c",
-            "src/pocket_print.c",
-            "src/pocket_read.c",
-            "src/pocket_slotmap.c",
-            "src/pocket_stack.c",
-            "src/pocket_std.c",
-            "src/pocket_string.c",
-            "src/pocket_strsub.c",
-            "src/pocket_symbol.c",
-            "src/pocket_text.c",
-            "src/pocket_throw.c",
-            "src/pocket_type.c",
-            "src/pocket_user.c",
-            "src/pocket_utils.c",
-            "src/pocket_vm.c",
-            "src/pocket_writer.c",
-        },
+        .files = &exeFiles,
         .flags = &flags,
+    });
+
+    const static_mod = b.createModule(.{
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+    static_mod.addCSourceFiles(.{ .files = &srcFiles, .flags = &flags });
+    const static_lib = b.addLibrary(.{
+        .name = "pocket",
+        .linkage = .static,
+        .root_module = static_mod,
+    });
+
+    const shared_mod = b.createModule(.{
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+    
+    const shared_flags = [_][]const u8{
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        optimize_flag,
+        "-fvisibility=hidden"
+    };
+    
+    shared_mod.addCSourceFiles(.{ .files = &srcFiles, .flags = &shared_flags });
+    shared_mod.addCMacro("PK_CFLAG_SHARED", "1");
+    
+    const shared_lib = b.addLibrary(.{
+        .name = "pocket",
+        .linkage = .dynamic,
+        .root_module = shared_mod,
     });
 
     if (optimize == .Debug) {
         root.addCMacro("PK_CFLAG_DEBUG", "1");
+        static_mod.addCMacro("PK_CFLAG_DEBUG", "1");
+        shared_mod.addCMacro("PK_CFLAG_DEBUG", "1");
     }
 
     b.installArtifact(exe);
+    b.installArtifact(static_lib);
+    b.installArtifact(shared_lib);
 
     const run_cmd = b.step("run", "Run the repl");
     const run = b.addRunArtifact(exe);

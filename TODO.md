@@ -28,8 +28,6 @@ Stuff that I need to do a personal deep dive into.
   - [ ] ByteArray (Mutable Append)
 
 ## Notes
-- [ ] Debug in build.zig should be enabled for all debug releases.
-- [ ] Add hardware / os target to build.zig
 - [ ] Add the ability to compile static and dynamic library to build.zig
   - C export symbols? PK_API
 - [ ] Var should return it's new value let setq does.
