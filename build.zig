@@ -22,7 +22,7 @@ fn escapeAppend(out: *std.ArrayList(u8), gpa: std.mem.Allocator, line: []const u
     try out.appendSlice(gpa, "\\n\"");
 }
 
-fn pk2h(b: *std.Build, io: std.Io, src: []const u8, dst: []const u8, prefix: []const u8) !void {
+fn generatePocketLispSrcHeader_(b: *std.Build, io: std.Io, src: []const u8, dst: []const u8, prefix: []const u8) !void {
     const gpa = b.allocator;
     const code = try std.Io.Dir.cwd().readFileAlloc(io, src, gpa, .limited(16 * 1024 * 1024));
     defer gpa.free(code);
@@ -68,20 +68,21 @@ fn pk2h(b: *std.Build, io: std.Io, src: []const u8, dst: []const u8, prefix: []c
         .data = out.items,
     });
 }
+    
+fn generatePocketLispSrcHeader(b: *std.Build, io: std.Io, src: []const u8, dst: []const u8, prefix: []const u8) void {
+    generatePocketLispSrcHeader_(b, io, src, dst, prefix) catch |err| {
+        std.debug.panic("generatePocketLispSrcHeader(): {s} => {s}, failed: {}", .{src, dst, err});
+    };
+}
 
 pub fn build(b: *std.Build) void {
     var threaded: std.Io.Threaded = .init(b.allocator, .{});
     defer threaded.deinit();
+    
     const io = threaded.io();
 
-    pk2h(b, io, "repl.pk", "repl.h", "REPL") catch |err| {
-        std.debug.print("pk2h: repl.pk -> repl.h failed: {t}\n", .{err});
-        std.process.exit(1);
-    };
-    pk2h(b, io, "src/lisp/std.pk", "src/pocket_std.h", "PK_STD") catch |err| {
-        std.debug.print("pk2h: src/lisp/std.pk -> src/pocket_std.h failed: {t}\n", .{err});
-        std.process.exit(1);
-    };
+    generatePocketLispSrcHeader(b, io, "repl/repl.pk", "repl/repl.h", "REPL");
+    generatePocketLispSrcHeader(b, io, "src/lisp/std.pk", "src/pocket_std.h", "PK_STD");
 
     const optimize = b.standardOptimizeOption(.{ .preferred_optimize_mode = .Debug });
     const debug = b.option(bool, "debug", "Enable PK_CFLAG_DEBUG") orelse true;
@@ -113,7 +114,7 @@ pub fn build(b: *std.Build) void {
     };
     root.addCSourceFiles(.{
         .files = &.{
-            "repl.c",
+            "repl/repl.c",
             "src/pocket_atom.c",
             "src/pocket_call.c",
             "src/pocket_compiler.c",

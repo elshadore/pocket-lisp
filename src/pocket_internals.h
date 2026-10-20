@@ -1,7 +1,7 @@
 #ifndef POCKET_LISP_INTERNALS_H
 #define POCKET_LISP_INTERNALS_H
 
-#include "pocket.h"
+#include "../include/pocket.h"
 #include <setjmp.h>
 
 typedef union PKAtomData_ PKAtom;

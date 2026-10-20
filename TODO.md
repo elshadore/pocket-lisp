@@ -7,6 +7,7 @@ Stuff that I need to do a personal deep dive into.
 - [ ] VM
 
 ## TODAY
+- [ ] Make Project Public on Github
 - [ ] Zig Build System
 - [ ] Special Forms
   - [ ] defvar, defun, defmacro
@@ -28,6 +29,8 @@ Stuff that I need to do a personal deep dive into.
 
 ## Notes
 - [ ] Debug in build.zig should be enabled for all debug releases.
+- [ ] repl should be in it's own file
+- [ ] pocket.h should be in include
 - [ ] Var should return it's new value let setq does.
 - [ ] Move the throw stuff into the Lisp Environment itself.
   `pk_gets(lisp, pk_str("throw-type"))`
