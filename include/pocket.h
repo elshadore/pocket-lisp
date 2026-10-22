@@ -132,6 +132,19 @@ PK_API void pk_push_cons(Pocket lisp, int car, int cdr);
 PK_API void pk_list(Pocket lisp, int head, int tail);
 PK_API void pk_push_cfun(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options);
 PK_API void pk_push_cmacro(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options);
+PK_API void pk_push_array(Pocket lisp);
+PK_API void pk_push_table(Pocket lisp);
+
+PK_API void pk_cat(Pocket lisp, int lhs, int rhs);
+PK_API void pk_append(Pocket lisp, int seq, int element);
+PK_API void pk_put(Pocket lisp, int table, int key, int value);
+PK_API void pk_put_unique(Pocket lisp, int table, int key, int value);
+PK_API void pk_rem(Pocket lisp, int table, int key);
+PK_API void pk_rem_strict(Pocket lisp, int table, int key);
+PK_API void pk_find(Pocket lisp, int table, int key);
+PK_API void pk_find_raw(Pocket lisp, int table, int key);
+PK_API void pk_find_strict(Pocket lisp, int table, int key);
+PK_API void pk_is_member(Pocket lisp, int table, int key);
 
 PK_API void pk_car(Pocket lisp, int cons);
 PK_API void pk_cdr(Pocket lisp, int cons);

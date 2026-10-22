@@ -10,6 +10,11 @@
 (defun cube (x)
    (* x x x))
 
+(defun fib (n)
+   (if (<= n 1)
+       n
+       (+ (fib (- n 1)) (fib (- n 2)))))
+
 (defun load (file)
     (evlist (read-list (fs/slurp file))))
 

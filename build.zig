@@ -100,9 +100,9 @@ pub fn build(b: *std.Build) void {
     });
 
     const optimize_flag: []const u8 = switch (optimize) {
-        .Debug => "-O0",
-        .ReleaseFast => "-O3",
-        .ReleaseSmall => "-Os",
+        .debug => "-O0",
+        .fast => "-O3",
+        .small => "-Os",
         else => "-O2",
     };
 
@@ -194,7 +194,7 @@ pub fn build(b: *std.Build) void {
         .root_module = shared_mod,
     });
 
-    if (optimize == .Debug) {
+    if (optimize == .debug) {
         root.addCMacro("PK_CFLAG_DEBUG", "1");
         static_mod.addCMacro("PK_CFLAG_DEBUG", "1");
         shared_mod.addCMacro("PK_CFLAG_DEBUG", "1");
@@ -206,8 +206,5 @@ pub fn build(b: *std.Build) void {
 
     const run_cmd = b.step("run", "Run the repl");
     const run = b.addRunArtifact(exe);
-    if (b.args) |args| {
-        run.addArgs(args);
-    }
     run_cmd.dependOn(&run.step);
 }

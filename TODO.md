@@ -60,6 +60,7 @@ Stuff that I need to do a personal deep dive into.
   - Not limited to 8bit args
 
 ## V2
+- [ ] Remove Libc
 - [ ] `Pocket` should not be cached in PKVM and PKCompiler
 - [ ] If we call a Lisp function from withing the VM we should not use the C stack to create a new VM, but reuse the old one.
 - [ ] NIL and UNDEFINED should be static objects.

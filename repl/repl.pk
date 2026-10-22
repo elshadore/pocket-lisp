@@ -6,12 +6,6 @@
 (defun read-eval-print (string)
   (print (catch 'error (eval (read string)))))
 
-(defun test ()
-  (protect
-   (error "this is an error!")
-   (throw 'foo 69)
-   420))
-
 (when (= (cadr args) "-e")
   (setq repl/running nil)
   (read-eval-print (caddr args)))

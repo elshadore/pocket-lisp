@@ -14,6 +14,11 @@
  "(defun cube (x)\n" \
  "   (* x x x))\n" \
  "\n" \
+ "(defun fib (n)\n" \
+ "   (if (<= n 1)\n" \
+ "       n\n" \
+ "       (+ (fib (- n 1)) (fib (- n 2)))))\n" \
+ "\n" \
  "(defun load (file)\n" \
  "    (evlist (read-list (fs/slurp file))))\n" \
  "\n" \
