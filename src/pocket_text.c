@@ -149,6 +149,72 @@ bool pk_str_needs_bars(PKStr string) {
     return false;
 }
 
+typedef struct PKCharName_ {
+    PKStr name;
+    char c;
+} PKCharName;
+
+PKCharName PK_CHAR_NAMES[] = {
+    { pk_str("null"),                0    },
+    { pk_str("soh"),                 1    },
+    { pk_str("stx"),                 2    },
+    { pk_str("etx"),                 3    },
+    { pk_str("eot"),                 4    },
+    { pk_str("enq"),                 5    },
+    { pk_str("ack"),                 6    },
+    { pk_str("bell"),                7    },
+    { pk_str("backspace"),           8    },
+    { pk_str("tab"),                 9    },
+    { pk_str("newline"),             10   },
+    { pk_str("vertical-tab"),        11   },
+    { pk_str("formfeed"),            12   },
+    { pk_str("return"),              13   },
+    { pk_str("shift-out"),           14   },
+    { pk_str("shift-in"),            15   },
+    { pk_str("data-link-escape"),    16   },
+    { pk_str("device-control-1"),    17   },
+    { pk_str("device-control-2"),    18   },
+    { pk_str("device-control-3"),    19   },
+    { pk_str("device-control-4"),    20   },
+    { pk_str("negative-acknowledge"),21   },
+    { pk_str("synchronous-idle"),    22   },
+    { pk_str("end-of-transmission-block"), 23 },
+    { pk_str("cancel"),              24   },
+    { pk_str("end-of-medium"),       25   },
+    { pk_str("substitute"),          26   },
+    { pk_str("escape"),              27   },
+    { pk_str("file-separator"),      28   },
+    { pk_str("group-separator"),     29   },
+    { pk_str("record-separator"),    30   },
+    { pk_str("unit-separator"),      31   },
+    { pk_str("space"),               32   },
+    { pk_str("delete"),              127  },
+};
+
+bool pk_char_from_cname(PKStr input, char *output) {
+    size_t length = pk_alen(PK_CHAR_NAMES);
+    for (size_t i = 0; i < length; ++i) {
+        PKCharName *entry = &PK_CHAR_NAMES[i];
+        if (pk_str_eq(input, entry->name)) {
+            *output = entry->c;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool pk_char_to_cname(char c, PKStr *output) {
+    size_t length = pk_alen(PK_CHAR_NAMES);
+    for (size_t i = 0; i < length; ++i) {
+        PKCharName *entry = &PK_CHAR_NAMES[i];
+        if (entry->c == c) {
+            *output = entry->name;
+            return true;
+        }
+    }
+    return false;
+}
+
 char pk_char_from_hex(pk_u8 byte) {
     switch (byte) {
         case 0: return '0';

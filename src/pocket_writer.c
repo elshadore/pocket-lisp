@@ -186,6 +186,16 @@ void pk_writer_symbol_name(Pocket lisp, PKWriter *w, PKStr name) {
     pk_writer_char(lisp, w, '|');
 }
 
+void pk_writer_atom_char(Pocket lisp, PKWriter *w, char c) {
+    pk_writer_string(lisp, w, pk_str("^\\"));
+    PKStr name = PK_STR_EMPTY;
+    if (pk_char_to_cname(c, &name)) {
+        pk_writer_string(lisp, w, name);
+    } else {
+        pk_writer_char(lisp, w, c);
+    }
+}
+
 void pk_writer_atom(Pocket lisp, PKWriter *w, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_UNDEFINED: {
@@ -216,6 +226,10 @@ void pk_writer_atom(Pocket lisp, PKWriter *w, PKAtom *atom) {
         }
         case PK_ATOMTY_SYMBOL: {
             pk_writer_symbol_name(lisp, w, atom->symbol.name->str);
+            break;
+        }
+        case PK_ATOMTY_CHARACTER: {
+            pk_writer_atom_char(lisp, w, atom->character.c);
             break;
         }
         case PK_ATOMTY_KEYWORD: {

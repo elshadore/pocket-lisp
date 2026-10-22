@@ -215,6 +215,55 @@ void pk_read_atom_write_escape(Pocket lisp, PKReader *r, PKWriter *w) {
     }
 }
 
+PKAtom *pk_read_atom_char(Pocket lisp, PKReader *r) {
+    if (pk_rat(r) != '^') {
+        pk_reader_error(lisp, r, pk_str("character literal does not start with ^, character"));
+        return lisp->cache.nil;
+    }
+
+    pk_reader_ince(lisp, r);
+
+    if (pk_rat(r) != '\\') {
+        pk_reader_error(lisp, r, pk_str("expected \\ after ^, character"));
+        return lisp->cache.nil;
+    }
+
+    pk_reader_ince(lisp, r);
+
+    char c = pk_rat(r);
+
+    // TODO: pk_char_is_graphical
+    if (pk_char_is_alphabet(c) || c == '-') {
+        size_t save = r->curr;
+        while (pk_reader_inc(r) && (pk_char_is_alphabet(pk_rat(r)) || pk_char_is_digit(pk_rat(r)) || pk_rat(r) == '-'));
+
+        PKStr name = (PKStr) {
+            .c = (char *)r->str.c + save,
+            .length = r->curr - save,
+        };
+
+        char mapped = '\0';
+        if (pk_char_from_cname(name, &mapped)) {
+            return (PKAtom *)pk_atom_char(lisp, mapped);
+        }
+
+        if (name.length == 1) {
+            return (PKAtom *)pk_atom_char(lisp, c);
+        }
+
+        pk_reader_error(lisp, r, pk_str("unknown character name"));
+        return lisp->cache.nil;
+    }
+
+    if (c == '\0') {
+        pk_reader_error(lisp, r, pk_str("reader is finished, expected character after \\"));
+        return lisp->cache.nil;
+    }
+
+    pk_reader_ince(lisp, r);
+    return (PKAtom *)pk_atom_char(lisp, c);
+}
+
 PKAtom *pk_read_atom_string_(Pocket lisp, PKReader *r, PKWriter *w) {
     if (pk_rat(r) != '\"') {
          pk_reader_error(lisp, r, pk_str("string does not start with \", character"));
@@ -497,6 +546,9 @@ PKAtom *pk_read_atom(Pocket lisp, PKReader *r) {
         }
         case ':': {
             return pk_read_atom_keyword(lisp, r);
+        }
+        case '^': {
+            return pk_read_atom_char(lisp, r);
         }
         default: {
             if (pk_reader_is_number_prefix(r)) {

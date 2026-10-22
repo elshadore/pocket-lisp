@@ -32,6 +32,15 @@ PKAtomString *pk_atom_string(Pocket lisp, PKStr string) {
     return pk_atom_string_nomemcpy(lisp, dupe);
 }
 
+PKAtomChar *pk_atom_char(Pocket lisp, char c) {
+    PKAtomChar *result = (PKAtomChar *)pk_atom_alloc(lisp);
+
+    result->header.type = PK_ATOMTY_CHARACTER;
+    result->c = c;
+
+    return result;
+}
+
 PKAtomString *pk_atom_string_alloc(Pocket lisp, size_t length) {
     if (length == 0) {
         return lisp->cache.empty_string;

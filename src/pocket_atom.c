@@ -84,6 +84,9 @@ bool pk_atom_is_type(PKAtom *atom, PK_TYPE type) {
         case PK_ATOMTY_COBJECT: {
             return (type == PK_TYPE_OBJECT) || (type == PK_TYPE_COBJECT);
         }
+        case PK_ATOMTY_CHARACTER: {
+            return type == PK_TYPE_CHARACTER;
+        }
         default: return false;
     }
 }

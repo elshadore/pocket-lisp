@@ -589,6 +589,8 @@ PKAtomString *pk_atom_string(Pocket lisp, PKStr string);
 PKAtomString *pk_atom_string_alloc(Pocket lisp, size_t length);
 PKAtomString *pk_atom_stringc(Pocket lisp, char *cstring);
 PKAtomString *pk_atom_string_cat(Pocket lisp, PKAtoms atoms);
+
+PKAtomChar *pk_atom_char(Pocket lisp, char c);
 bool pk_atom_string_cmp(PKAtomString *string, PKStr comp);
 
 PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);
@@ -761,6 +763,8 @@ bool pk_char_is_digit(char c);
 bool pk_char_is_whitespace(char c);
 bool pk_char_is_alphabet(char c);
 bool pk_char_is_symbol(char c);
+bool pk_char_from_cname(PKStr input, char *output);
+bool pk_char_to_cname(char c, PKStr *output);
 char pk_char_from_hex(pk_u8 byte);
 bool pk_char_is_hex(char c);
 pk_u8 pk_char_to_hex(char c);
