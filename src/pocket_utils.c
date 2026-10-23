@@ -68,6 +68,13 @@ void pk_array_deinit(Pocket lisp, PKArray *array) {
     *array = PK_ARRAY_EMPTY;
 }
 
+PKAtoms pk_array_slice(PKArray *array) {
+    return (PKAtoms) {
+        .e = array->e,
+        .length = array->count,
+    };
+}
+
 void pk_bytes_push(Pocket lisp, PKBytes *bytes, pk_u8 byte, size_t init_capacity) {
     if (bytes->count >= bytes->capacity) {
         size_t new_capacity = pk_grow_capacity(bytes->capacity, init_capacity);

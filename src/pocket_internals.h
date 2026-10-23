@@ -41,6 +41,11 @@ typedef struct PKBytes_ {
     size_t capacity;
 } PKBytes;
 
+typedef enum PK_HASHMAP_INSERT_ {
+    PK_HASHMAP_INSERT_NORMAL = 0,
+    PK_HASHMAP_INSERT_UNIQUE = 1,
+} PK_HASHMAP_INSERT;
+
 #define PK_HASHMAP_SLOT_UNOCCUPIED (0)
 #define PK_HASHMAP_SLOT_OCCUPIED (1)
 #define PK_HASHMAP_SLOT_DELETED (2)
@@ -304,27 +309,27 @@ typedef struct PKAtomChar_ {
 
 typedef struct PKAtomBlob_ {
     PKAtomHeader header;
-    PKBlob b;
+    PKBlob bytes;
 } PKAtomBlob;
 
 typedef struct PKAtomArray_ {
     PKAtomHeader header;
-    PKArray a;
+    PKArray atoms;
 } PKAtomArray;
 
 typedef struct PKAtomTable_ {
     PKAtomHeader header;
-    PKHashmap t;
+    PKHashmap map;
 } PKAtomTable;
 
 typedef struct PKAtomStringArray_ {
     PKAtomHeader header;
-    PKWriter w;
+    PKWriter string;
 } PKAtomStringArray;
 
 typedef struct PKAtomByteArray_ {
     PKAtomHeader header;
-    PKBytes b;
+    PKBytes bytes;
 } PKAtomByteArray;
 
 typedef struct PKAtomStream_ {
@@ -651,6 +656,15 @@ void pk_atom_string_array_append_str(Pocket lisp, PKAtomStringArray *array, PKSt
 void pk_atom_byte_array_append(Pocket lisp, PKAtomByteArray *array, PKAtom *atom);
 void pk_atom_byte_array_append_u8(Pocket lisp, PKAtomByteArray *array, pk_u8 byte);
 void pk_atom_byte_array_append_blob(Pocket lisp, PKAtomByteArray *array, PKBlob blob);
+
+PKAtomTable * pk_atom_table(Pocket lisp);
+PKAtom *pk_atom_table_put(Pocket lisp, PKAtomTable *table, PKAtom *key, PKAtom *value);
+PKAtom *pk_atom_table_put_unique(Pocket lisp, PKAtomTable *table, PKAtom *key, PKAtom *value);
+PKAtom *pk_atom_table_rem(Pocket lisp, PKAtomTable *table, PKAtom *key);
+PKAtom *pk_atom_table_rem_strict(Pocket lisp, PKAtomTable *table, PKAtom *key);
+PKAtom *pk_atom_table_find(Pocket lisp, PKAtomTable *table, PKAtom *key);
+PKAtom *pk_atom_table_find_raw(Pocket lisp, PKAtomTable *table, PKAtom *key);
+PKAtom *pk_atom_table_strict(Pocket lisp, PKAtomTable *table, PKAtom *key);
     
 PKAtom *pk_env_get(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol);
 PKAtom *pk_env_get_strict(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol);
@@ -779,11 +793,12 @@ void pk_accum_push(PKAccum *acc, PKAtom *atom);
 
 void pk_array_push(Pocket lisp, PKArray *array, PKAtom *atom, size_t init_capacity);
 void pk_array_deinit(Pocket lisp, PKArray *array);
+PKAtoms pk_array_slice(PKArray *array);
 void pk_bytes_push(Pocket lisp, PKBytes *bytes, pk_u8 byte, size_t init_capacity);
 void pk_bytes_deinit(Pocket lisp, PKBytes *bytes);
 void pk_atoms_free(Pocket lisp, PKAtoms *atoms);
     
-PKAtom *pk_hashmap_insert(Pocket lisp, PKHashmap *map, PKAtom *key, PKAtom *value);
+PKAtom *pk_hashmap_insert(Pocket lisp, PKHashmap *map, PKAtom *key, PKAtom *value, PK_HASHMAP_INSERT type);
 PKAtom *pk_hashmap_get_str(Pocket lisp, PKHashmap *map, PKStr key);
 PKAtom *pk_hashmap_get(Pocket lisp, PKHashmap *map, PKAtom *key);
 PKAtom *pk_hashmap_remove(Pocket lisp, PKHashmap *map, PKAtom *key);

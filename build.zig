@@ -106,7 +106,7 @@ pub fn build(b: *std.Build) void {
         else => "-O2",
     };
 
-    const srcFiles = [_][]const u8{
+    const src = [_][]const u8{
         "src/pocket_array.c",
         "src/pocket_atom.c",
         "src/pocket_blob.c",
@@ -136,6 +136,7 @@ pub fn build(b: *std.Build) void {
         "src/pocket_string.c",
         "src/pocket_strsub.c",
         "src/pocket_symbol.c",
+        "src/pocket_table.c",
         "src/pocket_text.c",
         "src/pocket_throw.c",
         "src/pocket_type.c",
@@ -152,9 +153,9 @@ pub fn build(b: *std.Build) void {
         "-Werror",
         optimize_flag,
     };
-    const exeFiles = [_][]const u8{"repl/repl.c"} ++ srcFiles;
+    const exe_src = [_][]const u8{"repl/repl.c"} ++ src;
     root.addCSourceFiles(.{
-        .files = &exeFiles,
+        .files = &exe_src,
         .flags = &flags,
     });
 
@@ -163,7 +164,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .link_libc = true,
     });
-    static_mod.addCSourceFiles(.{ .files = &srcFiles, .flags = &flags });
+    static_mod.addCSourceFiles(.{ .files = &src, .flags = &flags });
     const static_lib = b.addLibrary(.{
         .name = "pocket",
         .linkage = .static,
@@ -185,7 +186,7 @@ pub fn build(b: *std.Build) void {
         "-fvisibility=hidden"
     };
     
-    shared_mod.addCSourceFiles(.{ .files = &srcFiles, .flags = &shared_flags });
+    shared_mod.addCSourceFiles(.{ .files = &src, .flags = &shared_flags });
     shared_mod.addCMacro("PK_CFLAG_SHARED", "1");
     
     const shared_lib = b.addLibrary(.{

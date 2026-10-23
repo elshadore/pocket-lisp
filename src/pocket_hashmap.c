@@ -73,7 +73,7 @@ PKHashmapSlot *pk_hashmap_find(Pocket lisp, PKHashmap *map, PKAtom *key, size_t 
     return NULL;
 }
 
-PKAtom *pk_hashmap_insert(Pocket lisp, PKHashmap *map, PKAtom *key, PKAtom *value) {
+PKAtom *pk_hashmap_insert(Pocket lisp, PKHashmap *map, PKAtom *key, PKAtom *value, PK_HASHMAP_INSERT type) {
     if (map->capacity == 0) {
         map->e = pk_hashmap_alloc_slots(lisp, PK_HASHMAP_INIT_CAPACITY);
         map->capacity = PK_HASHMAP_INIT_CAPACITY;
@@ -92,6 +92,10 @@ PKAtom *pk_hashmap_insert(Pocket lisp, PKHashmap *map, PKAtom *key, PKAtom *valu
         size_t ignored = 0;
         slot = pk_hashmap_find(lisp, map, key, &ignored);
         if (slot != NULL) {
+            if ((type == PK_HASHMAP_INSERT_UNIQUE) && (slot->state == PK_HASHMAP_SLOT_OCCUPIED)) {
+                pk_errors(lisp, pk_str("table already has slot of this key"));
+                return lisp->cache.undefined;
+            }
             PKAtom *old_value = slot->value;
             slot->value = value;
             return old_value;

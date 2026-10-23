@@ -32,7 +32,7 @@ PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr string) {
     result->methods = PK_HASHMAP_EMPTY;
     result->owned_memory = 0;
 
-    pk_hashmap_insert(lisp, &lisp->symbolizer, (PKAtom *)name, (PKAtom *)result);
+    pk_hashmap_insert(lisp, &lisp->symbolizer, (PKAtom *)name, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
     
     return result;
 }

@@ -17,7 +17,7 @@ PKAtom *pk_method_set_(Pocket lisp, PKAtom *type, PKAtom *symbol, PKAtom *method
         pk_error_writer(lisp, &w);
     }
 
-    PKAtom *old_method = pk_hashmap_insert(lisp, &asymbol->methods, symbol, method);
+    PKAtom *old_method = pk_hashmap_insert(lisp, &asymbol->methods, symbol, method, PK_HASHMAP_INSERT_NORMAL);
 
     if (pk_atom_is_undefined(old_method)) {
         return lisp->cache.nil;

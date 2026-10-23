@@ -126,6 +126,14 @@ void pk_gc_mark(Pocket lisp, PKAtom *atom) {
             pk_gc_mark(lisp, atom->cobject.type);
             break;
         }
+        case PK_ATOMTY_ARRAY: {
+            pk_gc_mark_atoms(lisp, pk_array_slice(&atom->array.atoms));
+            break;
+        }
+        case PK_ATOMTY_TABLE: {
+            pk_gc_mark_hashmap(lisp, &atom->table.map);
+            break;
+        }
         default: break;
     }
 }

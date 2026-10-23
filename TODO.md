@@ -6,8 +6,15 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Compiler
   - Really need the testing suite for this lmao.
 - [ ] VM
+- [ ] Macro
 
-## TODAY
+## V1
+- [ ] defvar, defun, defmacro
+  - Return symbol
+- [ ] Var should return it's new value let setq does.
+- [ ] Special Form Objects
+- [ ] Remove ternary operator.
+- [ ] underscored internal functions should be `pk_atom_*` instead
 - [ ] Object System
   - [ ] CObjects
   - [ ] LObjects
@@ -18,35 +25,26 @@ Stuff that I need to do a personal deep dive into.
   - [ ] Char (Unicode)
     - printing and reading `^\space`
   - [ ] Table
-- [ ] Var should return it's new value let setq does.
-
-## Notes
-- [ ] Move the throw stuff into the Lisp Environment itself.
-  `pk_gets(lisp, pk_str("throw-type"))`
-  `pk_gets(lisp, pk_str("throw-value"))`
-- [ ] Remove ternary operator.
-- [ ] underscored internal functions should be `pk_atom_*` instead
-- [ ] special forms should be implemented on the symbol itself. rather than if else in the code.
-  so we can tell if a symbol is a special form in the environment
-
-## V1
-- [ ] Error Stack Traces
-  - debug-trace variable
+- [ ] Better Throwing / Erroring
+  - Error not throw type
+  - If throw cannot find symbol (error)
+  - `unwind-protect`
+  - `ecase`
+  - Error Stack Traces
+    - debug-trace variable
 - [ ] defclass
 - [ ] Recursive Printing Check
-- [ ] Big Numbers
 - [ ] Unicode Strings (utf8)
+  - [ ] fn, λ, lambda
 - [ ] Emacs Mode
   - [ ] Syntax Highlighting
   - [ ] Identation
     - `(declare (indent 1))`
   - Connect to Lisp Server
-- [ ] Environment Objects
+- [ ] `struct-eq`, `object-eq`
 - [ ] Full Float Parsing and Printing
   - [ ] Parsing
   - [ ] Printing
-- [ ] Immutable Vector Update
-  - Move from cons cells to immutable vectors.
 - [ ] Standard Library
   - [ ] Filesystem API
   - [ ] Shell Command / Process API
@@ -55,16 +53,21 @@ Stuff that I need to do a personal deep dive into.
   - [ ] HTTP
   - [ ] HTML
 - [ ] Testing Suite
-- [ ] Full Code Review
 - [ ] Upgrade to Arbitary Precision Bytecode
   - Not limited to 8bit args
+- [ ] Small, Big, Symbol, Pools
+- [ ] `progv`
+- [ ] Big Numbers
+- [ ] Full Code Review
 
 ## V2
+- [ ] Environment Objects
+- [ ] Immutable Vector Update
+  - Move from cons cells to immutable vectors.
 - [ ] Remove Libc
 - [ ] `Pocket` should not be cached in PKVM and PKCompiler
 - [ ] If we call a Lisp function from withing the VM we should not use the C stack to create a new VM, but reuse the old one.
 - [ ] NIL and UNDEFINED should be static objects.
-- [ ] fn, λ, lambda
 - [ ] Interpretter Objects
 - [ ] Lexical Capture
   - [ ] Upvalues

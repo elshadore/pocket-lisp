@@ -110,23 +110,23 @@ void pk_atom_free(Pocket lisp, PKAtom *atom) {
             break;
         }
         case PK_ATOMTY_BLOB: {
-            pk_blob_free(lisp, &atom->blob.b);
+            pk_blob_free(lisp, &atom->blob.bytes);
             break;
         }
         case PK_ATOMTY_ARRAY: {
-            pk_array_deinit(lisp, &atom->array.a);
+            pk_array_deinit(lisp, &atom->array.atoms);
             break;
         }
         case PK_ATOMTY_STRING_ARRAY: {
-            pk_writer_deinit(lisp, &atom->string_array.w);
+            pk_writer_deinit(lisp, &atom->string_array.string);
             break;
         }
         case PK_ATOMTY_BYTE_ARRAY: {
-            pk_bytes_deinit(lisp, &atom->byte_array.b);
+            pk_bytes_deinit(lisp, &atom->byte_array.bytes);
             break;
         }
         case PK_ATOMTY_TABLE: {
-            pk_hashmap_deinit(lisp, &atom->table.t);
+            pk_hashmap_deinit(lisp, &atom->table.map);
             break;
         }
         case PK_ATOMTY_CONS: {
