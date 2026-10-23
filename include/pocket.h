@@ -88,6 +88,8 @@ typedef enum PK_TYPE_ {
     PK_TYPE_LOBJECT,
     PK_TYPE_COBJECT,
     PK_TYPE_CHARACTER,
+    PK_TYPE_ARRAY,
+    PK_TYPE_TABLE,
 } PK_TYPE;
 
 #define pk_str(text_) (PKStr) {.c = (text_), .length = ((sizeof(text_) / sizeof(char)) - 1)}
@@ -145,7 +147,7 @@ PK_API void pk_rem_strict(Pocket lisp, int table, int key);
 PK_API void pk_find(Pocket lisp, int table, int key);
 PK_API void pk_find_raw(Pocket lisp, int table, int key);
 PK_API void pk_find_strict(Pocket lisp, int table, int key);
-PK_API void pk_is_member(Pocket lisp, int table, int key);
+PK_API bool pk_is_member(Pocket lisp, int table, int key);
 
 PK_API void pk_car(Pocket lisp, int cons);
 PK_API void pk_cdr(Pocket lisp, int cons);

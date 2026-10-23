@@ -9,6 +9,8 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Macro
 
 ## V1
+- [ ] All possible memory leaks from throwing removed.
+- [ ] Better Gensyms
 - [ ] defvar, defun, defmacro
   - Return symbol
 - [ ] Var should return it's new value let setq does.

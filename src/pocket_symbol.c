@@ -74,7 +74,6 @@ bool pk_atom_keyword_cmp(PKAtomKeyword *keyword, PKStr comp) {
     return pk_str_eq(keyword->id, comp);
 }
 
-
 PKAtomSymbol *pk_atom_assert_symbol(Pocket lisp, PKAtom *atom) {
     if (pk_atom_is_symbol(atom)) {
         return (PKAtomSymbol *)atom;

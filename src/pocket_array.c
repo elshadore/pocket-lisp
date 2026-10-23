@@ -100,3 +100,15 @@ void pk_atom_append(Pocket lisp, PKAtom *array, PKAtom *atom) {
         }
     }
 }
+
+bool pk_atom_is_array(PKAtom *atom) {
+    return atom->header.type == PK_ATOMTY_ARRAY;
+}
+
+bool pk_atom_is_string_array(PKAtom *atom) {
+    return atom->header.type == PK_ATOMTY_STRING_ARRAY;
+}
+
+bool pk_atom_is_byte_array(PKAtom *atom) {
+    return atom->header.type == PK_ATOMTY_BYTE_ARRAY;
+}
