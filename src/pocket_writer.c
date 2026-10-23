@@ -196,6 +196,17 @@ void pk_writer_atom_char(Pocket lisp, PKWriter *w, char c) {
     }
 }
 
+void pk_writer_atom_blob(Pocket lisp, PKWriter *w, PKBlob blob) {
+    pk_writer_char(lisp, w, '[');
+    if (blob.length > 0) {
+        for (size_t i = 0; i < (blob.length - 1); ++i) {
+            pk_writer_fmt(lisp, w, "%u ", blob.e[i]);
+        }
+        pk_writer_fmt(lisp, w, "%u", blob.e[blob.length - 1]);
+    }
+    pk_writer_char(lisp, w, ']');
+}
+
 void pk_writer_atom(Pocket lisp, PKWriter *w, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_UNDEFINED: {
@@ -270,6 +281,34 @@ void pk_writer_atom(Pocket lisp, PKWriter *w, PKAtom *atom) {
         }
         case PK_ATOMTY_LMACRO: {
             pk_writer_simple_function(lisp, w, atom, pk_str("LMACRO"), atom->lmacro.arity);
+            break;
+        }
+        case PK_ATOMTY_BLOB: {
+            pk_writer_atom_blob(lisp, w, atom->blob.bytes);
+            break;
+        }
+        case PK_ATOMTY_ARRAY: {
+            pk_writer_simple_object(lisp, w, atom, pk_str("ARRAY"));
+            break;
+        }
+        case PK_ATOMTY_STRING_ARRAY: {
+            pk_writer_string(lisp, w, pk_str("&<STRING-ARRAY::"));
+            pk_writer_string_escaped(lisp, w, pk_writer_slice(&atom->string_array.string));
+            pk_writer_string(lisp, w, pk_str(">"));
+            break;
+        }
+        case PK_ATOMTY_BYTE_ARRAY: {
+            pk_writer_string(lisp, w, pk_str("&<BYTE-ARRAY::"));
+            pk_writer_atom_blob(lisp, w, pk_bytes_slice(&atom->byte_array.bytes));
+            pk_writer_string(lisp, w, pk_str(">"));
+            break;
+        }
+        case PK_ATOMTY_TABLE: {
+            pk_writer_simple_object(lisp, w, atom, pk_str("TABLE"));
+            break;
+        }
+        case PK_ATOMTY_STREAM: {
+            pk_writer_simple_object(lisp, w, atom, pk_str("STREAM"));
             break;
         }
         default: {

@@ -85,6 +85,13 @@ void pk_bytes_push(Pocket lisp, PKBytes *bytes, pk_u8 byte, size_t init_capacity
     bytes->e[bytes->count++] = byte;
 }
 
+PKBlob pk_bytes_slice(PKBytes *bytes) {
+    return (PKBlob) {
+        .e = bytes->e,
+        .length = bytes->count,
+    };
+}
+
 void pk_bytes_deinit(Pocket lisp, PKBytes *bytes) {
     pk_free(lisp, bytes->e);
     *bytes = PK_BYTES_EMPTY;

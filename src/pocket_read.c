@@ -550,6 +550,10 @@ PKAtom *pk_read_atom(Pocket lisp, PKReader *r) {
         case '^': {
             return pk_read_atom_char(lisp, r);
         }
+        case '&': {
+            pk_reader_error(lisp, r, pk_str("cannot read printed lisp object notation"));
+            return lisp->cache.nil;
+        }
         default: {
             if (pk_reader_is_number_prefix(r)) {
                 return pk_read_atom_number(lisp, r);

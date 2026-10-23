@@ -796,6 +796,7 @@ void pk_array_deinit(Pocket lisp, PKArray *array);
 PKAtoms pk_array_slice(PKArray *array);
 void pk_bytes_push(Pocket lisp, PKBytes *bytes, pk_u8 byte, size_t init_capacity);
 void pk_bytes_deinit(Pocket lisp, PKBytes *bytes);
+PKBlob pk_bytes_slice(PKBytes *bytes);
 void pk_atoms_free(Pocket lisp, PKAtoms *atoms);
     
 PKAtom *pk_hashmap_insert(Pocket lisp, PKHashmap *map, PKAtom *key, PKAtom *value, PK_HASHMAP_INSERT type);
