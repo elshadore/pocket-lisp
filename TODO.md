@@ -9,6 +9,7 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Macro
 
 ## V1
+- [ ] Type Symbols
 - [ ] Object System
   - [ ] CObjects
   - [ ] LObjects

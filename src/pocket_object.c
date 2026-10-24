@@ -14,7 +14,7 @@ PKAtom *pk_object_new(Pocket lisp, PKAtom *type) {
             }
 
             atom->header.type = PK_ATOMTY_LOBJECT;
-            atom->lobject.type = type;
+            atom->lobject.type = asymbol;
             atom->lobject.slots = (PKAtoms) {
                 .e = e,
                 .length = length,
@@ -26,13 +26,13 @@ PKAtom *pk_object_new(Pocket lisp, PKAtom *type) {
             memset(data, 0, asymbol->owned_memory);
 
             atom->header.type = PK_ATOMTY_COBJECT;
-            atom->cobject.type = type;
+            atom->cobject.type = asymbol;
             atom->cobject.data = data;
             break;
         }
         case PK_TYPETY_C_USER: {
             atom->header.type = PK_ATOMTY_COBJECT;
-            atom->cobject.type = type;
+            atom->cobject.type = asymbol;
             atom->cobject.data = NULL;
             break;
         }
@@ -48,7 +48,7 @@ PKAtom *pk_object_new(Pocket lisp, PKAtom *type) {
     return atom;
 }
 
-static bool pk_assert_lobject(Pocket lisp, PKAtom *atom) {
+bool pk_assert_lobject(Pocket lisp, PKAtom *atom) {
     if (atom->header.type != PK_ATOMTY_LOBJECT) {
         pk_error_type(lisp, PK_TYPE_LOBJECT, atom);
         return false;
@@ -56,10 +56,8 @@ static bool pk_assert_lobject(Pocket lisp, PKAtom *atom) {
     return true;
 }
 
-static size_t pk_slot_index(Pocket lisp, PKAtom *object, PKAtom *slot) {
-    PKAtomSymbol *type = pk_atom_assert_symbol(lisp, object->lobject.type);
-    pk_atom_assert_symbol(lisp, slot);
-    PKSlotmapSlot *found = pk_slotmap_get(lisp, &type->slots, slot);
+size_t pk_slot_index(Pocket lisp, PKAtom *object, PKAtom *slot) {
+    PKSlotmapSlot *found = pk_slotmap_get(lisp, &object->lobject.type->slots, slot);
     if (found == NULL) {
         PKWriter w = PK_WRITER_EMPTY;
         pk_writer_cstr(lisp, &w, "no such slot: ");
@@ -100,7 +98,7 @@ size_t pk_cobject_size_(Pocket lisp, PKAtom *atom) {
         pk_errorf(lisp, "pk_cobject_size_: expected a cobject, got %.*s", (int)ty.length, ty.c);
         return 0;
     }
-    return pk_atom_assert_symbol(lisp, atom->cobject.type)->owned_memory;
+    return atom->cobject.type->owned_memory;
 }
 
 bool pk_atom_is_object(PKAtom *atom) {

@@ -54,6 +54,12 @@
 (defun cdddr (x)
    (cdr (cdr (cdr x))))
 
+(defun not (x)
+   (if x nil true))
+
+(defun != (:rest comps)
+   (not (apply '= comps)))
+
 (defmacro catch (symbol :rest body)
     `(funcatch ,symbol (lambda () ,@body)))
 
@@ -63,9 +69,21 @@
 (defmacro break (symbol value)
     `(throw ',symbol ,value))
 
+(defmacro assert= (:rest comps)
+    `(unless (= ,@comps) (error "assert= failed")))
+
 (defmacro swap (lhs rhs)
     (let ((temp (gensym)))
        `(progn
           (var ,temp ,lhs)
           (setq ,lhs ,rhs)
           (setq ,rhs ,temp))))
+
+(defmacro dolist ((el seq) :rest body)
+     (let ((temp (gensym)))
+         `(progn
+            (let ((,temp ,seq))
+                 ((,el nil))
+                (while ,temp
+                   (setq ,el (car ,temp))
+                   (setq ,temp (cdr ,temp)))))))

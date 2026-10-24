@@ -45,6 +45,26 @@ void pk_init_cache(Pocket lisp) {
     c->unquote = pk_atom_symbol(lisp, pk_str("unquote"));
     c->unquote_splice = pk_atom_symbol(lisp, pk_str("unquote-splice"));
     c->string_substitute = pk_atom_symbol(lisp, pk_str("string-substitute"));
+    
+    c->type_unknown = pk_atom_symbol(lisp, pk_str("Unknown"));
+    c->type_undefined = pk_atom_symbol(lisp, pk_str("Undefined"));
+    c->type_nil = pk_atom_symbol(lisp, pk_str("Nil"));
+    c->type_true = pk_atom_symbol(lisp, pk_str("True"));
+    c->type_number = pk_atom_symbol(lisp, pk_str("Number"));
+    c->type_string = pk_atom_symbol(lisp, pk_str("String"));
+    c->type_symbol = pk_atom_symbol(lisp, pk_str("Symbol"));
+    c->type_keyword = pk_atom_symbol(lisp, pk_str("Keyword"));
+    c->type_cons = pk_atom_symbol(lisp, pk_str("Cons"));
+    c->type_array = pk_atom_symbol(lisp, pk_str("Array"));
+    c->type_table = pk_atom_symbol(lisp, pk_str("Table"));
+    c->type_function = pk_atom_symbol(lisp, pk_str("Function"));
+    c->type_macro = pk_atom_symbol(lisp, pk_str("Macro"));
+    c->type_character = pk_atom_symbol(lisp, pk_str("Character"));
+    c->type_blob = pk_atom_symbol(lisp, pk_str("Blob"));
+    c->type_string_array = pk_atom_symbol(lisp, pk_str("String-Array"));
+    c->type_byte_array = pk_atom_symbol(lisp, pk_str("Byte-Array"));
+    c->type_stream = pk_atom_symbol(lisp, pk_str("Stream"));
+    
 }
 
 Pocket pk_init(void *user_env) {

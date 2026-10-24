@@ -467,3 +467,7 @@ PK_API bool pk_is_member(Pocket lisp, int table, int key) {
     PKAtom *akey = pk_stack_get(lisp, key);
     return pk_atom_table_is_member(lisp, atable, akey);
 }
+
+PK_API void pk_typeof(Pocket lisp, int stack_pointer) {
+    pk_stack_push(lisp, (PKAtom *)pk_atom_typeof(lisp, pk_stack_get(lisp, stack_pointer)));
+}

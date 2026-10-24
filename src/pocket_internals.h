@@ -292,13 +292,13 @@ typedef struct PKAtomLFun_ {
 
 typedef struct PKAtomCObject_ {
     PKAtomHeader header;
-    PKAtom *type;
+    PKAtomSymbol *type;
     void *data;
 } PKAtomCObject;
 
 typedef struct PKAtomLObject_ {
     PKAtomHeader header;
-    PKAtom *type;
+    PKAtomSymbol *type;
     PKAtoms slots;
 } PKAtomLObject;
 
@@ -457,6 +457,25 @@ struct PKPool_ {
     .unquote = NULL, \
     .unquote_splice = NULL, \
     .string_substitute = NULL, \
+    \
+    .type_unknown = NULL, \
+    .type_undefined = NULL, \
+    .type_nil = NULL, \
+    .type_true = NULL, \
+    .type_number = NULL, \
+    .type_string = NULL, \
+    .type_symbol = NULL, \
+    .type_keyword = NULL, \
+    .type_cons = NULL, \
+    .type_array = NULL, \
+    .type_table = NULL, \
+    .type_function = NULL, \
+    .type_macro = NULL, \
+    .type_character = NULL, \
+    .type_blob = NULL, \
+    .type_string_array = NULL, \
+    .type_byte_array = NULL, \
+    .type_stream = NULL, \
 }
 
 typedef struct PKCache_ {
@@ -500,7 +519,25 @@ typedef struct PKCache_ {
     PKAtomSymbol *unquote;
     PKAtomSymbol *unquote_splice;
     PKAtomSymbol *string_substitute;
-    
+
+    PKAtomSymbol *type_unknown;
+    PKAtomSymbol *type_undefined;
+    PKAtomSymbol *type_nil;
+    PKAtomSymbol *type_true;
+    PKAtomSymbol *type_number;
+    PKAtomSymbol *type_string;
+    PKAtomSymbol *type_symbol;
+    PKAtomSymbol *type_keyword;
+    PKAtomSymbol *type_cons;
+    PKAtomSymbol *type_array;
+    PKAtomSymbol *type_table;
+    PKAtomSymbol *type_function;
+    PKAtomSymbol *type_macro;
+    PKAtomSymbol *type_character;
+    PKAtomSymbol *type_blob;
+    PKAtomSymbol *type_string_array;
+    PKAtomSymbol *type_byte_array;
+    PKAtomSymbol *type_stream;
 } PKCache;
 
 #define POCKET_LISP_MACHINE_EMPTY (PocketLispMachine) { \
@@ -691,6 +728,7 @@ PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom);
 void pk_deftype_lisp_(Pocket lisp, PKAtomSymbol *symbol, PKAtoms slots);
 void pk_deftype_c_owned_(Pocket lisp, PKAtomSymbol *symbol, size_t size);
 void pk_deftype_c_user_(Pocket lisp, PKAtomSymbol *symbol);
+PKAtomSymbol *pk_atom_typeof(Pocket lisp, PKAtom *atom);
 
 PKAtom *pk_object_new(Pocket lisp, PKAtom *type);
 PKAtom *pk_slot_set_(Pocket lisp, PKAtom *object, PKAtom *slot, PKAtom *value);

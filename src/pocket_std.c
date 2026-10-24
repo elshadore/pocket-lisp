@@ -282,6 +282,11 @@ void pk_fun_gensym(void *user_closure, Pocket lisp) {
     pk_push_gensym(lisp);
 }
 
+void pk_fun_typeof(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_typeof(lisp, 1);
+}
+
 typedef struct PKFunLoad_ {
     PKStr symbol;
     PKFun fun;
@@ -370,6 +375,7 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("table"), .fun = pk_fun_table, .args = 0, .arity = PK_ARITY_NORMAL},
         
         {.symbol = pk_str("gensym"), .fun = pk_fun_gensym, .args = 0, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("typeof"), .fun = pk_fun_typeof, .args = 1, .arity = PK_ARITY_NORMAL},
     };
 
     size_t length = pk_alen(funs);
