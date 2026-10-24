@@ -645,13 +645,9 @@ void pk_compile_protect_evlist(PKCompiler *c, PKAtom *args) {
 
 void pk_compile_protect(PKCompiler *c, PKAtom *args) {
     pk_cmp_push_byte(c, PK_OP_PROTECT_BEGIN);
-
     pk_compile_protect_evlist(c, args);
-
     pk_cmp_push_byte(c, PK_OP_PROTECT_END);
 }
-
-
 
 void pk_compile_quasiquote(PKCompiler *c, PKAtom *value) {
     PKAtom *spliced = NULL;

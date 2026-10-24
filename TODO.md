@@ -9,7 +9,6 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Macro
 
 ## V1
-- [ ] Blob Reader
 - [ ] Object System
   - [ ] CObjects
   - [ ] LObjects
@@ -31,7 +30,7 @@ Stuff that I need to do a personal deep dive into.
     - printing and reading `^\space`
   - [ ] Table
 - [ ] Testing Suite
-- [ ] `struct-eq`, `object-eq`
+- [ ] `struct-eq`
   
 - [ ] Remove ternary operator.
 - [ ] underscored internal functions should be `pk_atom_*` instead

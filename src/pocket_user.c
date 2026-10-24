@@ -313,6 +313,8 @@ void pk_get_raw(Pocket lisp, PK_ENV env, int symbol) {
     }
 
 PK_TEMPLATE_USER_CMP(pk_eq, pk_atom_eq)
+PK_TEMPLATE_USER_CMP(pk_struct_eq, pk_atom_object_eq)
+PK_TEMPLATE_USER_CMP(pk_object_eq, pk_atom_struct_eq)
 PK_TEMPLATE_USER_CMP(pk_lt, pk_atom_lt)
 PK_TEMPLATE_USER_CMP(pk_lte, pk_atom_lte)
 PK_TEMPLATE_USER_CMP(pk_gt, pk_atom_gt)

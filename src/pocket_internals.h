@@ -555,6 +555,8 @@ void pk_error_writer(Pocket lisp, PKWriter *w);
 PKAtom *pk_error_value(Pocket lisp);
 
 bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+bool pk_atom_struct_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+bool pk_atom_object_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 size_t pk_atom_hash(PKAtom *atom);
 
 bool pk_atom_is_nil(PKAtom *atom);

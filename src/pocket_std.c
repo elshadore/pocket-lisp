@@ -40,11 +40,13 @@ void pk_fun_mod(void *user_closure, Pocket lisp) {
         pk_push_bool(lisp, true); \
     }
 
+PK_TEMPLATE_CMP(pk_fun_eq, pk_eq)
+PK_TEMPLATE_CMP(pk_fun_struct_eq, pk_struct_eq)
+PK_TEMPLATE_CMP(pk_fun_object_eq, pk_object_eq)
 PK_TEMPLATE_CMP(pk_fun_lt, pk_lt)
 PK_TEMPLATE_CMP(pk_fun_lte, pk_lte)
 PK_TEMPLATE_CMP(pk_fun_gt, pk_gt)
 PK_TEMPLATE_CMP(pk_fun_gte, pk_gte)
-PK_TEMPLATE_CMP(pk_fun_eq, pk_eq)
 
 void pk_fun_cons(void *user_closure, Pocket lisp) {
     (void)user_closure;
@@ -299,6 +301,8 @@ void pk_std_load_cfun(Pocket lisp) {
 
         {.symbol = pk_str("="), .fun = pk_fun_eq, .args = 2, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("eq?"), .fun = pk_fun_eq, .args = 2, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str("object-eq?"), .fun = pk_fun_object_eq, .args = 2, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str("struct-eq?"), .fun = pk_fun_struct_eq, .args = 2, .arity = PK_ARITY_VARIADIC},
 
         {.symbol = pk_str("cons"), .fun = pk_fun_cons, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("list"), .fun = pk_fun_list, .args = 0, .arity = PK_ARITY_VARIADIC},

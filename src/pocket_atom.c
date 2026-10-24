@@ -149,6 +149,19 @@ bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
     }
 }
 
+bool pk_atom_object_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
+    (void)lisp;
+    return lhs == rhs;
+}
+
+bool pk_atom_struct_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
+    (void)lisp;
+    (void)lhs;
+    (void)rhs;
+    pk_errors(lisp, pk_str("TODO: implement pk_atom_struct_eq()"));
+    return false;
+}
+
 size_t pk_atom_hash(PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_STRING: {
