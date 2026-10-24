@@ -163,6 +163,14 @@ PKAtom *pk_atom_list_flatten(Pocket lisp, PKAtoms lists) {
     return acc.head;
 }
 
+void pk_atom_list_to_array(Pocket lisp, PKAtom *list, PKArray *array) {
+    PKAtom *iter = list;
+    while (pk_atom_is_cons(iter)) {
+        pk_array_push(lisp, array, iter->cons.car, 8);
+        iter = iter->cons.cdr;
+    }
+}
+
 bool pk_atom_is_nil(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_NIL;
 }

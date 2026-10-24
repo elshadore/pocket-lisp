@@ -318,12 +318,18 @@ void pk_assert_type(Pocket lisp, int atom, PK_TYPE check) {
     }
 }
 
-void pk_deftype_c_owned(Pocket lisp, int symbol, size_t size) {
-    pk_deftype_c_owned_(lisp, pk_atom_assert_symbol(lisp, pk_stack_get(lisp, symbol)), size);
+void pk_define_type_c_owned(Pocket lisp, int symbol, size_t size) {
+    pk_atom_define_type_c_owned(lisp, pk_atom_assert_symbol(lisp, pk_stack_get(lisp, symbol)),  size);
 }
 
-void pk_deftype_c_user(Pocket lisp, int symbol) {
-    pk_deftype_c_user_(lisp, pk_atom_assert_symbol(lisp, pk_stack_get(lisp, symbol)));
+void pk_define_type_c_user(Pocket lisp, int symbol) {
+    pk_atom_define_type_c_user(lisp, pk_atom_assert_symbol(lisp, pk_stack_get(lisp, symbol)));
+}
+
+void pk_define_type_lisp(Pocket lisp, int symbol, int slots) {
+    PKAtomSymbol *asymbol = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, symbol));
+    PKAtom *aslots = pk_stack_get(lisp, slots);
+    pk_atom_define_type_lisp_atom(lisp, asymbol, aslots);
 }
 
 void pk_slot_set(Pocket lisp, int object, int slot, int value) {

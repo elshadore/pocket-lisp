@@ -207,8 +207,10 @@ PK_API void pk_error_oom(Pocket lisp);
 PK_API bool pk_is_type(Pocket lisp, int atom, PK_TYPE check);
 PK_API void pk_assert_type(Pocket lisp, int atom, PK_TYPE check);
 
-PK_API void pk_deftype_c_owned(Pocket lisp, int symbol, size_t size);
-PK_API void pk_deftype_c_user(Pocket lisp, int symbol);
+PK_API void pk_define_type_c_owned(Pocket lisp, int symbol, size_t size);
+PK_API void pk_define_type_c_user(Pocket lisp, int symbol);
+PK_API void pk_define_type_lisp(Pocket lisp, int symbol, int slots);
+
 PK_API void pk_typeof(Pocket lisp, int stack_pointer);
 PK_API void pk_slot_set(Pocket lisp, int object, int slot, int value);
 PK_API void pk_slot_get(Pocket lisp, int object, int slot);

@@ -653,6 +653,7 @@ PKAtom *pk_atom_list_packed(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_rev(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_rev_packed(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_flatten(Pocket lisp, PKAtoms atoms);
+void pk_atom_list_to_array(Pocket lisp, PKAtom *list, PKArray *array);
 
 PKAtomNumber *pk_atom_int(Pocket lisp, int integer);
 PKAtomNumber *pk_atom_float(Pocket lisp, float floater);
@@ -719,9 +720,11 @@ void pk_atom_lfun_exec(Pocket lisp, PKAtomLFun *lfun);
 PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun);
 PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom);
 
-void pk_deftype_lisp_(Pocket lisp, PKAtomSymbol *symbol, PKAtoms slots);
-void pk_deftype_c_owned_(Pocket lisp, PKAtomSymbol *symbol, size_t size);
-void pk_deftype_c_user_(Pocket lisp, PKAtomSymbol *symbol);
+void pk_atom_assert_untyped(Pocket lisp, PKAtomSymbol *type);
+void pk_atom_define_type_lisp(Pocket lisp, PKAtomSymbol *type, PKAtoms slots);
+void pk_atom_define_type_lisp_atom(Pocket lisp, PKAtomSymbol *type, PKAtom *slots);
+void pk_atom_define_type_c_owned(Pocket lisp, PKAtomSymbol *type, size_t size);
+void pk_atom_define_type_c_user(Pocket lisp, PKAtomSymbol *type);
 PKAtomSymbol *pk_atom_typeof(Pocket lisp, PKAtom *atom);
 
 PKAtom *pk_atom_object_new(Pocket lisp, PKAtomSymbol *type);

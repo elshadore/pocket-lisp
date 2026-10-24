@@ -1,18 +1,16 @@
 #include "pocket_internals.h"
 
-PKAtomSymbol *pk_typecheck_new_type(Pocket lisp, PKAtom *atom) {
-    PKAtomSymbol *symbol = pk_atom_assert_symbol(lisp, atom);
-    if (symbol->type_type != PK_TYPETY_NOTYPE) {
+void pk_atom_assert_untyped(Pocket lisp, PKAtomSymbol *type) {
+    if (type->type_type != PK_TYPETY_NOTYPE) {
         PKWriter w = PK_WRITER_EMPTY;
         pk_writer_cstr(lisp, &w, "type already defined: ");
-        pk_writer_atom(lisp, &w, atom);
+        pk_writer_atom(lisp, &w, (PKAtom *)type);
         pk_error_writer(lisp, &w);
     }
-    return symbol;
 }
 
-void pk_deftype_lisp_(Pocket lisp, PKAtomSymbol *symbol, PKAtoms slots) {
-    (void)pk_typecheck_new_type(lisp, (PKAtom *)symbol);
+void pk_atom_define_type_lisp(Pocket lisp, PKAtomSymbol *type, PKAtoms slots) {
+    pk_atom_assert_untyped(lisp, type);
 
     for (size_t i = 0; i < slots.length; ++i) {
         PKAtom *slot = (PKAtom *)pk_atom_assert_symbol(lisp, slots.e[i]);
@@ -27,25 +25,32 @@ void pk_deftype_lisp_(Pocket lisp, PKAtomSymbol *symbol, PKAtoms slots) {
     }
 
     for (size_t i = 0; i < slots.length; ++i) {
-        pk_slotmap_insert(lisp, &symbol->slots, slots.e[i]);
+        pk_slotmap_insert(lisp, &type->slots, slots.e[i]);
     }
 
-    symbol->type_type = PK_TYPETY_LISP;
-    symbol->owned_memory = 0;
+    type->type_type = PK_TYPETY_LISP;
+    type->owned_memory = 0;
 }
 
-void pk_deftype_c_owned_(Pocket lisp, PKAtomSymbol *symbol, size_t size) {
-    (void)pk_typecheck_new_type(lisp, (PKAtom *)symbol);
-
-    symbol->type_type = PK_TYPETY_C_OWNED;
-    symbol->owned_memory = size;
+void pk_atom_define_type_lisp_atom(Pocket lisp, PKAtomSymbol *type, PKAtom *slots) {
+    PKArray array = PK_ARRAY_EMPTY;
+    pk_atom_list_to_array(lisp, slots, &array);
+    pk_atom_define_type_lisp(lisp, type, pk_array_slice(&array));
+    pk_array_deinit(lisp, &array);
 }
 
-void pk_deftype_c_user_(Pocket lisp, PKAtomSymbol *symbol) {
-    (void)pk_typecheck_new_type(lisp, (PKAtom *)symbol);
+void pk_atom_define_type_c_owned(Pocket lisp, PKAtomSymbol *type, size_t size) {
+    pk_atom_assert_untyped(lisp, type);
 
-    symbol->type_type = PK_TYPETY_C_USER;
-    symbol->owned_memory = 0;
+    type->type_type = PK_TYPETY_C_OWNED;
+    type->owned_memory = size;
+}
+
+void pk_atom_define_type_c_user(Pocket lisp, PKAtomSymbol *type) {
+    pk_atom_assert_untyped(lisp, type);
+
+    type->type_type = PK_TYPETY_C_USER;
+    type->owned_memory = 0;
 }
 
 PKAtomSymbol *pk_atom_typeof(Pocket lisp, PKAtom *atom) {
