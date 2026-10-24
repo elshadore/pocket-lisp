@@ -62,3 +62,10 @@
 
 (defmacro break (symbol value)
     `(throw ',symbol ,value))
+
+(defmacro swap (lhs rhs)
+    (let ((temp (gensym)))
+       `(progn
+          (var ,temp ,lhs)
+          (setq ,lhs ,rhs)
+          (setq ,rhs ,temp))))

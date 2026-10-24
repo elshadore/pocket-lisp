@@ -277,6 +277,11 @@ void pk_fun_byte_array(void *user_closure, Pocket lisp) {
     pk_push_byte_array(lisp);
 }
 
+void pk_fun_gensym(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_gensym(lisp);
+}
+
 typedef struct PKFunLoad_ {
     PKStr symbol;
     PKFun fun;
@@ -363,6 +368,8 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("string-array"), .fun = pk_fun_string_array, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("byte-array"), .fun = pk_fun_byte_array, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("table"), .fun = pk_fun_table, .args = 0, .arity = PK_ARITY_NORMAL},
+        
+        {.symbol = pk_str("gensym"), .fun = pk_fun_gensym, .args = 0, .arity = PK_ARITY_NORMAL},
     };
 
     size_t length = pk_alen(funs);

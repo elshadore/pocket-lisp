@@ -76,15 +76,14 @@ fn generatePocketLispSrcHeader(b: *std.Build, io: std.Io, src: []const u8, dst: 
 }
 
 pub fn build(b: *std.Build) void {
-    {
-        var threaded: std.Io.Threaded = .init(b.allocator, .{});
-        defer threaded.deinit();
+    var threaded: std.Io.Threaded = .init(b.allocator, .{});
+    defer threaded.deinit();
 
-        const io = threaded.io();
+    const io = threaded.io();
 
-        generatePocketLispSrcHeader(b, io, "repl/repl.pk", "repl/repl.h", "REPL");
-        generatePocketLispSrcHeader(b, io, "src/lisp/std.pk", "src/pocket_std.h", "PK_STD");
-    }
+    generatePocketLispSrcHeader(b, io, "repl/repl.pk", "repl/repl.h", "REPL");
+    generatePocketLispSrcHeader(b, io, "src/lisp/std.pk", "src/pocket_std.h", "PK_STD");
+    
     const optimize = b.standardOptimizeOption(.{});
     const target = b.standardTargetOptions(.{});
 

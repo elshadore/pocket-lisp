@@ -128,6 +128,7 @@ PK_API PK_PRINTF_FMT(2, 3) void pk_push_stringf(Pocket lisp, const char *fmt, ..
 PK_API void pk_push_symbol(Pocket lisp, PKStr symbol);
 PK_API void pk_push_symbolc(Pocket lisp, char *csymbol);
 PK_API PK_PRINTF_FMT(2, 3) void pk_push_symbolf(Pocket lisp, const char *fmt, ...);
+PK_API void pk_push_gensym(Pocket lisp);
 PK_API void pk_push_keyword(Pocket lisp, PKStr keyword);
 PK_API void pk_push_keywordc(Pocket lisp, char *ckeyword);
 PK_API PK_PRINTF_FMT(2, 3) void pk_push_keywordf(Pocket lisp, const char *fmt, ...);

@@ -65,6 +65,13 @@
  "    `(funcatch ',symbol (lambda () ,@body)))\n" \
  "\n" \
  "(defmacro break (symbol value)\n" \
- "    `(throw ',symbol ,value))\n"
+ "    `(throw ',symbol ,value))\n" \
+ "\n" \
+ "(defmacro swap (lhs rhs)\n" \
+ "    (let ((temp (gensym)))\n" \
+ "       `(progn\n" \
+ "          (var ,temp ,lhs)\n" \
+ "          (setq ,lhs ,rhs)\n" \
+ "          (setq ,rhs ,temp))))\n"
 
 #endif // POCKET_STD_H
