@@ -760,6 +760,7 @@ PKAtom *pk_stack_get(Pocket lisp, int stack_pointer);
 PKAtom *pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *value);
 PKAtom *pk_stack_head(Pocket lisp);
 PKAtom *pk_stack_head_strict(Pocket lisp);
+void pk_stack_head_set_unchecked(Pocket lisp, PKAtom *atom);
 PKAtom *pk_stack_pop(Pocket lisp);
 void pk_stack_pop_unchecked(Pocket lisp, size_t n);
 void pk_stack_set_unchecked(Pocket lisp, size_t count);

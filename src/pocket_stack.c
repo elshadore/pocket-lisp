@@ -150,6 +150,10 @@ PKAtom *pk_stack_head_strict(Pocket lisp) {
     }
 }
 
+void pk_stack_head_set_unchecked(Pocket lisp, PKAtom *atom) {
+    lisp->stack.e[lisp->stack.count - 1] = atom;
+}
+
 PKAtom *pk_stack_pop(Pocket lisp) {
     if (pk_frame_length(lisp) == 0) {
         pk_errorf(lisp, "pk_stack_pop: stack underflow, frame holds %zu values", pk_frame_length(lisp));

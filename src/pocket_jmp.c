@@ -28,6 +28,7 @@ void pk_jmp_trigger(Pocket lisp, PKAtomSymbol *symbol, PKAtom *value) {
             pk_frame_unwindn(lisp, i + 1);
             PKJmp *jmp = lisp->current_frame.jmp;
             lisp->current_frame.jmp = NULL;
+            pk_stack_head_set_unchecked(lisp, lisp->throw_value);
             longjmp(jmp->buf, 1);
             return;
         }

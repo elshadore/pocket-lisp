@@ -52,7 +52,7 @@ void pk_frame_clear(Pocket lisp) {
 void pk_frame_return(Pocket lisp) {
     PKAtom *result = pk_stack_head(lisp);
     pk_frame_unwind(lisp);
-    lisp->stack.e[lisp->stack.count - 1] = result;
+    pk_stack_head_set_unchecked(lisp, result);
 }
 
 void pk_frame_return_push(Pocket lisp) {
