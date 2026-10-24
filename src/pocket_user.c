@@ -115,6 +115,22 @@ void pk_push_cmacro(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_A
     pk_stack_push(lisp, (PKAtom *)pk_atom_cfun(lisp, user_closure, fun, PK_CALL_MACRO, arity, args, options));
 }
 
+void pk_push_array(Pocket lisp) {
+    pk_stack_push(lisp, (PKAtom *)pk_atom_array(lisp, PK_ATOMS_EMPTY));
+}
+
+void pk_push_string_array(Pocket lisp) {
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string_array(lisp, PK_STR_EMPTY));
+}
+
+void pk_push_byte_array(Pocket lisp) {
+    pk_stack_push(lisp, (PKAtom *)pk_atom_byte_array(lisp, PK_BLOB_EMPTY));
+}
+
+void pk_push_table(Pocket lisp) {
+    pk_stack_push(lisp, (PKAtom *)pk_atom_table(lisp));
+}
+
 void pk_car(Pocket lisp, int cons) {
     pk_stack_push(lisp, pk_atom_car(lisp, pk_stack_get(lisp, cons)));
 }
@@ -398,6 +414,7 @@ PK_API void pk_append(Pocket lisp, int seq, int element) {
     PKAtom *aelement = pk_stack_get(lisp, element);
     pk_atom_append(lisp, aseq, aelement);
 }
+
 
 PK_API void pk_put(Pocket lisp, int table, int key, int value) {
     PKAtomTable *atable = pk_atom_assert_table(lisp, pk_stack_get(lisp, table));

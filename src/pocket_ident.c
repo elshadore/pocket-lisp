@@ -110,6 +110,8 @@ PKStr pk_ident_type(PK_TYPE ty) {
         case PK_TYPE_LOBJECT: return pk_str("lobject");
         case PK_TYPE_COBJECT: return pk_str("cobject");
         case PK_TYPE_CHARACTER: return pk_str("character");
+        case PK_TYPE_ARRAY: return pk_str("array");
+        case PK_TYPE_TABLE: return pk_str("table");
         default: return pk_str("unknown");
     }
 }

@@ -297,6 +297,65 @@ PKAtom *pk_read_atom_string(Pocket lisp, PKReader *r) {
     return result;
 }
 
+pk_u8 pk_read_byte(Pocket lisp, PKReader *r) {
+    char c = pk_rat(r);
+    if (!pk_char_is_digit(c)) {
+        pk_reader_error(lisp, r, pk_str("byte pattern does not start with a digit"));
+        return 0;
+    }
+    
+    size_t acc = pk_char_to_digit(c);
+    
+    while (pk_reader_inc(r)) {
+        char c = pk_rat(r);
+        if (!pk_char_is_digit(c)) {
+            break;
+        }
+        acc *= 10;
+        acc += pk_char_to_digit(c);
+        if (acc >= UINT8_MAX) {
+            pk_reader_error(lisp, r, pk_str("blob byte member larger than 255"));
+            return 0;
+        }
+    }
+    
+    return (pk_u8)acc;
+}
+    
+PKAtom *pk_read_atom_blob_(Pocket lisp, PKReader *r, PKBytes *b) {
+    if (pk_rat(r) != '[') {
+         pk_reader_error(lisp, r, pk_str("blob does not start with [, character"));
+         return lisp->cache.nil;
+    }
+    
+    pk_reader_ince(lisp, r);
+    
+    bool first = false;
+    bool whitespace = pk_reader_trim_whitespace(r);
+    for (;;) {
+        if (pk_rat(r) == ']') {
+            return (PKAtom *)pk_atom_blob(lisp, pk_bytes_slice(b));
+        }
+        if (!whitespace && !first) {
+            pk_reader_error(lisp, r, pk_str("expected whitespace seperation between blob bytes"));
+            return lisp->cache.nil;
+        }
+        pk_bytes_push(lisp, b, pk_read_byte(lisp, r), 8);
+        pk_reader_ince(lisp, r);
+        whitespace = pk_reader_trim_whitespace(r);
+        first = false;
+    }
+}
+    
+PKAtom *pk_read_atom_blob(Pocket lisp, PKReader *r) {
+    PKBytes b = PK_BYTES_EMPTY;
+    
+    PKAtom *result = pk_read_atom_blob_(lisp, r, &b);
+    pk_bytes_deinit(lisp, &b);
+    
+    return result;
+}
+
 PKAtom *pk_read_atom_number(Pocket lisp, PKReader *r) {
     bool negetive = false;
 
@@ -527,6 +586,13 @@ PKAtom *pk_read_atom(Pocket lisp, PKReader *r) {
         }
         case ')': {
             pk_reader_error(lisp, r, pk_str("encountered end of list ), character without start of list (, character"));
+            return lisp->cache.nil;
+        }
+        case '[': {
+            return pk_read_atom_blob(lisp, r);
+        }
+        case ']': {
+            pk_reader_error(lisp, r, pk_str("encountered end of blob ], character without start of list [, character"));
             return lisp->cache.nil;
         }
         case '\'': {

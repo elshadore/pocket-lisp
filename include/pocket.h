@@ -136,6 +136,8 @@ PK_API void pk_list(Pocket lisp, int head, int tail);
 PK_API void pk_push_cfun(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options);
 PK_API void pk_push_cmacro(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options);
 PK_API void pk_push_array(Pocket lisp);
+PK_API void pk_push_string_array(Pocket lisp);
+PK_API void pk_push_byte_array(Pocket lisp);
 PK_API void pk_push_table(Pocket lisp);
 
 PK_API void pk_cat(Pocket lisp, int lhs, int rhs);
@@ -215,6 +217,8 @@ PK_API bool pk_lte(Pocket lisp, int lhs, int rhs);
 PK_API bool pk_gt(Pocket lisp, int lhs, int rhs);
 PK_API bool pk_gte(Pocket lisp, int lhs, int rhs);
 PK_API bool pk_eq(Pocket lisp, int lhs, int rhs);
+PK_API bool pk_object_eq(Pocket lisp, int lhs, int rhs);
+PK_API bool pk_struct_eq(Pocket lisp, int lhs, int rhs);
 
 PK_API void pk_reverse(Pocket lisp, int seq);
 

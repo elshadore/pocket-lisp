@@ -255,6 +255,26 @@ void pk_fun_fs_read_user_input(void *user_closure, Pocket lisp) {
     pk_read_user_input(lisp);
 }
 
+void pk_fun_array(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_array(lisp);
+}
+
+void pk_fun_table(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_table(lisp);
+}
+
+void pk_fun_string_array(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_string_array(lisp);
+}
+
+void pk_fun_byte_array(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_byte_array(lisp);
+}
+
 typedef struct PKFunLoad_ {
     PKStr symbol;
     PKFun fun;
@@ -334,6 +354,11 @@ void pk_std_load_cfun(Pocket lisp) {
 
         {.symbol = pk_str("fs/slurp"), .fun = pk_fun_fs_slurp, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("fs/read-user-input"), .fun = pk_fun_fs_read_user_input, .args = 0, .arity = PK_ARITY_NORMAL},
+        
+        {.symbol = pk_str("array"), .fun = pk_fun_array, .args = 0, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("string-array"), .fun = pk_fun_string_array, .args = 0, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("byte-array"), .fun = pk_fun_byte_array, .args = 0, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("table"), .fun = pk_fun_table, .args = 0, .arity = PK_ARITY_NORMAL},
     };
 
     size_t length = pk_alen(funs);

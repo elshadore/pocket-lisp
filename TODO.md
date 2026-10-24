@@ -9,24 +9,33 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Macro
 
 ## V1
+- [ ] Blob Reader
+- [ ] Object System
+  - [ ] CObjects
+  - [ ] LObjects
+  - [ ] Slots
+  - [ ] Methods
+- [ ] Method Calling
+- [ ] defclass
+- [ ] Documentation Tables
+- [ ] Recursive Printing Check
 - [ ] All possible memory leaks from throwing removed.
 - [ ] Better Gensyms
 - [ ] defvar, defun, defmacro
   - Return symbol
 - [ ] Var should return it's new value let setq does.
 - [ ] Special Form Objects
-- [ ] Remove ternary operator.
-- [ ] underscored internal functions should be `pk_atom_*` instead
-- [ ] Object System
-  - [ ] CObjects
-  - [ ] LObjects
-  - [ ] Slots
-  - [ ] Methods
 - [ ] Types
   - [ ] Streams
   - [ ] Char (Unicode)
     - printing and reading `^\space`
   - [ ] Table
+- [ ] Testing Suite
+- [ ] `struct-eq`, `object-eq`
+  
+- [ ] Remove ternary operator.
+- [ ] underscored internal functions should be `pk_atom_*` instead
+- [ ] Pretty Printing
 - [ ] Better Throwing / Erroring
   - Error not throw type
   - If throw cannot find symbol (error)
@@ -34,8 +43,6 @@ Stuff that I need to do a personal deep dive into.
   - `ecase`
   - Error Stack Traces
     - debug-trace variable
-- [ ] defclass
-- [ ] Recursive Printing Check
 - [ ] Unicode Strings (utf8)
   - [ ] fn, λ, lambda
 - [ ] Emacs Mode
@@ -43,7 +50,6 @@ Stuff that I need to do a personal deep dive into.
   - [ ] Identation
     - `(declare (indent 1))`
   - Connect to Lisp Server
-- [ ] `struct-eq`, `object-eq`
 - [ ] Full Float Parsing and Printing
   - [ ] Parsing
   - [ ] Printing
@@ -54,7 +60,6 @@ Stuff that I need to do a personal deep dive into.
   - [ ] JSON
   - [ ] HTTP
   - [ ] HTML
-- [ ] Testing Suite
 - [ ] Upgrade to Arbitary Precision Bytecode
   - Not limited to 8bit args
 - [ ] Small, Big, Symbol, Pools
