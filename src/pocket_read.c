@@ -305,17 +305,20 @@ pk_u8 pk_read_byte(Pocket lisp, PKReader *r) {
     }
     
     size_t acc = pk_char_to_digit(c);
-    
-    while (pk_reader_inc(r)) {
-        char c = pk_rat(r);
-        if (!pk_char_is_digit(c)) {
-            break;
-        }
-        acc *= 10;
-        acc += pk_char_to_digit(c);
-        if (acc >= UINT8_MAX) {
-            pk_reader_error(lisp, r, pk_str("blob byte member larger than 255"));
-            return 0;
+
+    {
+        char c = '\0';
+        while (pk_reader_peek(r, &c)) {
+            if (!pk_char_is_digit(c)) {
+                break;
+            }
+            pk_reader_ince(lisp, r);
+            acc *= 10;
+            acc += pk_char_to_digit(c);
+            if (acc >= UINT8_MAX) {
+                pk_reader_error(lisp, r, pk_str("blob byte member larger than 255"));
+                return 0;
+            }
         }
     }
     
@@ -330,10 +333,11 @@ PKAtom *pk_read_atom_blob_(Pocket lisp, PKReader *r, PKBytes *b) {
     
     pk_reader_ince(lisp, r);
     
-    bool first = false;
+    bool first = true;
     bool whitespace = pk_reader_trim_whitespace(r);
     for (;;) {
         if (pk_rat(r) == ']') {
+            (void)pk_reader_inc(r);
             return (PKAtom *)pk_atom_blob(lisp, pk_bytes_slice(b));
         }
         if (!whitespace && !first) {
