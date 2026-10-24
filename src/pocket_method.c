@@ -1,8 +1,6 @@
 #include "pocket_internals.h"
 
-PKAtom *pk_method_set_(Pocket lisp, PKAtom *type, PKAtom *symbol, PKAtom *method) {
-    PKAtomSymbol *asymbol = pk_atom_assert_symbol(lisp, type);
-    pk_atom_assert_symbol(lisp, symbol);
+PKAtom *pk_atom_method_set(Pocket lisp, PKAtomSymbol *type, PKAtomSymbol *symbol, PKAtom *method) {
     if (!pk_atom_is_function(method)) {
         PKWriter w = PK_WRITER_EMPTY;
         pk_writer_cstr(lisp, &w, "expected function, got ");
@@ -10,14 +8,14 @@ PKAtom *pk_method_set_(Pocket lisp, PKAtom *type, PKAtom *symbol, PKAtom *method
         pk_error_writer(lisp, &w);
     }
 
-    if (asymbol->type_type == PK_TYPETY_NOTYPE) {
+    if (symbol->type_type == PK_TYPETY_NOTYPE) {
         PKWriter w = PK_WRITER_EMPTY;
         pk_writer_cstr(lisp, &w, "not a type: ");
-        pk_writer_atom(lisp, &w, type);
+        pk_writer_atom(lisp, &w, (PKAtom *)type);
         pk_error_writer(lisp, &w);
     }
 
-    PKAtom *old_method = pk_hashmap_insert(lisp, &asymbol->methods, symbol, method, PK_HASHMAP_INSERT_NORMAL);
+    PKAtom *old_method = pk_hashmap_insert(lisp, &type->methods, (PKAtom *)symbol, method, PK_HASHMAP_INSERT_NORMAL);
 
     if (pk_atom_is_undefined(old_method)) {
         return lisp->cache.nil;
@@ -26,17 +24,15 @@ PKAtom *pk_method_set_(Pocket lisp, PKAtom *type, PKAtom *symbol, PKAtom *method
     }
 }
 
-PKAtom *pk_method_get_raw_(Pocket lisp, PKAtom *type, PKAtom *symbol) {
-    PKAtomSymbol *asymbol = pk_atom_assert_symbol(lisp, type);
-    pk_atom_assert_symbol(lisp, symbol);
-    return pk_hashmap_get(lisp, &asymbol->methods, symbol);
-}
-
-PKAtom *pk_method_get_(Pocket lisp, PKAtom *type, PKAtom *symbol) {
-    PKAtom *result = pk_method_get_raw_(lisp, type, symbol);
+PKAtom *pk_atom_method_get(Pocket lisp, PKAtomSymbol *type, PKAtomSymbol *symbol) {
+    PKAtom *result = pk_atom_method_get_raw(lisp, type, symbol);
     if (pk_atom_is_undefined(result)) {
         return lisp->cache.nil;
     } else {
         return result;
     }
+}
+
+PKAtom *pk_atom_method_get_raw(Pocket lisp, PKAtomSymbol *type, PKAtomSymbol *symbol) {
+    return pk_hashmap_get(lisp, &type->methods, (PKAtom *)symbol);
 }

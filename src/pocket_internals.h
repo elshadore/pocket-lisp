@@ -615,6 +615,10 @@ bool pk_atom_is_table(PKAtom *atom);
 bool pk_atom_is_array(PKAtom *atom);
 bool pk_atom_is_string_array(PKAtom *atom);
 bool pk_atom_is_byte_array(PKAtom *atom);
+bool pk_atom_is_object(PKAtom *atom);
+bool pk_atom_is_cobject(PKAtom *atom);
+bool pk_atom_is_lobject(PKAtom *atom);
+
 PKAtom *pk_atom_reverse(Pocket lisp, PKAtom *atom);
 bool pk_atom_is_macro(PKAtom *atom);
 
@@ -628,6 +632,8 @@ PKAtomKeyword *pk_atom_assert_keyword(Pocket lisp, PKAtom *atom);
 PKAtomLFun *pk_atom_assert_lfun(Pocket lisp, PKAtom *atom);
 PKAtomCFun *pk_atom_assert_cfun(Pocket lisp, PKAtom *atom);
 PKAtomTable *pk_atom_assert_table(Pocket lisp, PKAtom *atom);
+PKAtomCObject *pk_atom_assert_cobject(Pocket lisp, PKAtom *atom);
+PKAtomLObject *pk_atom_assert_lobject(Pocket lisp, PKAtom *atom);
 
 PKAtom *pk_atom_new_nil(Pocket lisp);
 PKAtom *pk_atom_new_true(Pocket lisp);
@@ -730,18 +736,16 @@ void pk_deftype_c_owned_(Pocket lisp, PKAtomSymbol *symbol, size_t size);
 void pk_deftype_c_user_(Pocket lisp, PKAtomSymbol *symbol);
 PKAtomSymbol *pk_atom_typeof(Pocket lisp, PKAtom *atom);
 
-PKAtom *pk_object_new(Pocket lisp, PKAtom *type);
-PKAtom *pk_slot_set_(Pocket lisp, PKAtom *object, PKAtom *slot, PKAtom *value);
-PKAtom *pk_slot_get_(Pocket lisp, PKAtom *object, PKAtom *slot);
-void *pk_cobject_data_(Pocket lisp, PKAtom *atom);
-size_t pk_cobject_size_(Pocket lisp, PKAtom *atom);
-bool pk_atom_is_object(PKAtom *atom);
-bool pk_atom_is_cobject(PKAtom *atom);
-bool pk_atom_is_lobject(PKAtom *atom);
+PKAtom *pk_atom_object_new(Pocket lisp, PKAtomSymbol *type);
+size_t pk_atom_slot_index(Pocket lisp, PKAtomLObject *object, PKAtomSymbol *slot);
+PKAtom *pk_atom_slot_set(Pocket lisp, PKAtomLObject *object, PKAtomSymbol *slot, PKAtom *value);
+PKAtom *pk_atom_slot_get(Pocket lisp, PKAtomLObject *object, PKAtomSymbol *slot);
+void *pk_atom_cobject_data(Pocket lisp, PKAtomCObject *object);
+size_t pk_atom_cobject_size(Pocket lisp, PKAtomCObject *object);
 
-PKAtom *pk_method_set_(Pocket lisp, PKAtom *type, PKAtom *symbol, PKAtom *method);
-PKAtom *pk_method_get_raw_(Pocket lisp, PKAtom *type, PKAtom *symbol);
-PKAtom *pk_method_get_(Pocket lisp, PKAtom *type, PKAtom *symbol);
+PKAtom *pk_atom_method_set(Pocket lisp, PKAtomSymbol *type, PKAtomSymbol *symbol, PKAtom *method);
+PKAtom *pk_atom_method_get(Pocket lisp, PKAtomSymbol *type, PKAtomSymbol *symbol);
+PKAtom *pk_atom_method_get_raw(Pocket lisp, PKAtomSymbol *type, PKAtomSymbol *symbol);
 
 void pk_internal_print(Pocket lisp, PKStr print);
 void pk_internal_println(Pocket lisp, PKStr print);
@@ -759,6 +763,7 @@ size_t pk_frame_length(Pocket lisp);
 
 void pk_jmp_enter(Pocket lisp, PKJmp *jmp);
 PK_RES pk_jmp_leave(Pocket lisp, PKJmp *jmp, PK_RES res);
+PK_RES pk_jmp_catch(Pocket lisp, PKJmp *jmp);
 PK_RES pk_jmp_handle(Pocket lisp, PKJmp *jmp);
 
 void pk_stack_push(Pocket lisp, PKAtom *atom);

@@ -359,15 +359,22 @@ void pk_slot_get(Pocket lisp, int object, int slot) {
 }
 
 void pk_method_set(Pocket lisp, int type, int symbol, int method) {
-    pk_stack_push(lisp, pk_method_set_(lisp, pk_stack_get(lisp, type), pk_stack_get(lisp, symbol), pk_stack_get(lisp, method)));
+    PKAtomSymbol *atype = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, type));
+    PKAtomSymbol *asymbol = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, symbol));
+    PKAtom *amethod = pk_stack_get(lisp, method);
+    pk_stack_push(lisp, pk_atom_method_set(lisp, atype, asymbol, amethod));
 }
 
 void pk_method_get(Pocket lisp, int type, int symbol) {
-    pk_stack_push(lisp, pk_method_get_(lisp, pk_stack_get(lisp, type), pk_stack_get(lisp, symbol)));
+    PKAtomSymbol *atype = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, type));
+    PKAtomSymbol *asymbol = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, symbol));
+    pk_stack_push(lisp, pk_atom_method_get(lisp, atype, asymbol));
 }
 
 void pk_method_get_raw(Pocket lisp, int type, int symbol) {
-    pk_stack_push(lisp, pk_method_get_raw_(lisp, pk_stack_get(lisp, type), pk_stack_get(lisp, symbol)));
+    PKAtomSymbol *atype = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, type));
+    PKAtomSymbol *asymbol = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, symbol));
+    pk_stack_push(lisp, pk_atom_method_get_raw(lisp, atype, asymbol));
 }
 
 void *pk_cobject_data(Pocket lisp, int cobject) {

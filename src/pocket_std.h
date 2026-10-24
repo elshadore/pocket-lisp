@@ -58,6 +58,12 @@
  "(defun cdddr (x)\n" \
  "   (cdr (cdr (cdr x))))\n" \
  "\n" \
+ "(defun not (x)\n" \
+ "   (if x nil true))\n" \
+ "\n" \
+ "(defun != (:rest comps)\n" \
+ "   (not (apply '= comps)))\n" \
+ "\n" \
  "(defmacro catch (symbol :rest body)\n" \
  "    `(funcatch ,symbol (lambda () ,@body)))\n" \
  "\n" \
@@ -67,11 +73,23 @@
  "(defmacro break (symbol value)\n" \
  "    `(throw ',symbol ,value))\n" \
  "\n" \
+ "(defmacro assert= (:rest comps)\n" \
+ "    `(unless (= ,@comps) (error \"assert= failed\")))\n" \
+ "\n" \
  "(defmacro swap (lhs rhs)\n" \
  "    (let ((temp (gensym)))\n" \
  "       `(progn\n" \
  "          (var ,temp ,lhs)\n" \
  "          (setq ,lhs ,rhs)\n" \
- "          (setq ,rhs ,temp))))\n"
+ "          (setq ,rhs ,temp))))\n" \
+ "\n" \
+ "(defmacro dolist ((el seq) :rest body)\n" \
+ "     (let ((temp (gensym)))\n" \
+ "         `(progn\n" \
+ "            (let ((,temp ,seq))\n" \
+ "                 ((,el nil))\n" \
+ "                (while ,temp\n" \
+ "                   (setq ,el (car ,temp))\n" \
+ "                   (setq ,temp (cdr ,temp)))))))\n"
 
 #endif // POCKET_STD_H
