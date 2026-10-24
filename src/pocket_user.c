@@ -327,11 +327,16 @@ void pk_deftype_c_user(Pocket lisp, int symbol) {
 }
 
 void pk_slot_set(Pocket lisp, int object, int slot, int value) {
-    (void)pk_slot_set_(lisp, pk_stack_get(lisp, object), pk_stack_get(lisp, slot), pk_stack_get(lisp, value));
+    PKAtomLObject *aobject = pk_atom_assert_lobject(lisp, pk_stack_get(lisp, object));
+    PKAtomSymbol *aslot = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, slot));
+    PKAtom *avalue = pk_stack_get(lisp, value);
+    pk_atom_slot_set(lisp, aobject, aslot, avalue);
 }
 
 void pk_slot_get(Pocket lisp, int object, int slot) {
-    pk_stack_push(lisp, pk_slot_get_(lisp, pk_stack_get(lisp, object), pk_stack_get(lisp, slot)));
+    PKAtomLObject *aobject = pk_atom_assert_lobject(lisp, pk_stack_get(lisp, object));
+    PKAtomSymbol *aslot = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, slot));
+    pk_stack_push(lisp, pk_atom_slot_get(lisp, aobject, aslot));
 }
 
 void pk_method_set(Pocket lisp, int type, int symbol, int method) {
@@ -354,11 +359,11 @@ void pk_method_get_raw(Pocket lisp, int type, int symbol) {
 }
 
 void *pk_cobject_data(Pocket lisp, int cobject) {
-    return pk_cobject_data_(lisp, pk_stack_get(lisp, cobject));
+    return pk_atom_cobject_data(lisp, pk_atom_assert_cobject(lisp, pk_stack_get(lisp, cobject)));
 }
 
 size_t pk_cobject_size(Pocket lisp, int cobject) {
-    return pk_cobject_size_(lisp, pk_stack_get(lisp, cobject));
+    return pk_atom_cobject_size(lisp, pk_atom_assert_cobject(lisp, pk_stack_get(lisp, cobject)));
 }
 
 void pk_error(Pocket lisp, int message) {

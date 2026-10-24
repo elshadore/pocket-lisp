@@ -11,7 +11,6 @@ PKVM pk_vm_init(Pocket lisp, PKAtom *lfun, size_t save) {
         .op = lfun->lfun.bc.e[0],
         .opcode = PK_OP_ILLEGAL,
         .finished = false,
-        .yielded = false,
     };
 }
 
@@ -101,58 +100,53 @@ void pk_vm_op_exec(PKVM *vm) {
     switch (vm->op) {
         case PK_OP_ILLEGAL: {
             pk_errors(lisp, pk_str("illegal op"));
-            break;
+            return;
         }
         case PK_OP_NOP: {
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_LOAD: {
             pk_vm_inc(vm);
             pk_stack_push(lisp, pk_vm_get_atom(vm, pk_vat(vm)));
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_LOAD_NIL: {
             pk_push_nil(lisp);
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_LOAD_TRUE: {
             pk_push_true(lisp);
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_CALL: {
             pk_vm_inc(vm);
-            PK_RES res = pk_funcall(lisp, PK_CALL_FUN, pk_vat(vm));
-            if (res == PK_YIELDED) {
-                vm->finished = true;
-                vm->yielded = true;
-                return;
-            }
+            (void)pk_funcall(lisp, PK_CALL_FUN, pk_vat(vm));
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_BLOCK_BEGIN: {
             pk_frame_push(lisp, 0);
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_BLOCK_END: {
             pk_frame_return_push(lisp);
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_BLOCK_CLEAR: {
             pk_frame_clear(lisp);
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_BLOCK_POP: {
             pk_frame_unwind(lisp);
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_JMP_UNLESS: {
             pk_vm_inc(vm);
@@ -162,7 +156,7 @@ void pk_vm_op_exec(PKVM *vm) {
             } else {
                 pk_vm_inc(vm);
             }
-            break;
+            return;
         }
         case PK_OP_JMP_WHEN: {
             pk_vm_inc(vm);
@@ -172,135 +166,129 @@ void pk_vm_op_exec(PKVM *vm) {
             } else {
                 pk_vm_inc(vm);
             }
-            break;
+            return;
         }
         case PK_OP_JMP: {
             pk_vm_inc(vm);
             pk_vm_jmp(vm, pk_vat(vm));
-            break;
+            return;
         }
         case PK_OP_JMP_BACK: {
             pk_vm_inc(vm);
             pk_vm_jmp_back(vm, pk_vat(vm));
-            break;
+            return;
         }
         case PK_OP_LET_VAR: {
             pk_vm_op_let(vm, PK_ENV_VAR);
-            break;
+            return;
         }
         case PK_OP_LET_FUN: {
             pk_vm_op_let(vm, PK_ENV_FUN);
-            break;
+            return;
         }
         case PK_OP_LET_PROP: {
             pk_vm_op_let(vm, PK_ENV_PROP);
-            break;
+            return;
         }
         case PK_OP_GET_VAR: {
             pk_vm_op_get(vm, PK_ENV_VAR);
-            break;
+            return;
         }
         case PK_OP_GET_FUN: {
             pk_vm_op_get(vm, PK_ENV_FUN);
-            break;
+            return;
         }
         case PK_OP_GET_PROP: {
             pk_vm_op_get(vm, PK_ENV_PROP);
-            break;
+            return;
         }
         case PK_OP_SET_VAR: {
             pk_vm_op_set(vm, PK_ENV_VAR);
-            break;
+            return;
         }
         case PK_OP_SET_FUN: {
             pk_vm_op_set(vm, PK_ENV_FUN);
-            break;
+            return;
         }
         case PK_OP_SET_PROP: {
             pk_vm_op_set(vm, PK_ENV_PROP);
-            break;
+            return;
         }
         case PK_OP_MAKE_LIST: {
             pk_vm_inc(vm);
             pk_stack_op_list(lisp, pk_vat(vm));
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_MAKE_LIST_PACKED: {
             pk_vm_inc(vm);
             pk_stack_op_list_packed(lisp, pk_vat(vm));
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_MERGE_LISTS: {
             pk_vm_inc(vm);
             pk_stack_op_list_merge(lisp, pk_vat(vm));
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_STRCAT: {
             pk_vm_inc(vm);
             pk_stack_op_strcat(lisp, pk_vat(vm));
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_DIG: {
             pk_vm_inc(vm);
             pk_stack_op_dig(lisp, pk_vat(vm));
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_CAR: {
             pk_vm_inc(vm);
             pk_stack_op_car(lisp);
-            break;
+            return;
         }
         case PK_OP_CAR_STRICT: {
             pk_vm_inc(vm);
             pk_stack_op_car_strict(lisp);
-            break;
+            return;
         }
         case PK_OP_CDR: {
             pk_vm_inc(vm);
             pk_stack_op_cdr(lisp);
-            break;
+            return;
         }
         case PK_OP_CDR_STRICT: {
             pk_vm_inc(vm);
             pk_stack_op_cdr_strict(lisp);
-            break;
+            return;
         }
         case PK_OP_PROTECT_BEGIN: {
             pk_frame_push_mode(lisp, 0, PK_FRAME_MODE_PROTECT);
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_PROTECT_END: {
             pk_frame_return_push(lisp);
             pk_vm_inc(vm);
-            break;
+            return;
         }
         case PK_OP_RET: {
             vm->finished = true;
-            break;
+            return;
         }
         default: {
             pk_errors(lisp, pk_str("illegal op"));
-            break;
+            return;
         }
     }
 }
 
-PK_RES pk_vm_exec(Pocket lisp, PKVM *vm) {
+void pk_vm_exec(Pocket lisp, PKVM *vm) {
     vm->lisp = lisp;
 
     while (!vm->finished) {
         pk_vm_op_exec(vm);
     }
-
-    if (vm->yielded) {
-        return PK_YIELDED;
-    }
-
-    return PK_OK;
 }
