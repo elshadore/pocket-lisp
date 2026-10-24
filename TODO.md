@@ -9,6 +9,7 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Macro
 
 ## V1
+- [ ] `cleared` default throw symbol
 - [ ] Type Symbols
 - [ ] Object System
   - [ ] CObjects

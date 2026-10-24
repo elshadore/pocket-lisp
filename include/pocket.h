@@ -181,9 +181,11 @@ PK_API void pk_hexdump(Pocket lisp, int atom);
 PK_API void pk_read(Pocket lisp, int string, PK_MODE mode);
 PK_API void pk_slurp(Pocket lisp, int file_path);
 PK_API void pk_read_user_input(Pocket lisp);
+// TODO: rethink this function. it causes problems our evaluation model is evlist.
+// compiling a block of code can produce problems with macro expansion.
 PK_API void pk_compile(Pocket lisp, PK_CALL type, int value, PK_MODE mode);
-PK_API void pk_macroexpand1(Pocket lisp, int atom);
-PK_API void pk_macroexpand(Pocket lisp, int atom);
+PK_API bool pk_macroexpand1(Pocket lisp, int atom);
+PK_API bool pk_macroexpand(Pocket lisp, int atom);
 
 PK_API PK_RES pk_eval(Pocket lisp, int expr, PK_MODE mode);
 PK_API PK_RES pk_apply(Pocket lisp, PK_CALL call, int fun, int args);

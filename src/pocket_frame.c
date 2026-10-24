@@ -14,13 +14,14 @@ void pk_frame_push_mode(Pocket lisp, size_t arity, pk_u8 mode) {
     
     size_t stack_offset = lisp->stack.count - arity;
     size_t lets_offset = lisp->lets.count;
-    
+
     lisp->frames.e[lisp->frames.count++] = lisp->current_frame;
 
     lisp->current_frame = (PKFrame) {
         .stack_offset = stack_offset,
         .let_offset = lets_offset,
         .mode = mode,
+        .jmp = NULL,
     };
 }
 
@@ -35,6 +36,13 @@ void pk_frame_unwind(Pocket lisp) {
     lisp->stack.count = stack_count;
     lisp->frames.count -= 1;
     lisp->current_frame = unwind;
+}
+
+void pk_frame_unwindn(Pocket lisp, size_t n) {
+    for (size_t i = 0; i < n; ++i) {
+        (void)i;
+        pk_frame_unwind(lisp);
+    }
 }
 
 void pk_frame_clear(Pocket lisp) {

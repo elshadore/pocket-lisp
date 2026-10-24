@@ -89,31 +89,49 @@ PKCallConv pk_callconv(Pocket lisp, PKAtom *function, pk_u8 args) {
     }
 }
 
-PK_RES pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
+PKAtom *pk_funcall_resolve_function(Pocket lisp, PKAtoms slice) {
+    PKAtom *function = slice.e[0];
+
+    if (!pk_atom_is_symbol(function)) {
+        return function;
+    }
+    PKAtomSymbol *asym = (PKAtomSymbol *)function;
+    PKAtom *lookup = pk_env_get(lisp, PK_ENV_FUN, asym);
+    if (!pk_atom_is_undefined(lookup)) {
+        return lookup;
+    }
+    
+    PKStr name = asym->name->str;
+    if (slice.length <= 1) {
+        pk_errorf(lisp, "pk_funcall: undefined function or method %.*s", (int)name.length, name.c);
+        return lisp->cache.nil;
+    }
+    
+    PKAtom *object = slice.e[1];
+    PKAtomSymbol *type = pk_atom_typeof(lisp, object);
+    PKAtom *method = pk_atom_method_get(lisp, type, asym);
+    
+    if (pk_atom_is_undefined(method)) {
+        pk_errorf(lisp, "pk_funcall: undefined function or method %.*s", (int)name.length, name.c);
+        return lisp->cache.nil;
+    }
+    
+    return method;
+}
+
+void pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
     if (args > UINT8_MAX) {
         pk_errorf(lisp, "pk_fcall: %zu args exceeds the maximum of %u", args, UINT8_MAX);
-        return PK_YIELDED;
+        return;
     }
 
     PKAtoms slice = pk_stack_slice_down(lisp, args + 1);
 
-    PKAtom *function = slice.e[0];
-
-    if (pk_atom_is_symbol(function)) {
-        PKAtomSymbol *asym = (PKAtomSymbol *)function;
-        function = pk_env_get(lisp, PK_ENV_FUN, asym);
-        if (pk_atom_is_undefined(function)) {
-            if (slice.length < 2) {
-                
-            }
-            PKStr name = asym->name->str;
-            pk_errorf(lisp, "pk_fcall: undefined function %.*s", (int)name.length, name.c);
-            return PK_YIELDED;
-        }
-    }
+    PKAtom *function = pk_funcall_resolve_function(lisp, slice);
 
     PKCallConv cc = pk_callconv(lisp, function, args);
-    
+
+    // TODO: this needs to be put under the pk_frame_push as we mutating the stack
     for (size_t i = 0; i < cc.extra_nils; ++i) {
         pk_push_nil(lisp);
     }
@@ -122,19 +140,16 @@ PK_RES pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
     }
 
     pk_frame_push(lisp, cc.args);
-
-    PK_RES res = PK_OK;
-    lisp->yielded = false;
-
+    
     switch (call) {
         case PK_CALL_FUN: {
             switch (function->header.type) {
                 case PK_ATOMTY_CFUN: {
-                    res = pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
+                    pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
                     break;
                 }
                 case PK_ATOMTY_LFUN: {
-                    res = pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
+                    pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
                     break;
                 }
                 default: {
@@ -148,11 +163,11 @@ PK_RES pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
         case PK_CALL_MACRO: {
             switch (function->header.type) {
                 case PK_ATOMTY_CMACRO: {
-                    res = pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
+                    pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
                     break;
                 }
                 case PK_ATOMTY_LMACRO: {
-                    res = pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
+                    pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
                     break;
                 }
                 default: {
@@ -169,26 +184,22 @@ PK_RES pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
         }
     }
     
-    if (res == PK_YIELDED || lisp->yielded) {
-        return PK_YIELDED;
-    }
-
     pk_frame_return(lisp);
     pk_gc_collect(lisp);
-    
-    return PK_OK;
 }
 
 PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
     PKJmp jmp;
     pk_jmp_enter(lisp, &jmp);
+    
     if (setjmp(jmp.buf) != 0) {
-        return pk_jmp_handle(lisp, &jmp);
+        pk_gc_collect(lisp);
+        return PK_YIELDED;
     }
-    PK_RES res = pk_funcall_(lisp, call, args);
-    if (res == PK_YIELDED) {
-        return pk_jmp_leave(lisp, &jmp, res);
-    }
-    return pk_jmp_leave(lisp, &jmp, PK_OK);
+    
+    pk_funcall_(lisp, call, args);
+    pk_jmp_leave(lisp);
+
+    return PK_OK;
 }
 

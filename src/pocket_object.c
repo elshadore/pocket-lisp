@@ -109,4 +109,3 @@ PKAtomLObject *pk_atom_assert_lobject(Pocket lisp, PKAtom *atom) {
         return (PKAtomLObject *)lisp->cache.nil;
     }
 }
-
