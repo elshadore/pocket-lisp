@@ -1,15 +1,18 @@
 #include "pocket_internals.h"
 
 PKAtomSymbol *pk_atom_gensym(Pocket lisp) {
-    // TODO: better implementation of this.
-    // This is a very hacky implementation.
     PKWriter w = PK_WRITER_EMPTY;
-    pk_writer_cstr(lisp, &w, "__gensym_");
-    pk_writer_fmt(lisp, &w, "%zu", lisp->gensym_counter);
-    lisp->gensym_counter += 1;
-    PKAtomSymbol *result = pk_atom_symbol(lisp, pk_writer_slice(&w));
-    pk_writer_deinit(lisp, &w);
-    return result;
+    for (;;) {
+        pk_writer_fmt(lisp, &w, "GENSYM::%zu", lisp->gensym_counter);
+        lisp->gensym_counter += 1;
+        PKAtom *get = pk_hashmap_get_str(lisp, &lisp->symbolizer, pk_writer_slice(&w));
+        if (pk_atom_is_undefined(get)) {
+            PKAtomSymbol *result = pk_atom_symbol(lisp, pk_writer_slice(&w));
+            pk_writer_deinit(lisp, &w);
+            return result;
+        }
+        pk_writer_reset(&w);
+    }
 }
 
 PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr string) {

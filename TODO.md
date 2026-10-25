@@ -5,7 +5,6 @@ The todo list for POCKET LISP
 Stuff that I need to do a personal deep dive into.
 - [ ] Compiler
   - Really need the testing suite for this lmao.
-- [ ] VM
 - [ ] Macro
 
 ## V1
@@ -28,12 +27,16 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Special Form Objects
 - [ ] Types
   - [ ] Streams
+    - stdin
+    - stdout
+    - stderr
   - [ ] Char (Unicode)
     - printing and reading `^\space`
   - [ ] Table
 - [ ] Testing Suite
 - [ ] `struct-eq`
   
+- [ ] defgeneric
 - [ ] Remove ternary operator.
 - [ ] underscored internal functions should be `pk_atom_*` instead
 - [ ] Pretty Printing
