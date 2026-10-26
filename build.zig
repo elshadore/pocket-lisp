@@ -23,6 +23,8 @@ fn escapeAppend(out: *std.ArrayList(u8), gpa: std.mem.Allocator, line: []const u
 }
 
 fn generatePocketLispSrcHeader_(b: *std.Build, io: std.Io, src: []const u8, dst: []const u8, prefix: []const u8) !void {
+    b.dependOnFileContents(b.path(src));
+    
     const gpa = b.allocator;
     const code = try std.Io.Dir.cwd().readFileAlloc(io, src, gpa, .limited(16 * 1024 * 1024));
     defer gpa.free(code);
