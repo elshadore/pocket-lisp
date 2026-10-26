@@ -109,3 +109,164 @@
 ## Blobs
 
 [0 255 128 64]
+
+
+(in-namespace :foo)
+
+(fs:open-file "foo.txt")
+
+(common-lisp:loop )
+
+(common-lisp:defmacro foo (x y)
+     
+)
+
+(dragon-game:new-game
+    :name "Jeff"
+    :age 22
+    :class 'mage)
+
+-> &<dragon-game:Dragon-Game:0xffea99:((dragon-game:name . "Jeff")
+                                       (dragon-game:age . 22))>
+
+
+(get-slot (qmath:vec2 10 20) 'qmath:x)
+(get-slot (qmath:vec2 10 20) :x)
+
+(in-namespace :qmath)
+
+(defclass Vec2 ()
+   (x :type Number :init 0 :global true)
+   (y :type Number :init 0 :global true))
+
+(defun vec2 ((x Number) (y Number))
+     (new 'Vec2 'x x 'y y))
+
+(add-nickname :qmath :qm)
+
+(qm:vec2 10 20)
+
+(in-namespace :bar)
+
+(cl:with-slots (x y) (qmath:vec2 10 20)
+     (setq x 200)
+     (setq y 400))
+
+
+(in-namespace :modules)
+
+(defvar *modules* (table))
+
+(defun register-module ((module Module))
+     :doc "Take an unregisted Module object and register it. Error if module of that symbol already exists."
+     :return-type Module
+     (var name (get-slot module 'name))
+     (when (member? *modules* name)
+           (error "module of that name is already defined: {name}"))
+     (put *modules* name module)
+     module)
+
+(defmacro define-mod (symbol :rest namespaces)
+     `(progn
+         (var result (new 'Module
+                          'name (extra:namespace-strip ',symbol)
+                          'namespaces ,namespaces))
+         (register-module result)))
+
+(define-mod modules
+           :modules)
+
+(in-namespace :user)
+
+(modules:define-mod qmath
+     :qmath
+     :qm)
+
+-> &<modules:Module:0xffea99:((modules:name . modules:qmath)
+                              (modules:namespaces :qmath :qm))
+
+(alexandria:slurp "file.txt")
+
+(putils:slurp "file.txt")
+
+(object+:new Dragon-game
+             name "Hello"
+             age 22)
+
+(setq doom-themes:ir-black-highlight-comments true)
+
+
+(file-header:define-header
+ :module qmath
+ :namespace :qmath
+ :doc "In this file we do stuff."
+ :custom (:fast-load true))
+
+(shell:cd "./foo/")
+(shell:cwd)
+(shell:cat "foo.txt")
+
+(defgeneric Baz example ())
+
+(defmethod Baz stream-methods:read (self))
+
+(defmethod Baz stream-methods:print-object (self (stream :type Stream))
+     (write "Hello i am Baz!" stream))
+
+(in-namespace :bar)
+
+## All the public tag does is set a property on the symbol
+## LSPs / Completion can have abilities to filter or sort by public private
+## There are no differances between the two in calling or whatever
+
+(defun public-function (name)
+     :doc "A public function."
+     :public true
+     (print $"Hello {name}"))
+
+(defvar public-variable nil
+     :doc "A public variable."
+     :public true
+     :special true
+     :type (or Nil Number))
+
+(defun private-function (name)
+     :doc "A private function."
+     (print $"Hello {name}"))
+
+(in-namespace :foo)
+
+(bar:public-function "Timmy")
+(bar:private-function "Timmy")
+
+(extra:public? 'function 'bar:public-function)
+-> true
+
+(extra:public? 'variable 'bar:public-variable)
+-> true
+
+(extra:special? 'variable 'bar:public-variable)
+-> true
+
+(coru:defcoru foo (a b c)
+    (coru:yield 20)
+    (coru:yield 40)
+    (coru:yield 1000))
+
+(fsetq example (lambda (x y)
+    (* x y))
+
+(extra:property 'example 'function-type 'generic)
+
+(extra:function-properties 'example)
+
+-> ((type . lisp)
+    (mode . generic)
+    (args . 2)
+    (arity . normal)
+    (documentation . nil))
+
+(extra:string-split "::" "hello::world::yippee" :trim true)
+
+(extra:string-split "::" "hello::world::yippee")
+

@@ -207,7 +207,9 @@ void pk_writer_atom_blob(Pocket lisp, PKWriter *w, PKBlob blob) {
     pk_writer_char(lisp, w, ']');
 }
 
-void pk_writer_atom(Pocket lisp, PKWriter *w, PKAtom *atom) {
+void pk_writer_atom_recursive(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom);
+
+void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_UNDEFINED: {
             pk_writer_string(lisp, w, pk_str("&<UNDEFINED>"));
@@ -250,18 +252,18 @@ void pk_writer_atom(Pocket lisp, PKWriter *w, PKAtom *atom) {
         }
         case PK_ATOMTY_CONS: {
             pk_writer_char(lisp, w, '(');
-            
+
             pk_writer_atom(lisp, w, atom->cons.car);
             
             PKAtom *iter = atom->cons.cdr;
             while (pk_atom_is_cons(iter)) {
                 pk_writer_char(lisp, w, ' ');
-                pk_writer_atom(lisp, w, iter->cons.car);
+                pk_writer_atom_recursive(lisp, w, clones, iter->cons.car);
                 iter = iter->cons.cdr;
             }
             if (!pk_atom_is_nil(iter)) {
                 pk_writer_string(lisp, w, pk_str(" . "));
-                pk_writer_atom(lisp, w, iter);
+                pk_writer_atom_recursive(lisp, w, clones, iter);
             }
             
             pk_writer_char(lisp, w, ')');
@@ -288,6 +290,7 @@ void pk_writer_atom(Pocket lisp, PKWriter *w, PKAtom *atom) {
             break;
         }
         case PK_ATOMTY_ARRAY: {
+            // TODO: when printing this properly we will need recursive check.
             pk_writer_simple_object(lisp, w, atom, pk_str("ARRAY"));
             break;
         }
@@ -316,4 +319,20 @@ void pk_writer_atom(Pocket lisp, PKWriter *w, PKAtom *atom) {
             break;
         }
     }
+}
+
+void pk_writer_atom_recursive(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) {
+    PKAtom *get = pk_hashmap_get(lisp, clones, atom);
+    if (pk_atom_is_undefined(get)) {
+        (void)pk_hashmap_insert(lisp, clones, atom, atom, PK_HASHMAP_INSERT_NORMAL);
+        pk_writer_atom_(lisp, w, clones, atom);
+    } else {
+        pk_writer_simple_object(lisp, w, atom, pk_ident_atomty(atom->header.type));
+    }
+}
+    
+void pk_writer_atom(Pocket lisp, PKWriter *w, PKAtom *atom) {
+    PKHashmap clones = PK_HASHMAP_EMPTY;
+    pk_writer_atom_(lisp, w, &clones, atom);
+    pk_hashmap_deinit(lisp, &clones);
 }

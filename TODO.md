@@ -19,8 +19,9 @@ Stuff that I need to do a personal deep dive into.
 - [ ] defclass
 - [ ] Documentation Tables
 - [ ] Recursive Printing Check
+- [ ] Recursive Cloning
+  - When loading data from bytecode clone.
 - [ ] All possible memory leaks from throwing removed.
-- [ ] Better Gensyms
 - [ ] defvar, defun, defmacro
   - Return symbol
 - [ ] Var should return it's new value let setq does.
@@ -70,14 +71,15 @@ Stuff that I need to do a personal deep dive into.
 - [ ] `progv`
 - [ ] Big Numbers
 - [ ] Full Code Review
+- [ ] `Pocket` should not be cached in PKVM and PKCompiler
+- [ ] If we call a Lisp function from withing the VM we should not use the C stack to create a new VM, but reuse the old one.
+- [ ] Document C Functions
 
 ## V2
 - [ ] Environment Objects
 - [ ] Immutable Vector Update
   - Move from cons cells to immutable vectors.
 - [ ] Remove Libc
-- [ ] `Pocket` should not be cached in PKVM and PKCompiler
-- [ ] If we call a Lisp function from withing the VM we should not use the C stack to create a new VM, but reuse the old one.
 - [ ] NIL and UNDEFINED should be static objects.
 - [ ] Interpretter Objects
 - [ ] Lexical Capture
