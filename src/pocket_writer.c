@@ -252,20 +252,31 @@ void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) 
         }
         case PK_ATOMTY_CONS: {
             pk_writer_char(lisp, w, '(');
+            (void)pk_hashmap_insert(lisp, clones, atom, atom, PK_HASHMAP_INSERT_NORMAL);
 
-            pk_writer_atom(lisp, w, atom->cons.car);
-            
+            pk_writer_atom_recursive(lisp, w, clones, atom->cons.car);
+
             PKAtom *iter = atom->cons.cdr;
+            bool cyclic = false;
             while (pk_atom_is_cons(iter)) {
+                PKAtom *seen = pk_hashmap_get(lisp, clones, iter);
+                if (!pk_atom_is_undefined(seen)) {
+                    pk_writer_char(lisp, w, ' ');
+                    cyclic = true;
+                    break;
+                }
+                (void)pk_hashmap_insert(lisp, clones, iter, iter, PK_HASHMAP_INSERT_NORMAL);
                 pk_writer_char(lisp, w, ' ');
                 pk_writer_atom_recursive(lisp, w, clones, iter->cons.car);
                 iter = iter->cons.cdr;
             }
-            if (!pk_atom_is_nil(iter)) {
+            if (cyclic) {
+                pk_writer_simple_object(lisp, w, iter, pk_str("CONS"));
+            } else if (!pk_atom_is_nil(iter)) {
                 pk_writer_string(lisp, w, pk_str(" . "));
                 pk_writer_atom_recursive(lisp, w, clones, iter);
             }
-            
+
             pk_writer_char(lisp, w, ')');
             break;
         }

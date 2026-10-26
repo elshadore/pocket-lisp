@@ -8,6 +8,9 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Macro
 
 ## V1
+- [ ] Zig build not executing rebuilding every time.
+  - this is probably an issue with caching. Zig has makefile functionality make use of that.
+- [ ] `(lambda ())` creates a unimplemented function.
 - [ ] `cleared` default throw symbol
 - [ ] Type Symbols
 - [ ] Object System
@@ -21,6 +24,7 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Recursive Printing Check
 - [ ] Recursive Cloning
   - When loading data from bytecode clone.
+- [ ] `circular?` function.
 - [ ] All possible memory leaks from throwing removed.
 - [ ] defvar, defun, defmacro
   - Return symbol

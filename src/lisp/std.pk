@@ -1,6 +1,8 @@
+## Classic when macro. Executes the body is the condition is not nil (true).
 (defmacro when (cond :rest body)
     `(if ,cond (progn ,@body) nil))
-    
+
+## Classic unless macro. Executes the body if the condition is nil.
 (defmacro unless (cond :rest body)
     `(if ,cond nil (progn ,@body)))
 
@@ -10,11 +12,13 @@
 (defun cube (x)
    (* x x x))
 
+## Textbook implemenation of a recursive fibonacci seq function.
 (defun fib (n)
    (if (<= n 1)
        n
        (+ (fib (- n 1)) (fib (- n 2)))))
 
+## Load code in from a file path FILE.
 (defun load (file)
     (evlist (read-list (fs/slurp file))))
 
@@ -72,6 +76,7 @@
 (defmacro assert= (:rest comps)
     `(unless (= ,@comps) (error "assert= failed")))
 
+## Swap the value of two input symbols. Both inputs have to be symbols for this macro to work.
 (defmacro swap (lhs rhs)
     (let ((temp (gensym)))
        `(progn
@@ -79,6 +84,7 @@
           (setq ,lhs ,rhs)
           (setq ,rhs ,temp))))
 
+## Basic for loop syntax for iterating over a list.
 (defmacro dolist ((el seq) :rest body)
      (let ((temp (gensym)))
          `(progn
@@ -87,3 +93,21 @@
                 (while ,temp
                    (setq ,el (car ,temp))
                    (setq ,temp (cdr ,temp)))))))
+                   
+## nil? -> (not x)
+## A shortcut function essentially.
+(defun nil? (x)
+   (not x))
+
+## We expect a proper list as input. Not nil or a packed list.
+(defun last-cons (list)
+   (if (nil? (cdr list))
+       list
+       (last-cons (cdr list))))
+
+## Has nil checking but otherwise expects a proper list.
+(defun make-circular-list (list)
+   (when list
+       (var last (last-cons list))
+       (set-cdr last list)
+       list))
