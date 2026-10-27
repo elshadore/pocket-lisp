@@ -9,7 +9,6 @@ The todo list for POCKET LISP
   - for blobs / arrays
 - [ ] implement `cat`
   - dispatch on first type
-- [ ] defclass
 - [ ] Remove property lists
 - [ ] Type idents from symbol name
 - [ ] All possible memory leaks from throwing removed.

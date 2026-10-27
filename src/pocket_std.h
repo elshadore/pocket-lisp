@@ -114,6 +114,12 @@
  "   (when list\n" \
  "       (var last (last-cons list))\n" \
  "       (set-cdr last list)\n" \
- "       list))\n"
+ "       list))\n" \
+ "\n" \
+ "(defmacro setq-slot (object symbol value)\n" \
+ "     `(set-slot ,object ',symbol ,value))\n" \
+ "     \n" \
+ "(defmacro getq-slot (object symbol)\n" \
+ "     `(get-slot ,object ',symbol))\n"
 
 #endif // POCKET_STD_H

@@ -111,3 +111,9 @@
        (var last (last-cons list))
        (set-cdr last list)
        list))
+
+(defmacro setq-slot (object symbol value)
+     `(set-slot ,object ',symbol ,value))
+     
+(defmacro getq-slot (object symbol)
+     `(get-slot ,object ',symbol))
