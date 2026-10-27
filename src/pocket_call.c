@@ -109,8 +109,8 @@ PKAtom *pk_funcall_resolve_function(Pocket lisp, PKAtoms slice) {
     
     PKAtom *object = slice.e[1];
     PKAtomSymbol *type = pk_atom_typeof(lisp, object);
-    PKAtom *method = pk_atom_method_get(lisp, type, asym);
-    
+    PKAtom *method = pk_atom_method_get_raw(lisp, type, asym);
+
     if (pk_atom_is_undefined(method)) {
         pk_errorf(lisp, "pk_funcall: undefined function or method %.*s", (int)name.length, name.c);
         return lisp->cache.nil;
