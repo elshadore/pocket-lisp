@@ -351,6 +351,12 @@ void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) 
             pk_writer_string(lisp, w, pk_str(")>"));
             break;
         }
+        case PK_ATOMTY_COBJECT: {
+            break;
+        }
+        case PK_ATOMTY_LOBJECT: {
+            break;
+        }
         case PK_ATOMTY_STREAM: {
             pk_writer_simple_object(lisp, w, atom, pk_str("Stream"));
             break;
