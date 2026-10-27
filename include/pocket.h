@@ -152,6 +152,8 @@ PK_API void pk_find(Pocket lisp, int table, int key);
 PK_API void pk_find_raw(Pocket lisp, int table, int key);
 PK_API void pk_find_strict(Pocket lisp, int table, int key);
 PK_API bool pk_is_member(Pocket lisp, int table, int key);
+PK_API void pk_el(Pocket lisp, size_t index);
+PK_API void pk_reverse(Pocket lisp, int seq);
 
 PK_API void pk_car(Pocket lisp, int cons);
 PK_API void pk_cdr(Pocket lisp, int cons);
@@ -228,10 +230,6 @@ PK_API bool pk_gte(Pocket lisp, int lhs, int rhs);
 PK_API bool pk_eq(Pocket lisp, int lhs, int rhs);
 PK_API bool pk_object_eq(Pocket lisp, int lhs, int rhs);
 PK_API bool pk_struct_eq(Pocket lisp, int lhs, int rhs);
-
-PK_API void pk_reverse(Pocket lisp, int seq);
-
-PK_API void pk_el(Pocket lisp, size_t index);
 
 PK_API void *pk_cobject_data(Pocket lisp, int cobject);
 PK_API size_t pk_cobject_size(Pocket lisp, int cobject);

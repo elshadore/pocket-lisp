@@ -8,9 +8,7 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Macro
 
 ## V1
-- [ ] Add element to array types
 - [ ] Add all missing functions to std
-- [ ] Cleanup TEMPLATE functions
 - [ ] Type idents from symbol name
 - [ ] Add printing for Table and Array
 ```
@@ -24,6 +22,12 @@ we obviously need recursive printing checks as well.
 
 after this is done add std functions for append, put, put-unique
 ```
+- [ ] to list function `->list`
+  - for array
+  - for strings / arrays
+  - for tables
+  - for blobs / arrays
+- [ ] implement `cat`
 - [ ] Slurp and read-user-input need to be removed from `pocket.h`
 - [ ] Remove template macros
 - [ ] Printing
