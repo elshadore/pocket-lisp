@@ -283,18 +283,33 @@ void pk_get_raw(Pocket lisp, PK_ENV env, int symbol) {
     pk_stack_push(lisp, pk_env_get(lisp, env, pk_atom_assert_symbol(lisp, pk_stack_get(lisp, symbol))));
 }
 
-#define PK_TEMPLATE_USER_CMP(fun_name_, op_) \
-    bool fun_name_(Pocket lisp, int lhs, int rhs) { \
-        return op_(lisp, pk_stack_get(lisp, lhs), pk_stack_get(lisp, rhs)); \
-    }
+bool pk_eq(Pocket lisp, int lhs, int rhs) {
+    return pk_atom_eq(lisp, pk_stack_get(lisp, lhs), pk_stack_get(lisp, rhs));
+}
 
-PK_TEMPLATE_USER_CMP(pk_eq, pk_atom_eq)
-PK_TEMPLATE_USER_CMP(pk_struct_eq, pk_atom_object_eq)
-PK_TEMPLATE_USER_CMP(pk_object_eq, pk_atom_struct_eq)
-PK_TEMPLATE_USER_CMP(pk_lt, pk_atom_lt)
-PK_TEMPLATE_USER_CMP(pk_lte, pk_atom_lte)
-PK_TEMPLATE_USER_CMP(pk_gt, pk_atom_gt)
-PK_TEMPLATE_USER_CMP(pk_gte, pk_atom_gte)
+bool pk_struct_eq(Pocket lisp, int lhs, int rhs) {
+    return pk_atom_object_eq(lisp, pk_stack_get(lisp, lhs), pk_stack_get(lisp, rhs));
+}
+
+bool pk_object_eq(Pocket lisp, int lhs, int rhs) {
+    return pk_atom_struct_eq(lisp, pk_stack_get(lisp, lhs), pk_stack_get(lisp, rhs));
+}
+
+bool pk_lt(Pocket lisp, int lhs, int rhs) {
+    return pk_atom_lt(lisp, pk_stack_get(lisp, lhs), pk_stack_get(lisp, rhs));
+}
+
+bool pk_lte(Pocket lisp, int lhs, int rhs) {
+    return pk_atom_lte(lisp, pk_stack_get(lisp, lhs), pk_stack_get(lisp, rhs));
+}
+
+bool pk_gt(Pocket lisp, int lhs, int rhs) {
+    return pk_atom_gt(lisp, pk_stack_get(lisp, lhs), pk_stack_get(lisp, rhs));
+}
+
+bool pk_gte(Pocket lisp, int lhs, int rhs) {
+    return pk_atom_gte(lisp, pk_stack_get(lisp, lhs), pk_stack_get(lisp, rhs));
+}
 
 void pk_reverse(Pocket lisp, int seq) {
     pk_stack_push(lisp, pk_atom_reverse(lisp, pk_stack_get(lisp, seq)));

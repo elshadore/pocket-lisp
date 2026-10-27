@@ -1,52 +1,154 @@
 #include "pocket_internals.h"
 #include "pocket_std.h"
 
-#define PK_TEMPLATE_ARITH(fun_name_, op_) \
-    void fun_name_(void *user_closure, Pocket lisp) { \
-        int top = pk_top(lisp); \
-        (void)user_closure; \
-        if (top == 0) { \
-            pk_push_int(lisp, 0); \
-            return; \
-        } \
-        pk_dig(lisp, 1); \
-        for (int i = 2; i <= top; ++i) { \
-            op_(lisp, -1, i); \
-            pk_swap(lisp, -1, -2); \
-            pk_pop(lisp); \
-        } \
+void pk_fun_add(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    int top = pk_top(lisp);
+    if (top == 0) {
+        pk_push_int(lisp, 0);
+        return;
     }
+    pk_dig(lisp, 1);
+    for (int i = 2; i <= top; ++i) {
+        pk_add(lisp, -1, i);
+        pk_swap(lisp, -1, -2);
+        pk_pop(lisp);
+    }
+}
 
-PK_TEMPLATE_ARITH(pk_fun_add, pk_add)
-PK_TEMPLATE_ARITH(pk_fun_sub, pk_sub)
-PK_TEMPLATE_ARITH(pk_fun_mul, pk_mul)
-PK_TEMPLATE_ARITH(pk_fun_div, pk_div)
+void pk_fun_sub(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    int top = pk_top(lisp);
+    if (top == 0) {
+        pk_push_int(lisp, 0);
+        return;
+    }
+    pk_dig(lisp, 1);
+    for (int i = 2; i <= top; ++i) {
+        pk_sub(lisp, -1, i);
+        pk_swap(lisp, -1, -2);
+        pk_pop(lisp);
+    }
+}
+
+void pk_fun_mul(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    int top = pk_top(lisp);
+    if (top == 0) {
+        pk_push_int(lisp, 0);
+        return;
+    }
+    pk_dig(lisp, 1);
+    for (int i = 2; i <= top; ++i) {
+        pk_mul(lisp, -1, i);
+        pk_swap(lisp, -1, -2);
+        pk_pop(lisp);
+    }
+}
+
+void pk_fun_div(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    int top = pk_top(lisp);
+    if (top == 0) {
+        pk_push_int(lisp, 0);
+        return;
+    }
+    pk_dig(lisp, 1);
+    for (int i = 2; i <= top; ++i) {
+        pk_div(lisp, -1, i);
+        pk_swap(lisp, -1, -2);
+        pk_pop(lisp);
+    }
+}
 
 void pk_fun_mod(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_mod(lisp, 1, 2);
 }
 
-#define PK_TEMPLATE_CMP(fun_name_, op_) \
-    void fun_name_(void *user_closure, Pocket lisp) { \
-        int top = pk_top(lisp); \
-        (void)user_closure; \
-        for (int i = 1; i < top; ++i) { \
-            if (!op_(lisp, i, i + 1)) { \
-                pk_push_bool(lisp, false); \
-                return; \
-            } \
-        } \
-        pk_push_bool(lisp, true); \
+void pk_fun_eq(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    int top = pk_top(lisp);
+    for (int i = 1; i < top; ++i) {
+        if (!pk_eq(lisp, i, i + 1)) {
+            pk_push_bool(lisp, false);
+            return;
+        }
     }
+    pk_push_bool(lisp, true);
+}
 
-PK_TEMPLATE_CMP(pk_fun_eq, pk_eq)
-PK_TEMPLATE_CMP(pk_fun_struct_eq, pk_struct_eq)
-PK_TEMPLATE_CMP(pk_fun_object_eq, pk_object_eq)
-PK_TEMPLATE_CMP(pk_fun_lt, pk_lt)
-PK_TEMPLATE_CMP(pk_fun_lte, pk_lte)
-PK_TEMPLATE_CMP(pk_fun_gt, pk_gt)
-PK_TEMPLATE_CMP(pk_fun_gte, pk_gte)
+void pk_fun_struct_eq(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    int top = pk_top(lisp);
+    for (int i = 1; i < top; ++i) {
+        if (!pk_struct_eq(lisp, i, i + 1)) {
+            pk_push_bool(lisp, false);
+            return;
+        }
+    }
+    pk_push_bool(lisp, true);
+}
+
+void pk_fun_object_eq(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    int top = pk_top(lisp);
+    for (int i = 1; i < top; ++i) {
+        if (!pk_object_eq(lisp, i, i + 1)) {
+            pk_push_bool(lisp, false);
+            return;
+        }
+    }
+    pk_push_bool(lisp, true);
+}
+
+void pk_fun_lt(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    int top = pk_top(lisp);
+    for (int i = 1; i < top; ++i) {
+        if (!pk_lt(lisp, i, i + 1)) {
+            pk_push_bool(lisp, false);
+            return;
+        }
+    }
+    pk_push_bool(lisp, true);
+}
+
+void pk_fun_lte(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    int top = pk_top(lisp);
+    for (int i = 1; i < top; ++i) {
+        if (!pk_lte(lisp, i, i + 1)) {
+            pk_push_bool(lisp, false);
+            return;
+        }
+    }
+    pk_push_bool(lisp, true);
+}
+
+void pk_fun_gt(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    int top = pk_top(lisp);
+    for (int i = 1; i < top; ++i) {
+        if (!pk_gt(lisp, i, i + 1)) {
+            pk_push_bool(lisp, false);
+            return;
+        }
+    }
+    pk_push_bool(lisp, true);
+}
+
+void pk_fun_gte(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    int top = pk_top(lisp);
+    for (int i = 1; i < top; ++i) {
+        if (!pk_gte(lisp, i, i + 1)) {
+            pk_push_bool(lisp, false);
+            return;
+        }
+    }
+    pk_push_bool(lisp, true);
+}
 
 void pk_fun_cons(void *user_closure, Pocket lisp) {
     (void)user_closure;
@@ -85,66 +187,98 @@ void pk_fun_set_cdr(void *user_closure, Pocket lisp) {
     pk_set_cdr(lisp, 1, 2);
 }
 
-#define PK_TEMPLATE_ENV_SET(fun_name_, env_) \
-    void fun_name_(void *user_closure, Pocket lisp) { \
-        (void)user_closure; \
-        pk_set(lisp, env_, 1, 2); \
-    }
+void pk_fun_set(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_set(lisp, PK_ENV_VAR, 1, 2);
+}
 
-#define PK_TEMPLATE_ENV_GET(fun_name_, env_) \
-    void fun_name_(void *user_closure, Pocket lisp) { \
-        (void)user_closure; \
-        pk_get(lisp, env_, 1); \
-    }
+void pk_fun_fset(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_set(lisp, PK_ENV_FUN, 1, 2);
+}
 
-#define PK_TEMPLATE_ENV_GET_RAW(fun_name_, env_) \
-    void fun_name_(void *user_closure, Pocket lisp) { \
-        (void)user_closure; \
-        pk_get_raw(lisp, env_, 1); \
-    }
+void pk_fun_pset(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_set(lisp, PK_ENV_PROP, 1, 2);
+}
 
-#define PK_TEMPLATE_ENV_BOUND(fun_name_, env_) \
-    void fun_name_(void *user_closure, Pocket lisp) { \
-        (void)user_closure; \
-        pk_push_bool(lisp, pk_is_bound(lisp, env_, 1)); \
-    }
+void pk_fun_get(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_get(lisp, PK_ENV_VAR, 1);
+}
 
-#define PK_TEMPLATE_ENV_UNBIND(fun_name_, env_) \
-    void fun_name_(void *user_closure, Pocket lisp) { \
-        (void)user_closure; \
-        pk_unbind(lisp, env_, 1); \
-        pk_push_nil(lisp); \
-    }
+void pk_fun_fget(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_get(lisp, PK_ENV_FUN, 1);
+}
 
-#define PK_TEMPLATE_ENV_LIST(fun_name_, env_) \
-    void fun_name_(void *user_closure, Pocket lisp) { \
-        (void)user_closure; \
-        pk_env_list(lisp, env_); \
-    }
+void pk_fun_pget(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_get(lisp, PK_ENV_PROP, 1);
+}
 
-PK_TEMPLATE_ENV_SET(pk_fun_set, PK_ENV_VAR)
-PK_TEMPLATE_ENV_SET(pk_fun_fset, PK_ENV_FUN)
-PK_TEMPLATE_ENV_SET(pk_fun_pset, PK_ENV_PROP)
+void pk_fun_get_raw(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_get_raw(lisp, PK_ENV_VAR, 1);
+}
 
-PK_TEMPLATE_ENV_GET(pk_fun_get, PK_ENV_VAR)
-PK_TEMPLATE_ENV_GET(pk_fun_fget, PK_ENV_FUN)
-PK_TEMPLATE_ENV_GET(pk_fun_pget, PK_ENV_PROP)
+void pk_fun_fget_raw(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_get_raw(lisp, PK_ENV_FUN, 1);
+}
 
-PK_TEMPLATE_ENV_GET_RAW(pk_fun_get_raw, PK_ENV_VAR)
-PK_TEMPLATE_ENV_GET_RAW(pk_fun_fget_raw, PK_ENV_FUN)
-PK_TEMPLATE_ENV_GET_RAW(pk_fun_pget_raw, PK_ENV_PROP)
+void pk_fun_pget_raw(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_get_raw(lisp, PK_ENV_PROP, 1);
+}
 
-PK_TEMPLATE_ENV_BOUND(pk_fun_bound, PK_ENV_VAR)
-PK_TEMPLATE_ENV_BOUND(pk_fun_fbound, PK_ENV_FUN)
-PK_TEMPLATE_ENV_BOUND(pk_fun_pbound, PK_ENV_PROP)
+void pk_fun_bound(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_is_bound(lisp, PK_ENV_VAR, 1));
+}
 
-PK_TEMPLATE_ENV_UNBIND(pk_fun_unbind, PK_ENV_VAR)
-PK_TEMPLATE_ENV_UNBIND(pk_fun_funbind, PK_ENV_FUN)
-PK_TEMPLATE_ENV_UNBIND(pk_fun_punbind, PK_ENV_PROP)
+void pk_fun_fbound(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_is_bound(lisp, PK_ENV_FUN, 1));
+}
 
-PK_TEMPLATE_ENV_LIST(pk_fun_list_vars, PK_ENV_VAR)
-PK_TEMPLATE_ENV_LIST(pk_fun_list_funs, PK_ENV_FUN)
-PK_TEMPLATE_ENV_LIST(pk_fun_list_props, PK_ENV_PROP)
+void pk_fun_pbound(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_is_bound(lisp, PK_ENV_PROP, 1));
+}
+
+void pk_fun_unbind(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_unbind(lisp, PK_ENV_VAR, 1);
+    pk_push_nil(lisp);
+}
+
+void pk_fun_funbind(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_unbind(lisp, PK_ENV_FUN, 1);
+    pk_push_nil(lisp);
+}
+
+void pk_fun_punbind(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_unbind(lisp, PK_ENV_PROP, 1);
+    pk_push_nil(lisp);
+}
+
+void pk_fun_list_vars(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_env_list(lisp, PK_ENV_VAR);
+}
+
+void pk_fun_list_funs(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_env_list(lisp, PK_ENV_FUN);
+}
+
+void pk_fun_list_props(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_env_list(lisp, PK_ENV_PROP);
+}
 
 void pk_fun_funcatch(void *user_closure, Pocket lisp) {
     (void)user_closure;
