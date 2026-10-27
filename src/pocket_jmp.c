@@ -33,9 +33,16 @@ void pk_jmp_trigger(Pocket lisp, PKAtomSymbol *symbol, PKAtom *value) {
             return;
         }
     }
-    
-    fprintf(stderr, "FATAL ERROR: unprotected stack");
-    abort();
+
+    if (symbol == lisp->cache.error) {
+        fprintf(stderr, "FATAL ERROR: unprotected stack");
+        abort();
+    } else {
+        PKWriter w = PK_WRITER_EMPTY;
+        pk_writer_string(lisp, &w, pk_str("failed to catch throw: "));
+        pk_writer_atom(lisp, &w, (PKAtom *)symbol);
+        pk_error_writer(lisp, &w);
+    }
 }
 
 void pk_atom_catch(Pocket lisp, PKAtomSymbol *symbol) {

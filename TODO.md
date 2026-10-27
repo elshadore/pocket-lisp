@@ -1,20 +1,29 @@
 # TODO
 The todo list for POCKET LISP
 
+- [ ] Custom fmt
+  - for printing atoms as well as datums
+- [ ] Create CMake Build
+- [ ] multiple append
+  - append works on lists? append to the last cons
+- [ ] list-methods
+- [ ] list-slots
+- [ ] `->bytes`
+- [ ] `->string`
+- [ ] `string-split`
+- [ ] exotic number parsing
+  - 0b010101
+  - 0xfeefee
+  - 0oaaaaaa <- idk octal
 - [ ] Method check first in function calling
 - [ ] `cleared` default throw symbol
-- [ ] to list function `->list`
-  - for array
-  - for strings / arrays
-  - for tables
-  - for blobs / arrays
 - [ ] implement `cat`
   - dispatch on first type
 - [ ] Remove property lists
 - [ ] Move to simple type system
   - Remove type enums only use type symbols
   - `pk_atom_is_type(Pocket *atom, PKAtomSymbol *type)`
-  - `pk_atom_is_types(Pocket *atom, PKAtomSymbol *type1, PKAtomSymbol *type2)`
+  - `pk_atom_is_type2(Pocket *atom, PKAtomSymbol *type1, PKAtomSymbol *type2)`
   - ...
 - [ ] Type idents from symbol name
   - Printing properly `|foo bar|`
@@ -58,7 +67,12 @@ The todo list for POCKET LISP
   - [ ] Parsing
   - [ ] Printing
 - [ ] STD Filesystem API
+  - Files (streams)
+  - Directories
+  - Paths
 - [ ] STD Shell Command / Process API
+  - Async Command -> Process
+  - Sync Command
 - [ ] STD TCP/UDP
 - [ ] STD JSON
 - [ ] STD HTTP
