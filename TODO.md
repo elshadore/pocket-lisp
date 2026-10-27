@@ -1,15 +1,6 @@
 # TODO
 The todo list for POCKET LISP
 
-## User Review
-Stuff that I need to do a personal deep dive into.
-- [ ] Compiler
-  - Really need the testing suite for this lmao.
-- [ ] Macro
-
-## V1
-- [ ] Recursive Cloning
-  - When loading data from bytecode clone.
 - [ ] `cleared` default throw symbol
 - [ ] to list function `->list`
   - for array
@@ -17,38 +8,42 @@ Stuff that I need to do a personal deep dive into.
   - for tables
   - for blobs / arrays
 - [ ] implement `cat`
-- [ ] Type idents from symbol name
+  - dispatch on first type
 - [ ] defclass
-- [ ] Documentation Tables
+- [ ] Remove property lists
+- [ ] Type idents from symbol name
 - [ ] All possible memory leaks from throwing removed.
 - [ ] defvar, defun, defmacro
   - Return symbol
-- [ ] Var should return it's new value let setq does.
+- [ ] rename read to parse `pocket_read.c` -> `pocket_parser.c`
+- [ ] Streams
+  - stdin
+  - stdout
+  - stderr
 - [ ] Special Form Objects
-- [ ] Types
-  - [ ] Streams
-    - stdin
-    - stdout
-    - stderr
-  - [ ] Char (Unicode)
-    - printing and reading `^\space`
-  - [ ] Table
+- [ ] Unicode Strings and Characters (utf8)
+  - [ ] fn, λ, lambda
+- [ ] Seperation of std into multiple libraries
+  - core
+  - fs
+  - streams
+- [ ] Remove ternary operator from all c code.
+
+- [ ] User Review of Compiler
+  - in particular, destructuring bind.
+- [ ] User Review of Macro
+- [ ] User Review of wether we are allocating too much on the stack in the bytecode VM
+   - i.e we are not popping temp values
+- [ ] Var should return it's new value let setq does.
 - [ ] Testing Suite
 - [ ] `struct-eq`
-  
-- [ ] defgeneric
-- [ ] Remove ternary operator.
+- [ ] defgeneric??? (maybe not???)
 - [ ] underscored internal functions should be `pk_atom_*` instead
 - [ ] Pretty Printing
-- [ ] Better Throwing / Erroring
-  - Error not throw type
-  - If throw cannot find symbol (error)
-  - `unwind-protect`
-  - `ecase`
-  - Error Stack Traces
-    - debug-trace variable
-- [ ] Unicode Strings (utf8)
-  - [ ] fn, λ, lambda
+- [ ] `unwind-protect`
+- [ ] `ecase`
+- [ ] Error Stack Trace
+ - debug-trace variable
 - [ ] Emacs Mode
   - [ ] Syntax Highlighting
   - [ ] Identation
@@ -57,13 +52,12 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Full Float Parsing and Printing
   - [ ] Parsing
   - [ ] Printing
-- [ ] Standard Library
-  - [ ] Filesystem API
-  - [ ] Shell Command / Process API
-  - [ ] TCP/UDP
-  - [ ] JSON
-  - [ ] HTTP
-  - [ ] HTML
+- [ ] STD Filesystem API
+- [ ] STD Shell Command / Process API
+- [ ] STD TCP/UDP
+- [ ] STD JSON
+- [ ] STD HTTP
+- [ ] STD HTML
 - [ ] Upgrade to Arbitary Precision Bytecode
   - Not limited to 8bit args
 - [ ] Small, Big, Symbol, Pools
@@ -73,13 +67,12 @@ Stuff that I need to do a personal deep dive into.
 - [ ] `Pocket` should not be cached in PKVM and PKCompiler
 - [ ] If we call a Lisp function from withing the VM we should not use the C stack to create a new VM, but reuse the old one.
 - [ ] Document C Functions
-
-## V2
+- [ ] Documentation Tables
 - [ ] Environment Objects
 - [ ] Immutable Vector Update
   - Move from cons cells to immutable vectors.
 - [ ] Remove Libc
-- [ ] NIL and UNDEFINED should be static objects.
+- [ ] NIL, UNDEFINED, TRUE, should be static objects.
 - [ ] Interpretter Objects
 - [ ] Lexical Capture
   - [ ] Upvalues
