@@ -352,9 +352,44 @@ void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) 
             break;
         }
         case PK_ATOMTY_COBJECT: {
+            pk_writer_simple_object(lisp, w, atom, atom->cobject.type->name->str);
             break;
         }
         case PK_ATOMTY_LOBJECT: {
+            PKAtomSymbol *type = atom->lobject.type;
+            PKAtoms slots = atom->lobject.slots;
+            pk_writer_string(lisp, w, pk_str("&<"));
+            // TODO: this produces potentially unreadable symbols. Not barred symbols |foo bar|.
+            // However we will keep this for now until we actually start using symbol types.
+            // Same can be said for cobject.
+            pk_writer_string(lisp, w, type->name->str);
+            pk_writer_string(lisp, w, pk_str("::"));
+            pk_writer_char(lisp, w, '(');
+            (void)pk_hashmap_insert(lisp, clones, atom, atom, PK_HASHMAP_INSERT_NORMAL);
+            size_t printed = 0;
+            for (size_t index = 0; index < slots.length; ++index) {
+                PKAtom *symbol = NULL;
+                for (size_t i = 0; i < type->slots.capacity; ++i) {
+                    PKSlotmapSlot *slot = &type->slots.e[i];
+                    if ((slot->state == PK_SLOTMAP_SLOT_OCCUPIED) && (slot->index == index)) {
+                        symbol = slot->symbol;
+                        break;
+                    }
+                }
+                if (symbol == NULL) {
+                    continue;
+                }
+                if (printed != 0) {
+                    pk_writer_char(lisp, w, ' ');
+                }
+                printed += 1;
+                pk_writer_char(lisp, w, '(');
+                pk_writer_atom_recursive(lisp, w, clones, (PKAtom *)symbol);
+                pk_writer_string(lisp, w, pk_str(" . "));
+                pk_writer_atom_recursive(lisp, w, clones, slots.e[index]);
+                pk_writer_char(lisp, w, ')');
+            }
+            pk_writer_string(lisp, w, pk_str(")>"));
             break;
         }
         case PK_ATOMTY_STREAM: {
