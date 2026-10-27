@@ -27,6 +27,7 @@ void pk_gc_mark_cache(Pocket lisp) {
     pk_gc_mark(lisp, (PKAtom *)c->defvar);
     pk_gc_mark(lisp, (PKAtom *)c->defun);
     pk_gc_mark(lisp, (PKAtom *)c->defmacro);
+    pk_gc_mark(lisp, (PKAtom *)c->defclass);
     
     pk_gc_mark(lisp, (PKAtom *)c->progn);
     pk_gc_mark(lisp, (PKAtom *)c->sym_if);
@@ -35,6 +36,7 @@ void pk_gc_mark_cache(Pocket lisp) {
     pk_gc_mark(lisp, (PKAtom *)c->sym_or);
     pk_gc_mark(lisp, (PKAtom *)c->error);
     pk_gc_mark(lisp, (PKAtom *)c->throw);
+    pk_gc_mark(lisp, (PKAtom *)c->cleared);
     pk_gc_mark(lisp, (PKAtom *)c->var);
     pk_gc_mark(lisp, (PKAtom *)c->fvar);
     pk_gc_mark(lisp, (PKAtom *)c->setq);

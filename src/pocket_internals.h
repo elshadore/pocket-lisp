@@ -497,6 +497,7 @@ typedef struct PKCache_ {
     PKAtomSymbol *defvar;
     PKAtomSymbol *defun;
     PKAtomSymbol *defmacro;
+    PKAtomSymbol *defclass;
     
     PKAtomSymbol *progn;
     PKAtomSymbol *sym_if;
@@ -505,6 +506,7 @@ typedef struct PKCache_ {
     PKAtomSymbol *sym_or;
     PKAtomSymbol *error;
     PKAtomSymbol *throw;
+    PKAtomSymbol *cleared;
     PKAtomSymbol *var;
     PKAtomSymbol *fvar;
     PKAtomSymbol *setq;

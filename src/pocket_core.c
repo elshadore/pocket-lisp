@@ -19,6 +19,7 @@ void pk_init_cache(Pocket lisp) {
     c->defvar = pk_atom_symbol(lisp, pk_str("defvar"));
     c->defun = pk_atom_symbol(lisp, pk_str("defun"));
     c->defmacro = pk_atom_symbol(lisp, pk_str("defmacro"));
+    c->defclass = pk_atom_symbol(lisp, pk_str("defclass"));
     
     c->progn = pk_atom_symbol(lisp, pk_str("progn"));
     c->sym_if = pk_atom_symbol(lisp, pk_str("if"));
@@ -27,6 +28,7 @@ void pk_init_cache(Pocket lisp) {
     c->sym_or = pk_atom_symbol(lisp, pk_str("or"));
     c->error = pk_atom_symbol(lisp, pk_str("error"));
     c->throw = pk_atom_symbol(lisp, pk_str("throw"));
+    c->cleared = pk_atom_symbol(lisp, pk_str("cleared"));
     c->var = pk_atom_symbol(lisp, pk_str("var"));
     c->fvar = pk_atom_symbol(lisp, pk_str("fvar"));
     c->setq = pk_atom_symbol(lisp, pk_str("setq"));
