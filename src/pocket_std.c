@@ -175,6 +175,16 @@ void pk_fun_cdr(void *user_closure, Pocket lisp) {
     pk_cdr(lisp, 1);
 }
 
+void pk_fun_car_strict(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_car_strict(lisp, 1);
+}
+
+void pk_fun_cdr_strict(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_cdr_strict(lisp, 1);
+}
+
 void pk_fun_set_car(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_car_strict(lisp, 1);
@@ -514,6 +524,8 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("list"), .fun = pk_fun_list, .args = 0, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("car"), .fun = pk_fun_car, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("cdr"), .fun = pk_fun_cdr, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("car-strict"), .fun = pk_fun_car_strict, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("cdr-strict"), .fun = pk_fun_cdr_strict, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("set-car"), .fun = pk_fun_set_car, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("set-cdr"), .fun = pk_fun_set_cdr, .args = 2, .arity = PK_ARITY_NORMAL},
 
