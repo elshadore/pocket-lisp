@@ -10,11 +10,21 @@ PKAtomTable * pk_atom_table(Pocket lisp) {
 }
 
 PKAtom *pk_atom_table_put(Pocket lisp, PKAtomTable *table, PKAtom *key, PKAtom *value) {
-    return pk_hashmap_insert(lisp, &table->map, key, value, PK_HASHMAP_INSERT_NORMAL);
+    PKAtom *result = pk_hashmap_insert(lisp, &table->map, key, value, PK_HASHMAP_INSERT_NORMAL);
+    if (pk_atom_is_undefined(result)) {
+        return lisp->cache.nil;
+    } else {
+        return result;
+    }
 }
 
 PKAtom *pk_atom_table_put_unique(Pocket lisp, PKAtomTable *table, PKAtom *key, PKAtom *value) {
-    return pk_hashmap_insert(lisp, &table->map, key, value, PK_HASHMAP_INSERT_UNIQUE);
+    PKAtom *result = pk_hashmap_insert(lisp, &table->map, key, value, PK_HASHMAP_INSERT_UNIQUE);
+    if (pk_atom_is_undefined(result)) {
+        return lisp->cache.nil;
+    } else {
+        return result;
+    }
 }
 
 PKAtom *pk_atom_table_rem(Pocket lisp, PKAtomTable *table, PKAtom *key) {

@@ -8,40 +8,24 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Macro
 
 ## V1
-- [ ] Type idents from symbol name
-- [ ] Add printing for Table and Array
-```
-last time we added code for recursive printing. int pocket_writer.c. we now want to add printing for the array and table types. these should print like such
-
-we obviously need recursive printing checks as well.
-
-after this is done add std functions for append, put, put-unique
-```
+- [ ] Recursive Cloning
+  - When loading data from bytecode clone.
+- [ ] `circular?` function.
+- [ ] `cleared` default throw symbol
 - [ ] to list function `->list`
   - for array
   - for strings / arrays
   - for tables
   - for blobs / arrays
 - [ ] implement `cat`
+- [ ] Type idents from symbol name
 - [ ] Printing
   - Tables
   - Arrays
   - String-Arrays
   - Byte-Arrays
-- [ ] `(lambda ())` creates a unimplemented function.
-- [ ] `cleared` default throw symbol
-- [ ] Type Symbols
-- [ ] Object System
-  - [ ] CObjects
-  - [ ] LObjects
-  - [ ] Slots
-  - [ ] Methods
-- [ ] Method Calling
 - [ ] defclass
 - [ ] Documentation Tables
-- [ ] Recursive Cloning
-  - When loading data from bytecode clone.
-- [ ] `circular?` function.
 - [ ] All possible memory leaks from throwing removed.
 - [ ] defvar, defun, defmacro
   - Return symbol
