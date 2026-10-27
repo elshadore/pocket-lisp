@@ -1,6 +1,7 @@
 # TODO
 The todo list for POCKET LISP
 
+- [ ] Method check first in function calling
 - [ ] `cleared` default throw symbol
 - [ ] to list function `->list`
   - for array
@@ -10,7 +11,13 @@ The todo list for POCKET LISP
 - [ ] implement `cat`
   - dispatch on first type
 - [ ] Remove property lists
+- [ ] Move to simple type system
+  - Remove type enums only use type symbols
+  - `pk_atom_is_type(Pocket *atom, PKAtomSymbol *type)`
+  - `pk_atom_is_types(Pocket *atom, PKAtomSymbol *type1, PKAtomSymbol *type2)`
+  - ...
 - [ ] Type idents from symbol name
+  - Printing properly `|foo bar|`
 - [ ] All possible memory leaks from throwing removed.
 - [ ] defvar, defun, defmacro
   - Return symbol
@@ -27,7 +34,6 @@ The todo list for POCKET LISP
   - fs
   - streams
 - [ ] Remove ternary operator from all c code.
-
 - [ ] User Review of Compiler
   - in particular, destructuring bind.
 - [ ] User Review of Macro
