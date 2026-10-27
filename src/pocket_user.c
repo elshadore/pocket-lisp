@@ -350,6 +350,11 @@ void pk_define_type_lisp(Pocket lisp, int symbol, int slots) {
     pk_atom_define_type_lisp_atom(lisp, asymbol, aslots);
 }
 
+void pk_new(Pocket lisp, int type) {
+    PKAtomSymbol *atype = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, type));
+    pk_stack_push(lisp, pk_atom_object_new(lisp, atype));
+}
+
 void pk_slot_set(Pocket lisp, int object, int slot, int value) {
     PKAtomLObject *aobject = pk_atom_assert_lobject(lisp, pk_stack_get(lisp, object));
     PKAtomSymbol *aslot = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, slot));

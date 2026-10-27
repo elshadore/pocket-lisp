@@ -217,6 +217,8 @@ PK_API void pk_define_type_c_owned(Pocket lisp, int symbol, size_t size);
 PK_API void pk_define_type_c_user(Pocket lisp, int symbol);
 PK_API void pk_define_type_lisp(Pocket lisp, int symbol, int slots);
 
+PK_API void pk_new(Pocket lisp, int type);
+
 PK_API void pk_typeof(Pocket lisp, int stack_pointer);
 PK_API void pk_slot_set(Pocket lisp, int object, int slot, int value);
 PK_API void pk_slot_get(Pocket lisp, int object, int slot);
@@ -243,6 +245,5 @@ PK_API void pk_debug_leakcheck(Pocket lisp, const char *tag);
 PK_API void pk_debug_stackdump(Pocket lisp, const char *tag);
 PK_API void pk_debug_envdump(Pocket lisp, const char *tag);
 #endif
-    
 
 #endif // POCKET_LISP_H

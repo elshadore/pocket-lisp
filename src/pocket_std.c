@@ -503,6 +503,37 @@ void pk_fun_typeof(void *user_closure, Pocket lisp) {
     pk_typeof(lisp, 1);
 }
 
+void pk_fun_new(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_new(lisp, 1);
+}
+
+void pk_fun_slot_set(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_slot_set(lisp, 1, 2, 3);
+    pk_push_nil(lisp);
+}
+
+void pk_fun_slot_get(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_slot_get(lisp, 1, 2);
+}
+
+void pk_fun_method_set(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_method_set(lisp, 1, 2, 3);
+}
+
+void pk_fun_method_get(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_method_get(lisp, 1, 2);
+}
+
+void pk_fun_method_get_raw(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_method_get_raw(lisp, 1, 2);
+}
+
 typedef struct PKFunLoad_ {
     PKStr symbol;
     PKFun fun;
@@ -610,6 +641,13 @@ void pk_std_load_cfun(Pocket lisp) {
         
         {.symbol = pk_str("gensym"), .fun = pk_fun_gensym, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("typeof"), .fun = pk_fun_typeof, .args = 1, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("new"), .fun = pk_fun_new, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("set-slot"), .fun = pk_fun_slot_set, .args = 3, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("get-slot"), .fun = pk_fun_slot_get, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("set-method"), .fun = pk_fun_method_set, .args = 3, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("get-method"), .fun = pk_fun_method_get, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("get-method-raw"), .fun = pk_fun_method_get_raw, .args = 2, .arity = PK_ARITY_NORMAL},
     };
 
     size_t length = pk_alen(funs);

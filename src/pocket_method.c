@@ -8,7 +8,7 @@ PKAtom *pk_atom_method_set(Pocket lisp, PKAtomSymbol *type, PKAtomSymbol *symbol
         pk_error_writer(lisp, &w);
     }
 
-    if (symbol->type_type == PK_TYPETY_NOTYPE) {
+    if (type->type_type == PK_TYPETY_NOTYPE) {
         PKWriter w = PK_WRITER_EMPTY;
         pk_writer_cstr(lisp, &w, "not a type: ");
         pk_writer_atom(lisp, &w, (PKAtom *)type);
