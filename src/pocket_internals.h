@@ -167,6 +167,11 @@ typedef struct PKCallConv_ {
 #define PK_ATOMTY_BYTE_ARRAY (24)
 #define PK_ATOMTY_STREAM (25)
 
+typedef enum PKAtomKind_ {
+    PK_ATOMKIND_VALUE = 0,
+    PK_ATOMKIND_OBJECT = 1,
+} PKAtomKind;
+
 #define PK_ATOMFLAG_NONE (0)
 #define PK_ATOMFLAG_MARKED (1 << 0)
 
@@ -592,6 +597,8 @@ size_t pk_atom_hash(PKAtom *atom);
 bool pk_atom_is_nil(PKAtom *atom);
 bool pk_atom_is_true(PKAtom *atom);
 bool pk_atom_is_undefined(PKAtom *atom);
+
+PKAtomKind pk_atom_kind(PKAtom *atom);
 bool pk_atom_is_cons(PKAtom *atom);
 bool pk_atom_is_int(PKAtom *atom);
 bool pk_atom_is_float(PKAtom *atom);

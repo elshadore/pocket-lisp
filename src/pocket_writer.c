@@ -363,6 +363,11 @@ void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) 
 }
 
 void pk_writer_atom_recursive(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) {
+    if (pk_atom_kind(atom) == PK_ATOMKIND_VALUE) {
+        pk_writer_atom_(lisp, w, clones, atom);
+        return;
+    }
+
     PKAtom *get = pk_hashmap_get(lisp, clones, atom);
     if (pk_atom_is_undefined(get)) {
         (void)pk_hashmap_insert(lisp, clones, atom, atom, PK_HASHMAP_INSERT_NORMAL);

@@ -34,6 +34,33 @@ bool pk_atom_is_undefined(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_UNDEFINED;
 }
 
+PKAtomKind pk_atom_kind(PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_CONS: return PK_ATOMKIND_OBJECT;
+        case PK_ATOMTY_ARRAY: return PK_ATOMKIND_OBJECT;
+        case PK_ATOMTY_STRING_ARRAY: return PK_ATOMKIND_OBJECT;
+        case PK_ATOMTY_BYTE_ARRAY: return PK_ATOMKIND_OBJECT;
+        case PK_ATOMTY_TABLE: return PK_ATOMKIND_OBJECT;
+        case PK_ATOMTY_LOBJECT: return PK_ATOMKIND_OBJECT;
+        case PK_ATOMTY_COBJECT: return PK_ATOMKIND_OBJECT;
+        case PK_ATOMTY_STREAM: return PK_ATOMKIND_OBJECT;
+        case PK_ATOMTY_UNDEFINED: return PK_ATOMKIND_VALUE;
+        case PK_ATOMTY_NIL: return PK_ATOMKIND_VALUE;
+        case PK_ATOMTY_TRUE: return PK_ATOMKIND_VALUE;
+        case PK_ATOMTY_NUMBER: return PK_ATOMKIND_VALUE;
+        case PK_ATOMTY_STRING: return PK_ATOMKIND_VALUE;
+        case PK_ATOMTY_SYMBOL: return PK_ATOMKIND_VALUE;
+        case PK_ATOMTY_KEYWORD: return PK_ATOMKIND_VALUE;
+        case PK_ATOMTY_CHARACTER: return PK_ATOMKIND_VALUE;
+        case PK_ATOMTY_BLOB: return PK_ATOMKIND_VALUE;
+        case PK_ATOMTY_CFUN: return PK_ATOMKIND_VALUE;
+        case PK_ATOMTY_LFUN: return PK_ATOMKIND_VALUE;
+        case PK_ATOMTY_CMACRO: return PK_ATOMKIND_VALUE;
+        case PK_ATOMTY_LMACRO: return PK_ATOMKIND_VALUE;
+        default: return PK_ATOMKIND_VALUE;
+    }
+}
+
 bool pk_atom_is_type(PKAtom *atom, PK_TYPE type) {
     if (type == PK_TYPE_TRUE) {
         if (atom->header.type == PK_ATOMTY_NIL) {
