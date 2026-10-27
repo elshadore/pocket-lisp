@@ -310,6 +310,14 @@ void pk_el(Pocket lisp, size_t index) {
     pk_stack_push(lisp, pk_atom_el(lisp, pk_stack_head(lisp), index));
 }
 
+void pk_clone(Pocket lisp, int stack_pointer) {
+    pk_stack_push(lisp, pk_atom_clone(lisp, pk_stack_get(lisp, stack_pointer)));
+}
+
+bool pk_is_circular(Pocket lisp, int stack_pointer) {
+    return pk_atom_is_circular(lisp, pk_stack_get(lisp, stack_pointer));
+}
+
 int pk_to_int(Pocket lisp, int number) {
     return pk_atom_to_int(lisp, pk_stack_get(lisp, number), PK_NUMBER_CONV_FLOAT_CONV);
 }

@@ -153,6 +153,9 @@ PK_API void pk_find_raw(Pocket lisp, int table, int key);
 PK_API void pk_find_strict(Pocket lisp, int table, int key);
 PK_API bool pk_is_member(Pocket lisp, int table, int key);
 PK_API void pk_el(Pocket lisp, size_t index);
+
+PK_API void pk_clone(Pocket lisp, int stack_pointer);
+PK_API bool pk_is_circular(Pocket lisp, int stack_pointer);
 PK_API void pk_reverse(Pocket lisp, int seq);
 
 PK_API void pk_car(Pocket lisp, int cons);
