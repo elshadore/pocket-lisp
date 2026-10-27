@@ -146,7 +146,7 @@ PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
         case PK_OP_SET_PROP: return PK_OPCODE_TY_LIT;
         case PK_OP_DIG: return PK_OPCODE_TY_LIT;
         case PK_OP_POPN: return PK_OPCODE_TY_LIT;
-        case PK_OP_DEFCLASS: return PK_OPCODE_TY_LIT;
+        case PK_OP_DEFCLASS: return PK_OPCODE_TY_NORMAL;
         
         default: return PK_OPCODE_TY_NORMAL;
     }

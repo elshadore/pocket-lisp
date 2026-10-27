@@ -93,6 +93,18 @@ void pk_vm_op_set(PKVM *vm, PK_ENV env) {
     lisp->stack.e[lisp->stack.count - 1] = slice.e[1];
 }
 
+void pk_vm_op_defclass(PKVM *vm) {
+    Pocket lisp = vm->lisp;
+
+    PKAtoms slice = pk_stack_slice_down(lisp, 2);
+    PKAtomSymbol *name = pk_atom_assert_symbol(lisp, slice.e[0]);
+    pk_atom_define_type_lisp_atom(lisp, name, slice.e[1]);
+
+    pk_stack_pop_unchecked(lisp, 2);
+    pk_stack_push(lisp, (PKAtom *)name);
+    pk_vm_inc(vm);
+}
+
 void pk_vm_op_exec(PKVM *vm) {
     Pocket lisp = vm->lisp;
 
@@ -293,7 +305,7 @@ void pk_vm_op_exec(PKVM *vm) {
             return;
         }
         case PK_OP_DEFCLASS: {
-            pk_errors(lisp, pk_str("TODO: implement this opcode"));
+            pk_vm_op_defclass(vm);
             return;
         }
         default: {

@@ -739,20 +739,22 @@ void pk_compile_var(PKCompiler *c, PKAtom *form, PK_ENV env) {
 void pk_compile_defclass(PKCompiler *c, PKAtom *form) {
     // Our ideal form is:
     
-    // (defclass ()
+    // (defclass example ()
     //   foo
     //   bar
     //   baz)
     
-    // We will keep the () after defclass for eventually adding inheritance.
+    // We will keep the () after defclass *symbol* for eventually adding inheritance.
     
     PKAtomCons *a = pk_atom_assert_cons(c->lisp, form);
-    pk_atom_assert_nil(c->lisp, a->car);
-    
-    PKArray array = PK_ARRAY_EMPTY;
-    pk_atom_list_to_array(c->lisp, a->cdr, &array);
+    PKAtom *name = (PKAtom *)pk_atom_assert_symbol(c->lisp, a->car);
+    PKAtomCons *b = pk_atom_assert_cons(c->lisp, a->cdr);
+    (void)pk_atom_assert_nil(c->lisp, b->car);
+    PKAtom *slots = b->cdr;
 
-    pk_array_deinit(c->lisp, &array);
+    pk_cmp_load(c, name);
+    pk_cmp_load(c, slots);
+    pk_cmp_push_byte(c, PK_OP_DEFCLASS);
 }
 
 void pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, bool *is_special) {
