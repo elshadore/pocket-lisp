@@ -28,7 +28,6 @@ after this is done add std functions for append, put, put-unique
   - for blobs / arrays
 - [ ] implement `cat`
 - [ ] Slurp and read-user-input need to be removed from `pocket.h`
-- [ ] Remove template macros
 - [ ] Printing
   - Tables
   - Arrays

@@ -445,12 +445,12 @@ void pk_fun_macroexpand(void *user_closure, Pocket lisp) {
 
 void pk_fun_fs_slurp(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_slurp(lisp, 1);
+    pk_stack_push(lisp, (PKAtom *)pk_fs_slurp(lisp, pk_atom_assert_string(lisp, pk_stack_get(lisp, 1))));
 }
 
 void pk_fun_fs_read_user_input(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_read_user_input(lisp);
+    pk_stack_push(lisp, pk_fs_read_user_input(lisp));
 }
 
 void pk_fun_array(void *user_closure, Pocket lisp) {

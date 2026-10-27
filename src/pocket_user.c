@@ -248,15 +248,6 @@ void pk_read(Pocket lisp, int string, PK_MODE mode) {
     pk_stack_push(lisp, result);
 }
 
-void pk_slurp(Pocket lisp, int file_path) {
-    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, file_path));
-    pk_stack_push(lisp, (PKAtom *)pk_fs_slurp(lisp, string));
-}
-
-void pk_read_user_input(Pocket lisp) {
-    pk_stack_push(lisp, pk_fs_read_user_input(lisp));
-}
-
 PK_RES pk_eval(Pocket lisp, int expr, PK_MODE mode) {
     return pk_atom_eval(lisp, pk_stack_get(lisp, expr), mode);
 }
