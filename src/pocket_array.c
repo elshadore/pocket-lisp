@@ -77,7 +77,7 @@ void pk_atom_byte_array_append_blob(Pocket lisp, PKAtomByteArray *array, PKBlob 
 }
 
 void pk_atom_byte_array_append(Pocket lisp, PKAtomByteArray *array, PKAtom *atom) {
-    pk_atom_byte_array_append_u8(lisp, array, pk_atom_to_byte(lisp, atom));
+    pk_atom_byte_array_append_u8(lisp, array, pk_atom_to_byte(lisp, atom, PK_NUMBER_CONV_FLOAT_CONV));
 }
 
 void pk_atom_append(Pocket lisp, PKAtom *array, PKAtom *atom) {

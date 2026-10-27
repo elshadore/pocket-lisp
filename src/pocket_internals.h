@@ -6,6 +6,11 @@
 
 typedef union PKAtomData_ PKAtom;
 
+typedef enum PK_NUMBER_CONV_ {
+    PK_NUMBER_CONV_FLOAT_CONV = 0,
+    PK_NUMBER_CONV_STRICT = 1,
+} PK_NUMBER_CONV;
+
 typedef enum PK_SYMTY_ {
     PK_SYMTY_SYMBOL = 0,
     PK_SYMTY_KEYWORD,
@@ -668,12 +673,12 @@ bool pk_atom_gt(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 bool pk_atom_gte(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 
 int pk_atom_as_int(PKAtom *atom);
-int pk_atom_to_int(Pocket lisp, PKAtom *atom);
-size_t pk_atom_to_size_t(Pocket lisp, PKAtom *atom);
+int pk_atom_to_int(Pocket lisp, PKAtom *atom, PK_NUMBER_CONV conv);
+size_t pk_atom_to_size_t(Pocket lisp, PKAtom *atom, PK_NUMBER_CONV conv);
 float pk_atom_as_float(PKAtom *atom);
-float pk_atom_to_float(Pocket lisp, PKAtom *atom);
-pk_u8 pk_atom_to_byte(Pocket lisp, PKAtom *atom);
+float pk_atom_to_float(Pocket lisp, PKAtom *atom, PK_NUMBER_CONV conv);
 
+pk_u8 pk_atom_to_byte(Pocket lisp, PKAtom *atom, PK_NUMBER_CONV conv);
 PKAtomSymbol *pk_atom_gensym(Pocket lisp);
 PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr symbol);
 PKAtomSymbol *pk_atom_symbolc(Pocket lisp, char *csymbol);

@@ -67,27 +67,33 @@ PKAtom *pk_atom_mul(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
 }
 
 PKAtom *pk_atom_div(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
-    float result = pk_atom_to_float(lisp, lhs) / pk_atom_to_float(lisp, rhs);
+    float result = pk_atom_to_float(lisp, lhs, PK_NUMBER_CONV_FLOAT_CONV) / pk_atom_to_float(lisp, rhs, PK_NUMBER_CONV_FLOAT_CONV);
     return (PKAtom *)pk_atom_float(lisp, result);
 }
 
 PKAtom *pk_atom_mod(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
-    int a = pk_atom_to_int(lisp, lhs);
-    int b = pk_atom_to_int(lisp, rhs);
+    int a = pk_atom_to_int(lisp, lhs, PK_NUMBER_CONV_FLOAT_CONV);
+    int b = pk_atom_to_int(lisp, rhs, PK_NUMBER_CONV_FLOAT_CONV);
     int result = a % b;
     return (PKAtom *)pk_atom_int(lisp, result);
 }
 
-int pk_atom_to_int(Pocket lisp, PKAtom *atom) {
+int pk_atom_to_int(Pocket lisp, PKAtom *atom, PK_NUMBER_CONV conv) {
     PKAtomNumber *number = pk_atom_assert_number(lisp, atom);
     switch (number->num_type) {
         case PK_NUMTY_INT: return atom->number.as.i;
-        case PK_NUMTY_FLOAT: return (int)atom->number.as.f;
+        case PK_NUMTY_FLOAT: {
+            if (conv == PK_NUMBER_CONV_STRICT) {
+                pk_errors(lisp, pk_str("pk_atom_to_int: float given, strict conversion does not allow float to int"));
+                return 0;
+            }
+            return (int)atom->number.as.f;
+        }
         default: return 0;
     }
 }
 
-size_t pk_atom_to_size_t(Pocket lisp, PKAtom *atom) {
+size_t pk_atom_to_size_t(Pocket lisp, PKAtom *atom, PK_NUMBER_CONV conv) {
     PKAtomNumber *number = pk_atom_assert_number(lisp, atom);
     switch (number->num_type) {
         case PK_NUMTY_INT: {
@@ -99,6 +105,10 @@ size_t pk_atom_to_size_t(Pocket lisp, PKAtom *atom) {
             }
         }
         case PK_NUMTY_FLOAT: {
+            if (conv == PK_NUMBER_CONV_STRICT) {
+                pk_errors(lisp, pk_str("pk_atom_to_size_t: float given, strict conversion does not allow float to size_t"));
+                return 0;
+            }
             if (number->as.f < 0.0f) {
                 pk_errorf(lisp, "float: %f, is negative, expected a size_t", number->as.f);
                 return 0;
@@ -110,17 +120,24 @@ size_t pk_atom_to_size_t(Pocket lisp, PKAtom *atom) {
     }
 }
 
-float pk_atom_to_float(Pocket lisp, PKAtom *atom) {
+float pk_atom_to_float(Pocket lisp, PKAtom *atom, PK_NUMBER_CONV conv) {
     PKAtomNumber *number = pk_atom_assert_number(lisp, atom);
     switch (number->num_type) {
-        case PK_NUMTY_INT: return (float)atom->number.as.i;
+        case PK_NUMTY_INT: {
+            if (conv == PK_NUMBER_CONV_STRICT) {
+                pk_errors(lisp, pk_str("pk_atom_to_float: int given, strict conversion does not allow int to float"));
+                return 0.0f;
+            }
+            return (float)atom->number.as.i;
+        }
         case PK_NUMTY_FLOAT: return atom->number.as.f;
         default: return 0.0f;
     }
 }
 
-pk_u8 pk_atom_to_byte(Pocket lisp, PKAtom *atom) {
+pk_u8 pk_atom_to_byte(Pocket lisp, PKAtom *atom, PK_NUMBER_CONV conv) {
     PKAtomNumber *number = pk_atom_assert_number(lisp, atom);
+    (void)conv;
     switch (number->num_type) {
         case PK_NUMTY_INT: {
             if(number->as.i < 0 || number->as.i > UINT8_MAX) {

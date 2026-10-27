@@ -305,11 +305,11 @@ void pk_el(Pocket lisp, size_t index) {
 }
 
 int pk_to_int(Pocket lisp, int number) {
-    return pk_atom_to_int(lisp, pk_stack_get(lisp, number));
+    return pk_atom_to_int(lisp, pk_stack_get(lisp, number), PK_NUMBER_CONV_FLOAT_CONV);
 }
 
 float pk_to_float(Pocket lisp, int number) {
-    return pk_atom_to_float(lisp, pk_stack_get(lisp, number));
+    return pk_atom_to_float(lisp, pk_stack_get(lisp, number), PK_NUMBER_CONV_FLOAT_CONV);
 }
 
 bool pk_is_type(Pocket lisp, int atom, PK_TYPE check) {
