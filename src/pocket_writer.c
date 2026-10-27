@@ -212,7 +212,7 @@ void pk_writer_atom_recursive(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAto
 void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_UNDEFINED: {
-            pk_writer_string(lisp, w, pk_str("&<UNDEFINED>"));
+            pk_writer_string(lisp, w, pk_str("&<Undefined>"));
             break;
         }
         case PK_ATOMTY_NIL: {
@@ -271,7 +271,7 @@ void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) 
                 iter = iter->cons.cdr;
             }
             if (cyclic) {
-                pk_writer_simple_object(lisp, w, iter, pk_str("CONS"));
+                pk_writer_simple_object(lisp, w, iter, pk_str("Cons"));
             } else if (!pk_atom_is_nil(iter)) {
                 pk_writer_string(lisp, w, pk_str(" . "));
                 pk_writer_atom_recursive(lisp, w, clones, iter);
@@ -281,19 +281,19 @@ void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) 
             break;
         }
         case PK_ATOMTY_CFUN: {
-            pk_writer_simple_function(lisp, w, atom, pk_str("CFUN"), atom->cfun.arity);
+            pk_writer_simple_function(lisp, w, atom, pk_str("Function"), atom->cfun.arity);
             break;
         }
         case PK_ATOMTY_LFUN: {
-            pk_writer_simple_function(lisp, w, atom, pk_str("LFUN"), atom->lfun.arity);
+            pk_writer_simple_function(lisp, w, atom, pk_str("Function"), atom->lfun.arity);
             break;
         }
         case PK_ATOMTY_CMACRO: {
-            pk_writer_simple_function(lisp, w, atom, pk_str("CMACRO"), atom->cmacro.arity);
+            pk_writer_simple_function(lisp, w, atom, pk_str("Macro"), atom->cmacro.arity);
             break;
         }
         case PK_ATOMTY_LMACRO: {
-            pk_writer_simple_function(lisp, w, atom, pk_str("LMACRO"), atom->lmacro.arity);
+            pk_writer_simple_function(lisp, w, atom, pk_str("Macro"), atom->lmacro.arity);
             break;
         }
         case PK_ATOMTY_BLOB: {
@@ -302,31 +302,31 @@ void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) 
         }
         case PK_ATOMTY_ARRAY: {
             // TODO: when printing this properly we will need recursive check.
-            pk_writer_simple_object(lisp, w, atom, pk_str("ARRAY"));
+            pk_writer_simple_object(lisp, w, atom, pk_str("Array"));
             break;
         }
         case PK_ATOMTY_STRING_ARRAY: {
-            pk_writer_string(lisp, w, pk_str("&<STRING-ARRAY::"));
+            pk_writer_string(lisp, w, pk_str("&<String-Array::"));
             pk_writer_string_escaped(lisp, w, pk_writer_slice(&atom->string_array.string));
             pk_writer_string(lisp, w, pk_str(">"));
             break;
         }
         case PK_ATOMTY_BYTE_ARRAY: {
-            pk_writer_string(lisp, w, pk_str("&<BYTE-ARRAY::"));
+            pk_writer_string(lisp, w, pk_str("&<Byte-Array::"));
             pk_writer_atom_blob(lisp, w, pk_bytes_slice(&atom->byte_array.bytes));
             pk_writer_string(lisp, w, pk_str(">"));
             break;
         }
         case PK_ATOMTY_TABLE: {
-            pk_writer_simple_object(lisp, w, atom, pk_str("TABLE"));
+            pk_writer_simple_object(lisp, w, atom, pk_str("Table"));
             break;
         }
         case PK_ATOMTY_STREAM: {
-            pk_writer_simple_object(lisp, w, atom, pk_str("STREAM"));
+            pk_writer_simple_object(lisp, w, atom, pk_str("Stream"));
             break;
         }
         default: {
-            pk_writer_simple_object(lisp, w, atom, pk_str("UNKNOWN"));
+            pk_writer_simple_object(lisp, w, atom, pk_str("Unknown"));
             break;
         }
     }

@@ -8,7 +8,6 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Macro
 
 ## V1
-- [ ] Add all missing functions to std
 - [ ] Type idents from symbol name
 - [ ] Add printing for Table and Array
 ```
