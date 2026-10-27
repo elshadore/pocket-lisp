@@ -143,6 +143,150 @@ PKAtom *pk_atom_reverse(Pocket lisp, PKAtom *atom) {
     }
 }
 
+PKAtom *pk_atom_clone_rec_(Pocket lisp, PKHashmap *memo, PKAtom *atom) {
+    if (pk_atom_kind(atom) == PK_ATOMKIND_VALUE) {
+        return atom;
+    }
+
+    PKAtom *have = pk_hashmap_get(lisp, memo, atom);
+    if (!pk_atom_is_undefined(have)) {
+        return have;
+    }
+
+    switch (atom->header.type) {
+        case PK_ATOMTY_CONS: {
+            PKAtomCons *result = pk_atom_cons(lisp, lisp->cache.nil, lisp->cache.nil);
+            pk_hashmap_insert(lisp, memo, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
+            result->car = pk_atom_clone_rec_(lisp, memo, atom->cons.car);
+
+            PKAtom *iter = atom->cons.cdr;
+            PKAtom *current = (PKAtom *)result;
+            while (pk_atom_is_cons(iter) && pk_atom_is_undefined(pk_hashmap_get(lisp, memo, iter))) {
+                PKAtomCons *next = pk_atom_cons(lisp, lisp->cache.nil, lisp->cache.nil);
+                pk_hashmap_insert(lisp, memo, iter, (PKAtom *)next, PK_HASHMAP_INSERT_NORMAL);
+                next->car = pk_atom_clone_rec_(lisp, memo, iter->cons.car);
+                current->cons.cdr = (PKAtom *)next;
+                current = (PKAtom *)next;
+                iter = iter->cons.cdr;
+            }
+            current->cons.cdr = pk_atom_clone_rec_(lisp, memo, iter);
+            return (PKAtom *)result;
+        }
+        case PK_ATOMTY_ARRAY: {
+            PKAtomArray *result = pk_atom_array(lisp, PK_ATOMS_EMPTY);
+            pk_hashmap_insert(lisp, memo, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
+            for (size_t i = 0; i < atom->array.atoms.count; ++i) {
+                pk_atom_array_append(lisp, result, pk_atom_clone_rec_(lisp, memo, atom->array.atoms.e[i]));
+            }
+            return (PKAtom *)result;
+        }
+        case PK_ATOMTY_STRING_ARRAY: {
+            PKAtomStringArray *result = pk_atom_string_array(lisp, PK_STR_EMPTY);
+            pk_hashmap_insert(lisp, memo, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
+            pk_atom_string_array_append_str(lisp, result, pk_writer_slice(&atom->string_array.string));
+            return (PKAtom *)result;
+        }
+        case PK_ATOMTY_BYTE_ARRAY: {
+            PKAtomByteArray *result = pk_atom_byte_array(lisp, PK_BLOB_EMPTY);
+            pk_hashmap_insert(lisp, memo, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
+            return (PKAtom *)result;
+        }
+        case PK_ATOMTY_TABLE: {
+            PKAtomTable *result = pk_atom_table(lisp);
+            pk_hashmap_insert(lisp, memo, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
+            PKHashmap *map = &atom->table.map;
+            for (size_t i = 0; i < map->capacity; ++i) {
+                PKHashmapSlot *slot = &map->e[i];
+                if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) {
+                    pk_atom_table_put(lisp, result,
+                        pk_atom_clone_rec_(lisp, memo, slot->key),
+                        pk_atom_clone_rec_(lisp, memo, slot->value));
+                }
+            }
+            return (PKAtom *)result;
+        }
+        case PK_ATOMTY_LOBJECT: {
+            PKAtomLObject *result = (PKAtomLObject *)pk_atom_object_new(lisp, atom->lobject.type);
+            pk_hashmap_insert(lisp, memo, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
+            PKAtoms slots = atom->lobject.slots;
+            for (size_t i = 0; i < slots.length; ++i) {
+                result->slots.e[i] = pk_atom_clone_rec_(lisp, memo, slots.e[i]);
+            }
+            return (PKAtom *)result;
+        }
+        default: {
+            PKStr ty = pk_ident_atomty(atom->header.type);
+            pk_errorf(lisp, "pk_atom_clone: cannot clone %.*s", (int)ty.length, ty.c);
+            return lisp->cache.nil;
+        }
+    }
+}
+
+PKAtom *pk_atom_clone(Pocket lisp, PKAtom *atom) {
+    PKHashmap memo = PK_HASHMAP_EMPTY;
+    PKAtom *result = pk_atom_clone_rec_(lisp, &memo, atom);
+    pk_hashmap_deinit(lisp, &memo);
+    return result;
+}
+
+bool pk_atom_is_circular_rec_(Pocket lisp, PKHashmap *visited, PKAtom *atom) {
+    if (pk_atom_kind(atom) != PK_ATOMKIND_OBJECT) {
+        return false;
+    }
+
+    PKAtom *state = pk_hashmap_get(lisp, visited, atom);
+    if (!pk_atom_is_undefined(state)) {
+        return !pk_atom_is_true(state);
+    }
+
+    pk_hashmap_insert(lisp, visited, atom, lisp->cache.nil, PK_HASHMAP_INSERT_NORMAL);
+    bool result = false;
+
+    switch (atom->header.type) {
+        case PK_ATOMTY_CONS: {
+            result = pk_atom_is_circular_rec_(lisp, visited, atom->cons.car)
+                || pk_atom_is_circular_rec_(lisp, visited, atom->cons.cdr);
+            break;
+        }
+        case PK_ATOMTY_ARRAY: {
+            PKArray *array = &atom->array.atoms;
+            for (size_t i = 0; !result && (i < array->count); ++i) {
+                result = pk_atom_is_circular_rec_(lisp, visited, array->e[i]);
+            }
+            break;
+        }
+        case PK_ATOMTY_TABLE: {
+            PKHashmap *map = &atom->table.map;
+            for (size_t i = 0; !result && (i < map->capacity); ++i) {
+                PKHashmapSlot *slot = &map->e[i];
+                if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) {
+                    result = pk_atom_is_circular_rec_(lisp, visited, slot->key)
+                        || pk_atom_is_circular_rec_(lisp, visited, slot->value);
+                }
+            }
+            break;
+        }
+        case PK_ATOMTY_LOBJECT: {
+            PKAtoms slots = atom->lobject.slots;
+            for (size_t i = 0; !result && (i < slots.length); ++i) {
+                result = pk_atom_is_circular_rec_(lisp, visited, slots.e[i]);
+            }
+            break;
+        }
+        default: break;
+    }
+
+    pk_hashmap_insert(lisp, visited, atom, lisp->cache.atom_true, PK_HASHMAP_INSERT_NORMAL);
+    return result;
+}
+
+bool pk_atom_is_circular(Pocket lisp, PKAtom *atom) {
+    PKHashmap visited = PK_HASHMAP_EMPTY;
+    bool result = pk_atom_is_circular_rec_(lisp, &visited, atom);
+    pk_hashmap_deinit(lisp, &visited);
+    return result;
+}
+
 bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
     (void)lisp;
     if (lhs == rhs) {

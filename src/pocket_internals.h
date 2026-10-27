@@ -599,6 +599,9 @@ bool pk_atom_is_true(PKAtom *atom);
 bool pk_atom_is_undefined(PKAtom *atom);
 
 PKAtomKind pk_atom_kind(PKAtom *atom);
+
+PKAtom *pk_atom_clone(Pocket lisp, PKAtom *atom);
+bool pk_atom_is_circular(Pocket lisp, PKAtom *atom);
 bool pk_atom_is_cons(PKAtom *atom);
 bool pk_atom_is_int(PKAtom *atom);
 bool pk_atom_is_float(PKAtom *atom);
