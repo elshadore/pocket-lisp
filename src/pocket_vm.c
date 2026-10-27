@@ -280,6 +280,22 @@ void pk_vm_op_exec(PKVM *vm) {
             vm->finished = true;
             return;
         }
+        case PK_OP_POP: {
+            pk_pop(lisp);
+            pk_vm_inc(vm);
+            return;
+        }
+        case PK_OP_POPN: {
+            pk_vm_inc(vm);
+            size_t n = (size_t)pk_vat(vm);
+            pk_popn(lisp, n);
+            pk_vm_inc(vm);
+            return;
+        }
+        case PK_OP_DEFCLASS: {
+            pk_errors(lisp, pk_str("TODO: implement this opcode"));
+            return;
+        }
         default: {
             pk_errors(lisp, pk_str("illegal op"));
             return;

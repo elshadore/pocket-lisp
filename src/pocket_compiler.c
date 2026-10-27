@@ -736,6 +736,25 @@ void pk_compile_var(PKCompiler *c, PKAtom *form, PK_ENV env) {
     }
 }
 
+void pk_compile_defclass(PKCompiler *c, PKAtom *form) {
+    // Our ideal form is:
+    
+    // (defclass ()
+    //   foo
+    //   bar
+    //   baz)
+    
+    // We will keep the () after defclass for eventually adding inheritance.
+    
+    PKAtomCons *a = pk_atom_assert_cons(c->lisp, form);
+    pk_atom_assert_nil(c->lisp, a->car);
+    
+    PKArray array = PK_ARRAY_EMPTY;
+    pk_atom_list_to_array(c->lisp, a->cdr, &array);
+
+    pk_array_deinit(c->lisp, &array);
+}
+
 void pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, bool *is_special) {
     Pocket lisp = c->lisp;
 
@@ -914,6 +933,10 @@ void pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, bool 
     } else if (symbol == lisp->cache.psetq) {
         pk_compile_set(c, args, PK_ENV_PROP);
 
+        *is_special = true;
+    } else if (symbol == lisp->cache.defclass) {
+        pk_compile_defclass(c, args);
+        
         *is_special = true;
     } else {
         *is_special = false;

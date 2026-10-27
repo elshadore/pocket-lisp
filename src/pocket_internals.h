@@ -285,6 +285,9 @@ typedef struct PKAtomCFun_ {
 #define PK_OP_PROTECT_BEGIN (32)
 #define PK_OP_PROTECT_END (33)
 #define PK_OP_BLOCK_POP (34)
+#define PK_OP_POP (35)
+#define PK_OP_POPN (36)
+#define PK_OP_DEFCLASS (37)
 
 typedef enum PK_OPCODE_TY_ {
     PK_OPCODE_TY_NORMAL = 0,
