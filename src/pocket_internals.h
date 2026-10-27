@@ -672,11 +672,16 @@ PKAtom *pk_atom_list(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_packed(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_rev(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_rev_packed(Pocket lisp, PKAtoms atoms);
+PKAtom *pk_atom_to_list_bytes(Pocket lisp, PKBlob bytes);
+PKAtom *pk_atom_to_list_chars(Pocket lisp, PKStr string);
+PKAtom *pk_atom_to_list_table(Pocket lisp, PKHashmap *map);
+PKAtom *pk_atom_to_list(Pocket lisp, PKAtom *atom);
 PKAtom *pk_atom_list_flatten(Pocket lisp, PKAtoms atoms);
 void pk_atom_list_to_array(Pocket lisp, PKAtom *list, PKArray *array);
 
 PKAtomNumber *pk_atom_int(Pocket lisp, int integer);
 PKAtomNumber *pk_atom_float(Pocket lisp, float floater);
+PKAtomNumber *pk_atom_byte(Pocket lisp, pk_u8 byte);
 PKAtom *pk_atom_add(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 PKAtom *pk_atom_sub(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 PKAtom *pk_atom_mul(Pocket lisp, PKAtom *lhs, PKAtom *rhs);

@@ -163,6 +163,73 @@ PKAtom *pk_atom_list_flatten(Pocket lisp, PKAtoms lists) {
     return acc.head;
 }
 
+PKAtom *pk_atom_to_list_bytes(Pocket lisp, PKBlob bytes) {
+    PKAccum acc = pk_accum_new(lisp);
+    for (size_t i = 0; i < bytes.length; ++i) {
+        pk_accum_push(&acc, (PKAtom *)pk_atom_byte(lisp, bytes.e[i]));
+    }
+    return acc.head;
+}
+
+PKAtom *pk_atom_to_list_chars(Pocket lisp, PKStr string) {
+    PKAccum acc = pk_accum_new(lisp);
+    for (size_t i = 0; i < string.length; ++i) {
+        pk_accum_push(&acc, (PKAtom *)pk_atom_char(lisp, string.c[i]));
+    }
+    return acc.head;
+}
+
+PKAtom *pk_atom_to_list_table(Pocket lisp, PKHashmap *map) {
+    PKAccum acc = pk_accum_new(lisp);
+    for (size_t i = 0; i < map->capacity; ++i) {
+        PKHashmapSlot *slot = &map->e[i];
+        if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) {
+            pk_accum_push(&acc, (PKAtom *)pk_atom_cons(lisp, slot->key, slot->value));
+        }
+    }
+    return acc.head;
+}
+
+PKAtom *pk_atom_to_list(Pocket lisp, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_NIL: {
+            return lisp->cache.nil;
+        }
+        case PK_ATOMTY_CONS: {
+            return atom;
+        }
+        case PK_ATOMTY_ARRAY: {
+            PKAtoms atoms = pk_array_slice(&atom->array.atoms);
+            return pk_atom_list(lisp, atoms);
+        }
+        case PK_ATOMTY_STRING: {
+            PKStr str = atom->string.str;
+            return pk_atom_to_list_chars(lisp, str);
+        }
+        case PK_ATOMTY_STRING_ARRAY: {
+            PKStr str = pk_writer_slice(&atom->string_array.string);
+            return pk_atom_to_list_chars(lisp, str);
+        }
+        case PK_ATOMTY_TABLE: {
+            PKHashmap *map = &atom->table.map;
+            return pk_atom_to_list_table(lisp, map);
+        }
+        case PK_ATOMTY_BLOB: {
+            PKBlob bytes = atom->blob.bytes;
+            return pk_atom_to_list_bytes(lisp, bytes);
+        }
+        case PK_ATOMTY_BYTE_ARRAY: {
+            PKBlob bytes = pk_bytes_slice(&atom->byte_array.bytes);
+            return pk_atom_to_list_bytes(lisp, bytes);
+        }
+        default: {
+            PKStr ty = pk_ident_atomty(atom->header.type);
+            pk_errorf(lisp, "pk_atom_to_list: unsupported type %.*s", (int)ty.length, ty.c);
+            return lisp->cache.nil;
+        }
+    }
+}
+
 void pk_atom_list_to_array(Pocket lisp, PKAtom *list, PKArray *array) {
     PKAtom *iter = list;
     while (pk_atom_is_cons(iter)) {

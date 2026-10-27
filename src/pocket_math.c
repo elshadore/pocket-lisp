@@ -16,6 +16,10 @@ PKAtomNumber *pk_atom_float(Pocket lisp, float floater) {
     return atom;
 }
 
+PKAtomNumber *pk_atom_byte(Pocket lisp, pk_u8 byte) {
+    return pk_atom_int(lisp, (int)byte);
+}
+
 #define PK_TEMPLATE_MATH_OP(op_) \
     if (!pk_atom_is_number(lhs)) { \
         PKStr ty_ = pk_ident_atomty(lhs->header.type); \
