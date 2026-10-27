@@ -1,20 +1,20 @@
-(defvar repl/running true)
+(defvar repl-running true)
 
-(defun repl/quit ()
-  (setq repl/running nil))
+(defun repl-quit ()
+  (setq repl-running nil))
 
 (defun read-eval-print (string)
   (print (catch 'error (eval (read string)))))
 
 (when (= (cadr args) "-e")
-  (setq repl/running nil)
+  (setq repl-running nil)
   (read-eval-print (caddr args)))
 
-(while repl/running
+(while repl-running
   (write "LISP>> ")
   (var input (read-user-input))
   (if input
       (read-eval-print input)
-    (repl/quit)))
+    (repl-quit)))
 
 'quit
