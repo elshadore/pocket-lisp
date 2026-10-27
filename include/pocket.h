@@ -1,3 +1,4 @@
+
 #ifndef POCKET_LISP_H
 #define POCKET_LISP_H
 
@@ -229,6 +230,8 @@ PK_API bool pk_object_eq(Pocket lisp, int lhs, int rhs);
 PK_API bool pk_struct_eq(Pocket lisp, int lhs, int rhs);
 
 PK_API void pk_reverse(Pocket lisp, int seq);
+
+PK_API void pk_el(Pocket lisp, size_t index);
 
 PK_API void *pk_cobject_data(Pocket lisp, int cobject);
 PK_API size_t pk_cobject_size(Pocket lisp, int cobject);

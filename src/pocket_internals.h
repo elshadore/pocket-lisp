@@ -669,6 +669,7 @@ bool pk_atom_gte(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 
 int pk_atom_as_int(PKAtom *atom);
 int pk_atom_to_int(Pocket lisp, PKAtom *atom);
+size_t pk_atom_to_size_t(Pocket lisp, PKAtom *atom);
 float pk_atom_as_float(PKAtom *atom);
 float pk_atom_to_float(Pocket lisp, PKAtom *atom);
 pk_u8 pk_atom_to_byte(Pocket lisp, PKAtom *atom);
@@ -697,6 +698,8 @@ void pk_atom_string_array_append_str(Pocket lisp, PKAtomStringArray *array, PKSt
 void pk_atom_byte_array_append(Pocket lisp, PKAtomByteArray *array, PKAtom *atom);
 void pk_atom_byte_array_append_u8(Pocket lisp, PKAtomByteArray *array, pk_u8 byte);
 void pk_atom_byte_array_append_blob(Pocket lisp, PKAtomByteArray *array, PKBlob blob);
+
+PKAtom *pk_atom_el(Pocket lisp, PKAtom *array, size_t index);
 
 PKAtomTable * pk_atom_table(Pocket lisp);
 PKAtom *pk_atom_table_put(Pocket lisp, PKAtomTable *table, PKAtom *key, PKAtom *value);

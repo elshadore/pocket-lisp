@@ -12,7 +12,7 @@
 
 (while repl/running
   (write "LISP>> ")
-  (var input (fs/read-user-input))
+  (var input (read-user-input))
   (if input
       (read-eval-print input)
     (repl/quit)))

@@ -16,7 +16,7 @@
  "\n" \
  "(while repl/running\n" \
  "  (write \"LISP>> \")\n" \
- "  (var input (fs/read-user-input))\n" \
+ "  (var input (read-user-input))\n" \
  "  (if input\n" \
  "      (read-eval-print input)\n" \
  "    (repl/quit)))\n" \

@@ -20,7 +20,7 @@
 
 ## Load code in from a file path FILE.
 (defun load (file)
-    (evlist (read-list (fs/slurp file))))
+    (evlist (read-list (file-slurp file))))
 
 (defun caar (x)
    (car (car x)))

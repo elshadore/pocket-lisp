@@ -8,8 +8,29 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Macro
 
 ## V1
-- [ ] Zig build not executing rebuilding every time.
-  - this is probably an issue with caching. Zig has makefile functionality make use of that.
+- [ ] Add element to array types
+- [ ] Add all missing functions to std
+- [ ] Cleanup TEMPLATE functions
+- [ ] Type idents from symbol name
+- [ ] Add printing for Table and Array
+```
+last time we added code for recursive printing. int pocket_writer.c. we now want to add printing for the array and table types. these should print like such
+
+&<ARRAY::(1 2 3 4 5 6)>
+
+&<TABLE::(("key" . value) (1 . 2) ("foo" . "bar"))>
+
+we obviously need recursive printing checks as well.
+
+after this is done add std functions for append, put, put-unique
+```
+- [ ] Slurp and read-user-input need to be removed from `pocket.h`
+- [ ] Remove template macros
+- [ ] Printing
+  - Tables
+  - Arrays
+  - String-Arrays
+  - Byte-Arrays
 - [ ] `(lambda ())` creates a unimplemented function.
 - [ ] `cleared` default throw symbol
 - [ ] Type Symbols
@@ -21,7 +42,6 @@ Stuff that I need to do a personal deep dive into.
 - [ ] Method Calling
 - [ ] defclass
 - [ ] Documentation Tables
-- [ ] Recursive Printing Check
 - [ ] Recursive Cloning
   - When loading data from bytecode clone.
 - [ ] `circular?` function.

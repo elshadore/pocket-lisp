@@ -20,7 +20,7 @@ void pk_atom_array_append(Pocket lisp, PKAtomArray *array, PKAtom *atom) {
 PKAtomStringArray *pk_atom_string_array(Pocket lisp, PKStr init) {
     PKAtomStringArray *result = (PKAtomStringArray *)pk_atom_alloc(lisp);
     
-    result->header.type = PK_ATOMTY_ARRAY;
+    result->header.type = PK_ATOMTY_STRING_ARRAY;
     result->string = PK_WRITER_EMPTY;
 
     if (init.length > 0) {
@@ -58,7 +58,7 @@ void pk_atom_string_array_append(Pocket lisp, PKAtomStringArray *array, PKAtom *
 PKAtomByteArray *pk_atom_byte_array(Pocket lisp, PKBlob init) {
     PKAtomByteArray *result = (PKAtomByteArray *)pk_atom_alloc(lisp);
     
-    result->header.type = PK_ATOMTY_ARRAY;
+    result->header.type = PK_ATOMTY_BYTE_ARRAY;
     result->bytes = PK_BYTES_EMPTY;
 
     pk_atom_byte_array_append_blob(lisp, result, init);
@@ -97,6 +97,39 @@ void pk_atom_append(Pocket lisp, PKAtom *array, PKAtom *atom) {
         default: {
             pk_error_type(lisp, PK_TYPE_SEQ, array);
             break;
+        }
+    }
+}
+
+PKAtom *pk_atom_el(Pocket lisp, PKAtom *array, size_t index) {
+    switch (array->header.type) {
+        case PK_ATOMTY_ARRAY: {
+            PKArray *atoms = &array->array.atoms;
+            if (index >= atoms->count) {
+                pk_errorf(lisp, "array index: %zu, is out of bounds, array length is %zu", index, atoms->count);
+                return lisp->cache.nil;
+            }
+            return atoms->e[index];
+        }
+        case PK_ATOMTY_STRING_ARRAY: {
+            PKStr str = pk_writer_slice(&array->string_array.string);
+            if (index >= str.length) {
+                pk_errorf(lisp, "string array index: %zu, is out of bounds, length is %zu", index, str.length);
+                return lisp->cache.nil;
+            }
+            return (PKAtom *)pk_atom_char(lisp, str.c[index]);
+        }
+        case PK_ATOMTY_BYTE_ARRAY: {
+            PKBytes *bytes = &array->byte_array.bytes;
+            if (index >= bytes->count) {
+                pk_errorf(lisp, "byte array index: %zu, is out of bounds, length is %zu", index, bytes->count);
+                return lisp->cache.nil;
+            }
+            return (PKAtom *)pk_atom_int(lisp, (int)bytes->e[index]);
+        }
+        default: {
+            pk_error_type(lisp, PK_TYPE_SEQ, array);
+            return lisp->cache.nil;
         }
     }
 }

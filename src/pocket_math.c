@@ -87,6 +87,29 @@ int pk_atom_to_int(Pocket lisp, PKAtom *atom) {
     }
 }
 
+size_t pk_atom_to_size_t(Pocket lisp, PKAtom *atom) {
+    PKAtomNumber *number = pk_atom_assert_number(lisp, atom);
+    switch (number->num_type) {
+        case PK_NUMTY_INT: {
+            if (number->as.i < 0) {
+                pk_errorf(lisp, "integer: %d, is negative, expected a size_t", number->as.i);
+                return 0;
+            } else {
+                return (size_t)number->as.i;
+            }
+        }
+        case PK_NUMTY_FLOAT: {
+            if (number->as.f < 0.0f) {
+                pk_errorf(lisp, "float: %f, is negative, expected a size_t", number->as.f);
+                return 0;
+            } else {
+                return (size_t)number->as.f;
+            }
+        }
+        default: return 0;
+    }
+}
+
 float pk_atom_to_float(Pocket lisp, PKAtom *atom) {
     PKAtomNumber *number = pk_atom_assert_number(lisp, atom);
     switch (number->num_type) {

@@ -24,7 +24,7 @@
  "\n" \
  "## Load code in from a file path FILE.\n" \
  "(defun load (file)\n" \
- "    (evlist (read-list (fs/slurp file))))\n" \
+ "    (evlist (read-list (file-slurp file))))\n" \
  "\n" \
  "(defun caar (x)\n" \
  "   (car (car x)))\n" \

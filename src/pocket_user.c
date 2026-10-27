@@ -300,6 +300,10 @@ void pk_reverse(Pocket lisp, int seq) {
     pk_stack_push(lisp, pk_atom_reverse(lisp, pk_stack_get(lisp, seq)));
 }
 
+void pk_el(Pocket lisp, size_t index) {
+    pk_stack_push(lisp, pk_atom_el(lisp, pk_stack_head(lisp), index));
+}
+
 int pk_to_int(Pocket lisp, int number) {
     return pk_atom_to_int(lisp, pk_stack_get(lisp, number));
 }

@@ -62,6 +62,10 @@ PKStr pk_ident_atomty(pk_u8 ty) {
         case PK_ATOMTY_LOBJECT: return pk_str("LOBJECT");
         case PK_ATOMTY_COBJECT: return pk_str("COBJECT");
         case PK_ATOMTY_CHARACTER: return pk_str("CHARACTER");
+        case PK_ATOMTY_BLOB: return pk_str("BLOB");
+        case PK_ATOMTY_STRING_ARRAY: return pk_str("STRING_ARRAY");
+        case PK_ATOMTY_BYTE_ARRAY: return pk_str("BYTE_ARRAY");
+        case PK_ATOMTY_STREAM: return pk_str("STREAM");
         default: return pk_str("UNKNOWN");
     }
 }

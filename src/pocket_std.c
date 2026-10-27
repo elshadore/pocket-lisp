@@ -366,8 +366,8 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("macroexpand1"), .fun = pk_fun_macroexpand1, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("macroexpand"), .fun = pk_fun_macroexpand, .args = 1, .arity = PK_ARITY_NORMAL},
 
-        {.symbol = pk_str("fs/slurp"), .fun = pk_fun_fs_slurp, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("fs/read-user-input"), .fun = pk_fun_fs_read_user_input, .args = 0, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("file-slurp"), .fun = pk_fun_fs_slurp, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("read-user-input"), .fun = pk_fun_fs_read_user_input, .args = 0, .arity = PK_ARITY_NORMAL},
         
         {.symbol = pk_str("array"), .fun = pk_fun_array, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("string-array"), .fun = pk_fun_string_array, .args = 0, .arity = PK_ARITY_NORMAL},
