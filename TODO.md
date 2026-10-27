@@ -10,7 +10,6 @@ Stuff that I need to do a personal deep dive into.
 ## V1
 - [ ] Recursive Cloning
   - When loading data from bytecode clone.
-- [ ] `circular?` function.
 - [ ] `cleared` default throw symbol
 - [ ] to list function `->list`
   - for array

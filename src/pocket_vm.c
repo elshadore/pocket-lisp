@@ -108,7 +108,9 @@ void pk_vm_op_exec(PKVM *vm) {
         }
         case PK_OP_LOAD: {
             pk_vm_inc(vm);
-            pk_stack_push(lisp, pk_vm_get_atom(vm, pk_vat(vm)));
+            // So we cannot mutate the data stored in the bytecode.
+            PKAtom *new = pk_atom_clone(lisp, pk_vm_get_atom(vm, pk_vat(vm)));
+            pk_stack_push(lisp, new);
             pk_vm_inc(vm);
             return;
         }
