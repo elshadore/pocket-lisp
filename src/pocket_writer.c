@@ -301,8 +301,18 @@ void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) 
             break;
         }
         case PK_ATOMTY_ARRAY: {
-            // TODO: when printing this properly we will need recursive check.
-            pk_writer_simple_object(lisp, w, atom, pk_str("Array"));
+            PKArray *array = &atom->array.atoms;
+            pk_writer_string(lisp, w, pk_str("&<"));
+            pk_writer_string(lisp, w, pk_str("Array::"));
+            pk_writer_char(lisp, w, '(');
+            (void)pk_hashmap_insert(lisp, clones, atom, atom, PK_HASHMAP_INSERT_NORMAL);
+            for (size_t i = 0; i < array->count; ++i) {
+                if (i != 0) {
+                    pk_writer_char(lisp, w, ' ');
+                }
+                pk_writer_atom_recursive(lisp, w, clones, array->e[i]);
+            }
+            pk_writer_string(lisp, w, pk_str(")>"));
             break;
         }
         case PK_ATOMTY_STRING_ARRAY: {
@@ -318,7 +328,27 @@ void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) 
             break;
         }
         case PK_ATOMTY_TABLE: {
-            pk_writer_simple_object(lisp, w, atom, pk_str("Table"));
+            PKHashmap *map = &atom->table.map;
+            pk_writer_string(lisp, w, pk_str("&<"));
+            pk_writer_string(lisp, w, pk_str("Table::"));
+            pk_writer_char(lisp, w, '(');
+            (void)pk_hashmap_insert(lisp, clones, atom, atom, PK_HASHMAP_INSERT_NORMAL);
+            bool first = true;
+            for (size_t i = 0; i < map->capacity; ++i) {
+                PKHashmapSlot *slot = &map->e[i];
+                if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) {
+                    if (!first) {
+                        pk_writer_char(lisp, w, ' ');
+                    }
+                    first = false;
+                    pk_writer_char(lisp, w, '(');
+                    pk_writer_atom_recursive(lisp, w, clones, slot->key);
+                    pk_writer_string(lisp, w, pk_str(" . "));
+                    pk_writer_atom_recursive(lisp, w, clones, slot->value);
+                    pk_writer_char(lisp, w, ')');
+                }
+            }
+            pk_writer_string(lisp, w, pk_str(")>"));
             break;
         }
         case PK_ATOMTY_STREAM: {

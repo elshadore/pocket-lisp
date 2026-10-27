@@ -13,10 +13,6 @@ Stuff that I need to do a personal deep dive into.
 ```
 last time we added code for recursive printing. int pocket_writer.c. we now want to add printing for the array and table types. these should print like such
 
-&<ARRAY::(1 2 3 4 5 6)>
-
-&<TABLE::(("key" . value) (1 . 2) ("foo" . "bar"))>
-
 we obviously need recursive printing checks as well.
 
 after this is done add std functions for append, put, put-unique
@@ -27,7 +23,6 @@ after this is done add std functions for append, put, put-unique
   - for tables
   - for blobs / arrays
 - [ ] implement `cat`
-- [ ] Slurp and read-user-input need to be removed from `pocket.h`
 - [ ] Printing
   - Tables
   - Arrays
