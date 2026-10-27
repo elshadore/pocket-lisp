@@ -224,6 +224,11 @@ void pk_fun_clone(void *user_closure, Pocket lisp) {
     pk_clone(lisp, 1);
 }
 
+void pk_fun_to_list(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_to_list(lisp, 1);
+}
+
 void pk_fun_is_circular(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_push_bool(lisp, pk_is_circular(lisp, 1));
@@ -575,6 +580,7 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("el"), .fun = pk_fun_el, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("reverse"), .fun = pk_fun_reverse, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("clone"), .fun = pk_fun_clone, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("->list"), .fun = pk_fun_to_list, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("circular?"), .fun = pk_fun_is_circular, .args = 1, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("set"), .fun = pk_fun_set, .args = 2, .arity = PK_ARITY_NORMAL},

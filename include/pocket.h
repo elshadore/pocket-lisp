@@ -157,6 +157,7 @@ PK_API void pk_el(Pocket lisp, size_t index);
 PK_API void pk_clone(Pocket lisp, int stack_pointer);
 PK_API bool pk_is_circular(Pocket lisp, int stack_pointer);
 PK_API void pk_reverse(Pocket lisp, int seq);
+PK_API void pk_to_list(Pocket lisp, int seq);
 
 PK_API void pk_car(Pocket lisp, int cons);
 PK_API void pk_cdr(Pocket lisp, int cons);
