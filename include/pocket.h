@@ -1,4 +1,3 @@
-
 #ifndef POCKET_LISP_H
 #define POCKET_LISP_H
 

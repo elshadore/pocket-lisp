@@ -1,25 +1,6 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] Custom fmt
-  - for printing atoms as well as datums
-- [ ] Create CMake Build
-- [ ] multiple append
-  - append works on lists? append to the last cons
-- [ ] list-methods
-- [ ] list-slots
-- [ ] `->bytes`
-- [ ] `->string`
-- [ ] `string-split`
-- [ ] exotic number parsing
-  - 0b010101
-  - 0xfeefee
-  - 0oaaaaaa <- idk octal
-- [ ] Method check first in function calling
-- [ ] `cleared` default throw symbol
-- [ ] implement `cat`
-  - dispatch on first type
-- [ ] Remove property lists
 - [ ] Move to simple type system
   - Remove type enums only use type symbols
   - `pk_atom_is_type(Pocket *atom, PKAtomSymbol *type)`
@@ -27,17 +8,43 @@ The todo list for POCKET LISP
   - ...
 - [ ] Type idents from symbol name
   - Printing properly `|foo bar|`
+- [ ] rename read to parse `pocket_read.c` -> `pocket_parser.c`
+- [ ] Remove property lists
+
+- [ ] Change the order of operations such that the function is pushed last
+- [ ] Fastcall
 - [ ] All possible memory leaks from throwing removed.
+
 - [ ] defvar, defun, defmacro
   - Return symbol
-- [ ] rename read to parse `pocket_read.c` -> `pocket_parser.c`
+  
 - [ ] Streams
   - stdin
   - stdout
   - stderr
 - [ ] Special Form Objects
+- [ ] multiple append
+  - append works on lists? append to the last cons
+- [ ] list-methods
+- [ ] list-slots
+
 - [ ] Unicode Strings and Characters (utf8)
   - [ ] fn, λ, lambda
+- [ ] `string-split`
+- [ ] `->bytes`
+- [ ] `->string`
+- [ ] implement `cat`
+  - dispatch on first type
+  
+- [ ] Custom cfmt
+  - for printing atoms as well as datums
+- [ ] Create CMake Build
+- [ ] exotic number parsing
+  - 0b010101
+  - 0xfeefee
+  - 0oaaaaaa <- idk octal
+- [ ] Method check first in function calling
+- [ ] `cleared` default throw symbol (maybe not)
 - [ ] Seperation of std into multiple libraries
   - core
   - fs
