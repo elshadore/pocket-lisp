@@ -284,11 +284,6 @@ void pk_fun_fset(void *user_closure, Pocket lisp) {
     pk_set(lisp, PK_ENV_FUN, 1, 2);
 }
 
-void pk_fun_pset(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_set(lisp, PK_ENV_PROP, 1, 2);
-}
-
 void pk_fun_get(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_get(lisp, PK_ENV_VAR, 1);
@@ -297,11 +292,6 @@ void pk_fun_get(void *user_closure, Pocket lisp) {
 void pk_fun_fget(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_get(lisp, PK_ENV_FUN, 1);
-}
-
-void pk_fun_pget(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_get(lisp, PK_ENV_PROP, 1);
 }
 
 void pk_fun_get_raw(void *user_closure, Pocket lisp) {
@@ -314,11 +304,6 @@ void pk_fun_fget_raw(void *user_closure, Pocket lisp) {
     pk_get_raw(lisp, PK_ENV_FUN, 1);
 }
 
-void pk_fun_pget_raw(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_get_raw(lisp, PK_ENV_PROP, 1);
-}
-
 void pk_fun_bound(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_push_bool(lisp, pk_is_bound(lisp, PK_ENV_VAR, 1));
@@ -327,11 +312,6 @@ void pk_fun_bound(void *user_closure, Pocket lisp) {
 void pk_fun_fbound(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_push_bool(lisp, pk_is_bound(lisp, PK_ENV_FUN, 1));
-}
-
-void pk_fun_pbound(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_push_bool(lisp, pk_is_bound(lisp, PK_ENV_PROP, 1));
 }
 
 void pk_fun_unbind(void *user_closure, Pocket lisp) {
@@ -346,12 +326,6 @@ void pk_fun_funbind(void *user_closure, Pocket lisp) {
     pk_push_nil(lisp);
 }
 
-void pk_fun_punbind(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_unbind(lisp, PK_ENV_PROP, 1);
-    pk_push_nil(lisp);
-}
-
 void pk_fun_list_vars(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_env_list(lisp, PK_ENV_VAR);
@@ -360,11 +334,6 @@ void pk_fun_list_vars(void *user_closure, Pocket lisp) {
 void pk_fun_list_funs(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_env_list(lisp, PK_ENV_FUN);
-}
-
-void pk_fun_list_props(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_env_list(lisp, PK_ENV_PROP);
 }
 
 void pk_fun_funcatch(void *user_closure, Pocket lisp) {
@@ -585,27 +554,21 @@ void pk_std_load_cfun(Pocket lisp) {
 
         {.symbol = pk_str("set"), .fun = pk_fun_set, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("fset"), .fun = pk_fun_fset, .args = 2, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("pset"), .fun = pk_fun_pset, .args = 2, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("get"), .fun = pk_fun_get, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("fget"), .fun = pk_fun_fget, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("pget"), .fun = pk_fun_pget, .args = 1, .arity = PK_ARITY_NORMAL},
         
         {.symbol = pk_str("get-raw"), .fun = pk_fun_get_raw, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("fget-raw"), .fun = pk_fun_fget_raw, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("pget-raw"), .fun = pk_fun_pget_raw, .args = 1, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("bound?"), .fun = pk_fun_bound, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("fbound?"), .fun = pk_fun_fbound, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("pbound?"), .fun = pk_fun_pbound, .args = 1, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("unbind"), .fun = pk_fun_unbind, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("funbind"), .fun = pk_fun_funbind, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("punbind"), .fun = pk_fun_punbind, .args = 1, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("list-vars"), .fun = pk_fun_list_vars, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("list-funs"), .fun = pk_fun_list_funs, .args = 0, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("list-props"), .fun = pk_fun_list_props, .args = 0, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("funcatch"), .fun = pk_fun_funcatch, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("propagate"), .fun = pk_fun_propagate, .args = 0, .arity = PK_ARITY_NORMAL},

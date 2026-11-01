@@ -33,7 +33,6 @@ void pk_init_cache(Pocket lisp) {
     c->fvar = pk_atom_symbol(lisp, pk_str("fvar"));
     c->setq = pk_atom_symbol(lisp, pk_str("setq"));
     c->fsetq = pk_atom_symbol(lisp, pk_str("fsetq"));
-    c->psetq = pk_atom_symbol(lisp, pk_str("psetq"));
     c->let = pk_atom_symbol(lisp, pk_str("let"));
     c->let_star = pk_atom_symbol(lisp, pk_str("let*"));
     c->protect = pk_atom_symbol(lisp, pk_str("protect"));

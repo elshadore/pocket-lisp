@@ -47,13 +47,10 @@ PKStr pk_ident_opcode(pk_u8 op) {
         case PK_OP_JMP_BACK: return pk_str("JMP_BACK");
         case PK_OP_LET_VAR: return pk_str("LET_VAR");
         case PK_OP_LET_FUN: return pk_str("LET_FUN");
-        case PK_OP_LET_PROP: return pk_str("LET_PROP");
         case PK_OP_GET_VAR: return pk_str("GET_VAR");
         case PK_OP_GET_FUN: return pk_str("GET_FUN");
-        case PK_OP_GET_PROP: return pk_str("GET_PROP");
         case PK_OP_SET_VAR: return pk_str("SET_VAR");
         case PK_OP_SET_FUN: return pk_str("SET_FUN");
-        case PK_OP_SET_PROP: return pk_str("SET_PROP");
         case PK_OP_MAKE_LIST: return pk_str("MAKE_LIST");
         case PK_OP_MAKE_LIST_PACKED: return pk_str("MAKE_LIST_PACKED");
         case PK_OP_MERGE_LISTS: return pk_str("MERGE_LISTS");
@@ -83,7 +80,6 @@ PKStr pk_ident_env(PK_ENV env) {
     switch (env) {
         case PK_ENV_VAR: return pk_str("VAR");
         case PK_ENV_FUN: return pk_str("FUN");
-        case PK_ENV_PROP: return pk_str("PROP");
         default: return pk_str("UNKNOWN");
     }
 }
@@ -95,8 +91,7 @@ PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
         case PK_OP_LOAD_TRUE: return PK_OPCODE_TY_NORMAL;
         case PK_OP_GET_VAR: return PK_OPCODE_TY_LOAD;
         case PK_OP_GET_FUN: return PK_OPCODE_TY_LOAD;
-        case PK_OP_GET_PROP: return PK_OPCODE_TY_LOAD;
-        
+
         case PK_OP_CALL: return PK_OPCODE_TY_LIT;
         case PK_OP_JMP_UNLESS: return PK_OPCODE_TY_LIT;
         case PK_OP_JMP_WHEN: return PK_OPCODE_TY_LIT;
@@ -108,10 +103,8 @@ PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
         case PK_OP_MAKE_LIST_PACKED: return PK_OPCODE_TY_LIT;
         case PK_OP_MERGE_LISTS: return PK_OPCODE_TY_LIT;
         case PK_OP_STRCAT: return PK_OPCODE_TY_LIT;
-        case PK_OP_LET_PROP: return PK_OPCODE_TY_LIT;
         case PK_OP_SET_VAR: return PK_OPCODE_TY_LIT;
         case PK_OP_SET_FUN: return PK_OPCODE_TY_LIT;
-        case PK_OP_SET_PROP: return PK_OPCODE_TY_LIT;
         case PK_OP_DIG: return PK_OPCODE_TY_LIT;
         case PK_OP_POPN: return PK_OPCODE_TY_LIT;
         case PK_OP_DEFCLASS: return PK_OPCODE_TY_NORMAL;

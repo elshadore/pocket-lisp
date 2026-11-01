@@ -44,7 +44,6 @@ typedef enum PK_RES_ {
 typedef enum PK_ENV_ {
     PK_ENV_VAR = 0,
     PK_ENV_FUN,
-    PK_ENV_PROP,
 } PK_ENV;
 
 typedef enum PK_MODE_ {

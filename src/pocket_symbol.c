@@ -28,7 +28,6 @@ PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr string) {
     result->header.type = PK_ATOMTY_SYMBOL;
     result->var = lisp->cache.undefined;
     result->fun = lisp->cache.undefined;
-    result->prop = lisp->cache.undefined;
     result->name = name;
     result->type_type = PK_TYPETY_NOTYPE;
     result->slots = PK_SLOTMAP_EMPTY;

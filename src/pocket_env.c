@@ -8,9 +8,6 @@ PKAtom *pk_env_get(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol) {
         case PK_ENV_FUN: {
             return symbol->fun;
         }
-        case PK_ENV_PROP: {
-            return symbol->prop;
-        }
         default: {
             return lisp->cache.undefined;
         }
@@ -39,11 +36,6 @@ PKAtom *pk_env_set(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol, PKAtom *value)
         case PK_ENV_FUN: {
             temp = symbol->fun;
             symbol->fun = value;
-            break;
-        }
-        case PK_ENV_PROP: {
-            temp = symbol->prop;
-            symbol->prop = value;
             break;
         }
         default: break;

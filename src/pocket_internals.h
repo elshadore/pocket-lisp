@@ -216,7 +216,6 @@ typedef struct PKAtomSymbol_ {
     PKAtomString *name;
     PKAtom *var;
     PKAtom *fun;
-    PKAtom *prop;
     PKSlotmap slots;
     PKHashmap methods;
     size_t owned_memory;
@@ -265,29 +264,26 @@ typedef struct PKAtomCFun_ {
 #define PK_OP_JMP_BACK (12)
 #define PK_OP_SET_VAR (13)
 #define PK_OP_SET_FUN (14)
-#define PK_OP_SET_PROP (15)
-#define PK_OP_LET_VAR (16)
-#define PK_OP_LET_FUN (17)
-#define PK_OP_LET_PROP (18)
-#define PK_OP_GET_VAR (19)
-#define PK_OP_GET_FUN (20)
-#define PK_OP_GET_PROP (21)
-#define PK_OP_MAKE_LIST (22)
-#define PK_OP_MAKE_LIST_PACKED (23)
-#define PK_OP_MERGE_LISTS (24)
-#define PK_OP_STRCAT (25)
-#define PK_OP_JMP_WHEN (26)
-#define PK_OP_DIG (27)
-#define PK_OP_CAR (28)
-#define PK_OP_CAR_STRICT (29)
-#define PK_OP_CDR (30)
-#define PK_OP_CDR_STRICT (31)
-#define PK_OP_PROTECT_BEGIN (32)
-#define PK_OP_PROTECT_END (33)
-#define PK_OP_BLOCK_POP (34)
-#define PK_OP_POP (35)
-#define PK_OP_POPN (36)
-#define PK_OP_DEFCLASS (37)
+#define PK_OP_LET_VAR (15)
+#define PK_OP_LET_FUN (16)
+#define PK_OP_GET_VAR (17)
+#define PK_OP_GET_FUN (18)
+#define PK_OP_MAKE_LIST (19)
+#define PK_OP_MAKE_LIST_PACKED (20)
+#define PK_OP_MERGE_LISTS (21)
+#define PK_OP_STRCAT (22)
+#define PK_OP_JMP_WHEN (23)
+#define PK_OP_DIG (24)
+#define PK_OP_CAR (25)
+#define PK_OP_CAR_STRICT (26)
+#define PK_OP_CDR (27)
+#define PK_OP_CDR_STRICT (28)
+#define PK_OP_PROTECT_BEGIN (29)
+#define PK_OP_PROTECT_END (30)
+#define PK_OP_BLOCK_POP (31)
+#define PK_OP_POP (32)
+#define PK_OP_POPN (33)
+#define PK_OP_DEFCLASS (34)
 
 typedef enum PK_OPCODE_TY_ {
     PK_OPCODE_TY_NORMAL = 0,
@@ -451,7 +447,6 @@ struct PKPool_ {
     .fvar = NULL, \
     .setq = NULL, \
     .fsetq = NULL, \
-    .psetq = NULL, \
     .let = NULL, \
     .let_star = NULL, \
     .flet = NULL, \
@@ -514,7 +509,6 @@ typedef struct PKCache_ {
     PKAtomSymbol *fvar;
     PKAtomSymbol *setq;
     PKAtomSymbol *fsetq;
-    PKAtomSymbol *psetq;
     PKAtomSymbol *let;
     PKAtomSymbol *let_star;
     PKAtomSymbol *protect;

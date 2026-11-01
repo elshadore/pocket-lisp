@@ -200,10 +200,6 @@ void pk_vm_op_exec(PKVM *vm) {
             pk_vm_op_let(vm, PK_ENV_FUN);
             return;
         }
-        case PK_OP_LET_PROP: {
-            pk_vm_op_let(vm, PK_ENV_PROP);
-            return;
-        }
         case PK_OP_GET_VAR: {
             pk_vm_op_get(vm, PK_ENV_VAR);
             return;
@@ -212,20 +208,12 @@ void pk_vm_op_exec(PKVM *vm) {
             pk_vm_op_get(vm, PK_ENV_FUN);
             return;
         }
-        case PK_OP_GET_PROP: {
-            pk_vm_op_get(vm, PK_ENV_PROP);
-            return;
-        }
         case PK_OP_SET_VAR: {
             pk_vm_op_set(vm, PK_ENV_VAR);
             return;
         }
         case PK_OP_SET_FUN: {
             pk_vm_op_set(vm, PK_ENV_FUN);
-            return;
-        }
-        case PK_OP_SET_PROP: {
-            pk_vm_op_set(vm, PK_ENV_PROP);
             return;
         }
         case PK_OP_MAKE_LIST: {

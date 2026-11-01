@@ -3,8 +3,7 @@ The todo list for POCKET LISP
 
 - [ ] Type idents from symbol name
   - Printing properly `|foo bar|`
-- [x] rename read to parse `pocket_read.c` -> `pocket_parser.c`
-- [ ] Remove property lists
+- [x] Remove property lists
 
 - [ ] Change the order of operations such that the function is pushed last
 - [ ] Fastcall

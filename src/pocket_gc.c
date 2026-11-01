@@ -41,7 +41,6 @@ void pk_gc_mark_cache(Pocket lisp) {
     pk_gc_mark(lisp, (PKAtom *)c->fvar);
     pk_gc_mark(lisp, (PKAtom *)c->setq);
     pk_gc_mark(lisp, (PKAtom *)c->fsetq);
-    pk_gc_mark(lisp, (PKAtom *)c->psetq);
     pk_gc_mark(lisp, (PKAtom *)c->let);
     pk_gc_mark(lisp, (PKAtom *)c->let_star);
     pk_gc_mark(lisp, (PKAtom *)c->protect);
@@ -125,7 +124,6 @@ void pk_gc_mark(Pocket lisp, PKAtom *atom) {
             pk_gc_mark(lisp, (PKAtom *)symbol->name);
             pk_gc_mark(lisp, (PKAtom *)symbol->var);
             pk_gc_mark(lisp, (PKAtom *)symbol->fun);
-            pk_gc_mark(lisp, (PKAtom *)symbol->prop);
             pk_gc_mark_slotmap(lisp, &symbol->slots);
             pk_gc_mark_hashmap(lisp, &symbol->methods);
             break;

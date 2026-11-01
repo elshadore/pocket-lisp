@@ -109,10 +109,6 @@ void pk_cmp_lookup(PKCompiler *c, PKAtomSymbol *symbol, PK_ENV env) {
             pk_cmp_push_byte(c, PK_OP_GET_FUN);
             break;
         }
-        case PK_ENV_PROP: {
-            pk_cmp_push_byte(c, PK_OP_GET_PROP);
-            break;
-        }
     }
 
     pk_cmp_push_byte(c, addr);
@@ -313,10 +309,6 @@ void pk_compile_let_lets(PKCompiler *c, PK_ENV env) {
         }
         case PK_ENV_FUN: {
             pk_cmp_push_byte(c, PK_OP_LET_FUN);
-            break;
-        }
-        case PK_ENV_PROP: {
-            pk_cmp_push_byte(c, PK_OP_LET_PROP);
             break;
         }
     }
@@ -624,10 +616,6 @@ void pk_compile_set(PKCompiler *c, PKAtom *args, PK_ENV env) {
             pk_cmp_push_byte(c, PK_OP_SET_FUN);
             break;
         }
-        case PK_ENV_PROP: {
-            pk_cmp_push_byte(c, PK_OP_SET_PROP);
-            break;
-        }
     }
 }
 
@@ -725,11 +713,6 @@ void pk_compile_var(PKCompiler *c, PKAtom *form, PK_ENV env) {
             }
             case PK_ENV_FUN: {
                 pk_cmp_push_byte(c, PK_OP_LET_FUN);
-                pk_cmp_push_byte(c, 1);
-                break;
-            }
-            case PK_ENV_PROP: {
-                pk_cmp_push_byte(c, PK_OP_LET_PROP);
                 pk_cmp_push_byte(c, 1);
                 break;
             }
@@ -931,10 +914,6 @@ void pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, bool 
         *is_special = true;
     } else if (symbol == lisp->cache.fsetq) {
         pk_compile_set(c, args, PK_ENV_FUN);
-
-        *is_special = true;
-    } else if (symbol == lisp->cache.psetq) {
-        pk_compile_set(c, args, PK_ENV_PROP);
 
         *is_special = true;
     } else if (symbol == lisp->cache.defclass) {

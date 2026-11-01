@@ -87,9 +87,6 @@ void pk_debug_envdump(Pocket lisp, const char *tag) {
             pk_writer_cstr(lisp, &w, "    ");
             pk_writer_atom(lisp, &w, symbol->symbol.fun);
             pk_writer_newline(lisp, &w);
-            pk_writer_cstr(lisp, &w, "    ");
-            pk_writer_atom(lisp, &w, symbol->symbol.prop);
-            pk_writer_newline(lisp, &w);
             acc += 1;
         }
     }
