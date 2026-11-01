@@ -143,7 +143,7 @@ void pk_vm_op_exec(PKVM *vm) {
             return;
         }
         case PK_OP_BLOCK_BEGIN: {
-            pk_frame_push(lisp, 0);
+            pk_frame_push(lisp, vm->lisp->cache.nil, 0);
             pk_vm_inc(vm);
             return;
         }
@@ -267,7 +267,7 @@ void pk_vm_op_exec(PKVM *vm) {
             return;
         }
         case PK_OP_PROTECT_BEGIN: {
-            pk_frame_push_mode(lisp, 0, PK_FRAME_MODE_PROTECT);
+            pk_frame_push_mode(lisp, vm->lisp->cache.nil, 0, PK_FRAME_MODE_PROTECT);
             pk_vm_inc(vm);
             return;
         }

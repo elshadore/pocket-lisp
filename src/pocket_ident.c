@@ -103,8 +103,8 @@ PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
         case PK_OP_MAKE_LIST_PACKED: return PK_OPCODE_TY_LIT;
         case PK_OP_MERGE_LISTS: return PK_OPCODE_TY_LIT;
         case PK_OP_STRCAT: return PK_OPCODE_TY_LIT;
-        case PK_OP_SET_VAR: return PK_OPCODE_TY_LIT;
-        case PK_OP_SET_FUN: return PK_OPCODE_TY_LIT;
+        case PK_OP_SET_VAR: return PK_OPCODE_TY_NORMAL;
+        case PK_OP_SET_FUN: return PK_OPCODE_TY_NORMAL;
         case PK_OP_DIG: return PK_OPCODE_TY_LIT;
         case PK_OP_POPN: return PK_OPCODE_TY_LIT;
         case PK_OP_DEFCLASS: return PK_OPCODE_TY_NORMAL;

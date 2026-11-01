@@ -105,7 +105,11 @@ void pk_gc_mark_atoms(Pocket lisp, PKAtoms atoms) {
 
 void pk_gc_mark(Pocket lisp, PKAtom *atom) {
     (void)lisp;
-    
+
+    if (atom == NULL) {
+        return;
+    }
+
     if (pk_atom_is_marked(atom)) {
         return;
     }
@@ -166,6 +170,13 @@ void pk_gc_collect_no_cache(Pocket lisp) {
     // Mark
     for (size_t i = 0; i < lisp->stack.count; ++i) {
         pk_gc_mark(lisp, (PKAtom *)lisp->stack.e[i]);
+    }
+
+    pk_gc_mark(lisp, (PKAtom *)lisp->current_frame.function);
+    pk_gc_mark(lisp, (PKAtom *)lisp->current_frame.catch);
+    for (size_t i = 0; i < lisp->frames.count; ++i) {
+        pk_gc_mark(lisp, (PKAtom *)lisp->frames.e[i].function);
+        pk_gc_mark(lisp, (PKAtom *)lisp->frames.e[i].catch);
     }
 
     for (size_t i = 0; i < lisp->lets.count; ++i) {

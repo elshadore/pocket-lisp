@@ -1,10 +1,10 @@
 #include "pocket_internals.h"
 
-void pk_frame_push(Pocket lisp, size_t arity) {
-    pk_frame_push_mode(lisp, arity, PK_FRAME_MODE_NORMAL);
+void pk_frame_push(Pocket lisp, PKAtom *function, size_t arity) {
+    pk_frame_push_mode(lisp, function, arity, PK_FRAME_MODE_NORMAL);
 }
 
-void pk_frame_push_mode(Pocket lisp, size_t arity, pk_u8 mode) {
+void pk_frame_push_mode(Pocket lisp, PKAtom *function, size_t arity, pk_u8 mode) {
     if (lisp->frames.count >= lisp->frames.capacity) {
         size_t new_capacity = pk_grow_capacity(lisp->frames.capacity, 16);
         PKFrame *new_e = pk_realloc(lisp, lisp->frames.e, new_capacity * sizeof(PKFrame));
@@ -21,6 +21,7 @@ void pk_frame_push_mode(Pocket lisp, size_t arity, pk_u8 mode) {
         .stack_offset = stack_offset,
         .let_offset = lets_offset,
         .mode = mode,
+        .function = function,
         .jmp = NULL,
     };
 }

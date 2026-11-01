@@ -139,7 +139,8 @@ void pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
         pk_stack_op_list(lisp, cc.variadic_count);
     }
 
-    pk_frame_push(lisp, cc.args);
+    pk_frame_push(lisp, function, cc.args);
+    
     if (call == PK_CALL_FUN) {
         switch (function->header.type) {
             case PK_ATOMTY_CFUN: {

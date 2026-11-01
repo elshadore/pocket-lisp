@@ -379,6 +379,7 @@ struct PKJmp_ {
     .catch = NULL, \
     .jmp = NULL, \
     .mode = PK_FRAME_MODE_PROTECT, \
+    .function = NULL, \
 }
 
 #define PK_FRAME_MODE_NORMAL (0)
@@ -391,6 +392,7 @@ typedef struct PKFrame_ {
     PKAtomSymbol *catch;
     PKJmp *jmp;
     pk_u8 mode;
+    PKAtom *function;
 } PKFrame;
 
 #define PK_FRAMES_EMPTY (PKFrames){.e = NULL, .count = 0, .capacity = 0}
@@ -776,8 +778,8 @@ void pk_atom_print(Pocket lisp, PKAtom *atom);
 void pk_atom_write(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_format(Pocket lisp, PKAtom *atom);
 
-void pk_frame_push(Pocket lisp, size_t arity);
-void pk_frame_push_mode(Pocket lisp, size_t arity, pk_u8 mode);
+void pk_frame_push(Pocket lisp, PKAtom *function, size_t arity);
+void pk_frame_push_mode(Pocket lisp, PKAtom *function, size_t arity, pk_u8 mode);
 void pk_frame_unwind(Pocket lisp);
 void pk_frame_unwindn(Pocket lisp, size_t n);
 void pk_frame_clear(Pocket lisp);
