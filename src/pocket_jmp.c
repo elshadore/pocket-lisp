@@ -28,7 +28,13 @@ void pk_jmp_trigger(Pocket lisp, PKAtomSymbol *symbol, PKAtom *value) {
             pk_frame_unwindn(lisp, i + 1);
             PKJmp *jmp = lisp->current_frame.jmp;
             lisp->current_frame.jmp = NULL;
-            pk_stack_head_set_unchecked(lisp, lisp->throw_value);
+
+            // TODO: this can potentially cause a crash.
+            // We need to make sure we have space on the stack (+1)
+            // Before funcalling
+            pk_stack_push(lisp, lisp->throw_value);
+            // pk_stack_head_set_unchecked(lisp, lisp->throw_value);
+            
             longjmp(jmp->buf, 1);
             return;
         }

@@ -111,7 +111,7 @@ void pk_vm_op_exec(PKVM *vm) {
     vm->opcode = vm->op;
     switch (vm->op) {
         case PK_OP_ILLEGAL: {
-            pk_errors(lisp, pk_str("illegal op"));
+            pk_errors(lisp, pk_str("illegal op: 0"));
             return;
         }
         case PK_OP_NOP: {
@@ -297,7 +297,7 @@ void pk_vm_op_exec(PKVM *vm) {
             return;
         }
         default: {
-            pk_errors(lisp, pk_str("illegal op"));
+            pk_errorf(lisp, "illegal op: %u", vm->op);
             return;
         }
     }

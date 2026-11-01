@@ -954,8 +954,6 @@ void pk_compile_expression(PKCompiler *c, PKAtom *expr) {
         }
     }
 
-    pk_cmp_load(c, (PKAtom *)symbol);
-
     size_t acc = 0;
     PKAtom *iter = body;
     while (pk_atom_is_cons(iter)) {
@@ -967,6 +965,8 @@ void pk_compile_expression(PKCompiler *c, PKAtom *expr) {
     if (acc >= UINT8_MAX) {
         pk_errors(c->lisp, pk_str("too many expressions"));
     }
+
+    pk_cmp_load(c, (PKAtom *)symbol);
 
     pk_cmp_push_byte(c, PK_OP_CALL);
     pk_cmp_push_byte(c, (pk_u8)acc);

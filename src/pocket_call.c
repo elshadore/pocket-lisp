@@ -89,7 +89,7 @@ PKCallConv pk_callconv(Pocket lisp, PKAtom *function, pk_u8 args) {
 }
 
 PKAtom *pk_funcall_resolve_function(Pocket lisp, PKAtoms slice) {
-    PKAtom *function = slice.e[0];
+    PKAtom *function = slice.e[slice.length - 1];
 
     if (!pk_atom_is_symbol(function)) {
         return function;
@@ -106,7 +106,7 @@ PKAtom *pk_funcall_resolve_function(Pocket lisp, PKAtoms slice) {
         return lisp->cache.nil;
     }
     
-    PKAtom *object = slice.e[1];
+    PKAtom *object = slice.e[0];
     PKAtomSymbol *type = pk_atom_typeof(lisp, object);
     PKAtom *method = pk_atom_method_get_raw(lisp, type, asym);
 
@@ -130,7 +130,8 @@ void pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
 
     PKCallConv cc = pk_callconv(lisp, function, args);
 
-    // TODO: this needs to be put under the pk_frame_push as we mutating the stack
+    pk_pop(lisp);
+
     for (size_t i = 0; i < cc.extra_nils; ++i) {
         pk_push_nil(lisp);
     }
@@ -171,7 +172,7 @@ void pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
         }
     }
     
-    pk_frame_return(lisp);
+    pk_frame_return_push(lisp);
     pk_gc_collect(lisp);
 }
 

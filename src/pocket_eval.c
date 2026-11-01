@@ -1,8 +1,6 @@
 #include "pocket_internals.h"
 
 PK_RES pk_atom_apply(Pocket lisp, PK_CALL call, PKAtom *fun, PKAtom *args) {
-    pk_stack_push(lisp, fun);
-
     pk_u8 count = 0;
     PKAtom *iter = args;
     while (pk_atom_is_cons(iter)) {
@@ -14,6 +12,8 @@ PK_RES pk_atom_apply(Pocket lisp, PK_CALL call, PKAtom *fun, PKAtom *args) {
         count += 1;
         iter = iter->cons.cdr;
     }
+
+    pk_stack_push(lisp, fun);
 
     return pk_funcall(lisp, call, count);
 }
