@@ -1,7 +1,6 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] Change the order of operations such that the function is pushed last
 - [ ] Fastcall
 - [ ] Method check first in function calling
 - [ ] All possible memory leaks from throwing removed.

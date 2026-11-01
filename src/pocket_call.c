@@ -195,3 +195,34 @@ PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
     return PK_OK;
 }
 
+
+PK_RES pk_fastcall(Pocket lisp, PK_CALL call, void *user_closure, PKFun fun, size_t args) {
+    (void)call;
+
+    if (args > UINT8_MAX) {
+        pk_errorf(lisp, "pk_fastcall: %zu args exceeds the maximum of %u", args, UINT8_MAX);
+        return PK_YIELDED;
+    }
+
+    PKJmp jmp;
+    pk_jmp_enter(lisp, &jmp);
+
+    if (setjmp(jmp.buf) != 0) {
+        pk_gc_collect(lisp);
+        #ifdef PK_CFLAG_DEBUG
+        pk_debug_stackdump(lisp, "ERROR");
+        #endif
+        return PK_YIELDED;
+    }
+
+    pk_frame_push(lisp, NULL, args);
+
+    fun(user_closure, lisp);
+
+    pk_frame_return_push(lisp);
+    pk_gc_collect(lisp);
+
+    pk_jmp_leave(lisp);
+
+    return PK_OK;
+}
