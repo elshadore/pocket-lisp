@@ -1,11 +1,6 @@
 # TODO
 The todo list for POCKET LISP
 
-- [x] Move to simple type system
-  - Remove type enums only use type symbols
-  - `pk_atom_is_type(Pocket *atom, PKAtomSymbol *type)`
-  - `pk_atom_is_type2(Pocket *atom, PKAtomSymbol *type1, PKAtomSymbol *type2)`
-  - ...
 - [ ] Type idents from symbol name
   - Printing properly `|foo bar|`
 - [ ] rename read to parse `pocket_read.c` -> `pocket_parser.c`
