@@ -155,7 +155,7 @@ PK_API void pk_print(Pocket lisp, int atom);
 PK_API void pk_write(Pocket lisp, int atom);
 PK_API void pk_format(Pocket lisp, int atom);
 PK_API void pk_hexdump(Pocket lisp, int atom);
-PK_API void pk_read(Pocket lisp, int string, PK_MODE mode);
+PK_API void pk_parse(Pocket lisp, int string, PK_MODE mode);
 
 // TODO: rethink this function. it causes problems our evaluation model is evlist.
 // compiling a block of code can produce problems with macro expansion.

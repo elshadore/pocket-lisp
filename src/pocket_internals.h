@@ -94,13 +94,13 @@ typedef struct PKWriter_ {
     size_t capacity;
 } PKWriter;
 
-typedef struct PKReader_ {
+typedef struct PKParser_ {
     PKStr str;
     size_t curr;
     size_t line;
     size_t bol;
     char c;
-} PKReader;
+} PKParser;
 
 typedef struct PKCompiler_ {
     Pocket lisp;
@@ -820,16 +820,16 @@ void pk_stack_op_list_rev_packed(Pocket lisp, size_t depth);
 void pk_stack_op_list_merge(Pocket lisp, size_t depth);
 void pk_stack_op_strcat(Pocket lisp, size_t depth);
     
-PKAtom *pk_read_atom(Pocket lisp, PKReader *r);
-PKAtom *pk_read_atom_barred(Pocket lisp, PKReader *r, PKWriter *w, PK_SYMTY type);
-PKAtom *pk_read_atom_keyword(Pocket lisp, PKReader *r);
-PKAtom *pk_read_atom_string(Pocket lisp, PKReader *r);
-PKAtom *pk_read_atom_number(Pocket lisp, PKReader *r);
-PKAtom *pk_read_atom_symbol(Pocket lisp, PKReader *r);
-PKAtom *pk_read_atom_cons(Pocket lisp, PKReader *r);
+PKAtom *pk_parse_atom(Pocket lisp, PKParser *r);
+PKAtom *pk_parse_atom_barred(Pocket lisp, PKParser *r, PKWriter *w, PK_SYMTY type);
+PKAtom *pk_parse_atom_keyword(Pocket lisp, PKParser *r);
+PKAtom *pk_parse_atom_string(Pocket lisp, PKParser *r);
+PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r);
+PKAtom *pk_parse_atom_symbol(Pocket lisp, PKParser *r);
+PKAtom *pk_parse_atom_cons(Pocket lisp, PKParser *r);
 
-PKAtom *pk_read_atom_from_str(Pocket lisp, PKStr string, PK_MODE mode);
-PKAtom *pk_read_atom_from_string(Pocket lisp, PKAtomString *string, PK_MODE mode);
+PKAtom *pk_parse_atom_from_str(Pocket lisp, PKStr string, PK_MODE mode);
+PKAtom *pk_parse_atom_from_string(Pocket lisp, PKAtomString *string, PK_MODE mode);
     
 void pk_writer_deinit(Pocket lisp, PKWriter *w);
 void pk_writer_expand(Pocket lisp, PKWriter *w, size_t needed);

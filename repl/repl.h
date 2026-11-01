@@ -7,18 +7,18 @@
  "(defun repl-quit ()\n" \
  "  (setq repl-running nil))\n" \
  "\n" \
- "(defun read-eval-print (string)\n" \
- "  (print (catch 'error (eval (read string)))))\n" \
+ "(defun parse-eval-print (string)\n" \
+ "  (print (catch 'error (eval (parse string)))))\n" \
  "\n" \
  "(when (= (cadr args) \"-e\")\n" \
  "  (setq repl-running nil)\n" \
- "  (read-eval-print (caddr args)))\n" \
+ "  (parse-eval-print (caddr args)))\n" \
  "\n" \
  "(while repl-running\n" \
  "  (write \"LISP>> \")\n" \
  "  (var input (read-user-input))\n" \
  "  (if input\n" \
- "      (read-eval-print input)\n" \
+ "      (parse-eval-print input)\n" \
  "    (repl-quit)))\n" \
  "\n" \
  "'quit\n"

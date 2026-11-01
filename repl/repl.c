@@ -25,7 +25,7 @@ void run_repl(void *user_closure, Pocket lisp) {
     pk_popn(lisp, repl->argc + 3);
 
     pk_push_string(lisp, pk_str(REPL_CODE));
-    pk_read(lisp, -1, PK_MODE_EXPRLIST);
+    pk_parse(lisp, -1, PK_MODE_EXPRLIST);
     (void)pk_eval(lisp, -1, PK_MODE_EXPRLIST);
 }
 

@@ -34,8 +34,8 @@ void pk_strsub_mark(PKStrSub *sub) {
 void pk_compile_strsub_value(PKStrSub *sub, PKStr string) {
     Pocket lisp = sub->cmp->lisp;
 
-    PKAtom *read = pk_read_atom_from_str(lisp, string, PK_MODE_EXPRESSION);
-    pk_compile_value(sub->cmp, read);
+    PKAtom *parsed = pk_parse_atom_from_str(lisp, string, PK_MODE_EXPRESSION);
+    pk_compile_value(sub->cmp, parsed);
 }
 
 PKStr pk_strsub_slice(PKStrSub *sub) {

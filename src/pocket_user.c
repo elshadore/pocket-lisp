@@ -242,9 +242,9 @@ void pk_hexdump(Pocket lisp, int atom) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_hexdump(lisp, pk_stack_get(lisp, atom)));
 }
 
-void pk_read(Pocket lisp, int string, PK_MODE mode) {
+void pk_parse(Pocket lisp, int string, PK_MODE mode) {
     PKAtom *astring = pk_stack_get(lisp, string);
-    PKAtom *result = pk_read_atom_from_string(lisp, pk_atom_assert_string(lisp, astring), mode);
+    PKAtom *result = pk_parse_atom_from_string(lisp, pk_atom_assert_string(lisp, astring), mode);
     pk_stack_push(lisp, result);
 }
 

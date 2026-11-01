@@ -394,14 +394,14 @@ void pk_fun_hexdump(void *user_closure, Pocket lisp) {
     pk_hexdump(lisp, 1);
 }
 
-void pk_fun_read(void *user_closure, Pocket lisp) {
+void pk_fun_parse(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_read(lisp, 1, PK_MODE_EXPRESSION);
+    pk_parse(lisp, 1, PK_MODE_EXPRESSION);
 }
 
-void pk_fun_read_list(void *user_closure, Pocket lisp) {
+void pk_fun_parse_list(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_read(lisp, 1, PK_MODE_EXPRLIST);
+    pk_parse(lisp, 1, PK_MODE_EXPRLIST);
 }
 
 void pk_fun_apply(void *user_closure, Pocket lisp) {
@@ -614,8 +614,8 @@ void pk_std_load_cfun(Pocket lisp) {
 
         {.symbol = pk_str("hexdump"), .fun = pk_fun_hexdump, .args = 1, .arity = PK_ARITY_NORMAL},
 
-        {.symbol = pk_str("read"), .fun = pk_fun_read, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("read-list"), .fun = pk_fun_read_list, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("parse"), .fun = pk_fun_parse, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("parse-list"), .fun = pk_fun_parse_list, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("apply"), .fun = pk_fun_apply, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("macro-apply"), .fun = pk_fun_macro_apply, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("funcall"), .fun = pk_fun_funcall, .args = 1, .arity = PK_ARITY_VARIADIC},
@@ -669,7 +669,7 @@ void pk_std_load_cfun(Pocket lisp) {
 
 void pk_std_load_lfun(Pocket lisp) {
     pk_push_string(lisp, pk_str(PK_STD_CODE));
-    pk_read(lisp, -1, PK_MODE_EXPRLIST);
+    pk_parse(lisp, -1, PK_MODE_EXPRLIST);
     pk_eval(lisp, -1, PK_MODE_EXPRLIST);
     pk_pop2(lisp);
 }
