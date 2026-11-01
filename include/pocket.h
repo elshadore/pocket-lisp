@@ -63,35 +63,6 @@ typedef enum PK_CALL_ {
     PK_CALL_MACRO,
 } PK_CALL;
 
-typedef enum PK_TYPE_ {
-    PK_TYPE_UNKNOWN = 0,
-    PK_TYPE_TRUE,
-    PK_TYPE_THROW,
-    PK_TYPE_ERROR,
-    PK_TYPE_NUMBER,
-    PK_TYPE_NIL,
-    PK_TYPE_INTEGER,
-    PK_TYPE_FLOAT,
-    PK_TYPE_STRING,
-    PK_TYPE_SYMBOL,
-    PK_TYPE_KEYWORD,
-    PK_TYPE_LIST,
-    PK_TYPE_CONS,
-    PK_TYPE_SEQ,
-    PK_TYPE_FUNCTION,
-    PK_TYPE_CFUN,
-    PK_TYPE_LFUN,
-    PK_TYPE_MACRO,
-    PK_TYPE_CMACRO,
-    PK_TYPE_LMACRO,
-    PK_TYPE_OBJECT,
-    PK_TYPE_LOBJECT,
-    PK_TYPE_COBJECT,
-    PK_TYPE_CHARACTER,
-    PK_TYPE_ARRAY,
-    PK_TYPE_TABLE,
-} PK_TYPE;
-
 #define pk_str(text_) (PKStr) {.c = (text_), .length = ((sizeof(text_) / sizeof(char)) - 1)}
 
 #define PK_STR_EMPTY (PKStr){.c = NULL, .length = 0}
@@ -210,8 +181,8 @@ PK_API void pk_errors(Pocket lisp, PKStr message);
 PK_API PK_PRINTF_FMT(2, 3) void pk_errorf(Pocket lisp, const char *fmt, ...);
 PK_API void pk_error_oom(Pocket lisp);
 
-PK_API bool pk_is_type(Pocket lisp, int atom, PK_TYPE check);
-PK_API void pk_assert_type(Pocket lisp, int atom, PK_TYPE check);
+PK_API bool pk_is_type(Pocket lisp, int atom, int type);
+PK_API void pk_assert_type(Pocket lisp, int atom, int type);
 
 PK_API void pk_define_type_c_owned(Pocket lisp, int symbol, size_t size);
 PK_API void pk_define_type_c_user(Pocket lisp, int symbol);

@@ -41,35 +41,6 @@ PKStr pk_ident_opcode(pk_u8 op) {
     }
 }
 
-PKStr pk_ident_atomty(pk_u8 ty) {
-    switch (ty) {
-        case PK_ATOMTY_ILLEGAL: return pk_str("ILLEGAL");
-        case PK_ATOMTY_FREE: return pk_str("FREE");
-        case PK_ATOMTY_UNDEFINED: return pk_str("UNDEFINED");
-        case PK_ATOMTY_NIL: return pk_str("NIL");
-        case PK_ATOMTY_TRUE: return pk_str("TRUE");
-        case PK_ATOMTY_NUMBER: return pk_str("NUMBER");
-        case PK_ATOMTY_STRING: return pk_str("STRING");
-        case PK_ATOMTY_SYMBOL: return pk_str("SYMBOL");
-        case PK_ATOMTY_KEYWORD: return pk_str("KEYWORD");
-        case PK_ATOMTY_CONS: return pk_str("CONS");
-        case PK_ATOMTY_ARRAY: return pk_str("ARRAY");
-        case PK_ATOMTY_TABLE: return pk_str("TABLE");
-        case PK_ATOMTY_CFUN: return pk_str("CFUN");
-        case PK_ATOMTY_LFUN: return pk_str("LFUN");
-        case PK_ATOMTY_CMACRO: return pk_str("CMACRO");
-        case PK_ATOMTY_LMACRO: return pk_str("LMACRO");
-        case PK_ATOMTY_LOBJECT: return pk_str("LOBJECT");
-        case PK_ATOMTY_COBJECT: return pk_str("COBJECT");
-        case PK_ATOMTY_CHARACTER: return pk_str("CHARACTER");
-        case PK_ATOMTY_BLOB: return pk_str("BLOB");
-        case PK_ATOMTY_STRING_ARRAY: return pk_str("STRING_ARRAY");
-        case PK_ATOMTY_BYTE_ARRAY: return pk_str("BYTE_ARRAY");
-        case PK_ATOMTY_STREAM: return pk_str("STREAM");
-        default: return pk_str("UNKNOWN");
-    }
-}
-
 PKStr pk_ident_arity(pk_u8 arity) {
     switch (arity) {
         case PK_INT_ARITY_NORMAL: return pk_str("NORMAL");
@@ -85,38 +56,6 @@ PKStr pk_ident_env(PK_ENV env) {
         case PK_ENV_FUN: return pk_str("FUN");
         case PK_ENV_PROP: return pk_str("PROP");
         default: return pk_str("UNKNOWN");
-    }
-}
-
-PKStr pk_ident_type(PK_TYPE ty) {
-    switch (ty) {
-        case PK_TYPE_UNKNOWN: return pk_str("unknown");
-        case PK_TYPE_TRUE: return pk_str("true");
-        case PK_TYPE_THROW: return pk_str("throw");
-        case PK_TYPE_ERROR: return pk_str("error");
-        case PK_TYPE_NUMBER: return pk_str("number");
-        case PK_TYPE_NIL: return pk_str("nil");
-        case PK_TYPE_INTEGER: return pk_str("integer");
-        case PK_TYPE_FLOAT: return pk_str("float");
-        case PK_TYPE_STRING: return pk_str("string");
-        case PK_TYPE_SYMBOL: return pk_str("symbol");
-        case PK_TYPE_KEYWORD: return pk_str("keyword");
-        case PK_TYPE_CONS: return pk_str("cons");
-        case PK_TYPE_LIST: return pk_str("list");
-        case PK_TYPE_SEQ: return pk_str("seq");
-        case PK_TYPE_FUNCTION: return pk_str("function");
-        case PK_TYPE_CFUN: return pk_str("cfun");
-        case PK_TYPE_LFUN: return pk_str("lfun");
-        case PK_TYPE_MACRO: return pk_str("macro");
-        case PK_TYPE_CMACRO: return pk_str("cmacro");
-        case PK_TYPE_LMACRO: return pk_str("lmacro");
-        case PK_TYPE_OBJECT: return pk_str("object");
-        case PK_TYPE_LOBJECT: return pk_str("lobject");
-        case PK_TYPE_COBJECT: return pk_str("cobject");
-        case PK_TYPE_CHARACTER: return pk_str("character");
-        case PK_TYPE_ARRAY: return pk_str("array");
-        case PK_TYPE_TABLE: return pk_str("table");
-        default: return pk_str("unknown");
     }
 }
 

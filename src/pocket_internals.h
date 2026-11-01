@@ -590,7 +590,10 @@ PKAtom *pk_atom_alloc(Pocket lisp);
 void pk_atom_free(Pocket lisp, PKAtom *atom);
 
 void pk_error_atom(Pocket lisp, PKAtom *message);
-void pk_error_type(Pocket lisp, PK_TYPE expected, PKAtom *found);
+void pk_error_type(Pocket lisp, PKAtom *found, PKAtomSymbol *expected);
+void pk_error_type2(Pocket lisp, PKAtom *found, PKAtomSymbol *expected1, PKAtomSymbol *expected2);
+void pk_error_type3(Pocket lisp, PKAtom *found, PKAtomSymbol *expected1, PKAtomSymbol *expected2, PKAtomSymbol *expected3);
+void pk_error_type4(Pocket lisp, PKAtom *found, PKAtomSymbol *expected1, PKAtomSymbol *expected2, PKAtomSymbol *expected3, PKAtomSymbol *expected4);
 void pk_error_writer(Pocket lisp, PKWriter *w);
 PKAtom *pk_error_value(Pocket lisp);
 
@@ -606,6 +609,13 @@ bool pk_atom_is_undefined(PKAtom *atom);
 PKAtomKind pk_atom_kind(PKAtom *atom);
 
 PKAtom *pk_atom_clone(Pocket lisp, PKAtom *atom);
+
+bool pk_atom_is_type(Pocket lisp, PKAtom *atom, PKAtomSymbol *type);
+bool pk_atom_is_type2(Pocket lisp, PKAtom *atom, PKAtomSymbol *type1, PKAtomSymbol *type2);
+bool pk_atom_is_type3(Pocket lisp, PKAtom *atom, PKAtomSymbol *type1, PKAtomSymbol *type2, PKAtomSymbol *type3);
+bool pk_atom_is_type4(Pocket lisp, PKAtom *atom, PKAtomSymbol *type1, PKAtomSymbol *type2, PKAtomSymbol *type3, PKAtomSymbol *type4);
+bool pk_atom_is_typen(Pocket lisp, PKAtom *atom, PKAtoms types);
+
 bool pk_atom_is_circular(Pocket lisp, PKAtom *atom);
 bool pk_atom_is_cons(PKAtom *atom);
 bool pk_atom_is_int(PKAtom *atom);
@@ -618,7 +628,6 @@ bool pk_atom_is_keyword(PKAtom *atom);
 bool pk_atom_is_cfun(PKAtom *atom);
 bool pk_atom_is_lfun(PKAtom *atom);
 bool pk_atom_is_function(PKAtom *atom);
-bool pk_atom_is_type(PKAtom *atom, PK_TYPE type);
 bool pk_atom_is_table(PKAtom *atom);
 bool pk_atom_is_array(PKAtom *atom);
 bool pk_atom_is_string_array(PKAtom *atom);
@@ -894,10 +903,8 @@ void pk_cmp_load(PKCompiler *c, PKAtom *atom);
 void pk_compile_strsub(PKCompiler *c, PKStr string);
 
 PKStr pk_ident_opcode(pk_u8 op);
-PKStr pk_ident_atomty(pk_u8 ty);
 PKStr pk_ident_arity(pk_u8 arity);
 PKStr pk_ident_env(PK_ENV env);
-PKStr pk_ident_type(PK_TYPE ty);
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
     
 PK_RES pk_atom_apply(Pocket lisp, PK_CALL call, PKAtom *fun, PKAtom *args);

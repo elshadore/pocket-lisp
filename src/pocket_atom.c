@@ -61,63 +61,6 @@ PKAtomKind pk_atom_kind(PKAtom *atom) {
     }
 }
 
-bool pk_atom_is_type(PKAtom *atom, PK_TYPE type) {
-    if (type == PK_TYPE_TRUE) {
-        if (atom->header.type == PK_ATOMTY_NIL) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-    switch (atom->header.type) {
-        case PK_ATOMTY_NIL: {
-            return (type == PK_TYPE_NIL) || (type == PK_TYPE_LIST);
-        }
-        case PK_ATOMTY_NUMBER: {
-            switch (type) {
-                case PK_TYPE_NUMBER: return true;
-                case PK_TYPE_INTEGER: return atom->number.num_type == PK_NUMTY_INT;
-                case PK_TYPE_FLOAT: return atom->number.num_type == PK_NUMTY_FLOAT;
-                default: return false;
-            }
-        }
-        case PK_ATOMTY_STRING: {
-            return type == PK_TYPE_STRING;
-        }
-        case PK_ATOMTY_SYMBOL: {
-            return type == PK_TYPE_SYMBOL;
-        }
-        case PK_ATOMTY_KEYWORD: {
-            return type == PK_TYPE_KEYWORD;
-        }
-        case PK_ATOMTY_CONS: {
-            return (type == PK_TYPE_CONS) || (type == PK_TYPE_LIST);
-        }
-        case PK_ATOMTY_CFUN: {
-            return (type == PK_TYPE_FUNCTION) || (type == PK_TYPE_CFUN);
-        }
-        case PK_ATOMTY_LFUN: {
-            return (type == PK_TYPE_FUNCTION) || (type == PK_TYPE_LFUN);
-        }
-        case PK_ATOMTY_CMACRO: {
-            return (type == PK_TYPE_MACRO) || (type == PK_TYPE_CMACRO);
-        }
-        case PK_ATOMTY_LMACRO: {
-            return (type == PK_TYPE_MACRO) || (type == PK_TYPE_LMACRO);
-        }
-        case PK_ATOMTY_LOBJECT: {
-            return (type == PK_TYPE_OBJECT) || (type == PK_TYPE_LOBJECT);
-        }
-        case PK_ATOMTY_COBJECT: {
-            return (type == PK_TYPE_OBJECT) || (type == PK_TYPE_COBJECT);
-        }
-        case PK_ATOMTY_CHARACTER: {
-            return type == PK_TYPE_CHARACTER;
-        }
-        default: return false;
-    }
-}
-
 PKAtom *pk_atom_reverse(Pocket lisp, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_STRING: {

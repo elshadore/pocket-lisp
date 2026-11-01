@@ -43,6 +43,54 @@ void pk_error_type(Pocket lisp, PK_TYPE expected, PKAtom *found) {
     pk_error_writer(lisp, &w);
 }
 
+void pk_error_type(Pocket lisp, PKAtom *found, PKAtomSymbol *expected) {
+    PKWriter w = PK_WRITER_EMPTY;
+    pk_writer_string(lisp, &w, pk_str("expected "));
+    pk_writer_atom(lisp, &w, (PKAtom *)expected);
+    pk_writer_string(lisp, &w, pk_str(", got "));
+    pk_writer_atom(lisp, &w, found);
+    pk_error_writer(lisp, &w);
+}
+
+void pk_error_type2(Pocket lisp, PKAtom *found, PKAtomSymbol *expected1, PKAtomSymbol *expected2) {
+    PKWriter w = PK_WRITER_EMPTY;
+    pk_writer_string(lisp, &w, pk_str("expected "));
+    pk_writer_atom(lisp, &w, (PKAtom *)expected1);
+    pk_writer_string(lisp, &w, pk_str(", "));
+    pk_writer_atom(lisp, &w, (PKAtom *)expected2);
+    pk_writer_string(lisp, &w, pk_str(", got "));
+    pk_writer_atom(lisp, &w, found);
+    pk_error_writer(lisp, &w);
+}
+
+void pk_error_type3(Pocket lisp, PKAtom *found, PKAtomSymbol *expected1, PKAtomSymbol *expected2, PKAtomSymbol *expected3) {
+    PKWriter w = PK_WRITER_EMPTY;
+    pk_writer_string(lisp, &w, pk_str("expected "));
+    pk_writer_atom(lisp, &w, (PKAtom *)expected1);
+    pk_writer_string(lisp, &w, pk_str(", "));
+    pk_writer_atom(lisp, &w, (PKAtom *)expected2);
+    pk_writer_string(lisp, &w, pk_str(", "));
+    pk_writer_atom(lisp, &w, (PKAtom *)expected3);
+    pk_writer_string(lisp, &w, pk_str(", got "));
+    pk_writer_atom(lisp, &w, found);
+    pk_error_writer(lisp, &w);
+}
+
+void pk_error_type4(Pocket lisp, PKAtom *found, PKAtomSymbol *expected1, PKAtomSymbol *expected2, PKAtomSymbol *expected3, PKAtomSymbol *expected4) {
+    PKWriter w = PK_WRITER_EMPTY;
+    pk_writer_string(lisp, &w, pk_str("expected "));
+    pk_writer_atom(lisp, &w, (PKAtom *)expected1);
+    pk_writer_string(lisp, &w, pk_str(", "));
+    pk_writer_atom(lisp, &w, (PKAtom *)expected2);
+    pk_writer_string(lisp, &w, pk_str(", "));
+    pk_writer_atom(lisp, &w, (PKAtom *)expected3);
+    pk_writer_string(lisp, &w, pk_str(", "));
+    pk_writer_atom(lisp, &w, (PKAtom *)expected4);
+    pk_writer_string(lisp, &w, pk_str(", got "));
+    pk_writer_atom(lisp, &w, found);
+    pk_error_writer(lisp, &w);
+}
+
 void pk_error_oom(Pocket lisp) {
     pk_error_atom(lisp, (PKAtom *)lisp->cache.empty_string);
 }

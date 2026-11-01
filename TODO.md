@@ -36,19 +36,20 @@ The todo list for POCKET LISP
 - [ ] implement `cat`
   - dispatch on first type
   
-- [ ] Custom cfmt
-  - for printing atoms as well as datums
 - [ ] Create CMake Build
 - [ ] exotic number parsing
   - 0b010101
   - 0xfeefee
   - 0oaaaaaa <- idk octal
 - [ ] Method check first in function calling
-- [ ] `cleared` default throw symbol (maybe not)
 - [ ] Seperation of std into multiple libraries
   - core
   - fs
   - streams
+  
+- [ ] Custom cfmt
+  - for printing atoms as well as datums
+- [ ] `cleared` default throw symbol (maybe not)
 - [ ] Remove ternary operator from all c code.
 - [ ] User Review of Compiler
   - in particular, destructuring bind.

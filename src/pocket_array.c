@@ -95,7 +95,13 @@ void pk_atom_append(Pocket lisp, PKAtom *array, PKAtom *atom) {
             break;
         }
         default: {
-            pk_error_type(lisp, PK_TYPE_SEQ, array);
+            pk_error_type3(
+                lisp,
+                array,
+                lisp->cache.type_array,
+                lisp->cache.type_string_array,
+                lisp->cache.type_byte_array
+            );
             break;
         }
     }
@@ -128,7 +134,13 @@ PKAtom *pk_atom_el(Pocket lisp, PKAtom *array, size_t index) {
             return (PKAtom *)pk_atom_int(lisp, (int)bytes->e[index]);
         }
         default: {
-            pk_error_type(lisp, PK_TYPE_SEQ, array);
+            pk_error_type3(
+                lisp,
+                array,
+                lisp->cache.type_array,
+                lisp->cache.type_string_array,
+                lisp->cache.type_byte_array
+            );
             return lisp->cache.nil;
         }
     }

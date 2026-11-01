@@ -79,3 +79,42 @@ PKAtomSymbol *pk_atom_typeof(Pocket lisp, PKAtom *atom) {
         default: return lisp->cache.type_unknown;
     }
 }
+
+bool pk_atom_is_type(Pocket lisp, PKAtom *atom, PKAtomSymbol *type) {
+    return pk_atom_typeof(lisp, atom) == type;
+}
+
+bool pk_atom_is_type2(Pocket lisp, PKAtom *atom, PKAtomSymbol *type1, PKAtomSymbol *type2) {
+    PKAtomSymbol *type = pk_atom_typeof(lisp, atom);
+    if (type == type1) return true;
+    if (type == type2) return true;
+    return false;
+}
+
+bool pk_atom_is_type3(Pocket lisp, PKAtom *atom, PKAtomSymbol *type1, PKAtomSymbol *type2, PKAtomSymbol *type3) {
+    PKAtomSymbol *type = pk_atom_typeof(lisp, atom);
+    if (type == type1) return true;
+    if (type == type2) return true;
+    if (type == type3) return true;
+    return false;
+}
+
+bool pk_atom_is_type4(Pocket lisp, PKAtom *atom, PKAtomSymbol *type1, PKAtomSymbol *type2, PKAtomSymbol *type3, PKAtomSymbol *type4) {
+    PKAtomSymbol *type = pk_atom_typeof(lisp, atom);
+    if (type == type1) return true;
+    if (type == type2) return true;
+    if (type == type3) return true;
+    if (type == type4) return true;
+    return false;
+}
+
+bool pk_atom_is_typen(Pocket lisp, PKAtom *atom, PKAtoms types) {
+    PKAtomSymbol *type = pk_atom_typeof(lisp, atom);
+    for (size_t i = 0; i < types.length; ++i) {
+        PKAtomSymbol *check = pk_atom_assert_symbol(lisp, types.e[i]);
+        if (type == check) {
+            return true;
+        }
+    }
+    return false;
+}
