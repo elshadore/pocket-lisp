@@ -41,8 +41,7 @@ int main(int argc, char **argv) {
         .argv = argv,
     };
 
-    pk_push_cfun(lisp, &repl, run_repl, 0, PK_ARITY_NORMAL, 0);
-    if (pk_funcall(lisp, PK_CALL_FUN, 0) == PK_YIELDED) {
+    if (pk_fastcall(lisp, PK_CALL_FUN, &repl, run_repl, 0) == PK_YIELDED) {
         pk_print(lisp, -1);
         pk_deinit(lisp);
         return 1;
