@@ -1,17 +1,11 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] Type idents from symbol name
-  - Printing properly `|foo bar|`
-
 - [ ] Change the order of operations such that the function is pushed last
 - [ ] Fastcall
+- [ ] Method check first in function calling
 - [ ] All possible memory leaks from throwing removed.
 
-- [x] defvar, defun, defmacro
-  - Return symbol
-- [x] Var should return it's new value let setq does.
-  
 - [ ] Streams
   - stdin
   - stdout
@@ -35,15 +29,15 @@ The todo list for POCKET LISP
   - 0b010101
   - 0xfeefee
   - 0oaaaaaa <- idk octal
-- [ ] Method check first in function calling
 - [ ] Seperation of std into multiple libraries
   - core
   - fs
   - streams
   
+- [ ] `Pocket` should not be cached in PKVM and PKCompiler
 - [ ] Custom cfmt
   - for printing atoms as well as datums
-- [ ] `cleared` default throw symbol (maybe not)
+- [ ] `cleared` remove symbol.
 - [ ] Remove ternary operator from all c code.
 - [ ] User Review of Compiler
   - in particular, destructuring bind.
@@ -84,7 +78,6 @@ The todo list for POCKET LISP
 - [ ] `progv`
 - [ ] Big Numbers
 - [ ] Full Code Review
-- [ ] `Pocket` should not be cached in PKVM and PKCompiler
 - [ ] If we call a Lisp function from withing the VM we should not use the C stack to create a new VM, but reuse the old one.
 - [ ] Document C Functions
 - [ ] Documentation Tables

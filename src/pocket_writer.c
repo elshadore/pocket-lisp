@@ -359,10 +359,7 @@ void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) 
             PKAtomSymbol *type = atom->lobject.type;
             PKAtoms slots = atom->lobject.slots;
             pk_writer_string(lisp, w, pk_str("&<"));
-            // TODO: this produces potentially unreadable symbols. Not barred symbols |foo bar|.
-            // However we will keep this for now until we actually start using symbol types.
-            // Same can be said for cobject.
-            pk_writer_string(lisp, w, type->name->str);
+            pk_writer_symbol_name(lisp, w, type->name->str);
             pk_writer_string(lisp, w, pk_str("::"));
             pk_writer_char(lisp, w, '(');
             (void)pk_hashmap_insert(lisp, clones, atom, atom, PK_HASHMAP_INSERT_NORMAL);
