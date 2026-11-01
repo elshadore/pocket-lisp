@@ -703,6 +703,10 @@ void pk_compile_var(PKCompiler *c, PKAtom *form, PK_ENV env) {
         pk_compile_bind(c, a->car, env);
     } else {
         pk_atom_assert_symbol(c->lisp, a->car);
+
+        pk_cmp_push_byte(c, PK_OP_DIG);
+        pk_cmp_push_any(c, 0);
+
         pk_cmp_load(c, a->car);
 
         switch (env) {
@@ -771,6 +775,7 @@ void pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, bool 
         pk_cmp_load(c, a->car);
         pk_cmp_load(c, (PKAtom *)lfun);
         pk_cmp_push_byte(c, PK_OP_SET_FUN);
+        pk_cmp_load(c, a->car);
 
         *is_special = true;
     } else if (symbol == lisp->cache.defvar) {
@@ -789,6 +794,7 @@ void pk_compile_special(PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, bool 
         }
 
         pk_cmp_push_byte(c, PK_OP_SET_VAR);
+        pk_cmp_load(c, a->car);
 
         *is_special = true;
     } else if (symbol == lisp->cache.quote) {

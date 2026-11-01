@@ -3,14 +3,14 @@ The todo list for POCKET LISP
 
 - [ ] Type idents from symbol name
   - Printing properly `|foo bar|`
-- [x] Remove property lists
 
 - [ ] Change the order of operations such that the function is pushed last
 - [ ] Fastcall
 - [ ] All possible memory leaks from throwing removed.
 
-- [ ] defvar, defun, defmacro
+- [x] defvar, defun, defmacro
   - Return symbol
+- [x] Var should return it's new value let setq does.
   
 - [ ] Streams
   - stdin
@@ -50,7 +50,6 @@ The todo list for POCKET LISP
 - [ ] User Review of Macro
 - [ ] User Review of wether we are allocating too much on the stack in the bytecode VM
    - i.e we are not popping temp values
-- [ ] Var should return it's new value let setq does.
 - [ ] Testing Suite
 - [ ] `struct-eq`
 - [ ] defgeneric??? (maybe not???)
