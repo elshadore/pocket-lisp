@@ -82,8 +82,7 @@ PKCallConv pk_callconv(Pocket lisp, PKAtom *function, pk_u8 args) {
         case PK_ATOMTY_CMACRO: return pk_callconv_(lisp, PK_FUNTY_C, args, function->cmacro.arity);
         case PK_ATOMTY_LMACRO: return pk_callconv_(lisp, PK_FUNTY_LISP, args, function->lmacro.arity);
         default: {
-            PKStr ty = pk_ident_atomty(function->header.type);
-            pk_errorf(lisp, "pk_callconv: expected a function, got %.*s", (int)ty.length, ty.c);
+            pk_error_type2(lisp, function, lisp->cache.type_function, lisp->cache.type_macro);
             return PK_CALLCONV_EMPTY;
         }
     }
@@ -140,47 +139,35 @@ void pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
     }
 
     pk_frame_push(lisp, cc.args);
-    
-    switch (call) {
-        case PK_CALL_FUN: {
-            switch (function->header.type) {
-                case PK_ATOMTY_CFUN: {
-                    pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
-                    break;
-                }
-                case PK_ATOMTY_LFUN: {
-                    pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
-                    break;
-                }
-                default: {
-                    PKStr ty = pk_ident_atomty(function->header.type);
-                    pk_errorf(lisp, "pk_fcall: expected a cfun or lfun, got %.*s", (int)ty.length, ty.c);
-                    break;
-                }
+    if (call == PK_CALL_FUN) {
+        switch (function->header.type) {
+            case PK_ATOMTY_CFUN: {
+                pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
+                break;
             }
-            break;
-        }
-        case PK_CALL_MACRO: {
-            switch (function->header.type) {
-                case PK_ATOMTY_CMACRO: {
-                    pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
-                    break;
-                }
-                case PK_ATOMTY_LMACRO: {
-                    pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
-                    break;
-                }
-                default: {
-                    PKStr ty = pk_ident_atomty(function->header.type);
-                    pk_errorf(lisp, "pk_fcall: expected a cmacro or lmacro, got %.*s", (int)ty.length, ty.c);
-                    break;
-                }
+            case PK_ATOMTY_LFUN: {
+                pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
+                break;
             }
-            break;
+            default: {
+                pk_error_type(lisp, function, lisp->cache.type_function);
+                break;
+            }
         }
-        default: {
-            pk_errorf(lisp, "pk_fcall: unknown call mode %d", call);
-            break;
+    } else {
+        switch (function->header.type) {
+            case PK_ATOMTY_CMACRO: {
+                pk_atom_cfun_exec(lisp, (PKAtomCFun *)function);
+                break;
+            }
+            case PK_ATOMTY_LMACRO: {
+                pk_atom_lfun_exec(lisp, (PKAtomLFun *)function);
+                break;
+            }
+            default: {
+                pk_error_type(lisp, function, lisp->cache.type_macro);
+                break;
+            }
         }
     }
     

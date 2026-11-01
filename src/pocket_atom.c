@@ -79,8 +79,7 @@ PKAtom *pk_atom_reverse(Pocket lisp, PKAtom *atom) {
         }
         case PK_ATOMTY_NIL: return lisp->cache.nil;
         default: {
-            PKStr ty = pk_ident_atomty(atom->header.type);
-            pk_errorf(lisp, "pk_atom_reverse: expected a string or cons, got %.*s", (int)ty.length, ty.c);
+            pk_error_type3(lisp, atom, lisp->cache.type_nil, lisp->cache.type_cons, lisp->cache.type_string);
             return lisp->cache.nil;
         }
     }
@@ -158,8 +157,7 @@ PKAtom *pk_atom_clone_rec_(Pocket lisp, PKHashmap *memo, PKAtom *atom) {
             return (PKAtom *)result;
         }
         default: {
-            PKStr ty = pk_ident_atomty(atom->header.type);
-            pk_errorf(lisp, "pk_atom_clone: cannot clone %.*s", (int)ty.length, ty.c);
+            pk_errors(lisp, pk_str("pk_atom_clone(), cannot clone this type, TODO: better error message for this"));
             return lisp->cache.nil;
         }
     }
