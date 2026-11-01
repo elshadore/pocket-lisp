@@ -330,13 +330,17 @@ float pk_to_float(Pocket lisp, int number) {
     return pk_atom_to_float(lisp, pk_stack_get(lisp, number), PK_NUMBER_CONV_FLOAT_CONV);
 }
 
-bool pk_is_type(Pocket lisp, int atom, PK_TYPE check) {
-    return pk_atom_is_type(pk_stack_get(lisp, atom), check);
+bool pk_is_type(Pocket lisp, int atom, int type) {
+    PKAtom *aatom = pk_stack_get(lisp, atom);
+    PKAtomSymbol *atype = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, type));
+    return pk_atom_is_type(lisp, aatom, atype);
 }
 
-void pk_assert_type(Pocket lisp, int atom, PK_TYPE check) {
-    if (!pk_is_type(lisp, atom, check)) {
-        pk_error_type(lisp, check, pk_stack_get(lisp, atom));
+void pk_assert_type(Pocket lisp, int atom, int type) {
+    PKAtom *aatom = pk_stack_get(lisp, atom);
+    PKAtomSymbol *atype = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, type));
+    if (!pk_atom_is_type(lisp, aatom, atype)) {
+        pk_error_type(lisp, aatom, atype);
     }
 }
 

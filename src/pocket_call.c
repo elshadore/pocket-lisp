@@ -194,7 +194,9 @@ PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
     
     if (setjmp(jmp.buf) != 0) {
         pk_gc_collect(lisp);
+        #ifdef PK_CFLAG_DEBUG
         pk_debug_stackdump(lisp, "ERROR");
+        #endif
         return PK_YIELDED;
     }
     

@@ -337,7 +337,7 @@ void pk_compile_bind(PKCompiler *c, PKAtom *bind, PK_ENV env) {
         }
         case PK_ATOMTY_NIL: break;
         default: {
-            pk_error_type(c->lisp, PK_TYPE_LIST, bind);
+            pk_error_type2(c->lisp, bind, c->lisp->cache.type_cons, c->lisp->cache.type_nil);
             break;
         }
     }
@@ -676,9 +676,10 @@ void pk_compile_jmp_(PKCompiler *c, PKAtom *args, pk_u8 op, pk_u8 empty_op, PKBy
         if (pk_atom_is_nil(args)) {
             pk_cmp_push_byte(c, empty_op);
             return;
+        } else {
+            pk_error_type2(c->lisp, args, c->lisp->cache.type_cons, c->lisp->cache.type_nil);
+            return;
         }
-        pk_error_type(c->lisp, PK_TYPE_SEQ, args);
-        return;
     }
 
     pk_cmp_push_byte(c, PK_OP_BLOCK_BEGIN);

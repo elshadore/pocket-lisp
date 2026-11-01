@@ -86,7 +86,7 @@ PKAtomTable *pk_atom_assert_table(Pocket lisp, PKAtom *atom) {
     if (pk_atom_is_table(atom)) {
         return (PKAtomTable *)atom;
     } else {
-        pk_error_type(lisp, PK_TYPE_TABLE, atom);
+        pk_error_type(lisp, atom, lisp->cache.type_table);
         return NULL;
     }
 }

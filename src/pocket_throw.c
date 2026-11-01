@@ -34,15 +34,6 @@ PK_PRINTF_FMT(2, 3) void pk_errorf(Pocket lisp, const char *fmt, ...) {
     pk_error_writer(lisp, &w);
 }
 
-void pk_error_type(Pocket lisp, PK_TYPE expected, PKAtom *found) {
-    PKWriter w = PK_WRITER_EMPTY;
-    pk_writer_cstr(lisp, &w, "expected ");
-    pk_writer_string(lisp, &w, pk_ident_type(expected));
-    pk_writer_cstr(lisp, &w, ", got ");
-    pk_writer_atom(lisp, &w, found);
-    pk_error_writer(lisp, &w);
-}
-
 void pk_error_type(Pocket lisp, PKAtom *found, PKAtomSymbol *expected) {
     PKWriter w = PK_WRITER_EMPTY;
     pk_writer_string(lisp, &w, pk_str("expected "));

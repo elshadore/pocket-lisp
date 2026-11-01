@@ -1,7 +1,7 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] Move to simple type system
+- [x] Move to simple type system
   - Remove type enums only use type symbols
   - `pk_atom_is_type(Pocket *atom, PKAtomSymbol *type)`
   - `pk_atom_is_type2(Pocket *atom, PKAtomSymbol *type1, PKAtomSymbol *type2)`

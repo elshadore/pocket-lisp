@@ -762,6 +762,7 @@ void pk_atom_define_type_lisp(Pocket lisp, PKAtomSymbol *type, PKAtoms slots);
 void pk_atom_define_type_lisp_atom(Pocket lisp, PKAtomSymbol *type, PKAtom *slots);
 void pk_atom_define_type_c_owned(Pocket lisp, PKAtomSymbol *type, size_t size);
 void pk_atom_define_type_c_user(Pocket lisp, PKAtomSymbol *type);
+void pk_atom_define_type_primitive(Pocket lisp, PKAtomSymbol *type);
 PKAtomSymbol *pk_atom_typeof(Pocket lisp, PKAtom *atom);
 
 PKAtom *pk_atom_object_new(Pocket lisp, PKAtomSymbol *type);
@@ -902,6 +903,7 @@ void pk_cmp_push_atom(PKCompiler *c, PKAtom *atom);
 void pk_cmp_load(PKCompiler *c, PKAtom *atom);
 void pk_compile_strsub(PKCompiler *c, PKStr string);
 
+PKStr pk_ident_atomty(pk_u8 type);
 PKStr pk_ident_opcode(pk_u8 op);
 PKStr pk_ident_arity(pk_u8 arity);
 PKStr pk_ident_env(PK_ENV env);

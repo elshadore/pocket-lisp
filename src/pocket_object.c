@@ -96,7 +96,10 @@ PKAtomCObject *pk_atom_assert_cobject(Pocket lisp, PKAtom *atom) {
     if (pk_atom_is_lobject(atom)) {
         return (PKAtomCObject *)atom;
     } else {
-        pk_error_type(lisp, PK_TYPE_LOBJECT, atom);
+        PKWriter w = PK_WRITER_EMPTY;
+        pk_writer_string(lisp, &w, pk_str("expected a c object type, got "));
+        pk_writer_atom(lisp, &w, atom);
+        pk_error_writer(lisp, &w);
         return (PKAtomCObject *)lisp->cache.nil;
     }
 }
@@ -105,7 +108,10 @@ PKAtomLObject *pk_atom_assert_lobject(Pocket lisp, PKAtom *atom) {
     if (pk_atom_is_lobject(atom)) {
         return (PKAtomLObject *)atom;
     } else {
-        pk_error_type(lisp, PK_TYPE_LOBJECT, atom);
+        PKWriter w = PK_WRITER_EMPTY;
+        pk_writer_string(lisp, &w, pk_str("expected a lisp object type, got "));
+        pk_writer_atom(lisp, &w, atom);
+        pk_error_writer(lisp, &w);
         return (PKAtomLObject *)lisp->cache.nil;
     }
 }

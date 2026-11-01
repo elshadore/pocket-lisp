@@ -91,7 +91,7 @@ PKAtomString *pk_atom_assert_string(Pocket lisp, PKAtom *atom) {
     if (pk_atom_is_string(atom)) {
         return (PKAtomString *)atom;
     } else {
-        pk_error_type(lisp, PK_TYPE_STRING, atom);
+        pk_error_type(lisp, atom, lisp->cache.type_string);
         return lisp->cache.empty_string;
     }
 }
@@ -100,7 +100,7 @@ PKAtomChar *pk_atom_assert_character(Pocket lisp, PKAtom *atom) {
     if (pk_atom_is_character(atom)) {
         return (PKAtomChar *)atom;
     } else {
-        pk_error_type(lisp, PK_TYPE_CHARACTER, atom);
+        pk_error_type(lisp, atom, lisp->cache.type_character);
         return (PKAtomChar *)lisp->cache.nil;
     }
 }

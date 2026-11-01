@@ -369,7 +369,7 @@ void pk_fun_list_props(void *user_closure, Pocket lisp) {
 
 void pk_fun_funcatch(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_assert_type(lisp, 1, PK_TYPE_SYMBOL);
+    pk_atom_assert_symbol(lisp, pk_stack_get(lisp, 1));
     pk_catch(lisp, 1);
     (void)pk_funcall(lisp, PK_CALL_FUN, 0);
 }

@@ -53,6 +53,13 @@ void pk_atom_define_type_c_user(Pocket lisp, PKAtomSymbol *type) {
     type->owned_memory = 0;
 }
 
+void pk_atom_define_type_primitive(Pocket lisp, PKAtomSymbol *type) {
+    pk_atom_assert_untyped(lisp, type);
+
+    type->type_type = PK_TYPETY_PRIMITIVE;
+    type->owned_memory = 0;
+}
+
 PKAtomSymbol *pk_atom_typeof(Pocket lisp, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_COBJECT: return atom->cobject.type;

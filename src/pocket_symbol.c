@@ -81,7 +81,7 @@ PKAtomSymbol *pk_atom_assert_symbol(Pocket lisp, PKAtom *atom) {
     if (pk_atom_is_symbol(atom)) {
         return (PKAtomSymbol *)atom;
     } else {
-        pk_error_type(lisp, PK_TYPE_SYMBOL, atom);
+        pk_error_type(lisp, atom, lisp->cache.type_symbol);
         return NULL;
     }
 }
@@ -90,7 +90,7 @@ PKAtomKeyword *pk_atom_assert_keyword(Pocket lisp, PKAtom *atom) {
     if (pk_atom_is_keyword(atom)) {
         return (PKAtomKeyword *)atom;
     } else {
-        pk_error_type(lisp, PK_TYPE_KEYWORD, atom);
+        pk_error_type(lisp, atom, lisp->cache.type_keyword);
         return NULL;
     }
 }

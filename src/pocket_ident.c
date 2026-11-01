@@ -1,5 +1,34 @@
 #include "pocket_internals.h"
 
+PKStr pk_ident_atomty(pk_u8 type) {
+    switch (type) {
+        case PK_ATOMTY_ILLEGAL: return pk_str("ILLEGAL");
+        case PK_ATOMTY_FREE: return pk_str("FREE");
+        case PK_ATOMTY_UNDEFINED: return pk_str("UNDEFINED");
+        case PK_ATOMTY_NIL: return pk_str("NIL");
+        case PK_ATOMTY_TRUE: return pk_str("TRUE");
+        case PK_ATOMTY_NUMBER: return pk_str("NUMBER");
+        case PK_ATOMTY_STRING: return pk_str("STRING");
+        case PK_ATOMTY_SYMBOL: return pk_str("SYMBOL");
+        case PK_ATOMTY_KEYWORD: return pk_str("KEYWORD");
+        case PK_ATOMTY_CONS: return pk_str("CONS");
+        case PK_ATOMTY_ARRAY: return pk_str("ARRAY");
+        case PK_ATOMTY_TABLE: return pk_str("TABLE");
+        case PK_ATOMTY_CFUN: return pk_str("CFUN");
+        case PK_ATOMTY_LFUN: return pk_str("LFUN");
+        case PK_ATOMTY_CMACRO: return pk_str("CMACRO");
+        case PK_ATOMTY_LMACRO: return pk_str("LMACRO");
+        case PK_ATOMTY_LOBJECT: return pk_str("LOBJECT");
+        case PK_ATOMTY_COBJECT: return pk_str("COBJECT");
+        case PK_ATOMTY_CHARACTER: return pk_str("CHARACTER");
+        case PK_ATOMTY_BLOB: return pk_str("BLOB");
+        case PK_ATOMTY_STRING_ARRAY: return pk_str("STRING_ARRAY");
+        case PK_ATOMTY_BYTE_ARRAY: return pk_str("BYTE_ARRAY");
+        case PK_ATOMTY_STREAM: return pk_str("STREAM");
+        default: return pk_str("UNKNOWN");
+    }
+}
+
 PKStr pk_ident_opcode(pk_u8 op) {
     switch (op) {
         case PK_OP_ILLEGAL: return pk_str("ILLEGAL");
