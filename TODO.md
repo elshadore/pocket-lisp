@@ -1,19 +1,47 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] Fastcall
 - [ ] Method check first in function calling
+- [ ] trim down table api
+  - `put`
+  - `remove`
+  - `member?`
+- [ ] multiple append
+  - append works on lists? append to the last cons
+
+- [ ] methods for many things
+  - append
+  - cat
+  - put
+  - +
+  - everything
+  
+- [ ] list-methods
+- [ ] list-slots
+- [ ] list-funs
+- [ ] list-vars
+- [ ] list-implementors
+- [ ] list-types
+
+- [ ] assoc
+- [ ] assoc-key
+- [ ] assoc-value
+
+- [ ] filter
+- [ ] map
+- [ ] reduce
+- [ ] fap
+  
+- [ ] `Pocket` should not be cached in PKVM and PKCompiler
 - [ ] All possible memory leaks from throwing removed.
+  - possible need to rework the way throwing / catching work
+  - `pk_protcall`?
 
 - [ ] Streams
   - stdin
   - stdout
   - stderr
 - [ ] Special Form Objects
-- [ ] multiple append
-  - append works on lists? append to the last cons
-- [ ] list-methods
-- [ ] list-slots
 
 - [ ] Unicode Strings and Characters (utf8)
   - [ ] fn, λ, lambda
@@ -24,6 +52,7 @@ The todo list for POCKET LISP
   - dispatch on first type
   
 - [ ] Create CMake Build
+  
 - [ ] exotic number parsing
   - 0b010101
   - 0xfeefee
@@ -33,20 +62,22 @@ The todo list for POCKET LISP
   - fs
   - streams
   
-- [ ] `Pocket` should not be cached in PKVM and PKCompiler
-- [ ] Custom cfmt
-  - for printing atoms as well as datums
-- [ ] `cleared` remove symbol.
 - [ ] Remove ternary operator from all c code.
+- [ ] underscored internal functions should be `pk_atom_*` instead
 - [ ] User Review of Compiler
   - in particular, destructuring bind.
 - [ ] User Review of Macro
 - [ ] User Review of wether we are allocating too much on the stack in the bytecode VM
    - i.e we are not popping temp values
+
+- [ ] potential rename to `micro lisp`
+  - `.ul` `.ulc` `.uld` `(udex:install "foo")`
+- [ ] Custom cfmt
+  - for printing atoms as well as datums
+- [ ] `cleared` remove symbol.
 - [ ] Testing Suite
 - [ ] `struct-eq`
 - [ ] defgeneric??? (maybe not???)
-- [ ] underscored internal functions should be `pk_atom_*` instead
 - [ ] Pretty Printing
 - [ ] `unwind-protect`
 - [ ] `ecase`
