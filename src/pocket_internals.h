@@ -773,6 +773,7 @@ void *pk_atom_cobject_data(Pocket lisp, PKAtomCObject *object);
 size_t pk_atom_cobject_size(Pocket lisp, PKAtomCObject *object);
 
 PKAtom *pk_atom_method_set(Pocket lisp, PKAtomSymbol *type, PKAtomSymbol *symbol, PKAtom *method);
+PKAtom *pk_atom_list_methods(Pocket lisp, PKAtomSymbol *type);
 PKAtom *pk_atom_method_get(Pocket lisp, PKAtomSymbol *type, PKAtomSymbol *symbol);
 PKAtom *pk_atom_method_get_raw(Pocket lisp, PKAtomSymbol *type, PKAtomSymbol *symbol);
 
@@ -887,6 +888,7 @@ PKAtom *pk_hashmap_get_str(Pocket lisp, PKHashmap *map, PKStr key);
 PKAtom *pk_hashmap_get(Pocket lisp, PKHashmap *map, PKAtom *key);
 PKAtom *pk_hashmap_remove(Pocket lisp, PKHashmap *map, PKAtom *key);
 void pk_hashmap_deinit(Pocket lisp, PKHashmap *map);
+PKAtom *pk_hashmap_to_alist(Pocket lisp, PKHashmap *map);
 
 size_t pk_slotmap_hash(PKSlotmap *map, PKAtom *symbol);
 PKSlotmapSlot *pk_slotmap_get(Pocket lisp, PKSlotmap *map, PKAtom *symbol);

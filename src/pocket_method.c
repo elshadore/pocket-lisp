@@ -36,3 +36,11 @@ PKAtom *pk_atom_method_get(Pocket lisp, PKAtomSymbol *type, PKAtomSymbol *symbol
 PKAtom *pk_atom_method_get_raw(Pocket lisp, PKAtomSymbol *type, PKAtomSymbol *symbol) {
     return pk_hashmap_get(lisp, &type->methods, (PKAtom *)symbol);
 }
+
+PKAtom *pk_atom_list_methods(Pocket lisp, PKAtomSymbol *type) {
+    if (type->type_type == PK_TYPETY_NOTYPE) {
+        return lisp->cache.nil;
+    } else {
+        return pk_hashmap_to_alist(lisp, &type->methods);
+    }
+}

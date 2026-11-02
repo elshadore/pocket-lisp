@@ -3,10 +3,10 @@ The todo list for POCKET LISP
 
 - [ ] list-funs
 - [ ] list-vars
+- [ ] list-types
 - [ ] list-methods
 - [ ] list-slots
 - [ ] list-implementors
-- [ ] list-types
 
 - [ ] method calling function (in c)
   - we need some kind of ability to method call in c

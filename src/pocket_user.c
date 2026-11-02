@@ -234,6 +234,11 @@ void pk_list_types(Pocket lisp) {
     pk_stack_push(lisp, pk_atom_list_types(lisp));
 }
 
+void pk_list_methods(Pocket lisp, int type) {
+    PKAtomSymbol *atype = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, type));
+    pk_stack_push(lisp, pk_atom_list_methods(lisp, atype));
+}
+
 void pk_print(Pocket lisp, int atom) {
     pk_atom_print(lisp, pk_stack_get(lisp, atom));
 }

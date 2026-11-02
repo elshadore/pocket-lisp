@@ -177,3 +177,17 @@ void pk_hashmap_deinit(Pocket lisp, PKHashmap *map) {
     pk_free(lisp, map->e);
     *map = PK_HASHMAP_EMPTY;
 }
+
+PKAtom *pk_hashmap_to_alist(Pocket lisp, PKHashmap *map) {
+    PKAccum acc = pk_accum_new(lisp);
+
+    for (size_t i = 0; i < map->capacity; ++i) {
+        PKHashmapSlot *slot = &map->e[i];
+        if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) {
+            PKAtom *pair = (PKAtom *)pk_atom_cons(lisp, slot->key, slot->value);
+            pk_accum_push(&acc, pair);
+        }
+    }
+
+    return acc.head;
+}
