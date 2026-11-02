@@ -670,8 +670,8 @@ void pk_std_load_cfun(Pocket lisp) {
 void pk_std_load_cmethods(Pocket lisp) {
     PKMethodLoad methods[] = {
         {.type = pk_str("Array"), .method = pk_str("append"), .fun = pk_method_append_array, .args = 2, .arity = PK_ARITY_NORMAL},
-        {.type = pk_str("StringArray"), .method = pk_str("append"), .fun = pk_method_append_byte_array, .args = 2, .arity = PK_ARITY_NORMAL},
-        {.type = pk_str("ByteArray"), .method = pk_str("append"), .fun = pk_method_append_string_array, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.type = pk_str("String-Array"), .method = pk_str("append"), .fun = pk_method_append_string_array, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.type = pk_str("Byte-Array"), .method = pk_str("append"), .fun = pk_method_append_byte_array, .args = 2, .arity = PK_ARITY_NORMAL},
         {.type = pk_str("Cons"), .method = pk_str("append"), .fun = pk_method_append_list, .args = 2, .arity = PK_ARITY_NORMAL},
         {.type = pk_str("Nil"), .method = pk_str("append"), .fun = pk_fun_stub, .args = 2, .arity = PK_ARITY_NORMAL},
     };

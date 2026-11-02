@@ -316,9 +316,9 @@ void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) 
             break;
         }
         case PK_ATOMTY_STRING_ARRAY: {
-            pk_writer_string(lisp, w, pk_str("&<String-Array::"));
+            pk_writer_string(lisp, w, pk_str("&<String-Array::\""));
             pk_writer_string_escaped(lisp, w, pk_writer_slice(&atom->string_array.string));
-            pk_writer_string(lisp, w, pk_str(">"));
+            pk_writer_string(lisp, w, pk_str("\">"));
             break;
         }
         case PK_ATOMTY_BYTE_ARRAY: {

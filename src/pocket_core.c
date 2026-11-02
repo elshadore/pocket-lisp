@@ -98,7 +98,18 @@ Pocket pk_init(void *user_env) {
 
     pk_init_cache(lisp);
 
+    PKJmp jmp;
+    pk_jmp_enter(lisp, &jmp);
+
+    if (setjmp(jmp.buf) != 0) {
+        pk_jmp_leave(lisp);
+        pk_deinit(lisp);
+        return NULL;
+    }
+
     pk_std_load(lisp);
+
+    pk_jmp_leave(lisp);
 
     return lisp;
 }
