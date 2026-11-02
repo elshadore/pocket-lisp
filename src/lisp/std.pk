@@ -122,7 +122,7 @@
     (= (typeof object) type))
 
 (defun assoc-key (alist key)
-     (car (assoc alist key)))
+    (car (assoc alist key)))
      
 (defun assoc-value (alist key)
-     (cdr (assoc alist key)))
+    (cdr (assoc alist key)))

@@ -95,3 +95,25 @@ PKAtom *pk_env_alist(Pocket lisp, PK_ENV env) {
     return acc.head;
 }
 
+PKAtom *pk_atom_list_types(Pocket lisp) {
+    PKAccum acc = pk_accum_new(lisp);
+    
+    for (PKPool *iter = lisp->pool; iter != NULL; iter = iter->next) {
+        for (size_t i = 0; i < PK_POOL_MAX; ++i) {
+            PKAtom *atom = &iter->e[i];
+            if (!pk_atom_is_symbol(atom)) {
+                continue;
+            }
+            
+            PKAtomSymbol *symbol = (PKAtomSymbol *)atom;
+            if (symbol->type_type == PK_TYPETY_NOTYPE) {
+                continue;
+            }
+            
+            pk_accum_push(&acc, atom);
+        }
+    }
+    
+    return acc.head;
+}
+

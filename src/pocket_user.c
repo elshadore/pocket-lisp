@@ -230,6 +230,10 @@ void pk_list_vars(Pocket lisp) {
     pk_stack_push(lisp, pk_env_alist(lisp, PK_ENV_VAR));
 }
 
+void pk_list_types(Pocket lisp) {
+    pk_stack_push(lisp, pk_atom_list_types(lisp));
+}
+
 void pk_print(Pocket lisp, int atom) {
     pk_atom_print(lisp, pk_stack_get(lisp, atom));
 }

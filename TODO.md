@@ -8,10 +8,6 @@ The todo list for POCKET LISP
 - [ ] list-implementors
 - [ ] list-types
 
-- [ ] assoc
-- [ ] assoc-key
-- [ ] assoc-value
-
 - [ ] method calling function (in c)
   - we need some kind of ability to method call in c
   - or rather symbol call?

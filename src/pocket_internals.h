@@ -750,6 +750,7 @@ PKAtom *pk_env_set(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol, PKAtom *value)
 PKAtom *pk_env_let(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol, PKAtom *value);
 void pk_env_let_unwind(Pocket lisp, size_t n);
 PKAtom *pk_env_alist(Pocket lisp, PK_ENV env);
+PKAtom *pk_atom_list_types(Pocket lisp);
     
 void pk_atom_cfun_exec(Pocket lisp, PKAtomCFun *cfun);
 void pk_atom_lfun_exec(Pocket lisp, PKAtomLFun *lfun);
