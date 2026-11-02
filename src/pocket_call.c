@@ -94,28 +94,26 @@ PKAtom *pk_funcall_resolve_function(Pocket lisp, PKAtoms slice) {
     if (!pk_atom_is_symbol(function)) {
         return function;
     }
+    
     PKAtomSymbol *asym = (PKAtomSymbol *)function;
+    PKStr name = asym->name->str;
+
+    if (slice.length >= 2) {
+        PKAtom *object = slice.e[0];
+        PKAtomSymbol *type = pk_atom_typeof(lisp, object);
+        PKAtom *method = pk_atom_method_get_raw(lisp, type, asym);
+        if (!pk_atom_is_undefined(method)) {
+            return method;
+        }
+    }
+
     PKAtom *lookup = pk_env_get(lisp, PK_ENV_FUN, asym);
-    if (!pk_atom_is_undefined(lookup)) {
+    if (pk_atom_is_undefined(lookup)) {
+        pk_errorf(lisp, "pk_funcall: undefined function or method %.*s", (int)name.length, name.c);
+        return lisp->cache.nil;
+    } else {
         return lookup;
     }
-    
-    PKStr name = asym->name->str;
-    if (slice.length <= 1) {
-        pk_errorf(lisp, "pk_funcall: undefined function or method %.*s", (int)name.length, name.c);
-        return lisp->cache.nil;
-    }
-    
-    PKAtom *object = slice.e[0];
-    PKAtomSymbol *type = pk_atom_typeof(lisp, object);
-    PKAtom *method = pk_atom_method_get_raw(lisp, type, asym);
-
-    if (pk_atom_is_undefined(method)) {
-        pk_errorf(lisp, "pk_funcall: undefined function or method %.*s", (int)name.length, name.c);
-        return lisp->cache.nil;
-    }
-    
-    return method;
 }
 
 void pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
