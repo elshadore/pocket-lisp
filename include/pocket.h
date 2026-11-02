@@ -126,6 +126,7 @@ PK_API void pk_to_list(Pocket lisp, int seq);
 
 PK_API void pk_car(Pocket lisp, int cons);
 PK_API void pk_cdr(Pocket lisp, int cons);
+PK_API void pk_assoc(Pocket lisp, int alist, int key);
 PK_API void pk_car_strict(Pocket lisp, int cons);
 PK_API void pk_cdr_strict(Pocket lisp, int cons);
 

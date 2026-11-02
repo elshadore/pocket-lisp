@@ -1,10 +1,10 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] list-methods
-- [ ] list-slots
 - [ ] list-funs
 - [ ] list-vars
+- [ ] list-methods
+- [ ] list-slots
 - [ ] list-implementors
 - [ ] list-types
 

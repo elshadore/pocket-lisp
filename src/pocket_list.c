@@ -203,6 +203,34 @@ void pk_atom_list_append(Pocket lisp, PKAtomCons *cons, PKAtom *atom) {
     last->cdr = (PKAtom *)pk_atom_list1(lisp, atom);
 }
 
+PKAtom *pk_atom_assoc(Pocket lisp, PKAtom *alist, PKAtom *key) {
+    PKAtom *iter = alist;
+
+    while (pk_atom_is_cons(iter)) {
+        PKAtom *entry = iter->cons.car;
+
+        if (pk_atom_is_cons(entry)) {
+            if (pk_atom_eq(lisp, entry->cons.car, key)) {
+                return entry;
+            }
+        } else if (!pk_atom_is_nil(entry)) {
+            PKStr ty = pk_ident_atomty(entry->header.type);
+            pk_errorf(lisp, "pk_atom_assoc: expected a cons entry, got %.*s", (int)ty.length, ty.c);
+            return lisp->cache.nil;
+        }
+
+        iter = iter->cons.cdr;
+    }
+
+    if (!pk_atom_is_nil(iter)) {
+        PKStr ty = pk_ident_atomty(iter->header.type);
+        pk_errorf(lisp, "pk_atom_assoc: expected a list, got %.*s", (int)ty.length, ty.c);
+        return lisp->cache.nil;
+    }
+
+    return lisp->cache.nil;
+}
+
 PKAtom *pk_atom_to_list(Pocket lisp, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_NIL: {

@@ -427,6 +427,12 @@ void pk_push_throw_value(Pocket lisp) {
     }
 }
 
+void pk_assoc(Pocket lisp, int alist, int key) {
+    PKAtom *aalist = pk_stack_get(lisp, alist);
+    PKAtom *akey = pk_stack_get(lisp, key);
+    pk_stack_push(lisp, pk_atom_assoc(lisp, aalist, akey));
+}
+
 PK_API void pk_cat(Pocket lisp, int lhs, int rhs) {
     // TODO: support list cat and other catting
     

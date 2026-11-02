@@ -683,6 +683,7 @@ PKAtom *pk_atom_list_packed(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_rev(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_rev_packed(Pocket lisp, PKAtoms atoms);
 void pk_atom_list_append(Pocket lisp, PKAtomCons *cons, PKAtom *atom);
+PKAtom *pk_atom_assoc(Pocket lisp, PKAtom *alist, PKAtom *key);
 PKAtom *pk_atom_to_list_bytes(Pocket lisp, PKBlob bytes);
 PKAtom *pk_atom_to_list_chars(Pocket lisp, PKStr string);
 PKAtom *pk_atom_to_list_table(Pocket lisp, PKHashmap *map);
