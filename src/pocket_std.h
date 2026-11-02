@@ -123,6 +123,12 @@
  "     `(get-slot ,object ',symbol))\n" \
  "\n" \
  "(defun type= (object type)\n" \
- "    (= (typeof object) type))\n"
+ "    (= (typeof object) type))\n" \
+ "\n" \
+ "(defun assoc-key (alist key)\n" \
+ "     (car (assoc alist key)))\n" \
+ "     \n" \
+ "(defun assoc-value (alist key)\n" \
+ "     (cdr (assoc alist key)))\n"
 
 #endif // POCKET_STD_H
