@@ -125,3 +125,9 @@ bool pk_atom_is_typen(Pocket lisp, PKAtom *atom, PKAtoms types) {
     }
     return false;
 }
+
+void pk_atom_assert_type(Pocket lisp, PKAtom *atom, PKAtomSymbol *type) {
+    if (!pk_atom_is_type(lisp, atom, type)) {
+        pk_error_type(lisp, atom, type);
+    }
+}

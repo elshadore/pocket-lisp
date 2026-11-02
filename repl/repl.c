@@ -40,7 +40,9 @@ int main(int argc, char **argv) {
         .argc = argc,
         .argv = argv,
     };
-
+    
+    pk_protect(lisp);
+    
     if (pk_fastcall(lisp, PK_CALL_FUN, &repl, run_repl, 0) == PK_YIELDED) {
         pk_print(lisp, -1);
         pk_deinit(lisp);

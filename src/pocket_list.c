@@ -190,6 +190,19 @@ PKAtom *pk_atom_to_list_table(Pocket lisp, PKHashmap *map) {
     return acc.head;
 }
 
+PKAtomCons *pk_atom_list_last_cons(Pocket lisp, PKAtomCons *cons) {
+    if (pk_atom_is_cons(cons->cdr)) {
+        return pk_atom_list_last_cons(lisp, (PKAtomCons *)cons->cdr);
+    } else {
+        return cons;
+    }
+}
+
+void pk_atom_list_append(Pocket lisp, PKAtomCons *cons, PKAtom *atom) {
+    PKAtomCons *last = pk_atom_list_last_cons(lisp, cons);
+    last->cdr = (PKAtom *)pk_atom_list1(lisp, atom);
+}
+
 PKAtom *pk_atom_to_list(Pocket lisp, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_NIL: {

@@ -117,3 +117,6 @@
      
 (defmacro getq-slot (object symbol)
      `(get-slot ,object ',symbol))
+
+(defun type= (object type)
+    (= (typeof object) type))

@@ -612,6 +612,8 @@ bool pk_atom_is_type3(Pocket lisp, PKAtom *atom, PKAtomSymbol *type1, PKAtomSymb
 bool pk_atom_is_type4(Pocket lisp, PKAtom *atom, PKAtomSymbol *type1, PKAtomSymbol *type2, PKAtomSymbol *type3, PKAtomSymbol *type4);
 bool pk_atom_is_typen(Pocket lisp, PKAtom *atom, PKAtoms types);
 
+void pk_atom_assert_type(Pocket lisp, PKAtom *atom, PKAtomSymbol *type);
+
 bool pk_atom_is_circular(Pocket lisp, PKAtom *atom);
 bool pk_atom_is_cons(PKAtom *atom);
 bool pk_atom_is_int(PKAtom *atom);
@@ -647,6 +649,9 @@ PKAtomCFun *pk_atom_assert_cfun(Pocket lisp, PKAtom *atom);
 PKAtomTable *pk_atom_assert_table(Pocket lisp, PKAtom *atom);
 PKAtomCObject *pk_atom_assert_cobject(Pocket lisp, PKAtom *atom);
 PKAtomLObject *pk_atom_assert_lobject(Pocket lisp, PKAtom *atom);
+PKAtomArray *pk_atom_assert_array(Pocket lisp, PKAtom *atom);
+PKAtomByteArray *pk_atom_assert_byte_array(Pocket lisp, PKAtom *atom);
+PKAtomStringArray *pk_atom_assert_string_array(Pocket lisp, PKAtom *atom);
 
 PKAtom *pk_atom_new_nil(Pocket lisp);
 PKAtom *pk_atom_new_true(Pocket lisp);
@@ -677,6 +682,7 @@ PKAtom *pk_atom_list(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_packed(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_rev(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_rev_packed(Pocket lisp, PKAtoms atoms);
+void pk_atom_list_append(Pocket lisp, PKAtomCons *cons, PKAtom *atom);
 PKAtom *pk_atom_to_list_bytes(Pocket lisp, PKBlob bytes);
 PKAtom *pk_atom_to_list_chars(Pocket lisp, PKStr string);
 PKAtom *pk_atom_to_list_table(Pocket lisp, PKHashmap *map);

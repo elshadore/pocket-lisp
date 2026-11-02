@@ -157,3 +157,18 @@ bool pk_atom_is_string_array(PKAtom *atom) {
 bool pk_atom_is_byte_array(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_BYTE_ARRAY;
 }
+
+PKAtomArray *pk_atom_assert_array(Pocket lisp, PKAtom *atom) {
+    pk_atom_assert_type(lisp, atom, lisp->cache.type_array);
+    return (PKAtomArray *)atom;
+}
+
+PKAtomByteArray *pk_atom_assert_byte_array(Pocket lisp, PKAtom *atom) {
+    pk_atom_assert_type(lisp, atom, lisp->cache.type_byte_array);
+    return (PKAtomByteArray *)atom;
+}
+
+PKAtomStringArray *pk_atom_assert_string_array(Pocket lisp, PKAtom *atom) {
+    pk_atom_assert_type(lisp, atom, lisp->cache.type_string_array);
+    return (PKAtomStringArray *)atom;
+}

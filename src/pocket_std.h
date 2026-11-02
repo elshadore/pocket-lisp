@@ -120,6 +120,9 @@
  "     `(set-slot ,object ',symbol ,value))\n" \
  "     \n" \
  "(defmacro getq-slot (object symbol)\n" \
- "     `(get-slot ,object ',symbol))\n"
+ "     `(get-slot ,object ',symbol))\n" \
+ "\n" \
+ "(defun type= (object type)\n" \
+ "    (= (typeof object) type))\n"
 
 #endif // POCKET_STD_H
