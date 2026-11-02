@@ -144,7 +144,13 @@ PK_API void pk_get(Pocket lisp, PK_ENV env, int symbol);
 PK_API void pk_get_raw(Pocket lisp, PK_ENV env, int symbol);
 PK_API bool pk_is_bound(Pocket lisp, PK_ENV env, int symbol);
 PK_API void pk_unbind(Pocket lisp, PK_ENV env, int symbol);
-PK_API void pk_env_list(Pocket lisp, PK_ENV env);
+
+PK_API void pk_list_funs(Pocket lisp);
+PK_API void pk_list_vars(Pocket lisp);
+PK_API void pk_list_types(Pocket lisp);
+PK_API void pk_list_slots(Pocket lisp, int object);
+PK_API void pk_list_methods(Pocket lisp, int type);
+PK_API void pk_list_implementors(Pocket lisp, int method);
 
 PK_API void pk_print(Pocket lisp, int atom);
 PK_API void pk_write(Pocket lisp, int atom);

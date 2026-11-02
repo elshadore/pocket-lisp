@@ -340,12 +340,12 @@ void pk_fun_funbind(void *user_closure, Pocket lisp) {
 
 void pk_fun_list_vars(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_env_list(lisp, PK_ENV_VAR);
+    pk_list_vars(lisp);
 }
 
 void pk_fun_list_funs(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_env_list(lisp, PK_ENV_FUN);
+    pk_list_funs(lisp);
 }
 
 void pk_fun_funcatch(void *user_closure, Pocket lisp) {

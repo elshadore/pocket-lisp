@@ -12,6 +12,11 @@ The todo list for POCKET LISP
 - [ ] assoc-key
 - [ ] assoc-value
 
+- [ ] method calling function (in c)
+  - we need some kind of ability to method call in c
+  - or rather symbol call?
+  - push symbol then funcall?
+  
 - [ ] methods for many things
   - append
   - cat
@@ -19,8 +24,6 @@ The todo list for POCKET LISP
   - +
   - eq?
   - everything
-  
-- [ ] method calling function (in c)
   
 - [ ] filter
 - [ ] map
@@ -125,3 +128,5 @@ The todo list for POCKET LISP
 - [ ] Async
   - [ ] Green Threads
   - [ ] Async Dynamic Scope
+- [ ] dragon game
+  an example videogame

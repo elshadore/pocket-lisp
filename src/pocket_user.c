@@ -222,8 +222,12 @@ void pk_unbind(Pocket lisp, PK_ENV env, int symbol) {
     (void)pk_env_set(lisp, env, pk_atom_assert_symbol(lisp, asymbol), lisp->cache.undefined);
 }
 
-void pk_env_list(Pocket lisp, PK_ENV env) {
-    pk_stack_push(lisp, pk_env_alist(lisp, env));
+void pk_list_funs(Pocket lisp) {
+    pk_stack_push(lisp, pk_env_alist(lisp, PK_ENV_FUN));
+}
+
+void pk_list_vars(Pocket lisp) {
+    pk_stack_push(lisp, pk_env_alist(lisp, PK_ENV_VAR));
 }
 
 void pk_print(Pocket lisp, int atom) {
