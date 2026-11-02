@@ -739,12 +739,8 @@ PKAtom *pk_atom_el(Pocket lisp, PKAtom *array, size_t index);
 
 PKAtomTable * pk_atom_table(Pocket lisp);
 PKAtom *pk_atom_table_put(Pocket lisp, PKAtomTable *table, PKAtom *key, PKAtom *value);
-PKAtom *pk_atom_table_put_unique(Pocket lisp, PKAtomTable *table, PKAtom *key, PKAtom *value);
 PKAtom *pk_atom_table_rem(Pocket lisp, PKAtomTable *table, PKAtom *key);
-PKAtom *pk_atom_table_rem_strict(Pocket lisp, PKAtomTable *table, PKAtom *key);
 PKAtom *pk_atom_table_find(Pocket lisp, PKAtomTable *table, PKAtom *key);
-PKAtom *pk_atom_table_find_raw(Pocket lisp, PKAtomTable *table, PKAtom *key);
-PKAtom *pk_atom_table_find_strict(Pocket lisp, PKAtomTable *table, PKAtom *key);
 bool pk_atom_table_is_member(Pocket lisp, PKAtomTable *table, PKAtom *key);
     
 PKAtom *pk_env_get(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol);

@@ -69,10 +69,10 @@ PKStr pk_ident_opcode(pk_u8 op) {
 
 PKStr pk_ident_arity(pk_u8 arity) {
     switch (arity) {
-        case PK_INT_ARITY_NORMAL: return pk_str("NORMAL");
-        case PK_INT_ARITY_OPTIONAL: return pk_str("OPTIONAL");
-        case PK_INT_ARITY_VARIADIC: return pk_str("VARIADIC");
-        default: return pk_str("UNKNOWN");
+        case PK_INT_ARITY_NORMAL: return pk_str("normal");
+        case PK_INT_ARITY_OPTIONAL: return pk_str("optional");
+        case PK_INT_ARITY_VARIADIC: return pk_str("variadic");
+        default: return pk_str("unknown");
     }
 }
 

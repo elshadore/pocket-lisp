@@ -212,6 +212,7 @@ void pk_method_append_array(void *user_closure, Pocket lisp) {
     PKAtomArray *array = pk_atom_assert_array(lisp, pk_stack_get(lisp, 1));
     PKAtom *atom = pk_stack_get(lisp, 2);
     pk_atom_array_append(lisp, array, atom);
+    pk_stack_push(lisp, (PKAtom *)array);
 }
 
 void pk_method_append_byte_array(void *user_closure, Pocket lisp) {
@@ -219,6 +220,7 @@ void pk_method_append_byte_array(void *user_closure, Pocket lisp) {
     PKAtomByteArray *array = pk_atom_assert_byte_array(lisp, pk_stack_get(lisp, 1));
     PKAtom *atom = pk_stack_get(lisp, 2);
     pk_atom_byte_array_append(lisp, array, atom);
+    pk_stack_push(lisp, (PKAtom *)array);
 }
 
 void pk_method_append_string_array(void *user_closure, Pocket lisp) {
@@ -226,6 +228,7 @@ void pk_method_append_string_array(void *user_closure, Pocket lisp) {
     PKAtomStringArray *array = pk_atom_assert_string_array(lisp, pk_stack_get(lisp, 1));
     PKAtom *atom = pk_stack_get(lisp, 2);
     pk_atom_string_array_append(lisp, array, atom);
+    pk_stack_push(lisp, (PKAtom *)array);
 }
 
 void pk_method_append_list(void *user_closure, Pocket lisp) {
@@ -233,6 +236,7 @@ void pk_method_append_list(void *user_closure, Pocket lisp) {
     PKAtomCons *list = pk_atom_assert_cons(lisp, pk_stack_get(lisp, 1));
     PKAtom *atom = pk_stack_get(lisp, 2);
     pk_atom_list_append(lisp, list, atom);
+    pk_stack_push(lisp, (PKAtom *)list);
 }
 
 void pk_fun_el(void *user_closure, Pocket lisp) {
@@ -267,34 +271,14 @@ void pk_fun_put(void *user_closure, Pocket lisp) {
     pk_put(lisp, 1, 2, 3);
 }
 
-void pk_fun_put_unique(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_put_unique(lisp, 1, 2, 3);
-}
-
 void pk_fun_rem(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_rem(lisp, 1, 2);
 }
 
-void pk_fun_rem_strict(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_rem_strict(lisp, 1, 2);
-}
-
 void pk_fun_find(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_find(lisp, 1, 2);
-}
-
-void pk_fun_find_raw(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_find_raw(lisp, 1, 2);
-}
-
-void pk_fun_find_strict(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_find_strict(lisp, 1, 2);
 }
 
 void pk_fun_is_member(void *user_closure, Pocket lisp) {
@@ -637,12 +621,8 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("table"), .fun = pk_fun_table, .args = 0, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("put"), .fun = pk_fun_put, .args = 3, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("put-unique"), .fun = pk_fun_put_unique, .args = 3, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("rem"), .fun = pk_fun_rem, .args = 2, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("rem-strict"), .fun = pk_fun_rem_strict, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("find"), .fun = pk_fun_find, .args = 2, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("find-raw"), .fun = pk_fun_find_raw, .args = 2, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("find-strict"), .fun = pk_fun_find_strict, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("member?"), .fun = pk_fun_is_member, .args = 2, .arity = PK_ARITY_NORMAL},
         
         {.symbol = pk_str("gensym"), .fun = pk_fun_gensym, .args = 0, .arity = PK_ARITY_NORMAL},

@@ -1,21 +1,6 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] Method check first in function calling
-- [ ] trim down table api
-  - `put`
-  - `remove`
-  - `member?`
-- [ ] multiple append
-  - append works on lists? append to the last cons
-
-- [ ] methods for many things
-  - append
-  - cat
-  - put
-  - +
-  - everything
-  
 - [ ] list-methods
 - [ ] list-slots
 - [ ] list-funs
@@ -27,11 +12,23 @@ The todo list for POCKET LISP
 - [ ] assoc-key
 - [ ] assoc-value
 
+- [ ] methods for many things
+  - append
+  - cat
+  - put
+  - +
+  - eq?
+  - everything
+  
+- [ ] method calling function (in c)
+  
 - [ ] filter
 - [ ] map
 - [ ] reduce
 - [ ] fap
   
+- [ ] multiple append
+
 - [ ] `Pocket` should not be cached in PKVM and PKCompiler
 - [ ] All possible memory leaks from throwing removed.
   - possible need to rework the way throwing / catching work

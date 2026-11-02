@@ -155,7 +155,7 @@ void pk_writer_simple_object(Pocket lisp, PKWriter *w, void *obj, PKStr name) {
 void pk_writer_simple_function(Pocket lisp, PKWriter *w, void *obj, PKStr type, PKArity arity) {
     pk_writer_string(lisp, w, pk_str("&<"));
     pk_writer_string(lisp, w, type);
-    pk_writer_string(lisp, w, pk_str("::"));
+    pk_writer_string(lisp, w, pk_str(":"));
     pk_writer_fmt(lisp, w, "%u", arity.args);
     pk_writer_string(lisp, w, pk_str(":"));
     pk_writer_string(lisp, w, pk_ident_arity(arity.type));
@@ -281,19 +281,19 @@ void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) 
             break;
         }
         case PK_ATOMTY_CFUN: {
-            pk_writer_simple_function(lisp, w, atom, pk_str("Function"), atom->cfun.arity);
+            pk_writer_simple_function(lisp, w, atom, pk_str("Function::c"), atom->cfun.arity);
             break;
         }
         case PK_ATOMTY_LFUN: {
-            pk_writer_simple_function(lisp, w, atom, pk_str("Function"), atom->lfun.arity);
+            pk_writer_simple_function(lisp, w, atom, pk_str("Function::lisp"), atom->lfun.arity);
             break;
         }
         case PK_ATOMTY_CMACRO: {
-            pk_writer_simple_function(lisp, w, atom, pk_str("Macro"), atom->cmacro.arity);
+            pk_writer_simple_function(lisp, w, atom, pk_str("Macro::c"), atom->cmacro.arity);
             break;
         }
         case PK_ATOMTY_LMACRO: {
-            pk_writer_simple_function(lisp, w, atom, pk_str("Macro"), atom->lmacro.arity);
+            pk_writer_simple_function(lisp, w, atom, pk_str("Macro::lisp"), atom->lmacro.arity);
             break;
         }
         case PK_ATOMTY_BLOB: {

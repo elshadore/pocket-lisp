@@ -114,12 +114,8 @@ PK_API void pk_push_table(Pocket lisp);
 PK_API void pk_cat(Pocket lisp, int lhs, int rhs);
 PK_API void pk_append(Pocket lisp, int seq, int element);
 PK_API void pk_put(Pocket lisp, int table, int key, int value);
-PK_API void pk_put_unique(Pocket lisp, int table, int key, int value);
 PK_API void pk_rem(Pocket lisp, int table, int key);
-PK_API void pk_rem_strict(Pocket lisp, int table, int key);
 PK_API void pk_find(Pocket lisp, int table, int key);
-PK_API void pk_find_raw(Pocket lisp, int table, int key);
-PK_API void pk_find_strict(Pocket lisp, int table, int key);
 PK_API bool pk_is_member(Pocket lisp, int table, int key);
 PK_API void pk_el(Pocket lisp, size_t index);
 

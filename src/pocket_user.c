@@ -450,41 +450,16 @@ PK_API void pk_put(Pocket lisp, int table, int key, int value) {
     pk_stack_push(lisp, pk_atom_table_put(lisp, atable, akey, avalue));
 }
 
-PK_API void pk_put_unique(Pocket lisp, int table, int key, int value) {
-    PKAtomTable *atable = pk_atom_assert_table(lisp, pk_stack_get(lisp, table));
-    PKAtom *akey = pk_stack_get(lisp, key);
-    PKAtom *avalue = pk_stack_get(lisp, value);
-    pk_stack_push(lisp, pk_atom_table_put_unique(lisp, atable, akey, avalue));
-}
-
 PK_API void pk_rem(Pocket lisp, int table, int key) {
     PKAtomTable *atable = pk_atom_assert_table(lisp, pk_stack_get(lisp, table));
     PKAtom *akey = pk_stack_get(lisp, key);
     pk_stack_push(lisp, pk_atom_table_rem(lisp, atable, akey));
 }
 
-PK_API void pk_rem_strict(Pocket lisp, int table, int key) {
-    PKAtomTable *atable = pk_atom_assert_table(lisp, pk_stack_get(lisp, table));
-    PKAtom *akey = pk_stack_get(lisp, key);
-    pk_stack_push(lisp, pk_atom_table_rem_strict(lisp, atable, akey));
-}
-
 PK_API void pk_find(Pocket lisp, int table, int key) {
     PKAtomTable *atable = pk_atom_assert_table(lisp, pk_stack_get(lisp, table));
     PKAtom *akey = pk_stack_get(lisp, key);
     pk_stack_push(lisp, pk_atom_table_find(lisp, atable, akey));
-}
-
-PK_API void pk_find_raw(Pocket lisp, int table, int key) {
-    PKAtomTable *atable = pk_atom_assert_table(lisp, pk_stack_get(lisp, table));
-    PKAtom *akey = pk_stack_get(lisp, key);
-    pk_stack_push(lisp, pk_atom_table_find_raw(lisp, atable, akey));
-}
-
-PK_API void pk_find_strict(Pocket lisp, int table, int key) {
-    PKAtomTable *atable = pk_atom_assert_table(lisp, pk_stack_get(lisp, table));
-    PKAtom *akey = pk_stack_get(lisp, key);
-    pk_stack_push(lisp, pk_atom_table_find_strict(lisp, atable, akey));
 }
 
 PK_API bool pk_is_member(Pocket lisp, int table, int key) {
