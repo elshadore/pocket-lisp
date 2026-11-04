@@ -1213,15 +1213,43 @@ PKAtomLFun *pk_compile_lambda(Pocket lisp, PK_CALL type, PKAtom *args, PKAtom *b
     return (PKAtomLFun *)out;
 }
 
-PKAtom *pk_atom_compile(Pocket lisp, PK_CALL type, PKAtom *value, PK_MODE mode) {
-    PKCompiler c = pk_cmp_new(type);
+typedef struct PKAtomCompileData_ {
+    PKCompiler c;
+    PKAtom *value;
+    PK_MODE mode;
+    PKAtom *result;
+} PKAtomCompileData;
 
-    if (mode == PK_MODE_EXPRESSION) {
-        pk_compile_value(lisp, &c, value);
+void pk_atom_compile_body(void *user_closure, Pocket lisp) {
+    PKAtomCompileData *data = (PKAtomCompileData *)user_closure;
+
+    if (data->mode == PK_MODE_EXPRESSION) {
+        pk_compile_value(lisp, &data->c, data->value);
     } else {
-        pk_compile_progn(lisp, &c, value);
+        pk_compile_progn(lisp, &data->c, data->value);
     }
-    pk_cmp_push_byte(lisp, &c, PK_OP_RET);
+    pk_cmp_push_byte(lisp, &data->c, PK_OP_RET);
 
-    return (PKAtom *)pk_compile_compile(lisp, &c, 0, PK_INT_ARITY_NORMAL, 0);
+    data->result = (PKAtom *)pk_compile_compile(lisp, &data->c, 0, PK_INT_ARITY_NORMAL, 0);
+    pk_stack_push(lisp, data->result);
+}
+
+PKAtom *pk_atom_compile(Pocket lisp, PK_CALL type, PKAtom *value, PK_MODE mode) {
+    PKAtomCompileData data = (PKAtomCompileData) {
+        .c = pk_cmp_new(type),
+        .value = value,
+        .mode = mode,
+        .result = NULL,
+    };
+
+    PK_RES result = pk_protect_noreturn(lisp, &data, pk_atom_compile_body, 0);
+
+    if (result == PK_YIELDED) {
+        if (!data.c.transferred) {
+            pk_cmp_deinit(lisp, &data.c);
+        }
+        pk_propagate(lisp);
+    }
+
+    return data.result;
 }

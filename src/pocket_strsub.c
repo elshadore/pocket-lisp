@@ -120,7 +120,7 @@ void pk_compile_strsub(Pocket lisp, PKCompiler *c, PKStr string) {
         },
     };
 
-    PK_RES result = pk_protect(lisp, &data, pk_compile_strsub_body, 0);
+    PK_RES result = pk_protect_noreturn_nogc(lisp, &data, pk_compile_strsub_body, 0);
 
     pk_writer_deinit(lisp, &data.sub.w);
 
