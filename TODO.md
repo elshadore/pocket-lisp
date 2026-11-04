@@ -12,13 +12,26 @@ The todo list for POCKET LISP
   - or rather symbol call?
   - push symbol then funcall?
   
+- [ ] remove `eq?`
+
 - [ ] methods for many things
   - append
-  - cat
+  - el
+  - put
+  - find
+  - remove
+  - member?
   - put
   - +
-  - eq?
-  - everything
+  - -
+  - /
+  - *
+  - %
+  - <=
+  - <
+  - >
+  - >=
+  - =
   
 - [ ] filter
 - [ ] map
@@ -27,7 +40,6 @@ The todo list for POCKET LISP
   
 - [ ] multiple append
 
-  
 - [ ] Streams
   - stdin
   - stdout

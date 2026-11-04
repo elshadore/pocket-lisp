@@ -1,6 +1,7 @@
 #include "pocket_internals.h"
 
 typedef struct PKStrSub_ {
+    Pocket lisp;
     PKCompiler *cmp;
     PKWriter w;
     PKStr string;
@@ -23,7 +24,7 @@ bool pk_strsub_inc(PKStrSub *sub) {
 
 void pk_strsub_ince(PKStrSub *sub) {
     if (!pk_strsub_inc(sub)) {
-        pk_errors(sub->cmp->lisp, pk_str("string sub out of bounds"));
+        pk_errors(sub->lisp, pk_str("string sub out of bounds"));
     }
 }
 
@@ -32,10 +33,10 @@ void pk_strsub_mark(PKStrSub *sub) {
 }
 
 void pk_compile_strsub_value(PKStrSub *sub, PKStr string) {
-    Pocket lisp = sub->cmp->lisp;
+    Pocket lisp = sub->lisp;
 
     PKAtom *parsed = pk_parse_atom_from_str(lisp, string, PK_MODE_EXPRESSION);
-    pk_compile_value(sub->cmp, parsed);
+    pk_compile_value(lisp, sub->cmp, parsed);
 }
 
 PKStr pk_strsub_slice(PKStrSub *sub) {
@@ -46,7 +47,7 @@ PKStr pk_strsub_slice(PKStrSub *sub) {
 }
 
 void pk_compile_strsub_(PKStrSub *sub) {
-    Pocket lisp = sub->cmp->lisp;
+    Pocket lisp = sub->lisp;
 
     size_t count = 0;
     pk_strsub_mark(sub);
@@ -61,7 +62,7 @@ void pk_compile_strsub_(PKStrSub *sub) {
             pk_strsub_ince(sub);
         } else if (pk_strsub_at(sub) == '{') {
             if (sub->w.count > 0) {
-                pk_cmp_load(sub->cmp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(&sub->w)));
+                pk_cmp_load(lisp, sub->cmp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(&sub->w)));
                 count += 1;
             }
 
@@ -88,25 +89,24 @@ void pk_compile_strsub_(PKStrSub *sub) {
     } while (pk_strsub_inc(sub));
 
     if (sub->w.count > 0) {
-        pk_cmp_load(sub->cmp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(&sub->w)));
+        pk_cmp_load(lisp, sub->cmp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(&sub->w)));
         count += 1;
     }
 
     if (count > 1) {
-        pk_cmp_push_byte(sub->cmp, PK_OP_STRCAT);
-        pk_cmp_push_any(sub->cmp, count);
+        pk_cmp_push_byte(lisp, sub->cmp, PK_OP_STRCAT);
+        pk_cmp_push_any(lisp, sub->cmp, count);
     }
 }
 
-void pk_compile_strsub(PKCompiler *c, PKStr string) {
-    Pocket lisp = c->lisp;
-
+void pk_compile_strsub(Pocket lisp, PKCompiler *c, PKStr string) {
     if (string.length == 0) {
-        pk_cmp_load(c, (PKAtom *)lisp->cache.empty_string);
+        pk_cmp_load(lisp, c, (PKAtom *)lisp->cache.empty_string);
         return;
     }
 
     PKStrSub sub = (PKStrSub) {
+        .lisp = lisp,
         .c = string.c[0],
         .string = string,
         .curr = 0,

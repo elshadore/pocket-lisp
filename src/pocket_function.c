@@ -36,7 +36,7 @@ void pk_atom_cfun_exec(Pocket lisp, PKAtomCFun *cfun) {
 }
 
 void pk_atom_lfun_exec(Pocket lisp, PKAtomLFun *lfun) {
-    PKVM vm = pk_vm_init(lisp, (PKAtom *)lfun, 0);
+    PKVM vm = pk_vm_init((PKAtom *)lfun, 0);
     pk_vm_exec(lisp, &vm);
 }
 

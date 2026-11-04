@@ -103,7 +103,6 @@ typedef struct PKParser_ {
 } PKParser;
 
 typedef struct PKCompiler_ {
-    Pocket lisp;
     PKBytes bc;
     PKArray atoms;
     PK_CALL type;
@@ -112,7 +111,6 @@ typedef struct PKCompiler_ {
 } PKCompiler;
 
 typedef struct PKVM_ {
-    Pocket lisp;
     PKAtom *lfun;
     size_t curr;
     size_t save;
@@ -904,12 +902,12 @@ void pk_slotmap_deinit(Pocket lisp, PKSlotmap *map);
 size_t pk_hash_djb2(PKStr string);
 size_t pk_hash_pointer(void *ptr);
 
-void pk_compile_value(PKCompiler *c, PKAtom *value);
-void pk_cmp_push_byte(PKCompiler *c, pk_u8 byte);
-void pk_cmp_push_any(PKCompiler *c, size_t value);
-void pk_cmp_push_atom(PKCompiler *c, PKAtom *atom);
-void pk_cmp_load(PKCompiler *c, PKAtom *atom);
-void pk_compile_strsub(PKCompiler *c, PKStr string);
+void pk_compile_value(Pocket lisp, PKCompiler *c, PKAtom *value);
+void pk_cmp_push_byte(Pocket lisp, PKCompiler *c, pk_u8 byte);
+void pk_cmp_push_any(Pocket lisp, PKCompiler *c, size_t value);
+void pk_cmp_push_atom(Pocket lisp, PKCompiler *c, PKAtom *atom);
+void pk_cmp_load(Pocket lisp, PKCompiler *c, PKAtom *atom);
+void pk_compile_strsub(Pocket lisp, PKCompiler *c, PKStr string);
 
 PKStr pk_ident_atomty(pk_u8 type);
 PKStr pk_ident_opcode(pk_u8 op);
@@ -929,7 +927,7 @@ PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path);
 PKAtomString *pk_fs_slurp(Pocket lisp, PKAtomString *file_path);
 PKAtom *pk_fs_read_user_input(Pocket lisp);
 
-PKVM pk_vm_init(Pocket lisp, PKAtom *lfun, size_t save);
+PKVM pk_vm_init(PKAtom *lfun, size_t save);
 void pk_vm_exec(Pocket lisp, PKVM *vm);
 
 void pk_gc_mark_cache(Pocket lisp);
