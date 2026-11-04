@@ -256,7 +256,8 @@ void pk_vm_op_exec(Pocket lisp, PKVM *vm) {
             return;
         }
         case PK_OP_PROTECT_BEGIN: {
-            pk_frame_push_mode(lisp, lisp->cache.nil, 0, PK_FRAME_MODE_PROTECT);
+            pk_frame_push(lisp, lisp->cache.nil, 0);
+            pk_frame_mode_set_protect(lisp);
             pk_vm_inc(lisp, vm);
             return;
         }

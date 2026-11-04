@@ -1,11 +1,13 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] `Pocket` should not be cached in PKVM and PKCompiler
 - [ ] All possible memory leaks from throwing removed.
   - possible need to rework the way throwing / catching work
   - `pk_protcall`?
   - push a frame that we then protect in then `pk_funcall`
+  
+- [ ] New Protect and Catch
+   - like `pk_protcall`
   
 - [ ] method calling function (in c)
   - we need some kind of ability to method call in c

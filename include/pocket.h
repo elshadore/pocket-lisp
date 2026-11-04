@@ -170,10 +170,10 @@ PK_API bool pk_macroexpand(Pocket lisp, int atom);
 PK_API PK_RES pk_eval(Pocket lisp, int expr, PK_MODE mode);
 PK_API PK_RES pk_apply(Pocket lisp, PK_CALL call, int fun, int args);
 PK_API PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args);
-PK_API PK_RES pk_fastcall(Pocket lisp, PK_CALL call, void *user_closure, PKFun fun, size_t args);
 
-PK_API void pk_protect(Pocket lisp);
-PK_API void pk_catch(Pocket lisp, int symbol);
+PK_API PK_RES pk_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args);
+PK_API PK_RES pk_protect(Pocket lisp, void *user_closure, PKFun fun, size_t args);
+PK_API PK_RES pk_catch(Pocket lisp, int symbol, void *user_closure, PKFun fun, size_t args);
 PK_API void pk_propagate(Pocket lisp);
 
 PK_API void pk_push_throw_type(Pocket lisp);

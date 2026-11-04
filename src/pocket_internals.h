@@ -788,7 +788,8 @@ void pk_atom_write(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_format(Pocket lisp, PKAtom *atom);
 
 void pk_frame_push(Pocket lisp, PKAtom *function, size_t arity);
-void pk_frame_push_mode(Pocket lisp, PKAtom *function, size_t arity, pk_u8 mode);
+void pk_frame_mode_set_protect(Pocket lisp);
+void pk_frame_mode_set_catch(Pocket lisp, PKAtomSymbol *symbol);
 void pk_frame_unwind(Pocket lisp);
 void pk_frame_unwindn(Pocket lisp, size_t n);
 void pk_frame_clear(Pocket lisp);
