@@ -1,12 +1,12 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] list-funs
-- [ ] list-vars
-- [ ] list-types
-- [ ] list-methods
 - [ ] list-slots
 - [ ] list-implementors
+- [ ] list-symbols
+  - list all symbols
+- [ ] is-type?
+  - is the symbol a type
 
 - [ ] method calling function (in c)
   - we need some kind of ability to method call in c
@@ -32,7 +32,8 @@ The todo list for POCKET LISP
 - [ ] All possible memory leaks from throwing removed.
   - possible need to rework the way throwing / catching work
   - `pk_protcall`?
-
+  - push a frame that we then protect in then `pk_funcall`
+  
 - [ ] Streams
   - stdin
   - stdout
@@ -44,6 +45,7 @@ The todo list for POCKET LISP
 - [ ] `string-split`
 - [ ] `->bytes`
 - [ ] `->string`
+- [ ] `->list`
 - [ ] implement `cat`
   - dispatch on first type
   
@@ -60,20 +62,24 @@ The todo list for POCKET LISP
   
 - [ ] Remove ternary operator from all c code.
 - [ ] underscored internal functions should be `pk_atom_*` instead
+- [ ] `cleared` remove symbol.
+
+- [ ] Testing Suite
+
 - [ ] User Review of Compiler
   - in particular, destructuring bind.
 - [ ] User Review of Macro
 - [ ] User Review of wether we are allocating too much on the stack in the bytecode VM
    - i.e we are not popping temp values
+- [ ] Typed Destructuring Bind
+  - for lambda
 
 - [ ] potential rename to `micro lisp`
   - `.ul` `.ulc` `.uld` `(udex:install "foo")`
 - [ ] Custom cfmt
   - for printing atoms as well as datums
-- [ ] `cleared` remove symbol.
-- [ ] Testing Suite
+- [ ] Read Common Lisp Standard
 - [ ] `struct-eq`
-- [ ] defgeneric??? (maybe not???)
 - [ ] Pretty Printing
 - [ ] `unwind-protect`
 - [ ] `ecase`

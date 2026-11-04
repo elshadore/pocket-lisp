@@ -131,3 +131,32 @@ void pk_atom_assert_type(Pocket lisp, PKAtom *atom, PKAtomSymbol *type) {
         pk_error_type(lisp, atom, type);
     }
 }
+
+PKAtom *pk_atom_list_slots_type(Pocket lisp, PKAtomSymbol *type) {
+    if (type->type_type == PK_TYPETY_NOTYPE) {
+        return lisp->cache.nil;
+    }
+
+    PKAccum acc = pk_accum_new(lisp);
+
+    for (size_t i = 0; i < type->slots.capacity; ++i) {
+        PKSlotmapSlot *slot = &type->slots.e[i];
+        if (slot->state == PK_SLOTMAP_SLOT_OCCUPIED) {
+            PKAtom *pair = (PKAtom *)pk_atom_cons(lisp, slot->symbol, lisp->cache.nil);
+            pk_accum_push(&acc, pair);
+        }
+    }
+
+    return acc.head;
+}
+
+PKAtom *pk_atom_list_slots(Pocket lisp, PKAtom *atom) {
+    if (pk_atom_is_lobject(atom)) {
+        return pk_atom_list_slots_object(lisp, pk_atom_assert_lobject(lisp, atom));
+    }
+    if (pk_atom_is_cobject(atom)) {
+        return lisp->cache.nil;
+    }
+    PKAtomSymbol *type = pk_atom_assert_symbol(lisp, atom);
+    return pk_atom_list_slots_type(lisp, type);
+}

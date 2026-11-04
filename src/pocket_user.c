@@ -239,6 +239,11 @@ void pk_list_methods(Pocket lisp, int type) {
     pk_stack_push(lisp, pk_atom_list_methods(lisp, atype));
 }
 
+void pk_list_slots(Pocket lisp, int atom) {
+    PKAtom *aatom = pk_stack_get(lisp, atom);
+    pk_stack_push(lisp, pk_atom_list_slots(lisp, aatom));
+}
+
 void pk_print(Pocket lisp, int atom) {
     pk_atom_print(lisp, pk_stack_get(lisp, atom));
 }

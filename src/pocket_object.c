@@ -84,6 +84,21 @@ bool pk_atom_is_object(PKAtom *atom) {
     return (atom->header.type == PK_ATOMTY_LOBJECT) || (atom->header.type == PK_ATOMTY_COBJECT);
 }
 
+PKAtom *pk_atom_list_slots_object(Pocket lisp, PKAtomLObject *object) {
+    PKAccum acc = pk_accum_new(lisp);
+
+    for (size_t i = 0; i < object->type->slots.capacity; ++i) {
+        PKSlotmapSlot *slot = &object->type->slots.e[i];
+        if (slot->state == PK_SLOTMAP_SLOT_OCCUPIED) {
+            PKAtom *value = object->slots.e[slot->index];
+            PKAtom *pair = (PKAtom *)pk_atom_cons(lisp, slot->symbol, value);
+            pk_accum_push(&acc, pair);
+        }
+    }
+
+    return acc.head;
+}
+
 bool pk_atom_is_cobject(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_COBJECT;
 }
