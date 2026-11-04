@@ -368,6 +368,11 @@ void pk_fun_list_slots(void *user_closure, Pocket lisp) {
     pk_list_slots(lisp, 1);
 }
 
+void pk_fun_list_implementors(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_list_implementors(lisp, 1);
+}
+
 void pk_fun_funcatch(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_atom_assert_symbol(lisp, pk_stack_get(lisp, 1));
@@ -614,6 +619,7 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("list-types"), .fun = pk_fun_list_types, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("list-methods"), .fun = pk_fun_list_methods, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("list-slots"), .fun = pk_fun_list_slots, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("list-implementors"), .fun = pk_fun_list_implementors, .args = 1, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("funcatch"), .fun = pk_fun_funcatch, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("propagate"), .fun = pk_fun_propagate, .args = 0, .arity = PK_ARITY_NORMAL},

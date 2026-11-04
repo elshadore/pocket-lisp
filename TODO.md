@@ -1,13 +1,17 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] list-slots
-- [ ] list-implementors
 - [ ] list-symbols
   - list all symbols
 - [ ] is-type?
   - is the symbol a type
 
+- [ ] `Pocket` should not be cached in PKVM and PKCompiler
+- [ ] All possible memory leaks from throwing removed.
+  - possible need to rework the way throwing / catching work
+  - `pk_protcall`?
+  - push a frame that we then protect in then `pk_funcall`
+  
 - [ ] method calling function (in c)
   - we need some kind of ability to method call in c
   - or rather symbol call?
@@ -28,11 +32,6 @@ The todo list for POCKET LISP
   
 - [ ] multiple append
 
-- [ ] `Pocket` should not be cached in PKVM and PKCompiler
-- [ ] All possible memory leaks from throwing removed.
-  - possible need to rework the way throwing / catching work
-  - `pk_protcall`?
-  - push a frame that we then protect in then `pk_funcall`
   
 - [ ] Streams
   - stdin
