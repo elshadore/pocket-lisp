@@ -185,6 +185,7 @@ PK_API void pk_errors(Pocket lisp, PKStr message);
 PK_API PK_PRINTF_FMT(2, 3) void pk_errorf(Pocket lisp, const char *fmt, ...);
 PK_API void pk_error_oom(Pocket lisp);
 
+PK_API void pk_is_type(Pocket lisp, int symbol);
 PK_API bool pk_is_type(Pocket lisp, int atom, int type);
 PK_API void pk_assert_type(Pocket lisp, int atom, int type);
 

@@ -1,11 +1,6 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] list-symbols
-  - list all symbols
-- [ ] is-type?
-  - is the symbol a type
-
 - [ ] `Pocket` should not be cached in PKVM and PKCompiler
 - [ ] All possible memory leaks from throwing removed.
   - possible need to rework the way throwing / catching work
