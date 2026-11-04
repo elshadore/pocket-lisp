@@ -1,7 +1,6 @@
 #include "pocket_internals.h"
 
 typedef struct PKStrSub_ {
-    Pocket lisp;
     PKCompiler *cmp;
     PKWriter w;
     PKStr string;
@@ -22,9 +21,9 @@ bool pk_strsub_inc(PKStrSub *sub) {
     return true;
 }
 
-void pk_strsub_ince(PKStrSub *sub) {
+void pk_strsub_ince(Pocket lisp, PKStrSub *sub) {
     if (!pk_strsub_inc(sub)) {
-        pk_errors(sub->lisp, pk_str("string sub out of bounds"));
+        pk_errors(lisp, pk_str("string sub out of bounds"));
     }
 }
 
@@ -32,9 +31,7 @@ void pk_strsub_mark(PKStrSub *sub) {
     sub->mark = sub->curr;
 }
 
-void pk_compile_strsub_value(PKStrSub *sub, PKStr string) {
-    Pocket lisp = sub->lisp;
-
+void pk_compile_strsub_value(Pocket lisp, PKStrSub *sub, PKStr string) {
     PKAtom *parsed = pk_parse_atom_from_str(lisp, string, PK_MODE_EXPRESSION);
     pk_compile_value(lisp, sub->cmp, parsed);
 }
@@ -46,20 +43,18 @@ PKStr pk_strsub_slice(PKStrSub *sub) {
     };
 }
 
-void pk_compile_strsub_(PKStrSub *sub) {
-    Pocket lisp = sub->lisp;
-
+void pk_compile_strsub_(Pocket lisp, PKStrSub *sub) {
     size_t count = 0;
     pk_strsub_mark(sub);
 
     do {
         if (pk_strsub_at(sub) == '\\') {
-            pk_strsub_ince(sub);
+            pk_strsub_ince(lisp, sub);
             if (pk_strsub_at(sub) != '{') {
                 pk_errors(lisp, pk_str("bad escape"));
             }
             pk_writer_char(lisp, &sub->w, '{');
-            pk_strsub_ince(sub);
+            pk_strsub_ince(lisp, sub);
         } else if (pk_strsub_at(sub) == '{') {
             if (sub->w.count > 0) {
                 pk_cmp_load(lisp, sub->cmp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(&sub->w)));
@@ -67,18 +62,18 @@ void pk_compile_strsub_(PKStrSub *sub) {
             }
 
             pk_writer_reset(&sub->w);
-            pk_strsub_ince(sub);
+            pk_strsub_ince(lisp, sub);
 
             pk_strsub_mark(sub);
             while (pk_strsub_at(sub) != '}') {
-                pk_strsub_ince(sub);
+                pk_strsub_ince(lisp, sub);
             }
             {
                 PKStr slice = pk_strsub_slice(sub);
                 if (slice.length == 0) {
                     pk_errors(lisp, pk_str("empty sub"));
                 }
-                pk_compile_strsub_value(sub, slice);
+                pk_compile_strsub_value(lisp, sub, slice);
                 pk_strsub_mark(sub);
             }
 
@@ -106,7 +101,6 @@ void pk_compile_strsub(Pocket lisp, PKCompiler *c, PKStr string) {
     }
 
     PKStrSub sub = (PKStrSub) {
-        .lisp = lisp,
         .c = string.c[0],
         .string = string,
         .curr = 0,
@@ -115,7 +109,7 @@ void pk_compile_strsub(Pocket lisp, PKCompiler *c, PKStr string) {
         .w = PK_WRITER_EMPTY,
     };
 
-    pk_compile_strsub_(&sub);
+    pk_compile_strsub_(lisp, &sub);
 
     pk_writer_deinit(lisp, &sub.w);
 }
