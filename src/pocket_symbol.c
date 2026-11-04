@@ -64,6 +64,21 @@ bool pk_atom_is_symbol(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_SYMBOL;
 }
 
+PKAtom *pk_atom_list_symbols(Pocket lisp) {
+    PKAccum acc = pk_accum_new(lisp);
+
+    for (PKPool *iter = lisp->pool; iter != NULL; iter = iter->next) {
+        for (size_t i = 0; i < PK_POOL_MAX; ++i) {
+            PKAtom *atom = &iter->e[i];
+            if (pk_atom_is_symbol(atom)) {
+                pk_accum_push(&acc, atom);
+            }
+        }
+    }
+
+    return acc.head;
+}
+
 bool pk_atom_is_keyword(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_KEYWORD;
 }

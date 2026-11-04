@@ -775,6 +775,7 @@ size_t pk_atom_cobject_size(Pocket lisp, PKAtomCObject *object);
 PKAtom *pk_atom_method_set(Pocket lisp, PKAtomSymbol *type, PKAtomSymbol *symbol, PKAtom *method);
 PKAtom *pk_atom_list_methods(Pocket lisp, PKAtomSymbol *type);
 PKAtom *pk_atom_list_implementors(Pocket lisp, PKAtom *method);
+PKAtom *pk_atom_list_symbols(Pocket lisp);
 PKAtom *pk_atom_method_get(Pocket lisp, PKAtomSymbol *type, PKAtomSymbol *symbol);
 PKAtom *pk_atom_method_get_raw(Pocket lisp, PKAtomSymbol *type, PKAtomSymbol *symbol);
 
