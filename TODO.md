@@ -6,16 +6,11 @@ The todo list for POCKET LISP
   - `pk_protcall`?
   - push a frame that we then protect in then `pk_funcall`
   
-- [ ] New Protect and Catch
-   - like `pk_protcall`
-  
 - [ ] method calling function (in c)
   - we need some kind of ability to method call in c
   - or rather symbol call?
   - push symbol then funcall?
   
-- [ ] remove `eq?`
-
 - [ ] methods for many things
   - append
   - el

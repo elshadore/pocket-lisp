@@ -94,22 +94,37 @@ void pk_compile_strsub_(Pocket lisp, PKStrSub *sub) {
     }
 }
 
+typedef struct PKStrSubCompileData_ {
+    PKStrSub sub;
+} PKStrSubCompileData;
+
+void pk_compile_strsub_body(void *user_closure, Pocket lisp) {
+    PKStrSubCompileData *data = (PKStrSubCompileData *)user_closure;
+    pk_compile_strsub_(lisp, &data->sub);
+}
+
 void pk_compile_strsub(Pocket lisp, PKCompiler *c, PKStr string) {
     if (string.length == 0) {
         pk_cmp_load(lisp, c, (PKAtom *)lisp->cache.empty_string);
         return;
     }
 
-    PKStrSub sub = (PKStrSub) {
-        .c = string.c[0],
-        .string = string,
-        .curr = 0,
-        .mark = 0,
-        .cmp = c,
-        .w = PK_WRITER_EMPTY,
+    PKStrSubCompileData data = (PKStrSubCompileData) {
+        .sub = (PKStrSub) {
+            .c = string.c[0],
+            .string = string,
+            .curr = 0,
+            .mark = 0,
+            .cmp = c,
+            .w = PK_WRITER_EMPTY,
+        },
     };
 
-    pk_compile_strsub_(lisp, &sub);
+    PK_RES result = pk_protect(lisp, &data, pk_compile_strsub_body, 0);
 
-    pk_writer_deinit(lisp, &sub.w);
+    pk_writer_deinit(lisp, &data.sub.w);
+
+    if (result == PK_YIELDED) {
+        pk_propagate(lisp);
+    }
 }

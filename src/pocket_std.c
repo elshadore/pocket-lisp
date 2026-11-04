@@ -583,7 +583,6 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str(">="), .fun = pk_fun_gte, .args = 2, .arity = PK_ARITY_VARIADIC},
 
         {.symbol = pk_str("="), .fun = pk_fun_eq, .args = 2, .arity = PK_ARITY_VARIADIC},
-        {.symbol = pk_str("eq?"), .fun = pk_fun_eq, .args = 2, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("object-eq?"), .fun = pk_fun_object_eq, .args = 2, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("struct-eq?"), .fun = pk_fun_struct_eq, .args = 2, .arity = PK_ARITY_VARIADIC},
 
