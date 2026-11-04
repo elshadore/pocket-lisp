@@ -679,10 +679,34 @@ void pk_compile_jmp_(Pocket lisp, PKCompiler *c, PKAtom *args, pk_u8 op, pk_u8 e
     }
 }
 
+typedef struct PKCompileJmpData_ {
+    PKBytes patches;
+    PKCompiler *c;
+    PKAtom *args;
+    pk_u8 op;
+    pk_u8 empty_op;
+} PKCompileJmpData;
+
+void pk_compile_jmp_body(void *user_closure, Pocket lisp) {
+    PKCompileJmpData *data = (PKCompileJmpData *)user_closure;
+    pk_compile_jmp_(lisp, data->c, data->args, data->op, data->empty_op, &data->patches);
+}
+
 void pk_compile_jmp(Pocket lisp, PKCompiler *c, PKAtom *args, pk_u8 op, pk_u8 empty_op) {
-    PKBytes patches = PK_BYTES_EMPTY;
-    pk_compile_jmp_(lisp, c, args, op, empty_op, &patches);
-    pk_free(lisp, patches.e);
+    PKCompileJmpData data = (PKCompileJmpData) {
+        .patches = PK_BYTES_EMPTY,
+        .c = c,
+        .args = args,
+        .op = op,
+        .empty_op = empty_op,
+    };
+
+    PK_RES result = pk_protect(lisp, &data, pk_compile_jmp_body, 0);
+    pk_free(lisp, data.patches.e);
+
+    if (result == PK_YIELDED) {
+        pk_propagate(lisp);
+    }
 }
 
 void pk_compile_progn(Pocket lisp, PKCompiler *c, PKAtom *atom) {
@@ -1156,11 +1180,37 @@ PKAtomLFun *pk_compile_lambda_(Pocket lisp, PKCompiler *c, PKAtom *args, PKAtom 
     return pk_compile_compile(lisp, c, nargs, arity, nargs - option_start);
 }
 
+typedef struct PKCompileLambdaData_ {
+    PKCompiler c;
+    PKAtom *args;
+    PKAtom *body;
+} PKCompileLambdaData;
+
+void pk_compile_lambda_body(void *user_closure, Pocket lisp) {
+    PKCompileLambdaData *data = (PKCompileLambdaData *)user_closure;
+    PKAtomLFun *result = pk_compile_lambda_(lisp, &data->c, data->args, data->body);
+    pk_stack_push(lisp, (PKAtom *)result);
+}
+
 PKAtomLFun *pk_compile_lambda(Pocket lisp, PK_CALL type, PKAtom *args, PKAtom *body) {
-    PKCompiler c = pk_cmp_new(type);
-    PKAtomLFun *result = pk_compile_lambda_(lisp, &c, args, body);
-    pk_cmp_deinit(lisp, &c);
-    return result;
+    PKCompileLambdaData data = (PKCompileLambdaData) {
+        .c = pk_cmp_new(type),
+        .args = args,
+        .body = body,
+    };
+
+    PK_RES result = pk_protect(lisp, &data, pk_compile_lambda_body, 0);
+
+    if (result == PK_YIELDED) {
+        if (!data.c.transferred) {
+            pk_cmp_deinit(lisp, &data.c);
+        }
+        pk_propagate(lisp);
+    }
+
+    PKAtom *out = pk_stack_head(lisp);
+    pk_pop(lisp);
+    return (PKAtomLFun *)out;
 }
 
 PKAtom *pk_atom_compile(Pocket lisp, PK_CALL type, PKAtom *value, PK_MODE mode) {

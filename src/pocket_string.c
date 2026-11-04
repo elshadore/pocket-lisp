@@ -72,11 +72,33 @@ PKAtomString *pk_atom_string_cat_(PKWriter *w, Pocket lisp, PKAtoms atoms) {
     return pk_atom_string(lisp, pk_writer_slice(w));
 }
     
+typedef struct PKAtomStringCatData_ {
+    PKWriter w;
+    PKAtoms atoms;
+} PKAtomStringCatData;
+
+void pk_atom_string_cat_body(void *user_closure, Pocket lisp) {
+    PKAtomStringCatData *data = (PKAtomStringCatData *)user_closure;
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string_cat_(&data->w, lisp, data->atoms));
+}
+
 PKAtomString *pk_atom_string_cat(Pocket lisp, PKAtoms atoms) {
-    PKWriter w = PK_WRITER_EMPTY;
-    PKAtomString *result = pk_atom_string_cat_(&w, lisp, atoms);
-    pk_writer_deinit(lisp, &w);
-    return result;
+    PKAtomStringCatData data = (PKAtomStringCatData) {
+        .w = PK_WRITER_EMPTY,
+        .atoms = atoms,
+    };
+
+    PK_RES result = pk_protect(lisp, &data, pk_atom_string_cat_body, 0);
+
+    pk_writer_deinit(lisp, &data.w);
+
+    if (result == PK_YIELDED) {
+        pk_propagate(lisp);
+    }
+
+    PKAtom *out = pk_stack_head(lisp);
+    pk_pop(lisp);
+    return (PKAtomString *)out;
 }
 
 bool pk_atom_is_string(PKAtom *atom) {

@@ -163,11 +163,33 @@ PKAtom *pk_atom_clone_rec_(Pocket lisp, PKHashmap *memo, PKAtom *atom) {
     }
 }
 
+typedef struct PKAtomCloneData_ {
+    PKHashmap *memo;
+    PKAtom *atom;
+} PKAtomCloneData;
+
+void pk_atom_clone_body(void *user_closure, Pocket lisp) {
+    PKAtomCloneData *data = (PKAtomCloneData *)user_closure;
+    pk_stack_push(lisp, pk_atom_clone_rec_(lisp, data->memo, data->atom));
+}
+
 PKAtom *pk_atom_clone(Pocket lisp, PKAtom *atom) {
     PKHashmap memo = PK_HASHMAP_EMPTY;
-    PKAtom *result = pk_atom_clone_rec_(lisp, &memo, atom);
+    PKAtomCloneData data = (PKAtomCloneData) {
+        .memo = &memo,
+        .atom = atom,
+    };
+
+    PK_RES result = pk_protect(lisp, &data, pk_atom_clone_body, 0);
     pk_hashmap_deinit(lisp, &memo);
-    return result;
+
+    if (result == PK_YIELDED) {
+        pk_propagate(lisp);
+    }
+
+    PKAtom *out = pk_stack_head(lisp);
+    pk_pop(lisp);
+    return out;
 }
 
 bool pk_atom_is_circular_rec_(Pocket lisp, PKHashmap *visited, PKAtom *atom) {
@@ -221,11 +243,34 @@ bool pk_atom_is_circular_rec_(Pocket lisp, PKHashmap *visited, PKAtom *atom) {
     return result;
 }
 
+typedef struct PKAtomCircularData_ {
+    PKHashmap *visited;
+    PKAtom *atom;
+} PKAtomCircularData;
+
+void pk_atom_is_circular_body(void *user_closure, Pocket lisp) {
+    PKAtomCircularData *data = (PKAtomCircularData *)user_closure;
+    bool result = pk_atom_is_circular_rec_(lisp, data->visited, data->atom);
+    pk_stack_push(lisp, result ? (PKAtom *)lisp->cache.atom_true : lisp->cache.nil);
+}
+
 bool pk_atom_is_circular(Pocket lisp, PKAtom *atom) {
     PKHashmap visited = PK_HASHMAP_EMPTY;
-    bool result = pk_atom_is_circular_rec_(lisp, &visited, atom);
+    PKAtomCircularData data = (PKAtomCircularData) {
+        .visited = &visited,
+        .atom = atom,
+    };
+
+    PK_RES result = pk_protect(lisp, &data, pk_atom_is_circular_body, 0);
     pk_hashmap_deinit(lisp, &visited);
-    return result;
+
+    if (result == PK_YIELDED) {
+        pk_propagate(lisp);
+    }
+
+    PKAtom *out = pk_stack_head(lisp);
+    pk_pop(lisp);
+    return pk_atom_is_true(out);
 }
 
 bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {

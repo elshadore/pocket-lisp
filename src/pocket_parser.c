@@ -6,6 +6,38 @@
 
 #define pk_pat(r_) (r_)->c
 
+typedef struct PKParseBarredData_ {
+    PKParser *r;
+    PKWriter w;
+    PK_SYMTY type;
+} PKParseBarredData;
+
+void pk_parse_barred_body(void *user_closure, Pocket lisp) {
+    PKParseBarredData *data = (PKParseBarredData *)user_closure;
+    pk_stack_push(lisp, pk_parse_atom_barred(lisp, data->r, &data->w, data->type));
+}
+
+PKAtom *pk_parse_barred(Pocket lisp, PKParser *r, PK_SYMTY type) {
+    PKParseBarredData data = (PKParseBarredData) {
+        .r = r,
+        .w = PK_WRITER_EMPTY,
+        .type = type,
+    };
+
+    PK_RES result = pk_protect(lisp, &data, pk_parse_barred_body, 0);
+
+    pk_writer_deinit(lisp, &data.w);
+
+    if (result == PK_YIELDED) {
+        pk_propagate(lisp);
+    }
+
+    PKAtom *out = pk_stack_head(lisp);
+    pk_pop(lisp);
+    return out;
+}
+
+
 void pk_parser_error_(Pocket lisp, PKParser *r, PKWriter *w, PKStr error_message) {
     pk_writer_fmt(
         lisp,
@@ -113,10 +145,7 @@ PKAtom *pk_parse_atom_keyword(Pocket lisp, PKParser *r) {
     pk_parser_ince(lisp, r);
     
     if (pk_pat(r) == '|') {
-        PKWriter w = PK_WRITER_EMPTY;
-        PKAtom *result = pk_parse_atom_barred(lisp, r, &w, PK_SYMTY_KEYWORD);
-        pk_writer_deinit(lisp, &w);
-        return result;
+        return pk_parse_barred(lisp, r, PK_SYMTY_KEYWORD);
     }
     
     save = r->curr;
@@ -351,13 +380,33 @@ PKAtom *pk_parse_atom_blob_(Pocket lisp, PKParser *r, PKBytes *b) {
     }
 }
     
+typedef struct PKParseBlobData_ {
+    PKParser *r;
+    PKBytes b;
+} PKParseBlobData;
+
+void pk_parse_atom_blob_body(void *user_closure, Pocket lisp) {
+    PKParseBlobData *data = (PKParseBlobData *)user_closure;
+    pk_stack_push(lisp, pk_parse_atom_blob_(lisp, data->r, &data->b));
+}
+
 PKAtom *pk_parse_atom_blob(Pocket lisp, PKParser *r) {
-    PKBytes b = PK_BYTES_EMPTY;
-    
-    PKAtom *result = pk_parse_atom_blob_(lisp, r, &b);
-    pk_bytes_deinit(lisp, &b);
-    
-    return result;
+    PKParseBlobData data = (PKParseBlobData) {
+        .r = r,
+        .b = PK_BYTES_EMPTY,
+    };
+
+    PK_RES result = pk_protect(lisp, &data, pk_parse_atom_blob_body, 0);
+
+    pk_bytes_deinit(lisp, &data.b);
+
+    if (result == PK_YIELDED) {
+        pk_propagate(lisp);
+    }
+
+    PKAtom *out = pk_stack_head(lisp);
+    pk_pop(lisp);
+    return out;
 }
 
 PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r) {
@@ -462,10 +511,7 @@ PKAtom *pk_parse_atom_symbol(Pocket lisp, PKParser *r) {
     size_t save = r->curr;
 
     if (pk_pat(r) == '|') {
-        PKWriter w = PK_WRITER_EMPTY;
-        PKAtom *result = pk_parse_atom_barred(lisp, r, &w, PK_SYMTY_SYMBOL);
-        pk_writer_deinit(lisp, &w);
-        return result;
+        return pk_parse_barred(lisp, r, PK_SYMTY_SYMBOL);
     }
     
     if (!pk_char_is_symbol(pk_pat(r))) {

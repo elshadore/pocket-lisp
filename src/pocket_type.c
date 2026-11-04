@@ -32,11 +32,32 @@ void pk_atom_define_type_lisp(Pocket lisp, PKAtomSymbol *type, PKAtoms slots) {
     type->owned_memory = 0;
 }
 
+typedef struct PKDefineTypeAtomData_ {
+    PKAtomSymbol *type;
+    PKAtom *slots;
+    PKArray array;
+} PKDefineTypeAtomData;
+
+void pk_atom_define_type_lisp_atom_body(void *user_closure, Pocket lisp) {
+    PKDefineTypeAtomData *data = (PKDefineTypeAtomData *)user_closure;
+    pk_atom_list_to_array(lisp, data->slots, &data->array);
+    pk_atom_define_type_lisp(lisp, data->type, pk_array_slice(&data->array));
+}
+
 void pk_atom_define_type_lisp_atom(Pocket lisp, PKAtomSymbol *type, PKAtom *slots) {
-    PKArray array = PK_ARRAY_EMPTY;
-    pk_atom_list_to_array(lisp, slots, &array);
-    pk_atom_define_type_lisp(lisp, type, pk_array_slice(&array));
-    pk_array_deinit(lisp, &array);
+    PKDefineTypeAtomData data = (PKDefineTypeAtomData) {
+        .type = type,
+        .slots = slots,
+        .array = PK_ARRAY_EMPTY,
+    };
+
+    PK_RES result = pk_protect(lisp, &data, pk_atom_define_type_lisp_atom_body, 0);
+
+    pk_array_deinit(lisp, &data.array);
+
+    if (result == PK_YIELDED) {
+        pk_propagate(lisp);
+    }
 }
 
 void pk_atom_define_type_c_owned(Pocket lisp, PKAtomSymbol *type, size_t size) {

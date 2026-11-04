@@ -66,7 +66,12 @@ PKAtom *pk_atom_alloc(Pocket lisp) {
     
     PKAtomFree *result = lisp->free;
     lisp->free = result->next;
-    
+
+    result->header = (PKAtomHeader) {
+        .type = PK_ATOMTY_UNDEFINED,
+        .flags = PK_ATOMFLAG_NONE,
+    };
+
     return (PKAtom *)result;
 }
 

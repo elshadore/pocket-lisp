@@ -1,18 +1,40 @@
 #include "pocket_internals.h"
 
-PKAtomSymbol *pk_atom_gensym(Pocket lisp) {
-    PKWriter w = PK_WRITER_EMPTY;
+typedef struct PKAtomGensymData_ {
+    PKWriter w;
+} PKAtomGensymData;
+
+void pk_atom_gensym_body(void *user_closure, Pocket lisp) {
+    PKAtomGensymData *data = (PKAtomGensymData *)user_closure;
     for (;;) {
-        pk_writer_fmt(lisp, &w, "GENSYM::%zu", lisp->gensym_counter);
+        pk_writer_fmt(lisp, &data->w, "GENSYM::%zu", lisp->gensym_counter);
         lisp->gensym_counter += 1;
-        PKAtom *get = pk_hashmap_get_str(lisp, &lisp->symbolizer, pk_writer_slice(&w));
+        PKAtom *get = pk_hashmap_get_str(lisp, &lisp->symbolizer, pk_writer_slice(&data->w));
         if (pk_atom_is_undefined(get)) {
-            PKAtomSymbol *result = pk_atom_symbol(lisp, pk_writer_slice(&w));
-            pk_writer_deinit(lisp, &w);
-            return result;
+            pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_writer_slice(&data->w)));
+            pk_writer_deinit(lisp, &data->w);
+            return;
         }
-        pk_writer_reset(&w);
+        pk_writer_reset(&data->w);
     }
+}
+
+PKAtomSymbol *pk_atom_gensym(Pocket lisp) {
+    PKAtomGensymData data = (PKAtomGensymData) {
+        .w = PK_WRITER_EMPTY,
+    };
+
+    PK_RES result = pk_protect(lisp, &data, pk_atom_gensym_body, 0);
+
+    pk_writer_deinit(lisp, &data.w);
+
+    if (result == PK_YIELDED) {
+        pk_propagate(lisp);
+    }
+
+    PKAtom *out = pk_stack_head(lisp);
+    pk_pop(lisp);
+    return (PKAtomSymbol *)out;
 }
 
 PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr string) {

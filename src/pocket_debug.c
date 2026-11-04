@@ -8,7 +8,11 @@ void pk_debug_stackdump_stack(Pocket lisp, PKWriter *w, size_t index, size_t sta
     for (size_t i = 0; i < stack.length; ++i) {
         size_t index = stack.length - i - 1;
         pk_writer_fmt(lisp, w, "    [%zu][%d/%d] => ", start - i, -((int)i + 1), ((int)i + 1));
-        pk_writer_atom(lisp, w, stack.e[index]);
+        if (stack.e[index] == NULL) {
+            pk_writer_string(lisp, w, pk_str("<null>"));
+        } else {
+            pk_writer_atom(lisp, w, stack.e[index]);
+        }
         pk_writer_newline(lisp, w);
     }
 }

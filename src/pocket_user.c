@@ -32,16 +32,34 @@ void pk_push_stringc(Pocket lisp, char *cstring) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_stringc(lisp, cstring));
 }
 
-void pk_push_stringf(Pocket lisp, const char *fmt, ...) {
-    PKWriter w = PK_WRITER_EMPTY;
+typedef struct PKPushFmtData_ {
+    const char *fmt;
+    PKWriter w;
     va_list args;
+} PKPushFmtData;
 
-    va_start(args, fmt);
-    pk_writer_vfmt(lisp, &w, fmt, args);
-    va_end(args);
+void pk_push_stringf_body(void *user_closure, Pocket lisp) {
+    PKPushFmtData *data = (PKPushFmtData *)user_closure;
+    pk_writer_vfmt(lisp, &data->w, data->fmt, data->args);
+    pk_push_string(lisp, pk_writer_slice(&data->w));
+}
 
-    pk_push_string(lisp, pk_writer_slice(&w));
-    pk_writer_deinit(lisp, &w);
+void pk_push_stringf(Pocket lisp, const char *fmt, ...) {
+    PKPushFmtData data = (PKPushFmtData) {
+        .fmt = fmt,
+        .w = PK_WRITER_EMPTY,
+    };
+
+    va_start(data.args, fmt);
+
+    PK_RES result = pk_protect(lisp, &data, pk_push_stringf_body, 0);
+
+    pk_writer_deinit(lisp, &data.w);
+    va_end(data.args);
+
+    if (result == PK_YIELDED) {
+        pk_propagate(lisp);
+    }
 }
 
 void pk_push_symbol(Pocket lisp, PKStr symbol) {
@@ -52,16 +70,28 @@ void pk_push_symbolc(Pocket lisp, char *csymbol) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_symbolc(lisp, csymbol));
 }
 
+void pk_push_symbolf_body(void *user_closure, Pocket lisp) {
+    PKPushFmtData *data = (PKPushFmtData *)user_closure;
+    pk_writer_vfmt(lisp, &data->w, data->fmt, data->args);
+    pk_push_symbol(lisp, pk_writer_slice(&data->w));
+}
+
 void pk_push_symbolf(Pocket lisp, const char *fmt, ...) {
-    PKWriter w = PK_WRITER_EMPTY;
-    va_list args;
+    PKPushFmtData data = (PKPushFmtData) {
+        .fmt = fmt,
+        .w = PK_WRITER_EMPTY,
+    };
 
-    va_start(args, fmt);
-    pk_writer_vfmt(lisp, &w, fmt, args);
-    va_end(args);
+    va_start(data.args, fmt);
 
-    pk_push_symbol(lisp, pk_writer_slice(&w));
-    pk_writer_deinit(lisp, &w);
+    PK_RES result = pk_protect(lisp, &data, pk_push_symbolf_body, 0);
+
+    pk_writer_deinit(lisp, &data.w);
+    va_end(data.args);
+
+    if (result == PK_YIELDED) {
+        pk_propagate(lisp);
+    }
 }
 
 void pk_push_gensym(Pocket lisp) {
@@ -76,16 +106,28 @@ void pk_push_keywordc(Pocket lisp, char *ckeyword) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_keywordc(lisp, ckeyword));
 }
 
+void pk_push_keywordf_body(void *user_closure, Pocket lisp) {
+    PKPushFmtData *data = (PKPushFmtData *)user_closure;
+    pk_writer_vfmt(lisp, &data->w, data->fmt, data->args);
+    pk_push_keyword(lisp, pk_writer_slice(&data->w));
+}
+
 void pk_push_keywordf(Pocket lisp, const char *fmt, ...) {
-    PKWriter w = PK_WRITER_EMPTY;
-    va_list args;
+    PKPushFmtData data = (PKPushFmtData) {
+        .fmt = fmt,
+        .w = PK_WRITER_EMPTY,
+    };
 
-    va_start(args, fmt);
-    pk_writer_vfmt(lisp, &w, fmt, args);
-    va_end(args);
+    va_start(data.args, fmt);
 
-    pk_push_keyword(lisp, pk_writer_slice(&w));
-    pk_writer_deinit(lisp, &w);
+    PK_RES result = pk_protect(lisp, &data, pk_push_keywordf_body, 0);
+
+    pk_writer_deinit(lisp, &data.w);
+    va_end(data.args);
+
+    if (result == PK_YIELDED) {
+        pk_propagate(lisp);
+    }
 }
 
 void pk_push_cons(Pocket lisp, int car, int cdr) {

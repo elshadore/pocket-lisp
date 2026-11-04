@@ -100,11 +100,33 @@ PKAtomString *pk_lfun_hexdump_(Pocket lisp, PKWriter *w, PKAtomLFun *lfun) {
     return pk_atom_string(lisp, pk_writer_slice(w));
 }
     
+typedef struct PKLfunHexdumpData_ {
+    PKWriter w;
+    PKAtomLFun *lfun;
+} PKLfunHexdumpData;
+
+void pk_lfun_hexdump_body(void *user_closure, Pocket lisp) {
+    PKLfunHexdumpData *data = (PKLfunHexdumpData *)user_closure;
+    pk_stack_push(lisp, (PKAtom *)pk_lfun_hexdump_(lisp, &data->w, data->lfun));
+}
+
 PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun) {
-    PKWriter w = PK_WRITER_EMPTY;
-    PKAtomString *result = pk_lfun_hexdump_(lisp, &w, lfun);
-    pk_writer_deinit(lisp, &w);
-    return result;
+    PKLfunHexdumpData data = (PKLfunHexdumpData) {
+        .w = PK_WRITER_EMPTY,
+        .lfun = lfun,
+    };
+
+    PK_RES result = pk_protect(lisp, &data, pk_lfun_hexdump_body, 0);
+
+    pk_writer_deinit(lisp, &data.w);
+
+    if (result == PK_YIELDED) {
+        pk_propagate(lisp);
+    }
+
+    PKAtom *out = pk_stack_head(lisp);
+    pk_pop(lisp);
+    return (PKAtomString *)out;
 }
 
 PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom) {
