@@ -15,14 +15,14 @@ PK_RES pk_atom_apply(Pocket lisp, PK_CALL call, PKAtom *fun, PKAtom *args) {
 
     pk_stack_push(lisp, fun);
 
-    return pk_funcall(lisp, call, count);
+    return pk_int_funcall(lisp, call, count);
 }
 
 PK_RES pk_atom_eval_(Pocket lisp, PKAtom *expr) {
     pk_stack_push(lisp, expr);
     (void)pk_macroexpand_(lisp, -1);
     pk_stack_set(lisp, -1, pk_atom_compile(lisp, PK_CALL_FUN, pk_stack_get(lisp, -1), PK_MODE_EXPRESSION));
-    return pk_funcall(lisp, PK_CALL_FUN, 0);
+    return pk_int_funcall(lisp, PK_CALL_FUN, 0);
 }
 
 PK_RES pk_atom_evlist_(Pocket lisp, PKAtom *exprlist) {

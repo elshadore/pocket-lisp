@@ -160,18 +160,14 @@ PK_API void pk_format(Pocket lisp, int atom);
 PK_API void pk_hexdump(Pocket lisp, int atom);
 PK_API void pk_parse(Pocket lisp, int string, PK_MODE mode);
 
-// TODO: rethink this function. it causes problems our evaluation model is evlist.
-// compiling a block of code can produce problems with macro expansion.
-PK_API void pk_compile(Pocket lisp, PK_CALL type, int value, PK_MODE mode);
-
 PK_API bool pk_macroexpand1(Pocket lisp, int atom);
 PK_API bool pk_macroexpand(Pocket lisp, int atom);
 
-PK_API PK_RES pk_eval(Pocket lisp, int expr, PK_MODE mode);
-PK_API PK_RES pk_apply(Pocket lisp, PK_CALL call, int fun, int args);
-PK_API PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args);
+PK_API void pk_eval(Pocket lisp, int expr, PK_MODE mode);
+PK_API void pk_apply(Pocket lisp, PK_CALL call, int fun, int args);
+PK_API void pk_funcall(Pocket lisp, PK_CALL call, size_t args);
 
-PK_API PK_RES pk_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args);
+PK_API void pk_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args);
 PK_API PK_RES pk_protect(Pocket lisp, void *user_closure, PKFun fun, size_t args);
 PK_API PK_RES pk_catch(Pocket lisp, int symbol, void *user_closure, PKFun fun, size_t args);
 PK_API void pk_propagate(Pocket lisp);

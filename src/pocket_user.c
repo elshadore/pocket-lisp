@@ -275,18 +275,35 @@ void pk_parse(Pocket lisp, int string, PK_MODE mode) {
     pk_stack_push(lisp, result);
 }
 
-PK_RES pk_eval(Pocket lisp, int expr, PK_MODE mode) {
-    return pk_atom_eval(lisp, pk_stack_get(lisp, expr), mode);
+void pk_eval(Pocket lisp, int expr, PK_MODE mode) {
+    pk_atom_eval(lisp, pk_stack_get(lisp, expr), mode);
 }
 
-PK_RES pk_apply(Pocket lisp, PK_CALL call, int fun, int args) {
+void pk_apply(Pocket lisp, PK_CALL call, int fun, int args) {
     PKAtom *afun = pk_stack_get(lisp, fun);
     PKAtom *aargs = pk_stack_get(lisp, args);
-    return pk_atom_apply(lisp, call, afun, aargs);
+    pk_atom_apply(lisp, call, afun, aargs);
 }
 
-void pk_compile(Pocket lisp, PK_CALL type, int value, PK_MODE mode) {
-    pk_stack_push(lisp, pk_atom_compile(lisp, type, pk_stack_get(lisp, value), mode));
+void pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
+    (void)pk_int_funcall(lisp, call, args);
+}
+
+void pk_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args) {
+    (void)pk_int_fastcall(lisp, user_closure, fun, args);
+}
+    
+PK_RES pk_protect(Pocket lisp, void *user_closure, PKFun fun, size_t args) {
+    pk_frame_push(lisp, (PKAtom *)lisp->cache.protect, args);
+    pk_frame_mode_set_protect(lisp);
+    PK_RES result = pk_int_fastcall(lisp, user_closure, fun, args);
+    pk_frame_return_push(lisp);
+    return result;
+}
+
+PK_RES pk_catch(Pocket lisp, int symbol, void *user_closure, PKFun fun, size_t args) {
+    PKAtomSymbol *asymbol = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, symbol));
+    return pk_atom_catch(lisp, asymbol, user_closure, fun, args);
 }
 
 bool pk_macroexpand1(Pocket lisp, int atom) {

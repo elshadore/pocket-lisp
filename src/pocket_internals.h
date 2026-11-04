@@ -916,6 +916,10 @@ PKStr pk_ident_arity(pk_u8 arity);
 PKStr pk_ident_env(PK_ENV env);
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
     
+PK_RES pk_int_funcall(Pocket lisp, PK_CALL call, size_t args);
+PK_RES pk_int_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args);
+
+PK_RES pk_atom_catch(Pocket lisp, PKAtomSymbol *symbol, void *user_closure, PKFun fun, size_t args);
 PK_RES pk_atom_apply(Pocket lisp, PK_CALL call, PKAtom *fun, PKAtom *args);
 PK_RES pk_atom_eval(Pocket lisp, PKAtom *expr, PK_MODE mode);
 bool pk_macroexpand1_(Pocket lisp, int atom);

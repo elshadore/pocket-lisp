@@ -175,7 +175,7 @@ void pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
     pk_gc_collect(lisp);
 }
 
-PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
+PK_RES pk_int_funcall(Pocket lisp, PK_CALL call, size_t args) {
     PKJmp jmp;
     pk_jmp_enter(lisp, &jmp);
     
@@ -194,7 +194,7 @@ PK_RES pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
 }
 
 
-PK_RES pk_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args) {
+PK_RES pk_int_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args) {
     if (args > UINT8_MAX) {
         pk_errorf(lisp, "pk_fastcall: %zu args exceeds the maximum of %u", args, UINT8_MAX);
         return PK_YIELDED;
@@ -223,24 +223,12 @@ PK_RES pk_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args) {
     return PK_OK;
 }
 
-PK_RES pk_protect(Pocket lisp, void *user_closure, PKFun fun, size_t args) {
-    pk_frame_push(lisp, (PKAtom *)lisp->cache.protect, args);
-    pk_frame_mode_set_protect(lisp);
-    PK_RES result = pk_fastcall(lisp, user_closure, fun, args);
-    pk_frame_return_push(lisp);
-    return result;
-}
-
 PK_RES pk_atom_catch(Pocket lisp, PKAtomSymbol *symbol, void *user_closure, PKFun fun, size_t args) {
-    pk_frame_push(lisp, (PKAtom *)lisp->cache.protect, args);
+    pk_frame_push(lisp, (PKAtom *)symbol, args);
     pk_frame_mode_set_catch(lisp, symbol);
     lisp->current_frame.catch = symbol;
-    PK_RES result = pk_fastcall(lisp, user_closure, fun, args);
+    PK_RES result = pk_int_fastcall(lisp, user_closure, fun, args);
     pk_frame_return_push(lisp);
     return result;
 }
 
-PK_RES pk_catch(Pocket lisp, int symbol, void *user_closure, PKFun fun, size_t args) {
-    PKAtomSymbol *asymbol = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, symbol));
-    return pk_atom_catch(lisp, asymbol, user_closure, fun, args);
-}

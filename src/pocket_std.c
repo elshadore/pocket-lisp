@@ -449,7 +449,8 @@ void pk_fun_evlist(void *user_closure, Pocket lisp) {
 
 void pk_fun_compile(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_compile(lisp, PK_CALL_FUN, 1, PK_MODE_EXPRESSION);
+    PKAtom *atom = pk_stack_get(lisp, 1);
+    pk_atom_compile(lisp, PK_CALL_FUN, atom, PK_MODE_EXPRESSION);
 }
 
 void pk_fun_print(void *user_closure, Pocket lisp) {
