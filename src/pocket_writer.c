@@ -209,7 +209,7 @@ void pk_writer_atom_blob(Pocket lisp, PKWriter *w, PKBlob blob) {
 
 void pk_writer_atom_recursive(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom);
 
-void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) {
+void pk_writer_write_atom(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_UNDEFINED: {
             pk_writer_string(lisp, w, pk_str("&<Undefined>"));
@@ -402,21 +402,42 @@ void pk_writer_atom_(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) 
 
 void pk_writer_atom_recursive(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) {
     if (pk_atom_kind(atom) == PK_ATOMKIND_VALUE) {
-        pk_writer_atom_(lisp, w, clones, atom);
+        pk_writer_write_atom(lisp, w, clones, atom);
         return;
     }
 
     PKAtom *get = pk_hashmap_get(lisp, clones, atom);
     if (pk_atom_is_undefined(get)) {
         (void)pk_hashmap_insert(lisp, clones, atom, atom, PK_HASHMAP_INSERT_NORMAL);
-        pk_writer_atom_(lisp, w, clones, atom);
+        pk_writer_write_atom(lisp, w, clones, atom);
     } else {
         pk_writer_simple_object(lisp, w, atom, pk_ident_atomty(atom->header.type));
     }
 }
+
+typedef struct PKWriterAtomData_ {
+    PKHashmap *clones;
+    PKWriter *w;
+    PKAtom *atom;
+} PKWriterAtomData;
+
+void pk_writer_atom_(void *user_closure, Pocket lisp) {
+    PKWriterAtomData *data = (PKWriterAtomData *)user_closure;
+    pk_writer_write_atom(lisp, data->w, data->clones, data->atom);
+}
     
 void pk_writer_atom(Pocket lisp, PKWriter *w, PKAtom *atom) {
     PKHashmap clones = PK_HASHMAP_EMPTY;
-    pk_writer_atom_(lisp, w, &clones, atom);
+    PKWriterAtomData data = (PKWriterAtomData) {
+        .clones = &clones,
+        .w = w,
+        .atom = atom,
+    };
+    
+    PK_RES result = pk_protect(lisp, &data, pk_writer_atom_, 0);
     pk_hashmap_deinit(lisp, &clones);
+
+    if (result == PK_YIELDED) {
+        pk_propagate(lisp);
+    }
 }

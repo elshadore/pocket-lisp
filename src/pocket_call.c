@@ -226,7 +226,6 @@ PK_RES pk_int_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args) 
 PK_RES pk_atom_catch(Pocket lisp, PKAtomSymbol *symbol, void *user_closure, PKFun fun, size_t args) {
     pk_frame_push(lisp, (PKAtom *)symbol, args);
     pk_frame_mode_set_catch(lisp, symbol);
-    lisp->current_frame.catch = symbol;
     PK_RES result = pk_int_fastcall(lisp, user_closure, fun, args);
     pk_frame_return_push(lisp);
     return result;
