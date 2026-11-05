@@ -279,6 +279,23 @@ void pk_atom_list_to_array(Pocket lisp, PKAtom *list, PKArray *array) {
     }
 }
 
+PKAtom *pk_atom_list_el(Pocket lisp, PKAtom *list, size_t index) {
+    PKAtom *iter = list;
+    size_t counter = 0;
+    
+    while (pk_atom_is_cons(iter)) {
+        if (counter == index) {
+            return iter->cons.car;
+        }
+        counter += 1;
+        iter = iter->cons.cdr;
+    }
+
+    pk_errors(lisp, pk_str("list too short"));
+    
+    return lisp->cache.nil;
+}
+
 bool pk_atom_is_nil(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_NIL;
 }

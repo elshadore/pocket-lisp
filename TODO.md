@@ -9,32 +9,33 @@ The todo list for POCKET LISP
   - push symbol then funcall?
   
 - [ ] methods for many things
-  - append
-  - el
-  - put
-  - find
-  - remove
-  - member?
-  - put
-  - +
-  - -
-  - /
-  - *
-  - %
-  - <=
-  - <
-  - >
-  - >=
-  - =
-  - cat
-  - ->list
-  - ->string
-  - ->char
-  - ->chars
-  - ->bytes
-  - ->byte
-  - ->int
-  - ->float
+  - [x] append
+  - [x] el
+  - [ ] length
+  - [ ] put
+  - [ ] find
+  - [ ] remove
+  - [ ] member?
+  - [ ] put
+  - [ ] +
+  - [ ] -
+  - [ ] /
+  - [ ] *
+  - [ ] %
+  - [ ] <=
+  - [ ] <
+  - [ ] >
+  - [ ] >=
+  - [ ] =
+  - [ ] cat
+  - [ ] ->list
+  - [ ] ->string
+  - [ ] ->char
+  - [ ] ->chars
+  - [ ] ->bytes
+  - [ ] ->byte
+  - [ ] ->int
+  - [ ] ->float
   
 - [ ] filter
 - [ ] map

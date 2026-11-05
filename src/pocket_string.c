@@ -101,6 +101,14 @@ PKAtomString *pk_atom_string_cat(Pocket lisp, PKAtoms atoms) {
     return (PKAtomString *)out;
 }
 
+char pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index) {
+    if (index >= string->str.length) {
+        pk_errorf(lisp, "index: %zu, longer than the string length: %zu", index, string->str.length);
+        return '\0';
+    }
+    return string->str.length[index];
+}
+
 bool pk_atom_is_string(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_STRING;
 }

@@ -17,6 +17,15 @@ void pk_atom_array_append(Pocket lisp, PKAtomArray *array, PKAtom *atom) {
     pk_array_push(lisp, &array->atoms, atom, 16);
 }
 
+PKAtom *pk_atom_array_el(Pocket lisp, PKAtomArray *array, size_t index) {
+    PKArray *atoms = &array->atoms;
+    if (index >= atoms->count) {
+        pk_errorf(lisp, "array index: %zu, is out of bounds, array length is %zu", index, atoms->count);
+        return lisp->cache.nil;
+    }
+    return atoms->e[index];
+}
+
 PKAtomStringArray *pk_atom_string_array(Pocket lisp, PKStr init) {
     PKAtomStringArray *result = (PKAtomStringArray *)pk_atom_alloc(lisp);
     
@@ -55,6 +64,15 @@ void pk_atom_string_array_append(Pocket lisp, PKAtomStringArray *array, PKAtom *
     }
 }
 
+char pk_atom_string_array_el(Pocket lisp, PKAtomStringArray *array, size_t index) {
+    PKStr str = pk_writer_slice(&array->string);
+    if (index >= str.length) {
+        pk_errorf(lisp, "string array index: %zu, is out of bounds, length is %zu", index, str.length);
+        return '\0';
+    }
+    return str.c[index];
+}
+
 PKAtomByteArray *pk_atom_byte_array(Pocket lisp, PKBlob init) {
     PKAtomByteArray *result = (PKAtomByteArray *)pk_atom_alloc(lisp);
     
@@ -77,46 +95,16 @@ void pk_atom_byte_array_append_blob(Pocket lisp, PKAtomByteArray *array, PKBlob 
 }
 
 void pk_atom_byte_array_append(Pocket lisp, PKAtomByteArray *array, PKAtom *atom) {
-    pk_atom_byte_array_append_u8(lisp, array, pk_atom_to_byte(lisp, atom, PK_NUMBER_CONV_FLOAT_CONV));
+    pk_atom_byte_array_append_u8(lisp, array, pk_atom_to_byte(lisp, atom));
 }
 
-PKAtom *pk_atom_el(Pocket lisp, PKAtom *array, size_t index) {
-    switch (array->header.type) {
-        case PK_ATOMTY_ARRAY: {
-            PKArray *atoms = &array->array.atoms;
-            if (index >= atoms->count) {
-                pk_errorf(lisp, "array index: %zu, is out of bounds, array length is %zu", index, atoms->count);
-                return lisp->cache.nil;
-            }
-            return atoms->e[index];
-        }
-        case PK_ATOMTY_STRING_ARRAY: {
-            PKStr str = pk_writer_slice(&array->string_array.string);
-            if (index >= str.length) {
-                pk_errorf(lisp, "string array index: %zu, is out of bounds, length is %zu", index, str.length);
-                return lisp->cache.nil;
-            }
-            return (PKAtom *)pk_atom_char(lisp, str.c[index]);
-        }
-        case PK_ATOMTY_BYTE_ARRAY: {
-            PKBytes *bytes = &array->byte_array.bytes;
-            if (index >= bytes->count) {
-                pk_errorf(lisp, "byte array index: %zu, is out of bounds, length is %zu", index, bytes->count);
-                return lisp->cache.nil;
-            }
-            return (PKAtom *)pk_atom_int(lisp, (int)bytes->e[index]);
-        }
-        default: {
-            pk_error_type3(
-                lisp,
-                array,
-                lisp->cache.type_array,
-                lisp->cache.type_string_array,
-                lisp->cache.type_byte_array
-            );
-            return lisp->cache.nil;
-        }
+pk_u8 pk_atom_byte_array_el(Pocket lisp, PKAtomByteArray *array, size_t index) {
+    PKBytes *bytes = &array->bytes;
+    if (index >= bytes->count) {
+        pk_errorf(lisp, "byte array index: %zu, is out of bounds, length is %zu", index, bytes->count);
+        return 0;
     }
+    return bytes->e[index];
 }
 
 bool pk_atom_is_array(PKAtom *atom) {
