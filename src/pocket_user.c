@@ -565,28 +565,28 @@ size_t pk_length(Pocket lisp, int obj) {
 }
 
 PK_API void pk_put(Pocket lisp, int table, int key, int value) {
-    PKAtomTable *atable = pk_atom_assert_table(lisp, pk_stack_get(lisp, table));
+    PKAtom *atable = pk_stack_get(lisp, table);
     PKAtom *akey = pk_stack_get(lisp, key);
     PKAtom *avalue = pk_stack_get(lisp, value);
-    pk_stack_push(lisp, pk_atom_table_put(lisp, atable, akey, avalue));
+    pk_stack_push(lisp, pk_generic_put(lisp, atable, akey, avalue));
 }
 
 PK_API void pk_rem(Pocket lisp, int table, int key) {
-    PKAtomTable *atable = pk_atom_assert_table(lisp, pk_stack_get(lisp, table));
+    PKAtom *atable = pk_stack_get(lisp, table);
     PKAtom *akey = pk_stack_get(lisp, key);
-    pk_stack_push(lisp, pk_atom_table_rem(lisp, atable, akey));
+    pk_stack_push(lisp, pk_generic_remove(lisp, atable, akey));
 }
 
 PK_API void pk_find(Pocket lisp, int table, int key) {
-    PKAtomTable *atable = pk_atom_assert_table(lisp, pk_stack_get(lisp, table));
+    PKAtom *atable = pk_stack_get(lisp, table);
     PKAtom *akey = pk_stack_get(lisp, key);
-    pk_stack_push(lisp, pk_atom_table_find(lisp, atable, akey));
+    pk_stack_push(lisp, pk_generic_find(lisp, atable, akey));
 }
 
 PK_API bool pk_is_member(Pocket lisp, int table, int key) {
-    PKAtomTable *atable = pk_atom_assert_table(lisp, pk_stack_get(lisp, table));
+    PKAtom *atable = pk_stack_get(lisp, table);
     PKAtom *akey = pk_stack_get(lisp, key);
-    return pk_atom_table_is_member(lisp, atable, akey);
+    return pk_generic_is_member(lisp, atable, akey);
 }
 
 PK_API void pk_typeof(Pocket lisp, int stack_pointer) {
