@@ -1,12 +1,6 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] major bug in blob parsing
-  - `(defvar foo [1 2 3 4 5 6])`
-  
-- [ ] another bug (this time a segfault)
- - `(member? '(1 2 3 4 5 6 69 420) 69)`
- 
 - [ ] map doesn't work
   - `(map '(1 2 3 4 5 6) (lambda (x) (* x 2)))`
  
