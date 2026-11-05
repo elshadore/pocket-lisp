@@ -1,10 +1,7 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] All possible memory leaks from throwing removed.
-  - possible need to rework the way throwing / catching work
-  - `pk_protcall`?
-  - push a frame that we then protect in then `pk_funcall`
+- [ ] Issues of GC particularly in protect calling in compiler
   
 - [ ] method calling function (in c)
   - we need some kind of ability to method call in c
@@ -29,6 +26,15 @@ The todo list for POCKET LISP
   - >
   - >=
   - =
+  - cat
+  - ->list
+  - ->string
+  - ->char
+  - ->chars
+  - ->bytes
+  - ->byte
+  - ->int
+  - ->float
   
 - [ ] filter
 - [ ] map
@@ -43,6 +49,10 @@ The todo list for POCKET LISP
   - stderr
 - [ ] Special Form Objects
 
+- [ ] array arguments
+  - `(array 10 'foo)`
+  - better array api
+  
 - [ ] Unicode Strings and Characters (utf8)
   - [ ] fn, λ, lambda
 - [ ] `string-split`

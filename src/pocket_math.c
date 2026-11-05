@@ -8,6 +8,13 @@ PKAtomNumber *pk_atom_int(Pocket lisp, int integer) {
     return atom;
 }
 
+PKAtomNumber *pk_atom_size_t(Pocket lisp, size_t value) {
+    if (value > INT_MAX) {
+        pk_errorf(lisp, "cannot create an integer of size: %zu", value);
+    }
+    return pk_atom_int(lisp, (int)value);
+}
+    
 PKAtomNumber *pk_atom_float(Pocket lisp, float floater) {
     PKAtomNumber *atom = (PKAtomNumber *)pk_atom_alloc(lisp);
     atom->header.type = PK_ATOMTY_NUMBER;

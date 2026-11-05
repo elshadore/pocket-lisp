@@ -80,33 +80,6 @@ void pk_atom_byte_array_append(Pocket lisp, PKAtomByteArray *array, PKAtom *atom
     pk_atom_byte_array_append_u8(lisp, array, pk_atom_to_byte(lisp, atom, PK_NUMBER_CONV_FLOAT_CONV));
 }
 
-void pk_atom_append(Pocket lisp, PKAtom *array, PKAtom *atom) {
-    switch (array->header.type) {
-        case PK_ATOMTY_ARRAY: {
-            pk_atom_array_append(lisp, (PKAtomArray *)array, atom);
-            break;
-        }
-        case PK_ATOMTY_STRING_ARRAY: {
-            pk_atom_string_array_append(lisp, (PKAtomStringArray *)array, atom);
-            break;
-        }
-        case PK_ATOMTY_BYTE_ARRAY: {
-            pk_atom_byte_array_append(lisp, (PKAtomByteArray *)array, atom);
-            break;
-        }
-        default: {
-            pk_error_type3(
-                lisp,
-                array,
-                lisp->cache.type_array,
-                lisp->cache.type_string_array,
-                lisp->cache.type_byte_array
-            );
-            break;
-        }
-    }
-}
-
 PKAtom *pk_atom_el(Pocket lisp, PKAtom *array, size_t index) {
     switch (array->header.type) {
         case PK_ATOMTY_ARRAY: {

@@ -692,6 +692,7 @@ void pk_atom_list_to_array(Pocket lisp, PKAtom *list, PKArray *array);
 PKAtomNumber *pk_atom_int(Pocket lisp, int integer);
 PKAtomNumber *pk_atom_float(Pocket lisp, float floater);
 PKAtomNumber *pk_atom_byte(Pocket lisp, pk_u8 byte);
+PKAtomNumber *pk_atom_size_t(Pocket lisp, size_t value);
 PKAtom *pk_atom_add(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 PKAtom *pk_atom_sub(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 PKAtom *pk_atom_mul(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
@@ -726,7 +727,6 @@ PKAtomCFun *pk_atom_cfun(Pocket lisp, void *user_closure, PKFun fun, PK_CALL cal
 PKAtomArray *pk_atom_array(Pocket lisp, PKAtoms init);
 PKAtomStringArray *pk_atom_string_array(Pocket lisp, PKStr init);
 PKAtomByteArray *pk_atom_byte_array(Pocket lisp, PKBlob init);
-void pk_atom_append(Pocket lisp, PKAtom *array, PKAtom *atom);
 void pk_atom_array_append(Pocket lisp, PKAtomArray *array, PKAtom *atom);
 void pk_atom_string_array_append(Pocket lisp, PKAtomStringArray *array, PKAtom *atom);
 void pk_atom_string_array_append_str(Pocket lisp, PKAtomStringArray *array, PKStr string);
@@ -734,14 +734,15 @@ void pk_atom_byte_array_append(Pocket lisp, PKAtomByteArray *array, PKAtom *atom
 void pk_atom_byte_array_append_u8(Pocket lisp, PKAtomByteArray *array, pk_u8 byte);
 void pk_atom_byte_array_append_blob(Pocket lisp, PKAtomByteArray *array, PKBlob blob);
 
-PKAtom *pk_atom_el(Pocket lisp, PKAtom *array, size_t index);
-
 PKAtomTable * pk_atom_table(Pocket lisp);
 PKAtom *pk_atom_table_put(Pocket lisp, PKAtomTable *table, PKAtom *key, PKAtom *value);
 PKAtom *pk_atom_table_rem(Pocket lisp, PKAtomTable *table, PKAtom *key);
 PKAtom *pk_atom_table_find(Pocket lisp, PKAtomTable *table, PKAtom *key);
 bool pk_atom_table_is_member(Pocket lisp, PKAtomTable *table, PKAtom *key);
     
+void pk_generic_append(Pocket lisp, PKAtom *array, PKAtom *atom);
+PKAtom *pk_generic_el(Pocket lisp, PKAtom *array, size_t index);
+   
 PKAtom *pk_env_get(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol);
 PKAtom *pk_env_get_strict(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol);
 PKAtom *pk_env_set(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol, PKAtom *value);
@@ -806,6 +807,7 @@ size_t pk_sp_index(Pocket lisp, int stack_pointer);
 PKAtom *pk_stack_get(Pocket lisp, int stack_pointer);
 PKAtom *pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *value);
 PKAtom *pk_stack_head(Pocket lisp);
+PKAtom *pk_stack_head_pop(Pocket lisp);
 PKAtom *pk_stack_head_strict(Pocket lisp);
 void pk_stack_head_set_unchecked(Pocket lisp, PKAtom *atom);
 PKAtom *pk_stack_pop(Pocket lisp);

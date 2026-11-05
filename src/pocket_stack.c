@@ -141,6 +141,16 @@ PKAtom *pk_stack_head(Pocket lisp) {
     }
 }
 
+PKAtom *pk_stack_head_pop(Pocket lisp) {
+    if (pk_frame_length(lisp) == 0) {
+        return lisp->cache.nil;
+    } else {
+        PKAtom *result = lisp->stack.e[lisp->stack.count - 1];
+        lisp->stack.count -= 1;
+        return result;
+    }
+}
+
 PKAtom *pk_stack_head_strict(Pocket lisp) {
     if (pk_frame_length(lisp) == 0) {
         pk_errorf(lisp, "pk_stack_head_strict: stack underflow, frame holds %zu values", pk_frame_length(lisp));
