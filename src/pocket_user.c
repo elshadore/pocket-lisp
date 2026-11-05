@@ -52,7 +52,7 @@ void pk_push_stringf(Pocket lisp, const char *fmt, ...) {
 
     va_start(data.args, fmt);
 
-    PK_RES result = pk_protect(lisp, &data, pk_push_stringf_body, 0);
+    PK_RES result = pk_protect_noreturn(lisp, &data, pk_push_stringf_body, 0);
 
     pk_writer_deinit(lisp, &data.w);
     va_end(data.args);
@@ -84,7 +84,7 @@ void pk_push_symbolf(Pocket lisp, const char *fmt, ...) {
 
     va_start(data.args, fmt);
 
-    PK_RES result = pk_protect(lisp, &data, pk_push_symbolf_body, 0);
+    PK_RES result = pk_protect_noreturn(lisp, &data, pk_push_symbolf_body, 0);
 
     pk_writer_deinit(lisp, &data.w);
     va_end(data.args);
@@ -120,7 +120,7 @@ void pk_push_keywordf(Pocket lisp, const char *fmt, ...) {
 
     va_start(data.args, fmt);
 
-    PK_RES result = pk_protect(lisp, &data, pk_push_keywordf_body, 0);
+    PK_RES result = pk_protect_noreturn(lisp, &data, pk_push_keywordf_body, 0);
 
     pk_writer_deinit(lisp, &data.w);
     va_end(data.args);

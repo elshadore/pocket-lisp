@@ -434,7 +434,7 @@ void pk_writer_atom(Pocket lisp, PKWriter *w, PKAtom *atom) {
         .atom = atom,
     };
     
-    PK_RES result = pk_protect(lisp, &data, pk_writer_atom_, 0);
+    PK_RES result = pk_protect_noreturn(lisp, &data, pk_writer_atom_, 0);
     pk_hashmap_deinit(lisp, &clones);
 
     if (result == PK_YIELDED) {

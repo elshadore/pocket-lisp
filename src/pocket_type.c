@@ -51,7 +51,7 @@ void pk_atom_define_type_lisp_atom(Pocket lisp, PKAtomSymbol *type, PKAtom *slot
         .array = PK_ARRAY_EMPTY,
     };
 
-    PK_RES result = pk_protect(lisp, &data, pk_atom_define_type_lisp_atom_body, 0);
+    PK_RES result = pk_protect_noreturn(lisp, &data, pk_atom_define_type_lisp_atom_body, 0);
 
     pk_array_deinit(lisp, &data.array);
 

@@ -1,9 +1,6 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] map doesn't work
-  - `(map '(1 2 3 4 5 6) (lambda (x) (* x 2)))`
- 
 - [ ] possibility we are pushing a lot of nils onto the stack by not using `pk_protect_noreturn`
   
 - [ ] Issues of GC particularly in protect calling in compiler

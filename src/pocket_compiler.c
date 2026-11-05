@@ -701,7 +701,7 @@ void pk_compile_jmp(Pocket lisp, PKCompiler *c, PKAtom *args, pk_u8 op, pk_u8 em
         .empty_op = empty_op,
     };
 
-    PK_RES result = pk_protect(lisp, &data, pk_compile_jmp_body, 0);
+    PK_RES result = pk_protect_noreturn(lisp, &data, pk_compile_jmp_body, 0);
     pk_free(lisp, data.patches.e);
 
     if (result == PK_YIELDED) {

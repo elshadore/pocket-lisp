@@ -35,7 +35,7 @@ void pk_atom_print(Pocket lisp, PKAtom *atom) {
         .atom = atom,
     };
 
-    PK_RES result = pk_protect(lisp, &data, pk_atom_print_body, 0);
+    PK_RES result = pk_protect_noreturn(lisp, &data, pk_atom_print_body, 0);
     pk_writer_deinit(lisp, &data.w);
 
     if (result == PK_YIELDED) {
@@ -66,7 +66,7 @@ void pk_atom_write(Pocket lisp, PKAtom *atom) {
         .atom = atom,
     };
 
-    PK_RES result = pk_protect(lisp, &data, pk_atom_write_body, 0);
+    PK_RES result = pk_protect_noreturn(lisp, &data, pk_atom_write_body, 0);
     pk_writer_deinit(lisp, &data.w);
 
     if (result == PK_YIELDED) {
