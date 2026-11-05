@@ -8,20 +8,14 @@ The todo list for POCKET LISP
   
 - [ ] Issues of GC particularly in protect calling in compiler
   
-- [ ] method calling function (in c)
-  - we need some kind of ability to method call in c
-  - or rather symbol call?
-  - push symbol then funcall?
-  
 - [ ] methods for many things
   - [x] append
   - [x] el
-  - [ ] length
+  - [x] length
   - [ ] put
   - [ ] find
   - [ ] remove
   - [ ] member?
-  - [ ] put
   - [ ] +
   - [ ] -
   - [ ] /

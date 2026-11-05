@@ -763,6 +763,47 @@ void pk_method_length_byte_array(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_size_t(lisp, pk_atom_byte_array_length(lisp, array)));
 }
 
+void pk_method_put_table(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomTable *table = pk_atom_assert_table(lisp, pk_stack_get(lisp, 1));
+    PKAtom *key = pk_stack_get(lisp, 2);
+    PKAtom *value = pk_stack_get(lisp, 3);
+    pk_stack_push(lisp, pk_atom_table_put(lisp, table, key, value));
+}
+
+void pk_method_find_table(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomTable *table = pk_atom_assert_table(lisp, pk_stack_get(lisp, 1));
+    PKAtom *key = pk_stack_get(lisp, 2);
+    pk_stack_push(lisp, pk_atom_table_find(lisp, table, key));
+}
+
+void pk_method_remove_table(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomTable *table = pk_atom_assert_table(lisp, pk_stack_get(lisp, 1));
+    PKAtom *key = pk_stack_get(lisp, 2);
+    pk_stack_push(lisp, pk_atom_table_rem(lisp, table, key));
+}
+
+void pk_method_is_member_nil(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_nil(lisp);
+}
+
+void pk_method_is_member_list(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtom *list = pk_stack_get(lisp, 1);
+    PKAtom *key = pk_stack_get(lisp, 2);
+    pk_stack_push(lisp, pk_atom_bool(lisp, pk_atom_list_is_member(lisp, list, key)));
+}
+
+void pk_method_is_member_table(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomTable *table = pk_atom_assert_table(lisp, pk_stack_get(lisp, 1));
+    PKAtom *key = pk_stack_get(lisp, 2);
+    pk_stack_push(lisp, pk_atom_bool(lisp, pk_atom_table_is_member(lisp, table, key)));
+}
+
 void pk_method_loader(Pocket lisp, PKStr type, PKFunLoad *methods, size_t length) {
     pk_push_symbol(lisp, type);
     for (size_t i = 0; i < length; ++i) {
@@ -782,6 +823,7 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("append"), .fun = pk_fun_stub, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("el"), .fun = pk_fun_stub, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("length"), .fun = pk_method_length_nil, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("is-member?"), .fun = pk_method_is_member_nil, .args = 2, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Nil"), methods, pk_alen(methods));
     }
@@ -791,6 +833,7 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("append"), .fun = pk_method_append_list, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("el"), .fun = pk_method_el_list, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("length"), .fun = pk_method_length_list, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("is-member?"), .fun = pk_method_is_member_list, .args = 2, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Cons"), methods, pk_alen(methods));
     }
@@ -814,6 +857,10 @@ void pk_std_load_cmethods(Pocket lisp) {
         // Table
         PKFunLoad methods[] = {
             {.symbol = pk_str("length"), .fun = pk_method_length_table, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("put"), .fun = pk_method_put_table, .args = 3, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("find"), .fun = pk_method_find_table, .args = 2, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("remove"), .fun = pk_method_remove_table, .args = 2, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("is-member?"), .fun = pk_method_is_member_table, .args = 2, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Table"), methods, pk_alen(methods));
     }

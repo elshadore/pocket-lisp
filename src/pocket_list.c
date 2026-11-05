@@ -310,6 +310,19 @@ size_t pk_atom_list_length(Pocket lisp, PKAtom *list) {
     return counter;
 }
 
+bool pk_atom_list_is_member(Pocket lisp, PKAtom *list, PKAtom *key) {
+    PKAtom *iter = list;
+    
+    while (pk_atom_is_cons(iter)) {
+        if (pk_atom_eq(lisp, iter->cons.car, key)) {
+            return true;
+        }
+        iter = iter->cons.cdr;
+    }
+
+    return false;
+}
+
 bool pk_atom_is_nil(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_NIL;
 }
