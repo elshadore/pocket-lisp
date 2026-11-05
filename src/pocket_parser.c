@@ -32,8 +32,7 @@ PKAtom *pk_parse_barred(Pocket lisp, PKParser *r, PK_SYMTY type) {
         pk_propagate(lisp);
     }
 
-    PKAtom *out = pk_stack_head(lisp);
-    pk_pop(lisp);
+    PKAtom *out = pk_stack_head_pop(lisp);
     return out;
 }
 
@@ -404,8 +403,7 @@ PKAtom *pk_parse_atom_blob(Pocket lisp, PKParser *r) {
         pk_propagate(lisp);
     }
 
-    PKAtom *out = pk_stack_head(lisp);
-    pk_pop(lisp);
+    PKAtom *out = pk_stack_head_pop(lisp);
     return out;
 }
 

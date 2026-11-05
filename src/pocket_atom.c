@@ -187,8 +187,7 @@ PKAtom *pk_atom_clone(Pocket lisp, PKAtom *atom) {
         pk_propagate(lisp);
     }
 
-    PKAtom *out = pk_stack_head(lisp);
-    pk_pop(lisp);
+    PKAtom *out = pk_stack_head_pop(lisp);
     return out;
 }
 
@@ -268,8 +267,7 @@ bool pk_atom_is_circular(Pocket lisp, PKAtom *atom) {
         pk_propagate(lisp);
     }
 
-    PKAtom *out = pk_stack_head(lisp);
-    pk_pop(lisp);
+    PKAtom *out = pk_stack_head_pop(lisp);
     return pk_atom_is_true(out);
 }
 

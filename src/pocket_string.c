@@ -96,9 +96,7 @@ PKAtomString *pk_atom_string_cat(Pocket lisp, PKAtoms atoms) {
         pk_propagate(lisp);
     }
 
-    PKAtom *out = pk_stack_head(lisp);
-    pk_pop(lisp);
-    return (PKAtomString *)out;
+    return (PKAtomString *)pk_stack_head_pop(lisp);
 }
 
 char pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index) {

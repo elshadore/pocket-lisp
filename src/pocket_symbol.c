@@ -32,8 +32,7 @@ PKAtomSymbol *pk_atom_gensym(Pocket lisp) {
         pk_propagate(lisp);
     }
 
-    PKAtom *out = pk_stack_head(lisp);
-    pk_pop(lisp);
+    PKAtom *out = pk_stack_head_pop(lisp);
     return (PKAtomSymbol *)out;
 }
 

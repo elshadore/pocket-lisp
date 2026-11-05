@@ -99,7 +99,6 @@ PKAtomString *pk_atom_format(Pocket lisp, PKAtom *atom) {
         pk_propagate(lisp);
     }
 
-    PKAtom *out = pk_stack_head(lisp);
-    pk_pop(lisp);
+    PKAtom *out = pk_stack_head_pop(lisp);
     return (PKAtomString *)out;
 }

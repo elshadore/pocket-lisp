@@ -1208,8 +1208,7 @@ PKAtomLFun *pk_compile_lambda(Pocket lisp, PK_CALL type, PKAtom *args, PKAtom *b
         pk_propagate(lisp);
     }
 
-    PKAtom *out = pk_stack_head(lisp);
-    pk_pop(lisp);
+    PKAtom *out = pk_stack_head_pop(lisp);
     return (PKAtomLFun *)out;
 }
 
