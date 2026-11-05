@@ -326,7 +326,7 @@ bool pk_atom_list_is_member(Pocket lisp, PKAtom *list, PKAtom *key) {
 PKAtom *pk_atom_list_map(Pocket lisp, PKAtom *list, PKAtom *function) {
     PKAccum acc = pk_accum_new(lisp);
     PKAtom *iter = list;
-    
+
     while (pk_atom_is_cons(iter)) {
         pk_stack_push(lisp, iter->cons.car);
         pk_stack_push(lisp, function);
