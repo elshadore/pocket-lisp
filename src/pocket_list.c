@@ -326,22 +326,33 @@ bool pk_atom_list_is_member(Pocket lisp, PKAtom *list, PKAtom *key) {
 PKAtom *pk_atom_list_map(Pocket lisp, PKAtom *list, PKAtom *function) {
     PKAccum acc = pk_accum_new(lisp);
     PKAtom *iter = list;
-
+    
+    pk_push_nil(lisp);
+    
     while (pk_atom_is_cons(iter)) {
         pk_stack_push(lisp, iter->cons.car);
         pk_stack_push(lisp, function);
         pk_funcall(lisp, PK_CALL_FUN, 1);
         PKAtom *result = pk_stack_head_pop(lisp);
         pk_accum_push(&acc, result);
+        
+        pk_pop(lisp);
+        pk_stack_push(lisp, acc.head);
+        
         iter = iter->cons.cdr;
     }
     
-    return acc.head;
+    PKAtom *result = acc.head;
+    pk_pop(lisp);
+    
+    return result;
 }
 
 PKAtom *pk_atom_list_filter(Pocket lisp, PKAtom *list, PKAtom *function) {
     PKAccum acc = pk_accum_new(lisp);
     PKAtom *iter = list;
+    
+    pk_push_nil(lisp);
     
     while (pk_atom_is_cons(iter)) {
         pk_stack_push(lisp, iter->cons.car);
@@ -350,16 +361,24 @@ PKAtom *pk_atom_list_filter(Pocket lisp, PKAtom *list, PKAtom *function) {
         PKAtom *result = pk_stack_head_pop(lisp);
         if (pk_atom_is_true(result)) {
             pk_accum_push(&acc, iter->cons.car);
+            
+            pk_pop(lisp);
+            pk_stack_push(lisp, acc.head);
         }
         iter = iter->cons.cdr;
     }
     
-    return acc.head;
+    PKAtom *result = acc.head;
+    pk_pop(lisp);
+    
+    return result;
 }
 
 PKAtom *pk_atom_list_fap(Pocket lisp, PKAtom *list, PKAtom *function) {
     PKAccum acc = pk_accum_new(lisp);
     PKAtom *iter = list;
+    
+    pk_push_nil(lisp);
     
     while (pk_atom_is_cons(iter)) {
         pk_stack_push(lisp, iter->cons.car);
@@ -368,16 +387,24 @@ PKAtom *pk_atom_list_fap(Pocket lisp, PKAtom *list, PKAtom *function) {
         PKAtom *result = pk_stack_head_pop(lisp);
         if (pk_atom_is_true(result)) {
             pk_accum_push(&acc, result);
+            
+            pk_pop(lisp);
+            pk_stack_push(lisp, acc.head);
         }
         iter = iter->cons.cdr;
     }
     
-    return acc.head;
+    PKAtom *result = acc.head;
+    pk_pop(lisp);
+    
+    return result;
 }
 
 PKAtom *pk_atom_list_reduce(Pocket lisp, PKAtom *list, PKAtom *function, PKAtom *init) {
     PKAtom *reducer = init;
     PKAtom *iter = list;
+    
+    pk_push_nil(lisp);
     
     while (pk_atom_is_cons(iter)) {
         pk_stack_push(lisp, reducer);
@@ -385,10 +412,17 @@ PKAtom *pk_atom_list_reduce(Pocket lisp, PKAtom *list, PKAtom *function, PKAtom 
         pk_stack_push(lisp, function);
         pk_funcall(lisp, PK_CALL_FUN, 2);
         reducer = pk_stack_head_pop(lisp);
+        
+        pk_pop(lisp);
+        pk_stack_push(lisp, reducer);
+        
         iter = iter->cons.cdr;
     }
     
-    return reducer;
+    PKAtom *result = reducer;
+    pk_pop(lisp);
+    
+    return result;
 }
 
 bool pk_atom_is_nil(PKAtom *atom) {
