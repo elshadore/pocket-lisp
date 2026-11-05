@@ -512,6 +512,26 @@ void pk_fun_method_get_raw(void *user_closure, Pocket lisp) {
     pk_method_get_raw(lisp, 1, 2);
 }
 
+void pk_fun_map(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_map(lisp, 1, 2);
+}
+
+void pk_fun_filter(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_filter(lisp, 1, 2);
+}
+
+void pk_fun_fap(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_fap(lisp, 1, 2);
+}
+
+void pk_fun_reduce(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_reduce(lisp, 1, 2, 3);
+}
+
 typedef struct PKFunLoad_ {
     PKStr symbol;
     PKFun fun;
@@ -519,15 +539,6 @@ typedef struct PKFunLoad_ {
     PK_ARITY arity;
     pk_u8 options;
 } PKFunLoad;
-
-typedef struct PKMethodLoad_ {
-    PKStr type;
-    PKStr method;
-    PKFun fun;
-    pk_u8 args;
-    PK_ARITY arity;
-    pk_u8 options;
-} PKMethodLoad;
 
 void pk_std_load_cfun(Pocket lisp) {
     PKFunLoad funs[] = {
@@ -629,6 +640,11 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("set-method"), .fun = pk_fun_method_set, .args = 3, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("get-method"), .fun = pk_fun_method_get, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("get-method-raw"), .fun = pk_fun_method_get_raw, .args = 2, .arity = PK_ARITY_NORMAL},
+        
+        {.symbol = pk_str("map"), .fun = pk_fun_map, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("filter"), .fun = pk_fun_filter, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("fap"), .fun = pk_fun_fap, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("reduce"), .fun = pk_fun_reduce, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 1},
     };
 
     size_t length = pk_alen(funs);

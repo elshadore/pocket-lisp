@@ -4,18 +4,22 @@ The todo list for POCKET LISP
 - [ ] major bug in blob parsing
   - `(defvar foo [1 2 3 4 5 6])`
   
+- [ ] another bug (this time a segfault)
+ - `(member? '(1 2 3 4 5 6 69 420) 69)`
+ 
 - [ ] possibility we are pushing a lot of nils onto the stack by not using `pk_protect_noreturn`
   
 - [ ] Issues of GC particularly in protect calling in compiler
+  - we might need to accept we cant gc collect when compiling
   
 - [ ] methods for many things
   - [x] append
   - [x] el
   - [x] length
-  - [ ] put
-  - [ ] find
-  - [ ] remove
-  - [ ] member?
+  - [x] put
+  - [x] find
+  - [x] remove
+  - [x] member?
   - [ ] +
   - [ ] -
   - [ ] /
@@ -35,11 +39,6 @@ The todo list for POCKET LISP
   - [ ] ->byte
   - [ ] ->int
   - [ ] ->float
-  
-- [ ] filter
-- [ ] map
-- [ ] reduce
-- [ ] fap
   
 - [ ] multiple append
 

@@ -323,6 +323,74 @@ bool pk_atom_list_is_member(Pocket lisp, PKAtom *list, PKAtom *key) {
     return false;
 }
 
+PKAtom *pk_atom_list_map(Pocket lisp, PKAtom *list, PKAtom *function) {
+    PKAccum acc = pk_accum_new(lisp);
+    PKAtom *iter = list;
+    
+    while (pk_atom_is_cons(iter)) {
+        pk_stack_push(lisp, iter->cons.car);
+        pk_stack_push(lisp, function);
+        pk_funcall(lisp, PK_CALL_FUN, 1);
+        PKAtom *result = pk_stack_head_pop(lisp);
+        pk_accum_push(&acc, result);
+        iter = iter->cons.cdr;
+    }
+    
+    return acc.head;
+}
+
+PKAtom *pk_atom_list_filter(Pocket lisp, PKAtom *list, PKAtom *function) {
+    PKAccum acc = pk_accum_new(lisp);
+    PKAtom *iter = list;
+    
+    while (pk_atom_is_cons(iter)) {
+        pk_stack_push(lisp, iter->cons.car);
+        pk_stack_push(lisp, function);
+        pk_funcall(lisp, PK_CALL_FUN, 1);
+        PKAtom *result = pk_stack_head_pop(lisp);
+        if (pk_atom_is_true(result)) {
+            pk_accum_push(&acc, iter->cons.car);
+        }
+        iter = iter->cons.cdr;
+    }
+    
+    return acc.head;
+}
+
+PKAtom *pk_atom_list_fap(Pocket lisp, PKAtom *list, PKAtom *function) {
+    PKAccum acc = pk_accum_new(lisp);
+    PKAtom *iter = list;
+    
+    while (pk_atom_is_cons(iter)) {
+        pk_stack_push(lisp, iter->cons.car);
+        pk_stack_push(lisp, function);
+        pk_funcall(lisp, PK_CALL_FUN, 1);
+        PKAtom *result = pk_stack_head_pop(lisp);
+        if (pk_atom_is_true(result)) {
+            pk_accum_push(&acc, result);
+        }
+        iter = iter->cons.cdr;
+    }
+    
+    return acc.head;
+}
+
+PKAtom *pk_atom_list_reduce(Pocket lisp, PKAtom *list, PKAtom *function, PKAtom *init) {
+    PKAtom *reducer = init;
+    PKAtom *iter = list;
+    
+    while (pk_atom_is_cons(iter)) {
+        pk_stack_push(lisp, reducer);
+        pk_stack_push(lisp, iter->cons.car);
+        pk_stack_push(lisp, function);
+        pk_funcall(lisp, PK_CALL_FUN, 2);
+        reducer = pk_stack_head_pop(lisp);
+        iter = iter->cons.cdr;
+    }
+    
+    return reducer;
+}
+
 bool pk_atom_is_nil(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_NIL;
 }

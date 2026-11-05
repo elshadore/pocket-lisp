@@ -592,3 +592,28 @@ PK_API bool pk_is_member(Pocket lisp, int table, int key) {
 PK_API void pk_typeof(Pocket lisp, int stack_pointer) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_typeof(lisp, pk_stack_get(lisp, stack_pointer)));
 }
+
+PK_API void pk_map(Pocket lisp, int seq, int fun) {
+    PKAtom *aseq = pk_stack_get(lisp, seq);
+    PKAtom *afun = pk_stack_get(lisp, fun);
+    pk_stack_push(lisp, pk_atom_list_map(lisp, aseq, afun));
+}
+
+PK_API void pk_filter(Pocket lisp, int seq, int fun) {
+    PKAtom *aseq = pk_stack_get(lisp, seq);
+    PKAtom *afun = pk_stack_get(lisp, fun);
+    pk_stack_push(lisp, pk_atom_list_filter(lisp, aseq, afun));
+}
+
+PK_API void pk_fap(Pocket lisp, int seq, int fun) {
+    PKAtom *aseq = pk_stack_get(lisp, seq);
+    PKAtom *afun = pk_stack_get(lisp, fun);
+    pk_stack_push(lisp, pk_atom_list_fap(lisp, aseq, afun));
+}
+
+PK_API void pk_reduce(Pocket lisp, int seq, int fun, int init) {
+    PKAtom *aseq = pk_stack_get(lisp, seq);
+    PKAtom *afun = pk_stack_get(lisp, fun);
+    PKAtom *ainit = pk_stack_get(lisp, init);
+    pk_stack_push(lisp, pk_atom_list_reduce(lisp, aseq, afun, ainit));
+}

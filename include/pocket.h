@@ -215,6 +215,11 @@ PK_API size_t pk_cobject_size(Pocket lisp, int cobject);
 PK_API int pk_to_int(Pocket lisp, int number);
 PK_API float pk_to_float(Pocket lisp, int number);
 
+PK_API void pk_map(Pocket lisp, int seq, int fun);
+PK_API void pk_filter(Pocket lisp, int seq, int fun);
+PK_API void pk_fap(Pocket lisp, int seq, int fun);
+PK_API void pk_reduce(Pocket lisp, int seq, int fun, int init);
+
 #ifdef PK_CFLAG_DEBUG
 PK_API void pk_debug_leakcheck(Pocket lisp, const char *tag);
 PK_API void pk_debug_stackdump(Pocket lisp, const char *tag);
