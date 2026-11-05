@@ -113,7 +113,7 @@ PK_API void pk_push_table(Pocket lisp);
 
 PK_API void pk_append(Pocket lisp, int obj, int element);
 PK_API void pk_cat(Pocket lisp, int lhs, int rhs);
-PK_API void pk_el(Pocket lisp, size_t index);
+PK_API void pk_el(Pocket lisp, int obj, size_t index);
 PK_API size_t pk_length(Pocket lisp, int obj);
 PK_API void pk_put(Pocket lisp, int obj, int key, int value);
 PK_API void pk_rem(Pocket lisp, int obj, int key);

@@ -416,10 +416,6 @@ void pk_reverse(Pocket lisp, int seq) {
     pk_stack_push(lisp, pk_atom_reverse(lisp, pk_stack_get(lisp, seq)));
 }
 
-void pk_el(Pocket lisp, size_t index) {
-    pk_stack_push(lisp, pk_generic_el(lisp, pk_stack_head(lisp), index));
-}
-
 void pk_clone(Pocket lisp, int stack_pointer) {
     pk_stack_push(lisp, pk_atom_clone(lisp, pk_stack_get(lisp, stack_pointer)));
 }
@@ -556,6 +552,16 @@ PK_API void pk_append(Pocket lisp, int seq, int element) {
     PKAtom *aseq = pk_stack_get(lisp, seq);
     PKAtom *aelement = pk_stack_get(lisp, element);
     pk_generic_append(lisp, aseq, aelement);
+}
+
+void pk_el(Pocket lisp, int seq, size_t index) {
+    PKAtom *aseq = pk_stack_get(lisp, seq);
+    pk_stack_push(lisp, pk_generic_el(lisp, aseq, index));
+}
+
+size_t pk_length(Pocket lisp, int obj) {
+    PKAtom *aobj = pk_stack_get(lisp, obj);
+    return pk_generic_length(lisp, aobj);
 }
 
 PK_API void pk_put(Pocket lisp, int table, int key, int value) {

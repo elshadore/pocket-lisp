@@ -1,6 +1,11 @@
 # TODO
 The todo list for POCKET LISP
 
+- [ ] major bug in blob parsing
+  - `(defvar foo [1 2 3 4 5 6])`
+  
+- [ ] possibility we are pushing a lot of nils onto the stack by not using `pk_protect_noreturn`
+  
 - [ ] Issues of GC particularly in protect calling in compiler
   
 - [ ] method calling function (in c)
