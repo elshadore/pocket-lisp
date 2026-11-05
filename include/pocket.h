@@ -111,13 +111,14 @@ PK_API void pk_push_string_array(Pocket lisp);
 PK_API void pk_push_byte_array(Pocket lisp);
 PK_API void pk_push_table(Pocket lisp);
 
+PK_API void pk_append(Pocket lisp, int obj, int element);
 PK_API void pk_cat(Pocket lisp, int lhs, int rhs);
-PK_API void pk_append(Pocket lisp, int seq, int element);
-PK_API void pk_put(Pocket lisp, int table, int key, int value);
-PK_API void pk_rem(Pocket lisp, int table, int key);
-PK_API void pk_find(Pocket lisp, int table, int key);
-PK_API bool pk_is_member(Pocket lisp, int table, int key);
 PK_API void pk_el(Pocket lisp, size_t index);
+PK_API size_t pk_length(Pocket lisp, int obj);
+PK_API void pk_put(Pocket lisp, int obj, int key, int value);
+PK_API void pk_rem(Pocket lisp, int obj, int key);
+PK_API void pk_find(Pocket lisp, int obj, int key);
+PK_API bool pk_is_member(Pocket lisp, int obj, int key);
 
 PK_API void pk_clone(Pocket lisp, int stack_pointer);
 PK_API bool pk_is_circular(Pocket lisp, int stack_pointer);

@@ -26,6 +26,11 @@ PKAtom *pk_atom_array_el(Pocket lisp, PKAtomArray *array, size_t index) {
     return atoms->e[index];
 }
 
+size_t pk_atom_array_length(Pocket lisp, PKAtomArray *array) {
+    (void)lisp;
+    return array->atoms.count;
+}
+
 PKAtomStringArray *pk_atom_string_array(Pocket lisp, PKStr init) {
     PKAtomStringArray *result = (PKAtomStringArray *)pk_atom_alloc(lisp);
     
@@ -73,6 +78,11 @@ char pk_atom_string_array_el(Pocket lisp, PKAtomStringArray *array, size_t index
     return str.c[index];
 }
 
+size_t pk_atom_string_array_length(Pocket lisp, PKAtomStringArray *array) {
+    (void)lisp;
+    return array->string.count;
+}
+
 PKAtomByteArray *pk_atom_byte_array(Pocket lisp, PKBlob init) {
     PKAtomByteArray *result = (PKAtomByteArray *)pk_atom_alloc(lisp);
     
@@ -105,6 +115,11 @@ pk_u8 pk_atom_byte_array_el(Pocket lisp, PKAtomByteArray *array, size_t index) {
         return 0;
     }
     return bytes->e[index];
+}
+
+size_t pk_atom_byte_array_length(Pocket lisp, PKAtomByteArray *array) {
+    (void)lisp;
+    return array->bytes.count;
 }
 
 bool pk_atom_is_array(PKAtom *atom) {

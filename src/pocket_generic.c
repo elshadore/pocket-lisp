@@ -15,3 +15,14 @@ PKAtom *pk_generic_el(Pocket lisp, PKAtom *array, size_t index) {
     pk_funcall(lisp, PK_CALL_FUN, 2);
     return pk_stack_head_pop(lisp);
 }
+
+PKAtom *pk_generic_length_atom(Pocket lisp, PKAtom *seq) {
+    pk_stack_push(lisp, seq);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("length")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    return pk_stack_head_pop(lisp);
+}
+    
+size_t pk_generic_length(Pocket lisp, PKAtom *seq) {
+    return pk_atom_to_size_t(lisp, pk_generic_length_atom(lisp, seq));
+}

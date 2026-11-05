@@ -296,6 +296,20 @@ PKAtom *pk_atom_list_el(Pocket lisp, PKAtom *list, size_t index) {
     return lisp->cache.nil;
 }
 
+size_t pk_atom_list_length(Pocket lisp, PKAtom *list) {
+    (void)lisp;
+    
+    PKAtom *iter = list;
+    size_t counter = 0;
+    
+    while (pk_atom_is_cons(iter)) {
+        counter += 1;
+        iter = iter->cons.cdr;
+    }
+
+    return counter;
+}
+
 bool pk_atom_is_nil(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_NIL;
 }

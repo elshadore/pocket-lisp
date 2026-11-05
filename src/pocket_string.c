@@ -106,7 +106,12 @@ char pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index) {
         pk_errorf(lisp, "index: %zu, longer than the string length: %zu", index, string->str.length);
         return '\0';
     }
-    return string->str.length[index];
+    return string->str.c[index];
+}
+
+size_t pk_atom_string_length(Pocket lisp, PKAtomString *string) {
+    (void)lisp;
+    return string->str.length;
 }
 
 bool pk_atom_is_string(PKAtom *atom) {

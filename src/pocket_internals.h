@@ -631,6 +631,7 @@ bool pk_atom_is_byte_array(PKAtom *atom);
 bool pk_atom_is_object(PKAtom *atom);
 bool pk_atom_is_cobject(PKAtom *atom);
 bool pk_atom_is_lobject(PKAtom *atom);
+bool pk_atom_is_blob(PKAtom *atom);
 
 PKAtom *pk_atom_reverse(Pocket lisp, PKAtom *atom);
 bool pk_atom_is_macro(PKAtom *atom);
@@ -650,6 +651,7 @@ PKAtomLObject *pk_atom_assert_lobject(Pocket lisp, PKAtom *atom);
 PKAtomArray *pk_atom_assert_array(Pocket lisp, PKAtom *atom);
 PKAtomByteArray *pk_atom_assert_byte_array(Pocket lisp, PKAtom *atom);
 PKAtomStringArray *pk_atom_assert_string_array(Pocket lisp, PKAtom *atom);
+PKAtomBlob *pk_atom_assert_blob(Pocket lisp, PKAtom *atom);
 
 PKAtom *pk_atom_new_nil(Pocket lisp);
 PKAtom *pk_atom_new_true(Pocket lisp);
@@ -663,6 +665,7 @@ PKAtomString *pk_atom_string_alloc(Pocket lisp, size_t length);
 PKAtomString *pk_atom_stringc(Pocket lisp, char *cstring);
 PKAtomString *pk_atom_string_cat(Pocket lisp, PKAtoms atoms);
 char pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index);
+size_t pk_atom_string_length(Pocket lisp, PKAtomString *string);
 
 PKAtomChar *pk_atom_char(Pocket lisp, char c);
 bool pk_atom_string_cmp(PKAtomString *string, PKStr comp);
@@ -683,6 +686,7 @@ PKAtom *pk_atom_list_rev(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_list_rev_packed(Pocket lisp, PKAtoms atoms);
 void pk_atom_list_append(Pocket lisp, PKAtomCons *cons, PKAtom *atom);
 PKAtom *pk_atom_list_el(Pocket lisp, PKAtom *list, size_t index);
+size_t pk_atom_list_length(Pocket lisp, PKAtom *list);
 PKAtom *pk_atom_assoc(Pocket lisp, PKAtom *alist, PKAtom *key);
 PKAtom *pk_atom_to_list_bytes(Pocket lisp, PKBlob bytes);
 PKAtom *pk_atom_to_list_chars(Pocket lisp, PKStr string);
@@ -723,23 +727,28 @@ bool pk_atom_keyword_cmp(PKAtomKeyword *keyword, PKStr comp);
 PKAtomBlob *pk_atom_blob_new_empty(Pocket lisp);
 PKAtomBlob *pk_atom_blob_nomemcpy(Pocket lisp, PKBlob blob);
 PKAtomBlob *pk_atom_blob(Pocket lisp, PKBlob blob);
+pk_u8 pk_atom_blob_el(Pocket lisp, PKAtomBlob *blob, size_t index);
+size_t pk_atom_blob_length(Pocket lisp, PKAtomBlob *blob);
 
 PKAtomCFun *pk_atom_cfun(Pocket lisp, void *user_closure, PKFun fun, PK_CALL call, PK_ARITY arity, pk_u8 args, pk_u8 options);
 
 PKAtomArray *pk_atom_array(Pocket lisp, PKAtoms init);
 void pk_atom_array_append(Pocket lisp, PKAtomArray *array, PKAtom *atom);
 PKAtom *pk_atom_array_el(Pocket lisp, PKAtomArray *array, size_t index);
+size_t pk_atom_array_length(Pocket lisp, PKAtomArray *array);
 
 PKAtomStringArray *pk_atom_string_array(Pocket lisp, PKStr init);
 void pk_atom_string_array_append(Pocket lisp, PKAtomStringArray *array, PKAtom *atom);
 void pk_atom_string_array_append_str(Pocket lisp, PKAtomStringArray *array, PKStr string);
 char pk_atom_string_array_el(Pocket lisp, PKAtomStringArray *array, size_t index);
+size_t pk_atom_string_array_length(Pocket lisp, PKAtomStringArray *array);
 
 PKAtomByteArray *pk_atom_byte_array(Pocket lisp, PKBlob init);
 void pk_atom_byte_array_append(Pocket lisp, PKAtomByteArray *array, PKAtom *atom);
 void pk_atom_byte_array_append_u8(Pocket lisp, PKAtomByteArray *array, pk_u8 byte);
 void pk_atom_byte_array_append_blob(Pocket lisp, PKAtomByteArray *array, PKBlob blob);
 pk_u8 pk_atom_byte_array_el(Pocket lisp, PKAtomByteArray *array, size_t index);
+size_t pk_atom_byte_array_length(Pocket lisp, PKAtomByteArray *array);
 
 PKAtomTable * pk_atom_table(Pocket lisp);
 PKAtom *pk_atom_table_put(Pocket lisp, PKAtomTable *table, PKAtom *key, PKAtom *value);
@@ -749,6 +758,8 @@ bool pk_atom_table_is_member(Pocket lisp, PKAtomTable *table, PKAtom *key);
     
 void pk_generic_append(Pocket lisp, PKAtom *array, PKAtom *atom);
 PKAtom *pk_generic_el(Pocket lisp, PKAtom *array, size_t index);
+PKAtom *pk_generic_length_atom(Pocket lisp, PKAtom *seq);
+size_t pk_generic_length(Pocket lisp, PKAtom *seq);
    
 PKAtom *pk_env_get(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol);
 PKAtom *pk_env_get_strict(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol);
