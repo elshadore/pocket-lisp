@@ -755,6 +755,7 @@ PKAtom *pk_atom_table_put(Pocket lisp, PKAtomTable *table, PKAtom *key, PKAtom *
 PKAtom *pk_atom_table_rem(Pocket lisp, PKAtomTable *table, PKAtom *key);
 PKAtom *pk_atom_table_find(Pocket lisp, PKAtomTable *table, PKAtom *key);
 bool pk_atom_table_is_member(Pocket lisp, PKAtomTable *table, PKAtom *key);
+size_t pk_atom_table_length(Pocket lisp, PKAtomTable *table);
     
 void pk_generic_append(Pocket lisp, PKAtom *array, PKAtom *atom);
 PKAtom *pk_generic_el(Pocket lisp, PKAtom *array, size_t index);

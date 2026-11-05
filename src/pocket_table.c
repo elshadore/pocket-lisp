@@ -57,3 +57,8 @@ PKAtomTable *pk_atom_assert_table(Pocket lisp, PKAtom *atom) {
         return NULL;
     }
 }
+
+size_t pk_atom_table_length(Pocket lisp, PKAtomTable *table) {
+    (void)lisp;
+    return table->map.count;
+}

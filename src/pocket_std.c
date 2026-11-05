@@ -739,6 +739,12 @@ void pk_method_length_blob(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_size_t(lisp, pk_atom_blob_length(lisp, blob)));
 }
 
+void pk_method_length_table(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomTable *table = pk_atom_assert_table(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_size_t(lisp, pk_atom_table_length(lisp, table)));
+}
+
 void pk_method_length_array(void *user_closure, Pocket lisp) {
     (void)user_closure;
     PKAtomArray *array = pk_atom_assert_array(lisp, pk_stack_get(lisp, 1));
@@ -803,6 +809,13 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("length"), .fun = pk_method_length_blob, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Blob"), methods, pk_alen(methods));
+    }
+    {
+        // Table
+        PKFunLoad methods[] = {
+            {.symbol = pk_str("length"), .fun = pk_method_length_table, .args = 1, .arity = PK_ARITY_NORMAL},
+        };
+        pk_method_loader(lisp, pk_str("Table"), methods, pk_alen(methods));
     }
     {
         // Array
