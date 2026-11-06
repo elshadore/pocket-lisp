@@ -5,12 +5,6 @@ The todo list for POCKET LISP
 - [ ] Still not working
   - `(defvar foo [1 2 3 4 5 6])`
 
-- [ ] GC Flag
-  - stop the gc flag
-
-- [ ] Issues of GC particularly in protect calling in compiler
-  - we might need to accept we cant gc collect when compiling
-  
 - [ ] fix debug stack dump
   - so we see frames clearly
   - print frame name
