@@ -171,7 +171,6 @@ PK_API void pk_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args)
 
 PK_API PK_RES pk_protect(Pocket lisp, void *user_closure, PKFun fun, size_t args);
 PK_API PK_RES pk_protect_noreturn(Pocket lisp, void *user_closure, PKFun fun, size_t args);
-PK_API PK_RES pk_protect_noreturn_nogc(Pocket lisp, void *user_closure, PKFun fun, size_t args);
 PK_API PK_RES pk_catch(Pocket lisp, int symbol, void *user_closure, PKFun fun, size_t args);
 
 PK_API void pk_propagate(Pocket lisp);

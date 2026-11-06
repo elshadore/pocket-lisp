@@ -161,12 +161,26 @@ void pk_gc_mark(Pocket lisp, PKAtom *atom) {
     }
 }
 
+bool pk_gc_set_enable(Pocket lisp, bool enabled) {
+    bool old = lisp->gc_enabled;
+    lisp->gc_enabled = enabled;
+    return old;
+}
+
 void pk_gc_collect(Pocket lisp) {
+    if (!lisp->gc_enabled) {
+        return;
+    }
+    
     pk_gc_mark_cache(lisp);
     pk_gc_collect_no_cache(lisp);
 }
 
 void pk_gc_collect_no_cache(Pocket lisp) {
+    if (!lisp->gc_enabled) {
+        return;
+    }
+    
     // Mark
     for (size_t i = 0; i < lisp->stack.count; ++i) {
         pk_gc_mark(lisp, (PKAtom *)lisp->stack.e[i]);

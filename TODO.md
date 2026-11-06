@@ -1,10 +1,19 @@
 # TODO
 The todo list for POCKET LISP
 
-- [ ] possibility we are pushing a lot of nils onto the stack by not using `pk_protect_noreturn`
-  
+## V1
+- [ ] Still not working
+  - `(defvar foo [1 2 3 4 5 6])`
+
+- [ ] GC Flag
+  - stop the gc flag
+
 - [ ] Issues of GC particularly in protect calling in compiler
   - we might need to accept we cant gc collect when compiling
+  
+- [ ] fix debug stack dump
+  - so we see frames clearly
+  - print frame name
   
 - [ ] methods for many things
   - [x] append
@@ -79,6 +88,8 @@ The todo list for POCKET LISP
    - i.e we are not popping temp values
 - [ ] Typed Destructuring Bind
   - for lambda
+
+## V2
 
 - [ ] potential rename to `micro lisp`
   - `.ul` `.ulc` `.uld` `(udex:install "foo")`

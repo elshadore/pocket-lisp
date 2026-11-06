@@ -120,8 +120,12 @@ void pk_compile_strsub(Pocket lisp, PKCompiler *c, PKStr string) {
         },
     };
 
-    PK_RES result = pk_protect_noreturn_nogc(lisp, &data, pk_compile_strsub_body, 0);
-
+    bool old_gc = pk_gc_set_enable(lisp, false);
+    
+    PK_RES result = pk_protect_noreturn(lisp, &data, pk_compile_strsub_body, 0);
+    
+    (void)pk_gc_set_enable(lisp, old_gc);
+    
     pk_writer_deinit(lisp, &data.sub.w);
 
     if (result == PK_YIELDED) {

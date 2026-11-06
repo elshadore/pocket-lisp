@@ -550,6 +550,7 @@ typedef struct PKCache_ {
     .frames = PK_FRAMES_EMPTY, \
     .symbolizer = PK_HASHMAP_EMPTY, \
     .gensym_counter = 0, \
+    .gc_enabled = false, \
     .current_frame = PK_FRAME_EMPTY, \
     .throw_symbol = NULL, \
     .throw_value = NULL, \
@@ -567,6 +568,7 @@ typedef struct PocketLispMachine_ {
     PKAtom *throw_value;
     PKHashmap symbolizer;
     size_t gensym_counter;
+    bool gc_enabled;
     PKPool *pool;
     PKAtomFree *free;
     PKCache cache;
@@ -948,8 +950,7 @@ PKStr pk_ident_env(PK_ENV env);
 PK_OPCODE_TY pk_opcode_ty(pk_u8 op);
     
 PK_RES pk_int_funcall(Pocket lisp, PK_CALL call, size_t args);
-PK_RES pk_int_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args);
-PK_RES pk_int_fastcall_ex(Pocket lisp, void *user_closure, PKFun fun, size_t args, PKAtom *frame, bool gc_collect);
+PK_RES pk_int_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args, PKAtom *frame);
 
 PK_RES pk_atom_catch(Pocket lisp, PKAtomSymbol *symbol, void *user_closure, PKFun fun, size_t args);
 PK_RES pk_atom_apply(Pocket lisp, PK_CALL call, PKAtom *fun, PKAtom *args);
@@ -969,6 +970,7 @@ void pk_vm_exec(Pocket lisp, PKVM *vm);
 
 void pk_gc_mark_cache(Pocket lisp);
 void pk_gc_mark(Pocket lisp, PKAtom *atom);
+bool pk_gc_set_enable(Pocket lisp, bool enabled);
 void pk_gc_collect(Pocket lisp);
 void pk_gc_collect_no_cache(Pocket lisp);
 

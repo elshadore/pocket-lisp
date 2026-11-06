@@ -111,6 +111,10 @@ Pocket pk_init(void *user_env) {
 
     pk_jmp_leave(lisp);
 
+    // When creating the LISP we have gc disabled, we then enable it after init and do a gc collect.
+    lisp->gc_enabled = true;
+    pk_gc_collect(lisp);
+
     return lisp;
 }
 
