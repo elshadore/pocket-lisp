@@ -63,3 +63,34 @@ PKAtom *pk_generic_is_member_atom(Pocket lisp, PKAtom *obj, PKAtom *key) {
 bool pk_generic_is_member(Pocket lisp, PKAtom *obj, PKAtom *key) {
     return pk_atom_is_true(pk_generic_is_member_atom(lisp, obj, key));
 }
+
+PKAtom *pk_generic_read_char(Pocket lisp, PKAtom *obj) {
+    pk_stack_push(lisp, obj);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("read-char")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    return pk_stack_head_pop(lisp);
+}
+
+PKAtom *pk_generic_read_byte(Pocket lisp, PKAtom *obj) {
+    pk_stack_push(lisp, obj);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("read-byte")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    return pk_stack_head_pop(lisp);
+}
+
+PKAtom *pk_generic_read(Pocket lisp, PKAtom *obj, size_t amount, PKAtom *mode) {
+    pk_stack_push(lisp, obj);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_size_t(lisp, amount));
+    pk_stack_push(lisp, mode);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("read-byte")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    return pk_stack_head_pop(lisp);
+}
+
+void pk_generic_write(Pocket lisp, PKAtom *obj, PKAtom *atom) {
+    pk_stack_push(lisp, obj);
+    pk_stack_push(lisp, atom);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("write")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    pk_pop(lisp);
+}

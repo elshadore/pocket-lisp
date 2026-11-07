@@ -431,83 +431,11 @@ void pk_fun_fs_read_user_input(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, pk_fs_read_user_input(lisp));
 }
 
-PKStr pk_stream_mode_name(Pocket lisp, PKAtom *atom) {
-    if (pk_atom_is_keyword(atom)) {
-        return ((PKAtomKeyword *)atom)->id;
-    }
-    if (pk_atom_is_symbol(atom)) {
-        return ((PKAtomSymbol *)atom)->name->str;
-    }
-    if (pk_atom_is_string(atom)) {
-        return ((PKAtomString *)atom)->str;
-    }
-    pk_error_type(lisp, atom, lisp->cache.type_keyword);
-    return PK_STR_EMPTY;
-}
-
-void pk_fun_stream_open(void *user_closure, Pocket lisp) {
+void pk_fun_file_open(void *user_closure, Pocket lisp) {
     (void)user_closure;
     PKAtomString *path = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
-    PK_OPEN_MODE mode = pk_open_mode_from_str(lisp, pk_stream_mode_name(lisp, pk_stack_get(lisp, 2)));
+    PK_OPEN_MODE mode = pk_open_mode_from_str(lisp, pk_atom_stream_mode_name(lisp, pk_stack_get(lisp, 2)));
     pk_stack_push(lisp, (PKAtom *)pk_atom_stream_file_open(lisp, path->str, mode));
-}
-
-void pk_fun_stream_read_char(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    PKAtomStream *stream = pk_atom_assert_stream(lisp, pk_stack_get(lisp, 1));
-    pk_stack_push(lisp, pk_atom_stream_read_char(lisp, stream));
-}
-
-void pk_fun_stream_read_byte(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    PKAtomStream *stream = pk_atom_assert_stream(lisp, pk_stack_get(lisp, 1));
-    pk_stack_push(lisp, pk_atom_stream_read_byte(lisp, stream));
-}
-
-void pk_fun_stream_read(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    PKAtomStream *stream = pk_atom_assert_stream(lisp, pk_stack_get(lisp, 1));
-    size_t amount = pk_atom_to_size_t(lisp, pk_stack_get(lisp, 2));
-
-    PKStr name = pk_stream_mode_name(lisp, pk_stack_get(lisp, 3));
-    PK_READ_MODE mode = PK_READ_MODE_BINARY;
-    if (pk_str_eq(name, pk_str("string"))) {
-        mode = PK_READ_MODE_STRING;
-    }
-
-    pk_stack_push(lisp, pk_atom_stream_read(lisp, stream, amount, mode));
-}
-
-void pk_fun_stream_write_string(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    PKAtomStream *stream = pk_atom_assert_stream(lisp, pk_stack_get(lisp, 1));
-    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, 2));
-
-    pk_atom_stream_write_string(lisp, stream, string->str);
-    pk_stack_push(lisp, (PKAtom *)stream);
-}
-
-void pk_fun_stream_write_bytes(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    PKAtomStream *stream = pk_atom_assert_stream(lisp, pk_stack_get(lisp, 1));
-    PKAtomBlob *blob = pk_atom_assert_blob(lisp, pk_stack_get(lisp, 2));
-
-    pk_atom_stream_write_bytes(lisp, stream, blob->bytes);
-    pk_stack_push(lisp, (PKAtom *)stream);
-}
-
-void pk_fun_stream_close(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    PKAtomStream *stream = pk_atom_assert_stream(lisp, pk_stack_get(lisp, 1));
-    pk_atom_stream_close(lisp, stream);
-    pk_push_nil(lisp);
-}
-
-void pk_fun_stream_flush(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    PKAtomStream *stream = pk_atom_assert_stream(lisp, pk_stack_get(lisp, 1));
-    pk_atom_stream_flush(lisp, stream);
-    pk_stack_push(lisp, (PKAtom *)stream);
 }
 
 void pk_fun_destroy(void *user_closure, Pocket lisp) {
@@ -683,19 +611,10 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("macroexpand1"), .fun = pk_fun_macroexpand1, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("macroexpand"), .fun = pk_fun_macroexpand, .args = 1, .arity = PK_ARITY_NORMAL},
 
+        {.symbol = pk_str("file-open"), .fun = pk_fun_file_open, .args = 1, .arity = PK_ARITY_OPTIONAL, .options = 1},
         {.symbol = pk_str("file-slurp"), .fun = pk_fun_fs_slurp, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("read-user-input"), .fun = pk_fun_fs_read_user_input, .args = 0, .arity = PK_ARITY_NORMAL},
 
-        {.symbol = pk_str("open-stream"), .fun = pk_fun_stream_open, .args = 2, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("stream-read-char"), .fun = pk_fun_stream_read_char, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("stream-read-byte"), .fun = pk_fun_stream_read_byte, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("stream-read"), .fun = pk_fun_stream_read, .args = 3, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("stream-write-string"), .fun = pk_fun_stream_write_string, .args = 2, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("stream-write-bytes"), .fun = pk_fun_stream_write_bytes, .args = 2, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("stream-close"), .fun = pk_fun_stream_close, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("stream-flush"), .fun = pk_fun_stream_flush, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("destroy"), .fun = pk_fun_destroy, .args = 1, .arity = PK_ARITY_NORMAL},
-        
         {.symbol = pk_str("array"), .fun = pk_fun_array, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("string-array"), .fun = pk_fun_string_array, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("byte-array"), .fun = pk_fun_byte_array, .args = 0, .arity = PK_ARITY_NORMAL},
@@ -703,6 +622,7 @@ void pk_std_load_cfun(Pocket lisp) {
 
         {.symbol = pk_str("gensym"), .fun = pk_fun_gensym, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("typeof"), .fun = pk_fun_typeof, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("destroy"), .fun = pk_fun_destroy, .args = 1, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("new"), .fun = pk_fun_new, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("set-slot"), .fun = pk_fun_slot_set, .args = 3, .arity = PK_ARITY_NORMAL},
@@ -890,6 +810,28 @@ void pk_method_is_member_table(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, pk_atom_bool(lisp, pk_atom_table_is_member(lisp, table, key)));
 }
 
+void pk_method_read_stream(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomStream *stream = pk_atom_assert_stream(lisp, pk_stack_get(lisp, 1));
+    size_t amount = pk_atom_to_size_t(lisp, pk_stack_get(lisp, 2));
+    PKAtom *mode = pk_stack_get(lisp, 3);
+    pk_stack_push(lisp, pk_atom_stream_read_atom(lisp, stream, amount, mode));
+}
+
+void pk_method_write_stream(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomStream *stream = pk_atom_assert_stream(lisp, pk_stack_get(lisp, 1));
+    PKAtom *contents = pk_stack_get(lisp, 2);
+    pk_atom_stream_write(lisp, stream, contents);
+    pk_stack_push(lisp, contents);
+}
+
+void pk_method_flush_stream(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomStream *stream = pk_atom_assert_stream(lisp, pk_stack_get(lisp, 1));
+    pk_atom_stream_flush(lisp, stream);
+}
+
 void pk_method_loader(Pocket lisp, PKStr type, PKFunLoad *methods, size_t length) {
     pk_push_symbol(lisp, type);
     for (size_t i = 0; i < length; ++i) {
@@ -974,6 +916,15 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("append"), .fun = pk_method_append_byte_array, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("el"), .fun = pk_method_el_byte_array, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("length"), .fun = pk_method_length_byte_array, .args = 1, .arity = PK_ARITY_NORMAL},
+        };
+        pk_method_loader(lisp, pk_str("Byte-Array"), methods, pk_alen(methods));
+    }
+    {
+        // Stream
+        PKFunLoad methods[] = {
+            {.symbol = pk_str("read"), .fun = pk_method_read_stream, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 1},
+            {.symbol = pk_str("write"), .fun = pk_method_write_stream, .args = 2, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("flush"), .fun = pk_method_flush_stream, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Byte-Array"), methods, pk_alen(methods));
     }

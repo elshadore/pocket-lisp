@@ -318,6 +318,16 @@ bool pk_atom_struct_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
     return false;
 }
 
+bool pk_atom_text_qeq(Pocket lisp, PKAtom *text, PKStr cmp) {
+    (void)lisp;
+    switch (text->header.type) {
+        case PK_ATOMTY_STRING: return pk_str_eq(text->string.str, cmp);
+        case PK_ATOMTY_KEYWORD: return pk_str_eq(text->keyword.id, cmp);
+        case PK_ATOMTY_SYMBOL: return pk_str_eq(text->symbol.name->str, cmp);
+        default: return false;
+    }
+}
+
 size_t pk_atom_hash(PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_STRING: {

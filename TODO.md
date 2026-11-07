@@ -4,6 +4,8 @@ The todo list for POCKET LISP
 ## V1
 - [ ] Destroy Atom
   - `--destroy` method
+  - we need some form of dispatch for methods. where we dont care if the method is there or not.
+  - `(message hello 'method 1 2 3 4 5)`
 
 - [ ] fix debug stack dump
   - so we see frames clearly

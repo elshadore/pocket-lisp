@@ -20,11 +20,27 @@ const char *pk_open_mode_to_str(PK_OPEN_MODE mode) {
         case PK_OPEN_MODE_READ: return "r";
         case PK_OPEN_MODE_WRITE: return "w";
         case PK_OPEN_MODE_APPEND: return "a";
-        case PK_OPEN_MODE_READ_BINARY: return "rb";
-        case PK_OPEN_MODE_WRITE_BINARY: return "wb";
-        case PK_OPEN_MODE_APPEND_BINARY: return "ab";
+        case PK_OPEN_MODE_READ_WRITE: return "w+";
+        case PK_OPEN_MODE_READ_APPEND: return "a+";
         default: return NULL;
     }
+}
+
+PKStr pk_atom_stream_mode_name(Pocket lisp, PKAtom *atom) {
+    if (pk_atom_is_keyword(atom)) {
+        return ((PKAtomKeyword *)atom)->id;
+    }
+    if (pk_atom_is_symbol(atom)) {
+        return ((PKAtomSymbol *)atom)->name->str;
+    }
+    if (pk_atom_is_string(atom)) {
+        return ((PKAtomString *)atom)->str;
+    }
+    if (pk_atom_is_nil(atom)) {
+        return pk_str("read-write");
+    }
+    pk_error_type(lisp, atom, lisp->cache.type_keyword);
+    return PK_STR_EMPTY;
 }
 
 PK_OPEN_MODE pk_open_mode_from_str(Pocket lisp, PKStr name) {
@@ -32,15 +48,8 @@ PK_OPEN_MODE pk_open_mode_from_str(Pocket lisp, PKStr name) {
         {pk_str("read"), PK_OPEN_MODE_READ},
         {pk_str("write"), PK_OPEN_MODE_WRITE},
         {pk_str("append"), PK_OPEN_MODE_APPEND},
-        {pk_str("read-binary"), PK_OPEN_MODE_READ_BINARY},
-        {pk_str("write-binary"), PK_OPEN_MODE_WRITE_BINARY},
-        {pk_str("append-binary"), PK_OPEN_MODE_APPEND_BINARY},
-        {pk_str("r"), PK_OPEN_MODE_READ},
-        {pk_str("w"), PK_OPEN_MODE_WRITE},
-        {pk_str("a"), PK_OPEN_MODE_APPEND},
-        {pk_str("rb"), PK_OPEN_MODE_READ_BINARY},
-        {pk_str("wb"), PK_OPEN_MODE_WRITE_BINARY},
-        {pk_str("ab"), PK_OPEN_MODE_APPEND_BINARY},
+        {pk_str("read-write"), PK_OPEN_MODE_READ_WRITE},
+        {pk_str("read-append"), PK_OPEN_MODE_READ_APPEND},
     };
 
     size_t length = pk_alen(kinds);
@@ -155,7 +164,7 @@ PKAtom *pk_atom_stream_read(Pocket lisp, PKAtomStream *stream, size_t amount, PK
         .string = PK_WRITER_EMPTY,
         .result = NULL,
     };
-
+    
     PK_RES result = pk_protect(lisp, &data, pk_atom_stream_read_body, 0);
 
     pk_bytes_deinit(lisp, &data.b);
@@ -166,6 +175,20 @@ PKAtom *pk_atom_stream_read(Pocket lisp, PKAtomStream *stream, size_t amount, PK
     }
 
     return pk_stack_head_pop(lisp);
+}
+
+PKAtom *pk_atom_stream_read_atom(Pocket lisp, PKAtomStream *stream, size_t amount, PKAtom *mode) {
+    PK_READ_MODE tmode = PK_READ_MODE_STRING;
+    if (pk_atom_text_qeq(lisp, mode, pk_str("string"))) {
+        tmode = PK_READ_MODE_STRING;
+    }
+    if (pk_atom_text_qeq(lisp, mode, pk_str("text"))) {
+        tmode = PK_READ_MODE_STRING;
+    }
+    if (pk_atom_text_qeq(lisp, mode, pk_str("binary"))) {
+        tmode = PK_READ_MODE_BINARY;
+    }
+    return pk_atom_stream_read(lisp, stream, amount, tmode);
 }
 
 void pk_atom_stream_write_string(Pocket lisp, PKAtomStream *stream, PKStr string) {
@@ -186,21 +209,44 @@ void pk_atom_stream_write_bytes(Pocket lisp, PKAtomStream *stream, PKBlob blob) 
     }
 }
 
+void pk_atom_stream_write(Pocket lisp, PKAtomStream *stream, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_STRING: {
+            pk_atom_stream_write_string(lisp, stream, atom->string.str);
+            break;
+        }
+        case PK_ATOMTY_CHARACTER: {
+            PKStr string = (PKStr) {
+                .c = &atom->character.c,
+                .length = 1,
+            };
+            pk_atom_stream_write_string(lisp, stream, string);
+            break;
+        }
+        case PK_ATOMTY_BLOB: {
+            pk_atom_stream_write_bytes(lisp, stream, atom->blob.bytes);
+            break;
+        }
+        case PK_ATOMTY_NUMBER: {
+            pk_u8 byte = pk_atom_to_byte(lisp, atom);
+            PKBlob blob = (PKBlob) {
+                .e = &byte,
+                .length = 1,
+            };
+            pk_atom_stream_write_bytes(lisp, stream, blob);
+            break;
+        }
+        default: {
+            pk_errors(lisp, pk_str("cannot write this type"));
+            break;
+        }
+    }
+}
+
 void pk_atom_stream_flush(Pocket lisp, PKAtomStream *stream) {
     if (fflush(stream->f) != 0) {
         pk_errors(lisp, pk_str("stream flush failed"));
     }
-}
-
-void pk_atom_stream_close(Pocket lisp, PKAtomStream *stream) {
-    (void)lisp;
-
-    if (stream->keep_open) {
-        return;
-    }
-
-    (void)fclose(stream->f);
-    stream->f = NULL;
 }
 
 bool pk_atom_is_stream(PKAtom *atom) {
