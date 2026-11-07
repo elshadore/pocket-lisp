@@ -634,7 +634,7 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("map"), .fun = pk_fun_map, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("filter"), .fun = pk_fun_filter, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("fap"), .fun = pk_fun_fap, .args = 2, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("reduce"), .fun = pk_fun_reduce, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 1},
+        {.symbol = pk_str("reduce"), .fun = pk_fun_reduce, .args = 3, .arity = PK_ARITY_OPTIONAL, .options = 1},
     };
 
     size_t length = pk_alen(funs);
@@ -930,26 +930,6 @@ void pk_std_load_cmethods(Pocket lisp) {
     }
 }
 
-void pk_std_load_streams(Pocket lisp) {
-    struct StdStreamLoad {
-        PKStr name;
-        FILE **file;
-    };
-
-    static const struct StdStreamLoad streams[] = {
-        {pk_str("stdin"), &stdin},
-        {pk_str("stdout"), &stdout},
-        {pk_str("stderr"), &stderr},
-    };
-
-    for (size_t i = 0; i < (sizeof(streams) / sizeof(streams[0])); ++i) {
-        pk_push_symbol(lisp, streams[i].name);
-        pk_stack_push(lisp, (PKAtom *)pk_atom_stream_inherit(lisp, *streams[i].file, true));
-        pk_set(lisp, PK_ENV_VAR, -2, -1);
-        pk_pop2(lisp);
-    }
-}
-
 void pk_std_load_lfun(Pocket lisp) {
     pk_push_string(lisp, pk_str(PK_STD_CODE));
     pk_parse(lisp, -1, PK_MODE_EXPRLIST);
@@ -957,9 +937,18 @@ void pk_std_load_lfun(Pocket lisp) {
     pk_pop2(lisp);
 }
 
+void pk_std_load_stream(Pocket lisp, PKStr symbol, FILE *stream) {
+    pk_push_symbol(lisp, symbol);
+    pk_push_stream(lisp, stream, true);
+    pk_set(lisp, PK_ENV_VAR, -2, -1);
+    pk_pop3(lisp);
+}
+
 void pk_std_load(Pocket lisp) {
     pk_std_load_cfun(lisp);
-    pk_std_load_streams(lisp);
     pk_std_load_cmethods(lisp);
+    pk_std_load_stream(lisp, pk_str("stdin"), stdin);
+    pk_std_load_stream(lisp, pk_str("stdout"), stdout);
+    pk_std_load_stream(lisp, pk_str("stderr"), stderr);
     pk_std_load_lfun(lisp);
 }

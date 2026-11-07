@@ -2,18 +2,8 @@
 The todo list for POCKET LISP
 
 ## V1
-- [ ] Destroy Atom
-  - `--destroy` method
-  - we need some form of dispatch for methods. where we dont care if the method is there or not.
-  - `(message hello 'method 1 2 3 4 5)`
+- [ ] Special Form Objects
 
-- [ ] fix debug stack dump
-  - so we see frames clearly
-  - print frame name
-  
-- [ ] Introduce `format` function
-  - introduce `princ` function
-  
 - [ ] methods for many things
   - [x] append
   - [x] el
@@ -42,13 +32,28 @@ The todo list for POCKET LISP
   - [ ] ->int
   - [ ] ->float
   
+- [ ] Destroy Atom
+  - `--destroy` method
+  - we need some form of dispatch for methods. where we dont care if the method is there or not.
+  - `(message hello 'method 1 2 3 4 5)`
+
+- [ ] fix debug stack dump
+  - so we see frames clearly
+  - print frame name
+  
+- [ ] Introduce `format` function
+  - introduce `princ` function
+  
 - [ ] multiple append
 
 - [ ] Streams
-  - stdin
-  - stdout
-  - stderr
-- [ ] Special Form Objects
+  - both methods and a generic function using `read`
+  - `read-char`
+  - `read-byte`
+  - `read-line`
+  - `read-until`
+  - `read-all`
+  - `read-user-input`
 
 - [ ] array arguments
   - `(array 10 20 30 40)`
@@ -63,8 +68,6 @@ The todo list for POCKET LISP
 - [ ] `->list`
 - [ ] implement `cat`
   - dispatch on first type
-  
-- [ ] Create CMake Build
   
 - [ ] exotic number parsing
   - 0b010101
@@ -84,6 +87,7 @@ The todo list for POCKET LISP
 - [ ] options
   - number printing style
   - gc enabled
+  - default reading style
 
 - [ ] User Review of Compiler
   - in particular, destructuring bind.
@@ -92,7 +96,12 @@ The todo list for POCKET LISP
    - i.e we are not popping temp values
 - [ ] Typed Destructuring Bind
   - for lambda
+  
+- [ ] defmethod
+  - typed lambda form
 
+- [ ] Create CMake Build
+  
 ## V2
 
 - [ ] potential rename to `micro lisp`
