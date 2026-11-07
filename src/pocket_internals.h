@@ -338,6 +338,11 @@ typedef struct PKAtomByteArray_ {
     PKBytes bytes;
 } PKAtomByteArray;
 
+typedef enum PK_READ_MODE_ {
+    PK_READ_MODE_BINARY = 0,
+    PK_READ_MODE_STRING,
+} PK_READ_MODE;
+
 typedef struct PKAtomStream_ {
     PKAtomHeader header;
     FILE *f;

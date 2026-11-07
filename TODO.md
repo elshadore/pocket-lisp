@@ -2,12 +2,12 @@
 The todo list for POCKET LISP
 
 ## V1
-- [ ] Still not working
-  - `(defvar foo [1 2 3 4 5 6])`
-
 - [ ] fix debug stack dump
   - so we see frames clearly
   - print frame name
+  
+- [ ] Introduce `format` function
+  - introduce `princ` function
   
 - [ ] methods for many things
   - [x] append
@@ -46,7 +46,8 @@ The todo list for POCKET LISP
 - [ ] Special Form Objects
 
 - [ ] array arguments
-  - `(array 10 'foo)`
+  - `(array 10 20 30 40)`
+  - `(make-array 5 'fill)`
   - better array api
   
 - [ ] Unicode Strings and Characters (utf8)
@@ -75,6 +76,10 @@ The todo list for POCKET LISP
 
 - [ ] Testing Suite
 
+- [ ] options
+  - number printing style
+  - gc enabled
+
 - [ ] User Review of Compiler
   - in particular, destructuring bind.
 - [ ] User Review of Macro
@@ -82,6 +87,9 @@ The todo list for POCKET LISP
    - i.e we are not popping temp values
 - [ ] Typed Destructuring Bind
   - for lambda
+
+- [ ] object destructors
+  - `--destroy`
 
 ## V2
 
