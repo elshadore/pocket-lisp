@@ -102,6 +102,10 @@ The todo list for POCKET LISP
 
 - [ ] Create CMake Build
   
+- [ ] Upgrade to Arbitary Precision Bytecode
+  - Not limited to 8bit args
+  - Also upgrade function arg limit
+  
 ## V2
 
 - [ ] potential rename to `micro lisp`
@@ -134,8 +138,6 @@ The todo list for POCKET LISP
 - [ ] STD JSON
 - [ ] STD HTTP
 - [ ] STD HTML
-- [ ] Upgrade to Arbitary Precision Bytecode
-  - Not limited to 8bit args
 - [ ] Small, Big, Symbol, Pools
 - [ ] `progv`
 - [ ] Big Numbers
