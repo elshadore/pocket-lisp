@@ -112,6 +112,8 @@ PK_API void pk_push_byte_array(Pocket lisp);
 PK_API void pk_push_table(Pocket lisp);
 PK_API void pk_push_stream(Pocket lisp, FILE *stream, bool keep_open);
 
+PK_API void pk_destroy(Pocket lisp, int atom);
+
 PK_API void pk_append(Pocket lisp, int obj, int element);
 PK_API void pk_cat(Pocket lisp, int lhs, int rhs);
 PK_API void pk_el(Pocket lisp, int obj, size_t index);

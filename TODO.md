@@ -2,6 +2,9 @@
 The todo list for POCKET LISP
 
 ## V1
+- [ ] Destroy Atom
+  - `--destroy` method
+
 - [ ] fix debug stack dump
   - so we see frames clearly
   - print frame name
@@ -87,9 +90,6 @@ The todo list for POCKET LISP
    - i.e we are not popping temp values
 - [ ] Typed Destructuring Bind
   - for lambda
-
-- [ ] object destructors
-  - `--destroy`
 
 ## V2
 

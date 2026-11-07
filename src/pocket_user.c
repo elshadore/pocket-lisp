@@ -177,6 +177,10 @@ void pk_push_stream(Pocket lisp, FILE *stream, bool keep_open) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_stream_inherit(lisp, stream, keep_open));
 }
 
+void pk_destroy(Pocket lisp, int atom) {
+    pk_stack_push(lisp, pk_atom_destroy(lisp, pk_stack_get(lisp, atom)));
+}
+
 void pk_car(Pocket lisp, int cons) {
     pk_stack_push(lisp, pk_atom_car(lisp, pk_stack_get(lisp, cons)));
 }

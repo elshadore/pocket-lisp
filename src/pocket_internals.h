@@ -164,6 +164,7 @@ typedef struct PKCallConv_ {
 #define PK_ATOMTY_STRING_ARRAY (23)
 #define PK_ATOMTY_BYTE_ARRAY (24)
 #define PK_ATOMTY_STREAM (25)
+#define PK_ATOMTY_DESTROYED (26)
 
 typedef enum PKAtomKind_ {
     PK_ATOMKIND_VALUE = 0,
@@ -494,6 +495,7 @@ struct PKPool_ {
     .type_string_array = NULL, \
     .type_byte_array = NULL, \
     .type_stream = NULL, \
+    .type_destroyed = NULL, \
 }
 
 typedef struct PKCache_ {
@@ -557,6 +559,7 @@ typedef struct PKCache_ {
     PKAtomSymbol *type_string_array;
     PKAtomSymbol *type_byte_array;
     PKAtomSymbol *type_stream;
+    PKAtomSymbol *type_destroyed;
 } PKCache;
 
 #define POCKET_LISP_MACHINE_EMPTY (PocketLispMachine) { \
@@ -984,6 +987,9 @@ PKAtom *pk_fs_read_user_input(Pocket lisp);
 
 const char *pk_open_mode_to_str(PK_OPEN_MODE mode);
 PK_OPEN_MODE pk_open_mode_from_str(Pocket lisp, PKStr name);
+
+void pk_atom_deinit(Pocket lisp, PKAtom *atom);
+PKAtom *pk_atom_destroy(Pocket lisp, PKAtom *atom);
 
 PKAtomStream *pk_atom_stream_file_open(Pocket lisp, PKStr file_path, PK_OPEN_MODE mode);
 PKAtomStream *pk_atom_stream_inherit(Pocket lisp, FILE *file, bool keep_open);

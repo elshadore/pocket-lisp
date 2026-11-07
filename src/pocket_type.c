@@ -104,6 +104,7 @@ PKAtomSymbol *pk_atom_typeof(Pocket lisp, PKAtom *atom) {
         case PK_ATOMTY_STRING_ARRAY: return lisp->cache.type_string_array;
         case PK_ATOMTY_BYTE_ARRAY: return lisp->cache.type_byte_array;
         case PK_ATOMTY_STREAM: return lisp->cache.type_stream;
+        case PK_ATOMTY_DESTROYED: return lisp->cache.type_destroyed;
         default: return lisp->cache.type_unknown;
     }
 }

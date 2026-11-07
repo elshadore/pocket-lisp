@@ -192,6 +192,17 @@ void pk_atom_stream_flush(Pocket lisp, PKAtomStream *stream) {
     }
 }
 
+void pk_atom_stream_close(Pocket lisp, PKAtomStream *stream) {
+    (void)lisp;
+
+    if (stream->keep_open) {
+        return;
+    }
+
+    (void)fclose(stream->f);
+    stream->f = NULL;
+}
+
 bool pk_atom_is_stream(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_STREAM;
 }

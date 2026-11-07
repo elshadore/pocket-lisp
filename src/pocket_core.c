@@ -65,6 +65,7 @@ void pk_init_cache(Pocket lisp) {
     c->type_string_array = pk_atom_symbol(lisp, pk_str("String-Array"));
     c->type_byte_array = pk_atom_symbol(lisp, pk_str("Byte-Array"));
     c->type_stream = pk_atom_symbol(lisp, pk_str("Stream"));
+    c->type_destroyed = pk_atom_symbol(lisp, pk_str("Destroyed"));
 
     pk_atom_define_type_primitive(lisp, c->type_unknown);
     pk_atom_define_type_primitive(lisp, c->type_undefined);
@@ -84,6 +85,7 @@ void pk_init_cache(Pocket lisp) {
     pk_atom_define_type_primitive(lisp, c->type_string_array);
     pk_atom_define_type_primitive(lisp, c->type_byte_array);
     pk_atom_define_type_primitive(lisp, c->type_stream);
+    pk_atom_define_type_primitive(lisp, c->type_destroyed);
 }
 
 Pocket pk_init(void *user_env) {

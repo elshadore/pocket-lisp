@@ -25,6 +25,7 @@ PKStr pk_ident_atomty(pk_u8 type) {
         case PK_ATOMTY_STRING_ARRAY: return pk_str("STRING_ARRAY");
         case PK_ATOMTY_BYTE_ARRAY: return pk_str("BYTE_ARRAY");
         case PK_ATOMTY_STREAM: return pk_str("STREAM");
+        case PK_ATOMTY_DESTROYED: return pk_str("DESTROYED");
         default: return pk_str("UNKNOWN");
     }
 }

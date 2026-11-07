@@ -393,6 +393,10 @@ void pk_writer_write_atom(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *a
             pk_writer_simple_object(lisp, w, atom, pk_str("Stream"));
             break;
         }
+        case PK_ATOMTY_DESTROYED: {
+            pk_writer_simple_object(lisp, w, atom, pk_str("Destroyed"));
+            break;
+        }
         default: {
             pk_writer_simple_object(lisp, w, atom, pk_str("Unknown"));
             break;

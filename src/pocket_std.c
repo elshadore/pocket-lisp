@@ -510,6 +510,12 @@ void pk_fun_stream_flush(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)stream);
 }
 
+void pk_fun_destroy(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtom *atom = pk_stack_get(lisp, 1);
+    pk_stack_push(lisp, pk_atom_destroy(lisp, atom));
+}
+
 void pk_fun_array(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_push_array(lisp);
@@ -688,6 +694,7 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("stream-write-bytes"), .fun = pk_fun_stream_write_bytes, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("stream-close"), .fun = pk_fun_stream_close, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("stream-flush"), .fun = pk_fun_stream_flush, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("destroy"), .fun = pk_fun_destroy, .args = 1, .arity = PK_ARITY_NORMAL},
         
         {.symbol = pk_str("array"), .fun = pk_fun_array, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("string-array"), .fun = pk_fun_string_array, .args = 0, .arity = PK_ARITY_NORMAL},
@@ -986,7 +993,7 @@ void pk_std_load_streams(Pocket lisp) {
 
     for (size_t i = 0; i < (sizeof(streams) / sizeof(streams[0])); ++i) {
         pk_push_symbol(lisp, streams[i].name);
-        pk_stack_push(lisp, (PKAtom *)pk_atom_stream_wrap(lisp, *streams[i].file, true));
+        pk_stack_push(lisp, (PKAtom *)pk_atom_stream_inherit(lisp, *streams[i].file, true));
         pk_set(lisp, PK_ENV_VAR, -2, -1);
         pk_pop2(lisp);
     }

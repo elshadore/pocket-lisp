@@ -44,6 +44,7 @@ PKAtomKind pk_atom_kind(PKAtom *atom) {
         case PK_ATOMTY_LOBJECT: return PK_ATOMKIND_OBJECT;
         case PK_ATOMTY_COBJECT: return PK_ATOMKIND_OBJECT;
         case PK_ATOMTY_STREAM: return PK_ATOMKIND_OBJECT;
+        case PK_ATOMTY_DESTROYED: return PK_ATOMKIND_VALUE;
         case PK_ATOMTY_UNDEFINED: return PK_ATOMKIND_VALUE;
         case PK_ATOMTY_NIL: return PK_ATOMKIND_VALUE;
         case PK_ATOMTY_TRUE: return PK_ATOMKIND_VALUE;
