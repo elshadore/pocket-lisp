@@ -536,15 +536,17 @@ PKAtom *pk_parse_atom_symbol(Pocket lisp, PKParser *r) {
     return (PKAtom *)pk_atom_symbol(lisp, slice);
 }
 
-PKAtom *pk_parse_atom_cons(Pocket lisp, PKParser *r) {
-    if (pk_pat(r) != '(') {
-        pk_parser_error(lisp, r, pk_str("expected list to begin with (, character"));
-        return lisp->cache.nil;
-    }
+typedef struct PKParseConsData_ {
+    PKParser *r;
+} PKParseConsData;
+
+void pk_parse_atom_cons_body(void *user_closure, Pocket lisp) {
+    PKParseConsData *data = (PKParseConsData *)user_closure;
+    PKParser *r = data->r;
 
     pk_parser_ince(lisp, r);
 
-    PKAccum acc = pk_accum_new(lisp);
+    size_t count = 0;
     bool first = true;
     bool separated = false;
     bool whitespace = pk_parser_trim_whitespace(r);
@@ -553,34 +555,37 @@ PKAtom *pk_parse_atom_cons(Pocket lisp, PKParser *r) {
         if (pk_pat(r) == ')') {
             (void)pk_parser_inc(r);
             if (first) {
-                return lisp->cache.nil;
+                pk_stack_push(lisp, lisp->cache.nil);
             } else {
-                return acc.head;
+                pk_stack_op_list(lisp, count);
             }
+            return;
         } else if (!first && !whitespace && !separated) {
             pk_parser_error(lisp, r, pk_str("list elements must be seperated with whitespace"));
-            return lisp->cache.nil;
+            return;
         } else if (pk_pat(r) == '.') {
             if (first) {
                 pk_parser_error(lisp, r, pk_str("cannot create a dotted cons without elements before the dot"));
-                return lisp->cache.nil;
+                return;
             }
             pk_parser_ince(lisp, r);
             (void)pk_parser_trim_whitespace(r);
-            
+
             PKAtom *packed_cons = pk_parse_atom(lisp, r);
+            pk_stack_push(lisp, packed_cons);
+            pk_stack_op_list_packed(lisp, count + 1);
+
             (void)pk_parser_trim_whitespace(r);
             if (pk_pat(r) != ')') {
                 pk_parser_error(lisp, r, pk_str("cannot create a dotted cons with multiple elements after the dot"));
-                return lisp->cache.nil;
+                return;
             }
-            
+
             (void)pk_parser_inc(r);
-            acc.tail->cons.cdr = packed_cons;
-            return acc.head;
+            return;
         } else {
-            PKAtom *atom = pk_parse_atom(lisp, r);
-            pk_accum_push(&acc, atom);
+            pk_stack_push(lisp, pk_parse_atom(lisp, r));
+            count += 1;
             first = false;
             char last = r->str.c[r->curr - 1];
             if (last == ')' || last == '"') {
@@ -593,7 +598,25 @@ PKAtom *pk_parse_atom_cons(Pocket lisp, PKParser *r) {
     }
 
     pk_parser_error(lisp, r, pk_str("unterminated list"));
-    return lisp->cache.nil;
+}
+
+PKAtom *pk_parse_atom_cons(Pocket lisp, PKParser *r) {
+    if (pk_pat(r) != '(') {
+        pk_parser_error(lisp, r, pk_str("expected list to begin with (, character"));
+        return lisp->cache.nil;
+    }
+
+    PKParseConsData data = (PKParseConsData) {
+        .r = r,
+    };
+
+    PK_RES result = pk_protect(lisp, &data, pk_parse_atom_cons_body, 0);
+
+    if (result == PK_YIELDED) {
+        pk_propagate(lisp);
+    }
+
+    return pk_stack_head_pop(lisp);
 }
 
 PKAtom *pk_parse_atom_simple_macro(Pocket lisp, PKParser *r, PKAtomSymbol *macro) {
@@ -700,16 +723,19 @@ PKAtom *pk_parse_atom_from_str(Pocket lisp, PKStr string, PK_MODE mode) {
         return first;
     }
 
-    PKAtom *cons = (PKAtom *)pk_atom_list1(lisp, first);
-    PKAccum acc = pk_accum_new_with(lisp, cons);
+    pk_stack_push(lisp, first);
+    size_t count = 1;
 
     while (!pk_parser_is_finished(&r)) {
         PKAtom *atom = pk_parse_atom(lisp, &r);
-        pk_accum_push(&acc, atom);
+        pk_stack_push(lisp, atom);
+        count += 1;
         (void)pk_parser_trim_whitespace(&r);
     }
 
-    return acc.head;
+    pk_stack_op_list(lisp, count);
+
+    return pk_stack_head_pop(lisp);
 }
     
 PKAtom *pk_parse_atom_from_string(Pocket lisp, PKAtomString *string, PK_MODE mode) {
