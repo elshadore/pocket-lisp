@@ -4,7 +4,13 @@
   (setq repl-running nil))
 
 (defun parse-eval-print (string)
-  (print (catch 'error (eval (parse string)))))
+  (print (catch 'error
+      (var forms (parse-list string))
+      (var result nil)
+      (while (not (nil? forms))
+         (setq result (eval (car forms)))
+         (setq forms (cdr forms)))
+      result)))
 
 (when (= (cadr args) "-e")
   (setq repl-running nil)

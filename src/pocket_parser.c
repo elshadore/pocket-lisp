@@ -343,7 +343,7 @@ pk_u8 pk_parse_byte(Pocket lisp, PKParser *r) {
             pk_parser_ince(lisp, r);
             acc *= 10;
             acc += pk_char_to_digit(c);
-            if (acc >= UINT8_MAX) {
+            if (acc > UINT8_MAX) {
                 pk_parser_error(lisp, r, pk_str("blob byte member larger than 255"));
                 return 0;
             }

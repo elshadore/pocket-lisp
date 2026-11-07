@@ -8,7 +8,13 @@
  "  (setq repl-running nil))\n" \
  "\n" \
  "(defun parse-eval-print (string)\n" \
- "  (print (catch 'error (eval (parse string)))))\n" \
+ "  (print (catch 'error\n" \
+ "      (var forms (parse-list string))\n" \
+ "      (var result nil)\n" \
+ "      (while (not (nil? forms))\n" \
+ "         (setq result (eval (car forms)))\n" \
+ "         (setq forms (cdr forms)))\n" \
+ "      result)))\n" \
  "\n" \
  "(when (= (cadr args) \"-e\")\n" \
  "  (setq repl-running nil)\n" \
