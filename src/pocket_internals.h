@@ -343,9 +343,19 @@ typedef enum PK_READ_MODE_ {
     PK_READ_MODE_STRING,
 } PK_READ_MODE;
 
+typedef enum PK_OPEN_MODE_ {
+    PK_OPEN_MODE_READ = 0,
+    PK_OPEN_MODE_WRITE,
+    PK_OPEN_MODE_APPEND,
+    PK_OPEN_MODE_READ_BINARY,
+    PK_OPEN_MODE_WRITE_BINARY,
+    PK_OPEN_MODE_APPEND_BINARY,
+} PK_OPEN_MODE;
+
 typedef struct PKAtomStream_ {
     PKAtomHeader header;
     FILE *f;
+    bool keep_open;
 } PKAtomStream;
 
 typedef union PKAtomData_ {
@@ -639,6 +649,7 @@ bool pk_atom_is_object(PKAtom *atom);
 bool pk_atom_is_cobject(PKAtom *atom);
 bool pk_atom_is_lobject(PKAtom *atom);
 bool pk_atom_is_blob(PKAtom *atom);
+bool pk_atom_is_stream(PKAtom *atom);
 
 PKAtom *pk_atom_reverse(Pocket lisp, PKAtom *atom);
 bool pk_atom_is_macro(PKAtom *atom);
@@ -659,6 +670,7 @@ PKAtomArray *pk_atom_assert_array(Pocket lisp, PKAtom *atom);
 PKAtomByteArray *pk_atom_assert_byte_array(Pocket lisp, PKAtom *atom);
 PKAtomStringArray *pk_atom_assert_string_array(Pocket lisp, PKAtom *atom);
 PKAtomBlob *pk_atom_assert_blob(Pocket lisp, PKAtom *atom);
+PKAtomStream *pk_atom_assert_stream(Pocket lisp, PKAtom *atom);
 
 PKAtom *pk_atom_new_nil(Pocket lisp);
 PKAtom *pk_atom_new_true(Pocket lisp);
@@ -969,6 +981,19 @@ void pk_std_load(Pocket lisp);
 PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path);
 PKAtomString *pk_fs_slurp(Pocket lisp, PKAtomString *file_path);
 PKAtom *pk_fs_read_user_input(Pocket lisp);
+
+const char *pk_open_mode_to_str(PK_OPEN_MODE mode);
+PK_OPEN_MODE pk_open_mode_from_str(Pocket lisp, PKStr name);
+
+PKAtomStream *pk_atom_stream_file_open(Pocket lisp, PKStr file_path, PK_OPEN_MODE mode);
+PKAtomStream *pk_atom_stream_inherit(Pocket lisp, FILE *file, bool keep_open);
+PKAtom *pk_atom_stream_read_char(Pocket lisp, PKAtomStream *stream);
+PKAtom *pk_atom_stream_read_byte(Pocket lisp, PKAtomStream *stream);
+PKAtom *pk_atom_stream_read(Pocket lisp, PKAtomStream *stream, size_t amount, PK_READ_MODE mode);
+void pk_atom_stream_write_string(Pocket lisp, PKAtomStream *stream, PKStr string);
+void pk_atom_stream_write_bytes(Pocket lisp, PKAtomStream *stream, PKBlob blob);
+void pk_atom_stream_close(Pocket lisp, PKAtomStream *stream);
+void pk_atom_stream_flush(Pocket lisp, PKAtomStream *stream);
 
 PKVM pk_vm_init(PKAtom *lfun, size_t save);
 void pk_vm_exec(Pocket lisp, PKVM *vm);

@@ -118,6 +118,16 @@ void pk_atom_free(Pocket lisp, PKAtom *atom) {
             pk_blob_free(lisp, &atom->blob.bytes);
             break;
         }
+        case PK_ATOMTY_STREAM: {
+            if (atom->stream.f != NULL) {
+                (void)fflush(atom->stream.f);
+                if (!atom->stream.keep_open) {
+                    (void)fclose(atom->stream.f);
+                }
+                atom->stream.f = NULL;
+            }
+            break;
+        }
         case PK_ATOMTY_ARRAY: {
             pk_array_deinit(lisp, &atom->array.atoms);
             break;
