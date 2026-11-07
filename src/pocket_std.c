@@ -611,7 +611,7 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("macroexpand1"), .fun = pk_fun_macroexpand1, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("macroexpand"), .fun = pk_fun_macroexpand, .args = 1, .arity = PK_ARITY_NORMAL},
 
-        {.symbol = pk_str("file-open"), .fun = pk_fun_file_open, .args = 1, .arity = PK_ARITY_OPTIONAL, .options = 1},
+        {.symbol = pk_str("file-open"), .fun = pk_fun_file_open, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 1},
         {.symbol = pk_str("file-slurp"), .fun = pk_fun_fs_slurp, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("read-user-input"), .fun = pk_fun_fs_read_user_input, .args = 0, .arity = PK_ARITY_NORMAL},
 
@@ -922,11 +922,11 @@ void pk_std_load_cmethods(Pocket lisp) {
     {
         // Stream
         PKFunLoad methods[] = {
-            {.symbol = pk_str("read"), .fun = pk_method_read_stream, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 1},
+            {.symbol = pk_str("read"), .fun = pk_method_read_stream, .args = 3, .arity = PK_ARITY_OPTIONAL, .options = 1},
             {.symbol = pk_str("write"), .fun = pk_method_write_stream, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("flush"), .fun = pk_method_flush_stream, .args = 1, .arity = PK_ARITY_NORMAL},
         };
-        pk_method_loader(lisp, pk_str("Byte-Array"), methods, pk_alen(methods));
+        pk_method_loader(lisp, pk_str("Stream"), methods, pk_alen(methods));
     }
 }
 
