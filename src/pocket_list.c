@@ -238,6 +238,16 @@ void pk_atom_list_append(Pocket lisp, PKAtomCons *cons, PKAtom *atom) {
     last->cdr = (PKAtom *)pk_atom_list1(lisp, atom);
 }
 
+PKAtom *pk_atom_list_reverse(Pocket lisp, PKAtom *list) {
+    PKAtom *acc = lisp->cache.nil;
+    PKAtom *iter = list;
+    while (pk_atom_is_cons(iter)) {
+        acc = (PKAtom *)pk_atom_cons(lisp, iter->cons.car, acc);
+        iter = iter->cons.cdr;
+    }
+    return acc;
+}
+
 PKAtom *pk_atom_assoc(Pocket lisp, PKAtom *alist, PKAtom *key) {
     PKAtom *iter = alist;
 

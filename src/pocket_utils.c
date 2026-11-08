@@ -30,6 +30,28 @@ void pk_blob_free(Pocket lisp, PKBlob *blob) {
     *blob = PK_BLOB_EMPTY;
 }
 
+pk_u8 pk_blob_to_byte(Pocket lisp, PKBlob blob) {
+    if (blob.length == 0) {
+        pk_errors(lisp, pk_str("cannot convert a blob of 0 length to a byte"));
+        return 0;
+    }
+    if (blob.length > 1) {
+        pk_errors(lisp, pk_str("cannot convert a blob of length greater than 1 to a byte"));
+        return 0;
+    }
+    return blob.e[0];
+}
+
+void pk_blob_reverse_mut(PKBlob blob) {
+    if (blob.length <= 1) return;
+    
+    for (size_t i = 0, j = blob.length - 1; i < j; i++, j--) {
+        pk_u8 temp = blob.e[i];
+        blob.e[i] = blob.e[j];
+        blob.e[j] = temp;
+    }
+}
+
 PKAccum pk_accum_new_with(Pocket lisp, PKAtom *init) {
     return (PKAccum) {
         .lisp = lisp,

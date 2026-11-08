@@ -9,15 +9,12 @@ The todo list for POCKET LISP
   - we need some form of dispatch for methods. where we dont care if the method is there or not.
   - `(message hello 'method 1 2 3 4 5)`
   
-- [ ] cat
-  - [x] string / char
-  - [ ] list
-  - [ ] blob
-  
 - [ ] implement `reverse`
   - [ ] string
   - [ ] list
   - [ ] blob
+
+- [ ] multiple append
 
 - [ ] methods for many things
   - [ ] +
@@ -38,11 +35,6 @@ The todo list for POCKET LISP
   - so we see frames clearly
   - print frame name
   
-- [ ] multiple append
-
-- [ ] Unicode Strings and Characters (utf8)
-  - [ ] fn, λ, lambda
-  
 - [ ] `string-split`
   
 - [ ] exotic number parsing
@@ -62,6 +54,9 @@ The todo list for POCKET LISP
 
 - [ ] Testing Suite
 
+- [ ] Unicode Strings and Characters (utf8)
+  - [ ] fn, λ, lambda
+  
 - [ ] Big Numbers
 - [ ] Full Float Parsing and Printing
   - [ ] Parsing
@@ -107,7 +102,6 @@ The todo list for POCKET LISP
 - [ ] Full Code Review
   
 ## V2
-
 - [ ] potential rename to `micro lisp`
   - `.ul` `.ulc` `.uld` `(udex:install "foo")`
 - [ ] Custom cfmt

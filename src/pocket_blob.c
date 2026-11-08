@@ -73,6 +73,12 @@ PKAtomBlob *pk_atom_blob_cat(Pocket lisp, PKAtoms atoms) {
     return (PKAtomBlob *)pk_stack_head_pop(lisp);
 }
 
+PKAtomBlob *pk_atom_blob_reverse(Pocket lisp, PKBlob input) {
+    PKBlob dupe = pk_blob_dupe(lisp, input);
+    pk_blob_reverse_mut(dupe);
+    return pk_atom_blob_nomemcpy(lisp, dupe);
+}
+
 bool pk_atom_is_blob(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_BLOB;
 }

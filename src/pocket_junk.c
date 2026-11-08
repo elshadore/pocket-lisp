@@ -4,6 +4,30 @@
 
 #include "pocket_internals.h"
 
+PKAtom *pk_atom_reverse(Pocket lisp, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_STRING: {
+            PKStr dupe = pk_str_dupe(lisp, atom->string.str);
+            pk_str_reverse_mut(dupe);
+            return (PKAtom *)pk_atom_string_nomemcpy(lisp, dupe);
+        }
+        case PK_ATOMTY_CONS: {
+            PKAtom *acc = lisp->cache.nil;
+            PKAtom *iter = atom;
+            while (pk_atom_is_cons(iter)) {
+                acc = (PKAtom *)pk_atom_cons(lisp, iter->cons.car, acc);
+                iter = iter->cons.cdr;
+            }
+            return acc;
+        }
+        case PK_ATOMTY_NIL: return lisp->cache.nil;
+        default: {
+            pk_error_type3(lisp, atom, lisp->cache.type_nil, lisp->cache.type_cons, lisp->cache.type_string);
+            return lisp->cache.nil;
+        }
+    }
+}
+
 PKAtom *pk_atom_to_list(Pocket lisp, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_NIL: {

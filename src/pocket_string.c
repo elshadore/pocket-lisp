@@ -37,6 +37,14 @@ PKAtomString *pk_atom_string(Pocket lisp, PKStr string) {
     return pk_atom_string_nomemcpy(lisp, dupe);
 }
 
+PKAtomString *pk_atom_string_char(Pocket lisp, char c) {
+    PKStr str = (PKStr) {
+        .c = &c,
+        .length = 1,
+    };
+    return pk_atom_string(lisp, str);
+}
+
 PKAtomChar *pk_atom_char(Pocket lisp, char c) {
     PKAtomChar *result = (PKAtomChar *)pk_atom_alloc(lisp);
 
@@ -113,6 +121,12 @@ PKAtomString *pk_atom_string_cat(Pocket lisp, PKAtoms atoms) {
     }
 
     return (PKAtomString *)pk_stack_head_pop(lisp);
+}
+
+PKAtomString *pk_atom_string_reverse(Pocket lisp, PKStr input) {
+    PKStr dupe = pk_str_dupe(lisp, input);
+    pk_str_reverse_mut(dupe);
+    return pk_atom_string_nomemcpy(lisp, input);
 }
 
 char pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index) {

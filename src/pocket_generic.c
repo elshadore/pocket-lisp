@@ -103,6 +103,13 @@ PKAtom *pk_generic_cat(Pocket lisp, PKAtom *obj, PKAtoms atoms) {
     return pk_stack_head_pop(lisp);
 }
 
+PKAtom *pk_generic_reverse(Pocket lisp, PKAtom *obj) {
+    pk_stack_push(lisp, obj);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("reverse")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    return pk_stack_head_pop(lisp);
+}
+
 PKAtom *pk_generic_to_list(Pocket lisp, PKAtom *obj) {
     pk_stack_push(lisp, obj);
     pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->list")));
