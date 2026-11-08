@@ -28,7 +28,6 @@ PKAtomBlob *pk_atom_blob(Pocket lisp, PKBlob blob) {
     return pk_atom_blob_nomemcpy(lisp, dupe);
 }
 
-
 pk_u8 pk_atom_blob_el(Pocket lisp, PKAtomBlob *blob, size_t index) {
     if (index >= blob->bytes.length) {
         pk_errorf(lisp, "index: %zu, longer than the blob length: %zu", index, blob->bytes.length);
