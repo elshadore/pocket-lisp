@@ -1,4 +1,48 @@
+// A bunch of junk functions that we are keeping around for posterity.
+// If any one of these break. Just trash them.
+// None of these function should be exported/publicised into pocket_internals.h
+
 #include "pocket_internals.h"
+
+PKAtom *pk_atom_to_list(Pocket lisp, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_NIL: {
+            return lisp->cache.nil;
+        }
+        case PK_ATOMTY_CONS: {
+            return atom;
+        }
+        case PK_ATOMTY_ARRAY: {
+            PKAtoms atoms = pk_array_slice(&atom->array.atoms);
+            return pk_atom_list(lisp, atoms);
+        }
+        case PK_ATOMTY_STRING: {
+            PKStr str = atom->string.str;
+            return pk_atom_to_list_chars(lisp, str);
+        }
+        case PK_ATOMTY_STRING_ARRAY: {
+            PKStr str = pk_writer_slice(&atom->string_array.string);
+            return pk_atom_to_list_chars(lisp, str);
+        }
+        case PK_ATOMTY_TABLE: {
+            PKHashmap *map = &atom->table.map;
+            return pk_atom_to_list_table(lisp, map);
+        }
+        case PK_ATOMTY_BLOB: {
+            PKBlob bytes = atom->blob.bytes;
+            return pk_atom_to_list_bytes(lisp, bytes);
+        }
+        case PK_ATOMTY_BYTE_ARRAY: {
+            PKBlob bytes = pk_bytes_slice(&atom->byte_array.bytes);
+            return pk_atom_to_list_bytes(lisp, bytes);
+        }
+        default: {
+            PKStr ty = pk_ident_atomty(atom->header.type);
+            pk_errorf(lisp, "pk_atom_to_list: unsupported type %.*s", (int)ty.length, ty.c);
+            return lisp->cache.nil;
+        }
+    }
+}
 
 PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path) {
     if (file_path.length == 0) {

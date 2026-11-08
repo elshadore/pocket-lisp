@@ -724,7 +724,6 @@ PKAtom *pk_atom_assoc(Pocket lisp, PKAtom *alist, PKAtom *key);
 PKAtom *pk_atom_to_list_bytes(Pocket lisp, PKBlob bytes);
 PKAtom *pk_atom_to_list_chars(Pocket lisp, PKStr string);
 PKAtom *pk_atom_to_list_table(Pocket lisp, PKHashmap *map);
-PKAtom *pk_atom_to_list(Pocket lisp, PKAtom *atom);
 PKAtom *pk_atom_list_flatten(Pocket lisp, PKAtoms atoms);
 void pk_atom_list_to_array(Pocket lisp, PKAtom *list, PKArray *array);
 
@@ -851,6 +850,7 @@ void pk_atom_define_type_primitive(Pocket lisp, PKAtomSymbol *type);
 PKAtomSymbol *pk_atom_typeof(Pocket lisp, PKAtom *atom);
 
 PKAtom *pk_atom_object_new(Pocket lisp, PKAtomSymbol *type);
+PKAtomLObject *pk_atom_object_new_cons(Pocket lisp, PKAtomSymbol *type, PKAtoms slots);
 size_t pk_atom_slot_index(Pocket lisp, PKAtomLObject *object, PKAtomSymbol *slot);
 PKAtom *pk_atom_slot_set(Pocket lisp, PKAtomLObject *object, PKAtomSymbol *slot, PKAtom *value);
 PKAtom *pk_atom_slot_get(Pocket lisp, PKAtomLObject *object, PKAtomSymbol *slot);
@@ -1016,10 +1016,6 @@ bool pk_macroexpand_(Pocket lisp, int atom);
 PKAtom *pk_atom_compile(Pocket lisp, PK_CALL type, PKAtom *value, PK_MODE mode);
 
 void pk_std_load(Pocket lisp);
-
-PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path);
-PKAtomString *pk_fs_slurp(Pocket lisp, PKAtomString *file_path);
-PKAtom *pk_fs_read_user_input(Pocket lisp);
 
 PKStr pk_atom_stream_mode_name(Pocket lisp, PKAtom *atom);
 const char *pk_open_mode_to_str(PK_OPEN_MODE mode);

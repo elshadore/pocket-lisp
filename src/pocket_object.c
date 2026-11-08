@@ -46,6 +46,23 @@ PKAtom *pk_atom_object_new(Pocket lisp, PKAtomSymbol *type) {
     return atom;
 }
 
+PKAtomLObject *pk_atom_object_new_cons(Pocket lisp, PKAtomSymbol *type, PKAtoms slots) {
+    if ((slots.length % 2) != 0) {
+        pk_errors(lisp, pk_str("object construction must be a list of slot value pairs"));
+    }
+    
+    PKAtomLObject *object = pk_atom_assert_lobject(lisp, pk_atom_object_new(lisp, type));
+    
+    size_t half = slots.length / 2;
+    for (size_t i = 0; i < half; ++i) {
+        PKAtomSymbol *slot = pk_atom_assert_symbol(lisp, slots.e[i * 2]);
+        PKAtom *value = slots.e[(i * 2) + 1];
+        pk_atom_slot_set(lisp, object, slot, value);
+    }
+    
+    return object;
+}
+
 size_t pk_atom_slot_index(Pocket lisp, PKAtomLObject *object, PKAtomSymbol *slot) {
     PKSlotmapSlot *found = pk_slotmap_get(lisp, &object->type->slots, (PKAtom *)slot);
     if (found == NULL) {

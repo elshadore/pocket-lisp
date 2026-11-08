@@ -412,8 +412,9 @@ void pk_clone(Pocket lisp, int stack_pointer) {
     pk_stack_push(lisp, pk_atom_clone(lisp, pk_stack_get(lisp, stack_pointer)));
 }
 
-PK_API void pk_to_list(Pocket lisp, int seq) {
-    pk_stack_push(lisp, pk_atom_to_list(lisp, pk_stack_get(lisp, seq)));
+void pk_to_list(Pocket lisp, int seq) {
+    PKAtom *aseq = pk_stack_get(lisp, seq);
+    pk_stack_push(lisp, pk_generic_to_list(lisp, aseq));
 }
 
 bool pk_is_circular(Pocket lisp, int stack_pointer) {

@@ -217,11 +217,6 @@ void pk_fun_clone(void *user_closure, Pocket lisp) {
     pk_clone(lisp, 1);
 }
 
-void pk_fun_to_list(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_to_list(lisp, 1);
-}
-
 void pk_fun_is_circular(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_push_bool(lisp, pk_is_circular(lisp, 1));
@@ -472,7 +467,9 @@ void pk_fun_typeof(void *user_closure, Pocket lisp) {
 
 void pk_fun_new(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_new(lisp, 1);
+    PKAtomSymbol *type = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, 1));
+    PKAtoms slots = pk_atoms_slice(pk_stack_slice(lisp), 1);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_object_new_cons(lisp, type, slots));
 }
 
 void pk_fun_slot_set(void *user_closure, Pocket lisp) {
@@ -557,10 +554,8 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("set-car"), .fun = pk_fun_set_car, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("set-cdr"), .fun = pk_fun_set_cdr, .args = 2, .arity = PK_ARITY_NORMAL},
 
-        {.symbol = pk_str("cat"), .fun = pk_fun_cat, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("reverse"), .fun = pk_fun_reverse, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("clone"), .fun = pk_fun_clone, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("->list"), .fun = pk_fun_to_list, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("circular?"), .fun = pk_fun_is_circular, .args = 1, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("set"), .fun = pk_fun_set, .args = 2, .arity = PK_ARITY_NORMAL},
