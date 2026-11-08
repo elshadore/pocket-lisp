@@ -832,6 +832,118 @@ void pk_method_flush_stream(void *user_closure, Pocket lisp) {
     pk_atom_stream_flush(lisp, stream);
 }
 
+void pk_method_to_string_string(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, pk_stack_get(lisp, 1));
+}
+
+void pk_method_to_char_string(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string_to_char(lisp, string));
+}
+
+void pk_method_to_chars_string(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, pk_atom_string_to_chars(lisp, string));
+}
+
+void pk_method_to_bytes_string(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string_to_bytes(lisp, string));
+}
+
+void pk_method_to_string_character(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomChar *character = pk_atom_assert_character(lisp, pk_stack_get(lisp, 1));
+    char c = character->c;
+    PKStr str = {.c = &c, .length = 1};
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string(lisp, str));
+}
+
+void pk_method_to_int_character(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomChar *character = pk_atom_assert_character(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_int(lisp, (int)character->c));
+}
+
+void pk_method_to_char_character(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, pk_stack_get(lisp, 1));
+}
+
+void pk_method_to_string_number(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    PKWriter w = PK_WRITER_EMPTY;
+    if (number->num_type == PK_NUMTY_INT) {
+        pk_writer_int(lisp, &w, number->as.i);
+    } else {
+        pk_writer_fmt(lisp, &w, "%f", number->as.f);
+    }
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(&w)));
+    pk_writer_deinit(lisp, &w);
+}
+
+void pk_method_to_int_number(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_int(lisp, pk_atom_to_int(lisp, (PKAtom *)number, PK_NUMBER_CONV_FLOAT_CONV)));
+}
+
+void pk_method_to_float_number(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_float(lisp, pk_atom_to_float(lisp, (PKAtom *)number, PK_NUMBER_CONV_FLOAT_CONV)));
+}
+
+void pk_method_to_list_cons(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, pk_stack_get(lisp, 1));
+}
+
+void pk_method_to_string_cons(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKWriter w = PK_WRITER_EMPTY;
+    pk_writer_atom(lisp, &w, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(&w)));
+    pk_writer_deinit(lisp, &w);
+}
+
+void pk_method_to_bytes_blob(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomBlob *blob = pk_atom_assert_blob(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_byte_array(lisp, blob->bytes));
+}
+
+void pk_method_to_list_blob(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomBlob *blob = pk_atom_assert_blob(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, pk_atom_to_list_bytes(lisp, blob->bytes));
+}
+
+void pk_method_to_byte_blob(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomBlob *blob = pk_atom_assert_blob(lisp, pk_stack_get(lisp, 1));
+    if (blob->bytes.length == 0) {
+        pk_push_nil(lisp);
+        return;
+    }
+    pk_stack_push(lisp, (PKAtom *)pk_atom_byte(lisp, blob->bytes.e[0]));
+}
+
+void pk_method_to_list_nil(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_nil(lisp);
+}
+
+void pk_method_to_string_nil(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_string(lisp, PK_STR_EMPTY);
+}
+
 void pk_method_loader(Pocket lisp, PKStr type, PKFunLoad *methods, size_t length) {
     pk_push_symbol(lisp, type);
     for (size_t i = 0; i < length; ++i) {
@@ -852,6 +964,8 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("el"), .fun = pk_fun_stub, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("length"), .fun = pk_method_length_nil, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("member?"), .fun = pk_method_is_member_nil, .args = 2, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->list"), .fun = pk_method_to_list_nil, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->string"), .fun = pk_method_to_string_nil, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Nil"), methods, pk_alen(methods));
     }
@@ -862,22 +976,49 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("el"), .fun = pk_method_el_list, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("length"), .fun = pk_method_length_list, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("member?"), .fun = pk_method_is_member_list, .args = 2, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->list"), .fun = pk_method_to_list_cons, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->string"), .fun = pk_method_to_string_cons, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Cons"), methods, pk_alen(methods));
+    }
+    {
+        // Number
+        PKFunLoad methods[] = {
+            {.symbol = pk_str("->string"), .fun = pk_method_to_string_number, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->int"), .fun = pk_method_to_int_number, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->float"), .fun = pk_method_to_float_number, .args = 1, .arity = PK_ARITY_NORMAL},
+        };
+        pk_method_loader(lisp, pk_str("Number"), methods, pk_alen(methods));
     }
     {
         // String
         PKFunLoad methods[] = {
             {.symbol = pk_str("el"), .fun = pk_method_el_string, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("length"), .fun = pk_method_length_string, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->string"), .fun = pk_method_to_string_string, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->char"), .fun = pk_method_to_char_string, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->chars"), .fun = pk_method_to_chars_string, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->bytes"), .fun = pk_method_to_bytes_string, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("String"), methods, pk_alen(methods));
+    }
+    {
+        // Character
+        PKFunLoad methods[] = {
+            {.symbol = pk_str("->string"), .fun = pk_method_to_string_character, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->int"), .fun = pk_method_to_int_character, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->char"), .fun = pk_method_to_char_character, .args = 1, .arity = PK_ARITY_NORMAL},
+        };
+        pk_method_loader(lisp, pk_str("Character"), methods, pk_alen(methods));
     }
     {
         // Blob
         PKFunLoad methods[] = {
             {.symbol = pk_str("el"), .fun = pk_method_el_blob, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("length"), .fun = pk_method_length_blob, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->bytes"), .fun = pk_method_to_bytes_blob, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->list"), .fun = pk_method_to_list_blob, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->byte"), .fun = pk_method_to_byte_blob, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Blob"), methods, pk_alen(methods));
     }

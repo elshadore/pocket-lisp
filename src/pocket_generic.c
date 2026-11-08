@@ -94,3 +94,59 @@ void pk_generic_write(Pocket lisp, PKAtom *obj, PKAtom *atom) {
     pk_funcall(lisp, PK_CALL_FUN, 1);
     pk_pop(lisp);
 }
+
+PKAtom *pk_generic_to_list(Pocket lisp, PKAtom *obj) {
+    pk_stack_push(lisp, obj);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->list")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    return pk_stack_head_pop(lisp);
+}
+
+PKAtom *pk_generic_to_string(Pocket lisp, PKAtom *obj) {
+    pk_stack_push(lisp, obj);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->string")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    return pk_stack_head_pop(lisp);
+}
+
+PKAtom *pk_generic_to_char(Pocket lisp, PKAtom *obj) {
+    pk_stack_push(lisp, obj);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->char")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    return pk_stack_head_pop(lisp);
+}
+
+PKAtom *pk_generic_to_chars(Pocket lisp, PKAtom *obj) {
+    pk_stack_push(lisp, obj);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->chars")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    return pk_stack_head_pop(lisp);
+}
+
+PKAtom *pk_generic_to_bytes(Pocket lisp, PKAtom *obj) {
+    pk_stack_push(lisp, obj);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->bytes")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    return pk_stack_head_pop(lisp);
+}
+
+PKAtom *pk_generic_to_byte(Pocket lisp, PKAtom *obj) {
+    pk_stack_push(lisp, obj);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->byte")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    return pk_stack_head_pop(lisp);
+}
+
+PKAtom *pk_generic_to_int(Pocket lisp, PKAtom *obj) {
+    pk_stack_push(lisp, obj);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->int")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    return pk_stack_head_pop(lisp);
+}
+
+PKAtom *pk_generic_to_float(Pocket lisp, PKAtom *obj) {
+    pk_stack_push(lisp, obj);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->float")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    return pk_stack_head_pop(lisp);
+}

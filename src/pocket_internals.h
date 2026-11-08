@@ -690,6 +690,9 @@ char pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index);
 size_t pk_atom_string_length(Pocket lisp, PKAtomString *string);
 
 PKAtomChar *pk_atom_char(Pocket lisp, char c);
+PKAtomChar *pk_atom_string_to_char(Pocket lisp, PKAtomString *string);
+PKAtom *pk_atom_string_to_chars(Pocket lisp, PKAtomString *string);
+PKAtomBlob *pk_atom_string_to_bytes(Pocket lisp, PKAtomString *string);
 bool pk_atom_string_cmp(PKAtomString *string, PKStr comp);
 
 PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);
@@ -797,6 +800,15 @@ PKAtom *pk_generic_read_char(Pocket lisp, PKAtom *obj);
 PKAtom *pk_generic_read_byte(Pocket lisp, PKAtom *obj);
 PKAtom *pk_generic_read(Pocket lisp, PKAtom *obj, size_t amount, PKAtom *mode);
 void pk_generic_write(Pocket lisp, PKAtom *obj, PKAtom *atom);
+
+PKAtom *pk_generic_to_list(Pocket lisp, PKAtom *obj);
+PKAtom *pk_generic_to_string(Pocket lisp, PKAtom *obj);
+PKAtom *pk_generic_to_char(Pocket lisp, PKAtom *obj);
+PKAtom *pk_generic_to_chars(Pocket lisp, PKAtom *obj);
+PKAtom *pk_generic_to_bytes(Pocket lisp, PKAtom *obj);
+PKAtom *pk_generic_to_byte(Pocket lisp, PKAtom *obj);
+PKAtom *pk_generic_to_int(Pocket lisp, PKAtom *obj);
+PKAtom *pk_generic_to_float(Pocket lisp, PKAtom *obj);
    
 PKAtom *pk_env_get(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol);
 PKAtom *pk_env_get_strict(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol);
