@@ -727,6 +727,7 @@ PKAtom *pk_atom_to_list_bytes(Pocket lisp, PKBlob bytes);
 PKAtom *pk_atom_to_list_chars(Pocket lisp, PKStr string);
 PKAtom *pk_atom_to_list_table(Pocket lisp, PKHashmap *map);
 PKAtom *pk_atom_list_flatten(Pocket lisp, PKAtoms atoms);
+PKAtom *pk_atom_list_cat(Pocket lisp, PKAtoms atoms);
 void pk_atom_list_to_array(Pocket lisp, PKAtom *list, PKArray *array);
 
 PKAtomNumber *pk_atom_int(Pocket lisp, int integer);

@@ -190,6 +190,41 @@ PKAtom *pk_atom_to_list_table(Pocket lisp, PKHashmap *map) {
     return acc.head;
 }
 
+PKAtom *pk_atom_list_cat(Pocket lisp, PKAtoms atoms) {
+    if (atoms.length == 0) {
+        return lisp->cache.nil;
+    }
+
+    PKAccum acc = pk_accum_new(lisp);
+    for (size_t i = 0; i < atoms.length; ++i) {
+        PKAtom *atom = atoms.e[i];
+        switch (atom->header.type) {
+            case PK_ATOMTY_NIL: {
+                continue;
+            }
+            case PK_ATOMTY_CONS: {
+                PKAtom *iter = atom;
+                while (pk_atom_is_cons(iter)) {
+                    pk_accum_push(&acc, iter->cons.car);
+                    iter = iter->cons.cdr;
+                }
+                if (!pk_atom_is_nil(iter)) {
+                    PKStr ty = pk_ident_atomty(iter->header.type);
+                    pk_errorf(lisp, "pk_atom_list_cat: expected a proper list, got %.*s", (int)ty.length, ty.c);
+                    return lisp->cache.nil;
+                }
+                break;
+            }
+            default: {
+                PKStr ty = pk_ident_atomty(atom->header.type);
+                pk_errorf(lisp, "pk_atom_list_cat: expected a list or nil, got %.*s", (int)ty.length, ty.c);
+                return lisp->cache.nil;
+            }
+        }
+    }
+    return acc.head;
+}
+
 PKAtomCons *pk_atom_list_last_cons(Pocket lisp, PKAtomCons *cons) {
     if (pk_atom_is_cons(cons->cdr)) {
         return pk_atom_list_last_cons(lisp, (PKAtomCons *)cons->cdr);
