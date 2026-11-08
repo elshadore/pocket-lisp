@@ -797,6 +797,7 @@ PKBlob pk_atom_byte_array_to_bytes(Pocket lisp, PKAtomByteArray *array);
 PKAtom *pk_atom_byte_array_to_list(Pocket lisp, PKAtomByteArray *array);
 
 PKAtomTable * pk_atom_table(Pocket lisp);
+PKAtomTable *pk_atom_table_cons(Pocket lisp, PKAtoms init);
 PKAtom *pk_atom_table_put(Pocket lisp, PKAtomTable *table, PKAtom *key, PKAtom *value);
 PKAtom *pk_atom_table_rem(Pocket lisp, PKAtomTable *table, PKAtom *key);
 PKAtom *pk_atom_table_find(Pocket lisp, PKAtomTable *table, PKAtom *key);

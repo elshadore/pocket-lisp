@@ -1,10 +1,26 @@
 #include "pocket_internals.h"
 
-PKAtomTable * pk_atom_table(Pocket lisp) {
+PKAtomTable *pk_atom_table(Pocket lisp) {
     PKAtomTable *result = (PKAtomTable *)pk_atom_alloc(lisp);
     
     result->header.type = PK_ATOMTY_TABLE;
     result->map = PK_HASHMAP_EMPTY;
+    
+    return result;
+}
+
+PKAtomTable *pk_atom_table_cons(Pocket lisp, PKAtoms init) {
+    if ((init.length % 2) != 0) {
+        pk_errors(lisp, pk_str("table construction must be a list of key value pairs"));
+    }
+    PKAtomTable *result = pk_atom_table(lisp);
+    
+    size_t half = init.length / 2;
+    for (size_t i = 0; i < half; ++i) {
+        PKAtom *key = init.e[i * 2];
+        PKAtom *value = init.e[(i * 2) + 1];
+        pk_atom_table_put(lisp, result, key, value);
+    }
     
     return result;
 }

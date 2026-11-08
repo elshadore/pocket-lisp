@@ -449,7 +449,8 @@ void pk_fun_make_array(void *user_closure, Pocket lisp) {
 
 void pk_fun_table(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_push_table(lisp);
+    PKAtoms slice = pk_stack_slice(lisp);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_table_cons(lisp, slice));
 }
 
 void pk_fun_string_array(void *user_closure, Pocket lisp) {
@@ -617,7 +618,7 @@ void pk_std_load_cfun(Pocket lisp) {
         
         {.symbol = pk_str("string-array"), .fun = pk_fun_string_array, .args = 0, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("byte-array"), .fun = pk_fun_byte_array, .args = 0, .arity = PK_ARITY_VARIADIC},
-        {.symbol = pk_str("table"), .fun = pk_fun_table, .args = 0, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("table"), .fun = pk_fun_table, .args = 0, .arity = PK_ARITY_VARIADIC},
 
         {.symbol = pk_str("gensym"), .fun = pk_fun_gensym, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("typeof"), .fun = pk_fun_typeof, .args = 1, .arity = PK_ARITY_NORMAL},
