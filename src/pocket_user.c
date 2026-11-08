@@ -307,10 +307,6 @@ void pk_print(Pocket lisp, int atom) {
     pk_atom_print(lisp, pk_stack_get(lisp, atom));
 }
 
-void pk_write(Pocket lisp, int atom) {
-    pk_atom_write(lisp, pk_stack_get(lisp, atom));
-}
-
 void pk_format(Pocket lisp, int atom) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_format(lisp, pk_stack_get(lisp, atom)));
 }

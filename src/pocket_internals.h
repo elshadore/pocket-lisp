@@ -861,7 +861,6 @@ PKAtom *pk_atom_list_slots_type(Pocket lisp, PKAtomSymbol *type);
 PKAtom *pk_atom_list_slots_object(Pocket lisp, PKAtomLObject *object);
 PKAtom *pk_atom_list_slots(Pocket lisp, PKAtom *atom);
 
-void pk_internal_print(Pocket lisp, PKStr print);
 void pk_internal_println(Pocket lisp, PKStr print);
 void pk_atom_print(Pocket lisp, PKAtom *atom);
 void pk_atom_write(Pocket lisp, PKAtom *atom);

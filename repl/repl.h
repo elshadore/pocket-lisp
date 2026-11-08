@@ -19,9 +19,10 @@
  "(when (= (cadr args) \"-e\")\n" \
  "  (setq repl-running nil)\n" \
  "  (parse-eval-print (caddr args)))\n" \
+ "  \n" \
  "\n" \
  "(while repl-running\n" \
- "  (write \"LISP>> \")\n" \
+ "  (puts \"LISP>> \")\n" \
  "  (var input (read-user-input))\n" \
  "  (if input\n" \
  "      (parse-eval-print input)\n" \

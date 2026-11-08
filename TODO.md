@@ -8,9 +8,6 @@ The todo list for POCKET LISP
   - should have `:character` option
   - returns a list of chars
 
-- [ ] string vs char comparisons
-  should work if string length = 1
-  
 - [ ] methods for many things
   - [ ] +
   - [ ] -
@@ -23,6 +20,8 @@ The todo list for POCKET LISP
   - [ ] >=
   - [ ] =
   - [ ] cat
+  - [ ] ->symbol
+  - [ ] ->keyword
   
 - [ ] Destroy Atom
   - `--destroy` method
@@ -33,24 +32,13 @@ The todo list for POCKET LISP
   - so we see frames clearly
   - print frame name
   
-- [ ] Introduce `format` function
-  - introduce `princ` function
-  
 - [ ] multiple append
 
-- [ ] Streams
-  - both methods and a generic function using `read`
-  - `read-char`
-  - `read-byte`
-  - `read-line`
-  - `read-until`
-  - `read-all`
-  - `read-user-input`
-
-- [ ] array arguments
+- [ ] array/table/string-array/byte-array/new arguments
   - `(array 10 20 30 40)`
   - `(make-array 5 'fill)`
-  - better array api
+  
+- [ ] `cond` macro
   
 - [ ] Unicode Strings and Characters (utf8)
   - [ ] fn, λ, lambda
@@ -76,6 +64,22 @@ The todo list for POCKET LISP
 
 - [ ] Testing Suite
 
+- [ ] Big Numbers
+- [ ] Full Float Parsing and Printing
+  - [ ] Parsing
+  - [ ] Printing
+  
+- [ ] STD Filesystem API
+  - Files (streams)
+  - Directories
+  - Paths
+  
+- [ ] STD Shell Command / Process API
+  - Async Command -> Process
+  - Sync Command
+  
+- [ ] `progv`
+
 - [ ] options
   - number printing style
   - gc enabled
@@ -93,9 +97,16 @@ The todo list for POCKET LISP
   - typed lambda form
 
 - [ ] Create CMake Build
+
+- [ ] Small, Big, Symbol, Pools
   
 - [ ] Upgrade to Arbitary Precision Bytecode
   - Not limited to 8bit args
+  
+- [ ] Document C Functions
+- [ ] Documentation Tables
+
+- [ ] Full Code Review
   
 ## V2
 
@@ -115,27 +126,12 @@ The todo list for POCKET LISP
   - [ ] Identation
     - `(declare (indent 1))`
   - Connect to Lisp Server
-- [ ] Full Float Parsing and Printing
-  - [ ] Parsing
-  - [ ] Printing
-- [ ] STD Filesystem API
-  - Files (streams)
-  - Directories
-  - Paths
-- [ ] STD Shell Command / Process API
-  - Async Command -> Process
-  - Sync Command
 - [ ] STD TCP/UDP
 - [ ] STD JSON
 - [ ] STD HTTP
 - [ ] STD HTML
-- [ ] Small, Big, Symbol, Pools
-- [ ] `progv`
-- [ ] Big Numbers
-- [ ] Full Code Review
+- [ ] STD ncurses
 - [ ] If we call a Lisp function from withing the VM we should not use the C stack to create a new VM, but reuse the old one.
-- [ ] Document C Functions
-- [ ] Documentation Tables
 - [ ] Environment Objects
 - [ ] Immutable Vector Update
   - Move from cons cells to immutable vectors.

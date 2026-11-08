@@ -159,7 +159,6 @@ PK_API void pk_list_implementors(Pocket lisp, int method);
 PK_API void pk_list_symbols(Pocket lisp);
 
 PK_API void pk_print(Pocket lisp, int atom);
-PK_API void pk_write(Pocket lisp, int atom);
 PK_API void pk_format(Pocket lisp, int atom);
 PK_API void pk_hexdump(Pocket lisp, int atom);
 PK_API void pk_parse(Pocket lisp, int string, PK_MODE mode);

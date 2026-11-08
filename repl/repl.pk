@@ -15,9 +15,10 @@
 (when (= (cadr args) "-e")
   (setq repl-running nil)
   (parse-eval-print (caddr args)))
+  
 
 (while repl-running
-  (write "LISP>> ")
+  (puts "LISP>> ")
   (var input (read-user-input))
   (if input
       (parse-eval-print input)

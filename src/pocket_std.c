@@ -400,12 +400,6 @@ void pk_fun_print(void *user_closure, Pocket lisp) {
     pk_push_nil(lisp);
 }
 
-void pk_fun_write(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_write(lisp, 1);
-    pk_push_nil(lisp);
-}
-
 void pk_fun_format(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_format(lisp, 1);
@@ -419,16 +413,6 @@ void pk_fun_macroexpand1(void *user_closure, Pocket lisp) {
 void pk_fun_macroexpand(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_macroexpand(lisp, 1);
-}
-
-void pk_fun_fs_slurp(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_stack_push(lisp, (PKAtom *)pk_fs_slurp(lisp, pk_atom_assert_string(lisp, pk_stack_get(lisp, 1))));
-}
-
-void pk_fun_fs_read_user_input(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_stack_push(lisp, pk_fs_read_user_input(lisp));
 }
 
 void pk_fun_file_open(void *user_closure, Pocket lisp) {
@@ -603,7 +587,6 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("macro-apply"), .fun = pk_fun_macro_apply, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("funcall"), .fun = pk_fun_funcall, .args = 1, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("print"), .fun = pk_fun_print, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("write"), .fun = pk_fun_write, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("eval"), .fun = pk_fun_eval, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("evlist"), .fun = pk_fun_evlist, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("format"), .fun = pk_fun_format, .args = 1, .arity = PK_ARITY_NORMAL},
@@ -612,8 +595,6 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("macroexpand"), .fun = pk_fun_macroexpand, .args = 1, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("file-open"), .fun = pk_fun_file_open, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 1},
-        {.symbol = pk_str("file-slurp"), .fun = pk_fun_fs_slurp, .args = 1, .arity = PK_ARITY_NORMAL},
-        // {.symbol = pk_str("read-user-input"), .fun = pk_fun_fs_read_user_input, .args = 0, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("array"), .fun = pk_fun_array, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("string-array"), .fun = pk_fun_string_array, .args = 0, .arity = PK_ARITY_NORMAL},
