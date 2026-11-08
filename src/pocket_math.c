@@ -143,6 +143,26 @@ pk_u8 pk_atom_to_byte(Pocket lisp, PKAtom *atom) {
     return pk_atom_number_to_byte(lisp, number);
 }
 
+PKBlob pk_atom_as_bytes(Pocket lisp, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_BLOB: {
+            return atom->blob.bytes;
+        }
+        case PK_ATOMTY_NUMBER: {
+            // NOTE: this is kinda hacky but it should work...
+            (void)pk_atom_number_to_byte(lisp, (PKAtomNumber *)atom);
+            return (PKBlob) {
+                .e = (pk_u8 *)&atom->number.as.i,
+                .length = 1,
+            };
+        }
+        default: {
+            pk_error_type2(lisp, atom, lisp->cache.type_number, lisp->cache.type_blob);
+            return PK_BLOB_EMPTY;
+        }
+    }
+}
+
 pk_u8 pk_atom_number_to_byte(Pocket lisp, PKAtomNumber *number) {
     switch (number->num_type) {
         case PK_NUMTY_INT: {

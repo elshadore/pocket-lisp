@@ -13,8 +13,27 @@ PKAtomArray *pk_atom_array(Pocket lisp, PKAtoms init) {
     return result;
 }
 
+PKAtomArray *pk_atom_array_make(Pocket lisp, size_t count, PKAtom *fill) {
+    PKAtomArray *result = (PKAtomArray *)pk_atom_alloc(lisp);
+    
+    result->header.type = PK_ATOMTY_ARRAY;
+    result->atoms = PK_ARRAY_EMPTY;
+    
+    for (size_t i = 0; i < count; ++i) {
+        pk_atom_array_append(lisp, result, fill);
+    }
+    
+    return result;
+}
+
 void pk_atom_array_append(Pocket lisp, PKAtomArray *array, PKAtom *atom) {
     pk_array_push(lisp, &array->atoms, atom, 16);
+}
+
+void pk_atom_array_append_many(Pocket lisp, PKAtomArray *array, PKAtoms atoms) {
+    for (size_t i = 0; i < atoms.length; ++i) {
+        pk_atom_array_append(lisp, array, atoms.e[i]);
+    }
 }
 
 PKAtom *pk_atom_array_el(Pocket lisp, PKAtomArray *array, size_t index) {
@@ -31,14 +50,14 @@ size_t pk_atom_array_length(Pocket lisp, PKAtomArray *array) {
     return array->atoms.count;
 }
 
-PKAtomStringArray *pk_atom_string_array(Pocket lisp, PKStr init) {
+PKAtomStringArray *pk_atom_string_array(Pocket lisp, PKAtoms init) {
     PKAtomStringArray *result = (PKAtomStringArray *)pk_atom_alloc(lisp);
     
     result->header.type = PK_ATOMTY_STRING_ARRAY;
     result->string = PK_WRITER_EMPTY;
 
-    if (init.length > 0) {
-        pk_writer_string(lisp, &result->string, init);
+    for (size_t i = 0; i < init.length; ++i) {
+        pk_writer_string(lisp, &result->string, pk_atom_as_string(lisp, init.e[i]));
     }
     
     return result;
@@ -49,24 +68,7 @@ void pk_atom_string_array_append_str(Pocket lisp, PKAtomStringArray *array, PKSt
 }
     
 void pk_atom_string_array_append(Pocket lisp, PKAtomStringArray *array, PKAtom *atom) {
-    switch (atom->header.type) {
-        case PK_ATOMTY_STRING: {
-            pk_atom_string_array_append_str(lisp, array, atom->string.str);
-            break;
-        }
-        case PK_ATOMTY_STRING_ARRAY: {
-            pk_atom_string_array_append_str(lisp, array, pk_writer_slice(&atom->string_array.string));
-            break;
-        }
-        case PK_ATOMTY_CHARACTER: {
-            pk_writer_char(lisp, &array->string, atom->character.c);
-            break;
-        }
-        default: {
-            pk_errors(lisp, pk_str("expected string type to append to string array"));
-            break;
-        }
-    }
+    pk_atom_string_array_append_str(lisp, array, pk_atom_as_string(lisp, atom));
 }
 
 char pk_atom_string_array_el(Pocket lisp, PKAtomStringArray *array, size_t index) {
@@ -83,12 +85,25 @@ size_t pk_atom_string_array_length(Pocket lisp, PKAtomStringArray *array) {
     return array->string.count;
 }
 
-PKAtomByteArray *pk_atom_byte_array(Pocket lisp, PKBlob init) {
+PKAtomByteArray *pk_atom_byte_array(Pocket lisp, PKAtoms init) {
     PKAtomByteArray *result = (PKAtomByteArray *)pk_atom_alloc(lisp);
     
     result->header.type = PK_ATOMTY_BYTE_ARRAY;
     result->bytes = PK_BYTES_EMPTY;
+    
+    for (size_t i = 0; i < init.length; ++i) {
+        pk_atom_byte_array_append_blob(lisp, result, pk_atom_as_bytes(lisp, init.e[i]));
+    }
+    
+    return result;
+}
 
+PKAtomByteArray *pk_atom_byte_array_cons(Pocket lisp, PKBlob init) {
+    PKAtomByteArray *result = (PKAtomByteArray *)pk_atom_alloc(lisp);
+    
+    result->header.type = PK_ATOMTY_BYTE_ARRAY;
+    result->bytes = PK_BYTES_EMPTY;
+    
     pk_atom_byte_array_append_blob(lisp, result, init);
     
     return result;

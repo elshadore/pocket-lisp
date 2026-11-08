@@ -135,6 +135,24 @@ char pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index) {
     return string->str.c[index];
 }
 
+PKStr pk_atom_as_string(Pocket lisp, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_STRING: {
+            return atom->string.str;
+        }
+        case PK_ATOMTY_CHARACTER: {
+            return (PKStr) {
+                .c = &atom->character.c,
+                .length = 1,
+            };
+        }
+        default: {
+            pk_error_type2(lisp, atom, lisp->cache.type_string, lisp->cache.type_character);
+            return PK_STR_EMPTY;
+        }
+    }
+}
+
 size_t pk_atom_string_length(Pocket lisp, PKAtomString *string) {
     (void)lisp;
     return string->str.length;

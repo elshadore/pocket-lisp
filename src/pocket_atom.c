@@ -124,13 +124,13 @@ PKAtom *pk_atom_clone_rec_(Pocket lisp, PKHashmap *memo, PKAtom *atom) {
             return (PKAtom *)result;
         }
         case PK_ATOMTY_STRING_ARRAY: {
-            PKAtomStringArray *result = pk_atom_string_array(lisp, PK_STR_EMPTY);
+            PKAtomStringArray *result = pk_atom_string_array(lisp, PK_ATOMS_EMPTY);
             pk_hashmap_insert(lisp, memo, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
             pk_atom_string_array_append_str(lisp, result, pk_writer_slice(&atom->string_array.string));
             return (PKAtom *)result;
         }
         case PK_ATOMTY_BYTE_ARRAY: {
-            PKAtomByteArray *result = pk_atom_byte_array(lisp, PK_BLOB_EMPTY);
+            PKAtomByteArray *result = pk_atom_byte_array(lisp, PK_ATOMS_EMPTY);
             pk_hashmap_insert(lisp, memo, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
             return (PKAtom *)result;
         }

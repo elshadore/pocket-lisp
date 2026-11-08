@@ -2,11 +2,18 @@
 The todo list for POCKET LISP
 
 ## V1
+- [ ] array/table/string-array/byte-array/new arguments
+  - `(array 10 20 30 40)`
+  - `(make-array 5 'fill)`
+  
+- [ ] `cond` macro
+  
 - [ ] Special Form Objects
 
-- [ ] `read`
-  - should have `:character` option
-  - returns a list of chars
+- [ ] Destroy Atom
+  - `--destroy` method
+  - we need some form of dispatch for methods. where we dont care if the method is there or not.
+  - `(message hello 'method 1 2 3 4 5)`
 
 - [ ] methods for many things
   - [ ] +
@@ -23,23 +30,12 @@ The todo list for POCKET LISP
   - [ ] ->symbol
   - [ ] ->keyword
   
-- [ ] Destroy Atom
-  - `--destroy` method
-  - we need some form of dispatch for methods. where we dont care if the method is there or not.
-  - `(message hello 'method 1 2 3 4 5)`
-
 - [ ] fix debug stack dump
   - so we see frames clearly
   - print frame name
   
 - [ ] multiple append
 
-- [ ] array/table/string-array/byte-array/new arguments
-  - `(array 10 20 30 40)`
-  - `(make-array 5 'fill)`
-  
-- [ ] `cond` macro
-  
 - [ ] Unicode Strings and Characters (utf8)
   - [ ] fn, λ, lambda
 - [ ] `string-split`

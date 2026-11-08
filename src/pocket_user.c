@@ -162,11 +162,11 @@ void pk_push_array(Pocket lisp) {
 }
 
 void pk_push_string_array(Pocket lisp) {
-    pk_stack_push(lisp, (PKAtom *)pk_atom_string_array(lisp, PK_STR_EMPTY));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string_array(lisp, PK_ATOMS_EMPTY));
 }
 
 void pk_push_byte_array(Pocket lisp) {
-    pk_stack_push(lisp, (PKAtom *)pk_atom_byte_array(lisp, PK_BLOB_EMPTY));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_byte_array(lisp, PK_ATOMS_EMPTY));
 }
 
 void pk_push_table(Pocket lisp) {
