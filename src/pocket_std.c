@@ -899,17 +899,9 @@ void pk_method_to_float_number(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_float(lisp, pk_atom_to_float(lisp, (PKAtom *)number, PK_NUMBER_CONV_FLOAT_CONV)));
 }
 
-void pk_method_to_list_cons(void *user_closure, Pocket lisp) {
+void pk_method_to_list_list(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_stack_push(lisp, pk_stack_get(lisp, 1));
-}
-
-void pk_method_to_string_cons(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    PKWriter w = PK_WRITER_EMPTY;
-    pk_writer_atom(lisp, &w, pk_stack_get(lisp, 1));
-    pk_stack_push(lisp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(&w)));
-    pk_writer_deinit(lisp, &w);
 }
 
 void pk_method_to_bytes_blob(void *user_closure, Pocket lisp) {
@@ -939,11 +931,6 @@ void pk_method_to_list_nil(void *user_closure, Pocket lisp) {
     pk_push_nil(lisp);
 }
 
-void pk_method_to_string_nil(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_push_string(lisp, PK_STR_EMPTY);
-}
-
 void pk_method_loader(Pocket lisp, PKStr type, PKFunLoad *methods, size_t length) {
     pk_push_symbol(lisp, type);
     for (size_t i = 0; i < length; ++i) {
@@ -965,7 +952,6 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("length"), .fun = pk_method_length_nil, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("member?"), .fun = pk_method_is_member_nil, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->list"), .fun = pk_method_to_list_nil, .args = 1, .arity = PK_ARITY_NORMAL},
-            {.symbol = pk_str("->string"), .fun = pk_method_to_string_nil, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Nil"), methods, pk_alen(methods));
     }
@@ -976,8 +962,7 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("el"), .fun = pk_method_el_list, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("length"), .fun = pk_method_length_list, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("member?"), .fun = pk_method_is_member_list, .args = 2, .arity = PK_ARITY_NORMAL},
-            {.symbol = pk_str("->list"), .fun = pk_method_to_list_cons, .args = 1, .arity = PK_ARITY_NORMAL},
-            {.symbol = pk_str("->string"), .fun = pk_method_to_string_cons, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->list"), .fun = pk_method_to_list_list, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Cons"), methods, pk_alen(methods));
     }
