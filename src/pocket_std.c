@@ -1009,6 +1009,24 @@ void pk_method_cat_blob(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_blob_cat(lisp, slice));
 }
 
+void pk_method_reverse_list(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtom *atom = pk_stack_get(lisp, 1);
+    pk_stack_push(lisp, pk_atom_list_reverse(lisp, atom));
+}
+
+void pk_method_reverse_string(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *atom = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string_reverse(lisp, atom->str));
+}
+
+void pk_method_reverse_blob(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomBlob *atom = pk_atom_assert_blob(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_blob_reverse(lisp, atom->bytes));
+}
+
 void pk_method_loader(Pocket lisp, PKStr type, PKFunLoad *methods, size_t length) {
     pk_push_symbol(lisp, type);
     for (size_t i = 0; i < length; ++i) {
@@ -1028,6 +1046,7 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("append"), .fun = pk_fun_stub, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("el"), .fun = pk_fun_stub, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("cat"), .fun = pk_method_cat_list, .args = 1, .arity = PK_ARITY_VARIADIC},
+            {.symbol = pk_str("reverse"), .fun = pk_method_reverse_list, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("length"), .fun = pk_method_length_nil, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("member?"), .fun = pk_method_is_member_nil, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->list"), .fun = pk_method_to_list_nil, .args = 1, .arity = PK_ARITY_NORMAL},
@@ -1040,6 +1059,7 @@ void pk_std_load_cmethods(Pocket lisp) {
         PKFunLoad methods[] = {
             {.symbol = pk_str("append"), .fun = pk_method_append_list, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("el"), .fun = pk_method_el_list, .args = 2, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("reverse"), .fun = pk_method_reverse_list, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("cat"), .fun = pk_method_cat_list, .args = 1, .arity = PK_ARITY_VARIADIC},
             {.symbol = pk_str("length"), .fun = pk_method_length_list, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("member?"), .fun = pk_method_is_member_list, .args = 2, .arity = PK_ARITY_NORMAL},
@@ -1062,6 +1082,7 @@ void pk_std_load_cmethods(Pocket lisp) {
         PKFunLoad methods[] = {
             {.symbol = pk_str("el"), .fun = pk_method_el_string, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("cat"), .fun = pk_method_cat_string, .args = 1, .arity = PK_ARITY_VARIADIC},
+            {.symbol = pk_str("reverse"), .fun = pk_method_reverse_string, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("length"), .fun = pk_method_length_string, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->string"), .fun = pk_method_to_string_string, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->char"), .fun = pk_method_to_char_string, .args = 1, .arity = PK_ARITY_NORMAL},
@@ -1087,6 +1108,7 @@ void pk_std_load_cmethods(Pocket lisp) {
         PKFunLoad methods[] = {
             {.symbol = pk_str("el"), .fun = pk_method_el_blob, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("cat"), .fun = pk_method_cat_blob, .args = 1, .arity = PK_ARITY_VARIADIC},
+            {.symbol = pk_str("reverse"), .fun = pk_method_reverse_blob, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("length"), .fun = pk_method_length_blob, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->bytes"), .fun = pk_method_to_bytes_blob, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->list"), .fun = pk_method_to_list_blob, .args = 1, .arity = PK_ARITY_NORMAL},
