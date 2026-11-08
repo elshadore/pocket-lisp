@@ -673,6 +673,7 @@ PKAtomArray *pk_atom_assert_array(Pocket lisp, PKAtom *atom);
 PKAtomByteArray *pk_atom_assert_byte_array(Pocket lisp, PKAtom *atom);
 PKAtomStringArray *pk_atom_assert_string_array(Pocket lisp, PKAtom *atom);
 PKAtomBlob *pk_atom_assert_blob(Pocket lisp, PKAtom *atom);
+PKAtomBlob *pk_atom_blob_cat(Pocket lisp, PKAtoms atoms);
 PKAtomStream *pk_atom_assert_stream(Pocket lisp, PKAtom *atom);
 
 PKAtom *pk_atom_new_nil(Pocket lisp);
