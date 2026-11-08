@@ -77,8 +77,8 @@ PKAtoms pk_array_slice(PKArray *array) {
 
 PKAtoms pk_atoms_slice(PKAtoms atoms, size_t slice)  {
     return (PKAtoms) {
-        .e = atoms.e + 1,
-        .length = atoms.length - 1,
+        .e = atoms.e + slice,
+        .length = atoms.length - slice,
     };
 }
 

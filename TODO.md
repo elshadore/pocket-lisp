@@ -56,6 +56,8 @@ The todo list for POCKET LISP
   - fs
   - streams
   
+- [ ] there are a bunch of user functions that need to be converted to method calling
+
 - [ ] Remove ternary operator from all c code.
 - [ ] underscored internal functions should be `pk_atom_*` instead
 - [ ] `cleared` remove symbol.

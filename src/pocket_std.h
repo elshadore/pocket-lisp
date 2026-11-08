@@ -10,6 +10,9 @@
  "(defmacro unless (cond :rest body)\n" \
  "    `(if ,cond nil (progn ,@body)))\n" \
  "\n" \
+ "## The identity function.\n" \
+ "(defun identity (x) x)\n" \
+ "\n" \
  "(defun square (x)\n" \
  "   (* x x))\n" \
  "\n" \
