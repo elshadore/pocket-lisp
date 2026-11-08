@@ -9,11 +9,6 @@ The todo list for POCKET LISP
   - we need some form of dispatch for methods. where we dont care if the method is there or not.
   - `(message hello 'method 1 2 3 4 5)`
   
-- [ ] implement `reverse`
-  - [ ] string
-  - [ ] list
-  - [ ] blob
-
 - [ ] multiple append
 
 - [ ] methods for many things
@@ -27,7 +22,6 @@ The todo list for POCKET LISP
   - [ ] >
   - [ ] >=
   - [ ] =
-  - [ ] cat
   - [ ] ->symbol
   - [ ] ->keyword
   

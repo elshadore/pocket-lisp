@@ -126,7 +126,7 @@ PKAtomString *pk_atom_string_cat(Pocket lisp, PKAtoms atoms) {
 PKAtomString *pk_atom_string_reverse(Pocket lisp, PKStr input) {
     PKStr dupe = pk_str_dupe(lisp, input);
     pk_str_reverse_mut(dupe);
-    return pk_atom_string_nomemcpy(lisp, input);
+    return pk_atom_string_nomemcpy(lisp, dupe);
 }
 
 char pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index) {
