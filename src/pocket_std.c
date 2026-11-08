@@ -1011,6 +1011,12 @@ void pk_method_to_string_nil(void *user_closure, Pocket lisp) {
     pk_push_string(lisp, PK_STR_EMPTY);
 }
 
+void pk_method_cat_list(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtoms slice = pk_stack_slice(lisp);
+    pk_stack_push(lisp, pk_atom_list_cat(lisp, slice));
+}
+
 void pk_method_cat_string(void *user_closure, Pocket lisp) {
     (void)user_closure;
     PKAtoms slice = pk_stack_slice(lisp);
@@ -1035,6 +1041,7 @@ void pk_std_load_cmethods(Pocket lisp) {
         PKFunLoad methods[] = {
             {.symbol = pk_str("append"), .fun = pk_fun_stub, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("el"), .fun = pk_fun_stub, .args = 2, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("cat"), .fun = pk_method_cat_list, .args = 1, .arity = PK_ARITY_VARIADIC},
             {.symbol = pk_str("length"), .fun = pk_method_length_nil, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("member?"), .fun = pk_method_is_member_nil, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->list"), .fun = pk_method_to_list_nil, .args = 1, .arity = PK_ARITY_NORMAL},
@@ -1047,6 +1054,7 @@ void pk_std_load_cmethods(Pocket lisp) {
         PKFunLoad methods[] = {
             {.symbol = pk_str("append"), .fun = pk_method_append_list, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("el"), .fun = pk_method_el_list, .args = 2, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("cat"), .fun = pk_method_cat_list, .args = 1, .arity = PK_ARITY_VARIADIC},
             {.symbol = pk_str("length"), .fun = pk_method_length_list, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("member?"), .fun = pk_method_is_member_list, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->list"), .fun = pk_method_to_list_list, .args = 1, .arity = PK_ARITY_NORMAL},
