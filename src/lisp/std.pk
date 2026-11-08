@@ -60,6 +60,15 @@
 (defun not (x)
    (if x nil true))
 
+(defmacro cond (:rest clauses)
+    (var result nil)
+    (var iter (reverse clauses))
+    (while iter
+        (var clause (car iter))
+        (setq result `(if ,(car clause) (progn ,@(cdr clause)) ,result))
+        (setq iter (cdr iter)))
+    result)
+
 (defun != (:rest comps)
    (not (apply '= comps)))
 

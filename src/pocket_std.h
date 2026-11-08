@@ -64,6 +64,15 @@
  "(defun not (x)\n" \
  "   (if x nil true))\n" \
  "\n" \
+ "(defmacro cond (:rest clauses)\n" \
+ "    (var result nil)\n" \
+ "    (var iter (reverse clauses))\n" \
+ "    (while iter\n" \
+ "        (var clause (car iter))\n" \
+ "        (setq result `(if ,(car clause) (progn ,@(cdr clause)) ,result))\n" \
+ "        (setq iter (cdr iter)))\n" \
+ "    result)\n" \
+ "\n" \
  "(defun != (:rest comps)\n" \
  "   (not (apply '= comps)))\n" \
  "\n" \
