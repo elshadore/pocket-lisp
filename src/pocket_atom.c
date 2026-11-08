@@ -278,7 +278,27 @@ bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
         return true;
     }
     if (lhs->header.type != rhs->header.type) {
-        return false;
+        switch (lhs->header.type) {
+            case PK_ATOMTY_CHARACTER: {
+                if (rhs->header.type != PK_ATOMTY_STRING) {
+                    return false;
+                }
+                if (rhs->string.str.length != 1) {
+                    return false;
+                }
+                return lhs->character.c == rhs->string.str.c[0];
+            }
+            case PK_ATOMTY_STRING: {
+                if (rhs->header.type != PK_ATOMTY_CHARACTER) {
+                    return false;
+                }
+                if (lhs->string.str.length != 1) {
+                    return false;
+                }
+                return lhs->string.str.c[0] == rhs->character.c;
+            }
+            default: return false;
+        }
     }
     switch (lhs->header.type) {
         case PK_ATOMTY_NUMBER: {
@@ -300,6 +320,9 @@ bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
         }
         case PK_ATOMTY_STRING: {
             return pk_str_eq(lhs->string.str, rhs->string.str);
+        }
+        case PK_ATOMTY_CHARACTER: {
+            return lhs->character.c == rhs->character.c;
         }
         default: return false;
     }

@@ -129,6 +129,25 @@
  "    (car (assoc alist key)))\n" \
  "     \n" \
  "(defun assoc-value (alist key)\n" \
- "    (cdr (assoc alist key)))\n"
+ "    (cdr (assoc alist key)))\n" \
+ "\n" \
+ "(defun read-char (stream)\n" \
+ "     (->char (read stream 1 :string)))\n" \
+ "\n" \
+ "(defun read-byte (stream)\n" \
+ "     (read stream 1 :byte))\n" \
+ "\n" \
+ "(defun read-user-input-char ()\n" \
+ "     (read-char stdin))\n" \
+ "\n" \
+ "(defun read-user-input ()\n" \
+ "     (var acc (string-array))\n" \
+ "     (var cond true)\n" \
+ "     (while cond\n" \
+ "          (var char (read-user-input-char))\n" \
+ "          (if (and char (!= char ^\\newline))\n" \
+ "              (append acc char)\n" \
+ "              (setq cond nil)))\n" \
+ "     (->string acc))\n"
 
 #endif // POCKET_STD_H

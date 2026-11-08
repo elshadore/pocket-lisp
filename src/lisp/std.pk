@@ -126,3 +126,22 @@
      
 (defun assoc-value (alist key)
     (cdr (assoc alist key)))
+
+(defun read-char (stream)
+     (->char (read stream 1 :string)))
+
+(defun read-byte (stream)
+     (read stream 1 :byte))
+
+(defun read-user-input-char ()
+     (read-char stdin))
+
+(defun read-user-input ()
+     (var acc (string-array))
+     (var cond true)
+     (while cond
+          (var char (read-user-input-char))
+          (if (and char (!= char ^\newline))
+              (append acc char)
+              (setq cond nil)))
+     (->string acc))

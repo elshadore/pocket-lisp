@@ -4,14 +4,14 @@ The todo list for POCKET LISP
 ## V1
 - [ ] Special Form Objects
 
+- [ ] `read`
+  - should have `:character` option
+  - returns a list of chars
+
+- [ ] string vs char comparisons
+  should work if string length = 1
+  
 - [ ] methods for many things
-  - [x] append
-  - [x] el
-  - [x] length
-  - [x] put
-  - [x] find
-  - [x] remove
-  - [x] member?
   - [ ] +
   - [ ] -
   - [ ] /
@@ -23,14 +23,6 @@ The todo list for POCKET LISP
   - [ ] >=
   - [ ] =
   - [ ] cat
-  - [ ] ->list
-  - [ ] ->string
-  - [ ] ->char
-  - [ ] ->chars
-  - [ ] ->bytes
-  - [ ] ->byte
-  - [ ] ->int
-  - [ ] ->float
   
 - [ ] Destroy Atom
   - `--destroy` method
@@ -104,7 +96,6 @@ The todo list for POCKET LISP
   
 - [ ] Upgrade to Arbitary Precision Bytecode
   - Not limited to 8bit args
-  - Also upgrade function arg limit
   
 ## V2
 
