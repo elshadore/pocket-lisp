@@ -518,6 +518,16 @@ void pk_fun_reduce(void *user_closure, Pocket lisp) {
     pk_reduce(lisp, 1, 2, 3);
 }
 
+void pk_fun_alist_to_plist(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, pk_atom_alist_to_plist(lisp, pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_plist_to_alist(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, pk_atom_plist_to_alist(lisp, pk_stack_get(lisp, 1)));
+}
+
 typedef struct PKFunLoad_ {
     PKStr symbol;
     PKFun fun;
@@ -625,6 +635,9 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("filter"), .fun = pk_fun_filter, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("fap"), .fun = pk_fun_fap, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("reduce"), .fun = pk_fun_reduce, .args = 3, .arity = PK_ARITY_OPTIONAL, .options = 1},
+        
+        {.symbol = pk_str("alist->plist"), .fun = pk_fun_alist_to_plist, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("plist->alist"), .fun = pk_fun_plist_to_alist, .args = 1, .arity = PK_ARITY_NORMAL},
     };
 
     size_t length = pk_alen(funs);
