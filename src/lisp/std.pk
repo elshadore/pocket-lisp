@@ -6,9 +6,6 @@
 (defmacro unless (cond :rest body)
     `(if ,cond nil (progn ,@body)))
 
-## The identity function.
-(defun identity (x) x)
-
 (defun square (x)
    (* x x))
 

@@ -124,6 +124,20 @@ PKAtom *pk_generic_to_string(Pocket lisp, PKAtom *obj) {
     return pk_stack_head_pop(lisp);
 }
 
+PKAtom *pk_generic_to_symbol(Pocket lisp, PKAtom *obj) {
+    pk_stack_push(lisp, obj);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->symbol")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    return pk_stack_head_pop(lisp);
+}
+
+PKAtom *pk_generic_to_keyword(Pocket lisp, PKAtom *obj) {
+    pk_stack_push(lisp, obj);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->keyword")));
+    pk_funcall(lisp, PK_CALL_FUN, 1);
+    return pk_stack_head_pop(lisp);
+}
+
 PKAtom *pk_generic_to_char(Pocket lisp, PKAtom *obj) {
     pk_stack_push(lisp, obj);
     pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->char")));

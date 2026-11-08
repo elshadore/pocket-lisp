@@ -835,6 +835,8 @@ PKAtom *pk_generic_reverse(Pocket lisp, PKAtom *obj);
 
 PKAtom *pk_generic_to_list(Pocket lisp, PKAtom *obj);
 PKAtom *pk_generic_to_string(Pocket lisp, PKAtom *obj);
+PKAtom *pk_generic_to_symbol(Pocket lisp, PKAtom *obj);
+PKAtom *pk_generic_to_keyword(Pocket lisp, PKAtom *obj);
 PKAtom *pk_generic_to_char(Pocket lisp, PKAtom *obj);
 PKAtom *pk_generic_to_chars(Pocket lisp, PKAtom *obj);
 PKAtom *pk_generic_to_bytes(Pocket lisp, PKAtom *obj);
