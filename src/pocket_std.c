@@ -1023,6 +1023,12 @@ void pk_method_cat_string(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_string_cat(lisp, slice));
 }
 
+void pk_method_cat_blob(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtoms slice = pk_stack_slice(lisp);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_blob_cat(lisp, slice));
+}
+
 void pk_method_loader(Pocket lisp, PKStr type, PKFunLoad *methods, size_t length) {
     pk_push_symbol(lisp, type);
     for (size_t i = 0; i < length; ++i) {
@@ -1100,6 +1106,7 @@ void pk_std_load_cmethods(Pocket lisp) {
         // Blob
         PKFunLoad methods[] = {
             {.symbol = pk_str("el"), .fun = pk_method_el_blob, .args = 2, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("cat"), .fun = pk_method_cat_blob, .args = 1, .arity = PK_ARITY_VARIADIC},
             {.symbol = pk_str("length"), .fun = pk_method_length_blob, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->bytes"), .fun = pk_method_to_bytes_blob, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->list"), .fun = pk_method_to_list_blob, .args = 1, .arity = PK_ARITY_NORMAL},
