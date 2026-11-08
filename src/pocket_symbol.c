@@ -60,9 +60,26 @@ PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr string) {
     return result;
 }
 
+PKAtomString *pk_atom_symbol_to_string(Pocket lisp, PKAtomSymbol *symbol) {
+    (void)lisp;
+    return symbol->name;
+}
+
+PKAtomKeyword *pk_atom_symbol_to_keyword(Pocket lisp, PKAtomSymbol *symbol) {
+    return pk_atom_keyword(lisp, symbol->name->str);
+}
+
 PKAtomSymbol *pk_atom_symbolc(Pocket lisp, char *csymbol) {
     PKStr symbol = pk_str_from_cstr(csymbol);
     return pk_atom_symbol(lisp, symbol);
+}
+
+PKAtomString *pk_atom_keyword_to_string(Pocket lisp, PKAtomKeyword *keyword) {
+    return pk_atom_string(lisp, keyword->id);
+}
+
+PKAtomSymbol *pk_atom_keyword_to_symbol(Pocket lisp, PKAtomKeyword *keyword) {
+    return pk_atom_symbol(lisp, keyword->id);
 }
 
 PKAtomKeyword *pk_atom_keyword(Pocket lisp, PKStr keyword) {

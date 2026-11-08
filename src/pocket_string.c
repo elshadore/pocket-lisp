@@ -82,6 +82,14 @@ PKAtomBlob *pk_atom_string_to_bytes(Pocket lisp, PKAtomString *string) {
     return pk_atom_blob(lisp, blob);
 }
 
+PKAtomSymbol *pk_atom_string_to_symbol(Pocket lisp, PKAtomString *string) {
+    return pk_atom_symbol(lisp, string->str);
+}
+
+PKAtomKeyword *pk_atom_string_to_keyword(Pocket lisp, PKAtomString *string) {
+    return pk_atom_keyword(lisp, string->str);
+}
+
 PKAtomString *pk_atom_string_alloc(Pocket lisp, size_t length) {
     if (length == 0) {
         return lisp->cache.empty_string;

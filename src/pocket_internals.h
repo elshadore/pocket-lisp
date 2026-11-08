@@ -699,6 +699,8 @@ PKAtomChar *pk_atom_string_to_char(Pocket lisp, PKAtomString *string);
 pk_u8 pk_atom_character_to_byte(Pocket lisp, PKAtomChar *character);
 PKAtom *pk_atom_string_to_chars(Pocket lisp, PKAtomString *string);
 PKAtomBlob *pk_atom_string_to_bytes(Pocket lisp, PKAtomString *string);
+PKAtomSymbol *pk_atom_string_to_symbol(Pocket lisp, PKAtomString *string);
+PKAtomKeyword *pk_atom_string_to_keyword(Pocket lisp, PKAtomString *string);
 bool pk_atom_string_cmp(PKAtomString *string, PKStr comp);
 
 PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);
@@ -764,6 +766,10 @@ PKAtomKeyword *pk_atom_keyword(Pocket lisp, PKStr keyword);
 PKAtomKeyword *pk_atom_keywordc(Pocket lisp, char *ckeyword);
 bool pk_atom_symbol_cmp(PKAtomSymbol *symbol, PKStr comp);
 bool pk_atom_keyword_cmp(PKAtomKeyword *keyword, PKStr comp);
+PKAtomString *pk_atom_symbol_to_string(Pocket lisp, PKAtomSymbol *symbol);
+PKAtomKeyword *pk_atom_symbol_to_keyword(Pocket lisp, PKAtomSymbol *symbol);
+PKAtomString *pk_atom_keyword_to_string(Pocket lisp, PKAtomKeyword *keyword);
+PKAtomSymbol *pk_atom_keyword_to_symbol(Pocket lisp, PKAtomKeyword *keyword);
 
 PKAtomBlob *pk_atom_blob_new_empty(Pocket lisp);
 PKAtomBlob *pk_atom_blob_nomemcpy(Pocket lisp, PKBlob blob);
