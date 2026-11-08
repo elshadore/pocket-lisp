@@ -405,7 +405,7 @@ bool pk_gte(Pocket lisp, int lhs, int rhs) {
 }
 
 void pk_reverse(Pocket lisp, int seq) {
-    pk_stack_push(lisp, pk_atom_reverse(lisp, pk_stack_get(lisp, seq)));
+    pk_stack_push(lisp, pk_generic_reverse(lisp, pk_stack_get(lisp, seq)));
 }
 
 void pk_clone(Pocket lisp, int stack_pointer) {
