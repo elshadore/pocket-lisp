@@ -1,5 +1,10 @@
 #include "pocket_internals.h"
 
+typedef struct PKAtomStringCatData_ {
+    PKWriter w;
+    PKAtoms atoms;
+} PKAtomStringCatData;
+
 PKAtomString *pk_atom_string_new_empty(Pocket lisp) {
     PKAtomString *result = (PKAtomString *)pk_atom_alloc(lisp);
     
@@ -84,30 +89,13 @@ PKAtomString *pk_atom_stringc(Pocket lisp, char *cstring) {
     return pk_atom_string(lisp, string);
 }
 
-PKAtomString *pk_atom_string_cat_(PKWriter *w, Pocket lisp, PKAtoms atoms) {
-    for (size_t i = 0; i < atoms.length; ++i) {
-        PKAtom *atom = atoms.e[i];
-        if (pk_atom_is_string(atom)) {
-            pk_writer_string(lisp, w, atom->string.str);
-        } else if (pk_atom_is_character(atom)) {
-            pk_writer_char(lisp, w, atom->character.c);
-        } else if (pk_atom_is_string_array(atom)) {
-            pk_writer_string(lisp, w, pk_writer_slice(&atom->string_array.string));
-        } else {
-            pk_writer_atom(lisp, w, atom);
-        }
-    }
-    return pk_atom_string(lisp, pk_writer_slice(w));
-}
-    
-typedef struct PKAtomStringCatData_ {
-    PKWriter w;
-    PKAtoms atoms;
-} PKAtomStringCatData;
-
 void pk_atom_string_cat_body(void *user_closure, Pocket lisp) {
     PKAtomStringCatData *data = (PKAtomStringCatData *)user_closure;
-    pk_stack_push(lisp, (PKAtom *)pk_atom_string_cat_(&data->w, lisp, data->atoms));
+    for (size_t i = 0; i < data->atoms.length; ++i) {
+        PKAtom *atom = data->atoms.e[i];
+        pk_writer_string(lisp, &data->w, pk_atom_as_string(lisp, atom));
+    }
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(&data->w)));
 }
 
 PKAtomString *pk_atom_string_cat(Pocket lisp, PKAtoms atoms) {

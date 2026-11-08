@@ -818,6 +818,7 @@ PKAtom *pk_generic_read_char(Pocket lisp, PKAtom *obj);
 PKAtom *pk_generic_read_byte(Pocket lisp, PKAtom *obj);
 PKAtom *pk_generic_read(Pocket lisp, PKAtom *obj, size_t amount, PKAtom *mode);
 void pk_generic_write(Pocket lisp, PKAtom *obj, PKAtom *atom);
+PKAtom *pk_generic_cat(Pocket lisp, PKAtom *obj, PKAtoms atoms);
 
 PKAtom *pk_generic_to_list(Pocket lisp, PKAtom *obj);
 PKAtom *pk_generic_to_string(Pocket lisp, PKAtom *obj);
@@ -887,6 +888,7 @@ void pk_jmp_leave(Pocket lisp);
 void pk_jmp_enter(Pocket lisp, PKJmp *jmp);
 
 void pk_stack_push(Pocket lisp, PKAtom *atom);
+void pk_stack_push_many(Pocket lisp, PKAtoms atoms);
 size_t pk_sp_index(Pocket lisp, int stack_pointer);
 PKAtom *pk_stack_get(Pocket lisp, int stack_pointer);
 PKAtom *pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *value);
@@ -969,6 +971,7 @@ void pk_accum_push(PKAccum *acc, PKAtom *atom);
 void pk_array_push(Pocket lisp, PKArray *array, PKAtom *atom, size_t init_capacity);
 void pk_array_deinit(Pocket lisp, PKArray *array);
 PKAtoms pk_array_slice(PKArray *array);
+PKAtoms pk_atoms_slice(PKAtoms atoms, size_t slice);
 void pk_bytes_push(Pocket lisp, PKBytes *bytes, pk_u8 byte, size_t init_capacity);
 void pk_bytes_deinit(Pocket lisp, PKBytes *bytes);
 PKBlob pk_bytes_slice(PKBytes *bytes);

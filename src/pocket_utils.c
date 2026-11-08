@@ -75,6 +75,13 @@ PKAtoms pk_array_slice(PKArray *array) {
     };
 }
 
+PKAtoms pk_atoms_slice(PKAtoms atoms, size_t slice)  {
+    return (PKAtoms) {
+        .e = atoms.e + 1,
+        .length = atoms.length - 1,
+    };
+}
+
 void pk_bytes_push(Pocket lisp, PKBytes *bytes, pk_u8 byte, size_t init_capacity) {
     if (bytes->count >= bytes->capacity) {
         size_t new_capacity = pk_grow_capacity(bytes->capacity, init_capacity);

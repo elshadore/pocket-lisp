@@ -117,6 +117,12 @@ void pk_stack_push(Pocket lisp, PKAtom *atom) {
     pk_array_push(lisp, &lisp->stack, atom, 128);
 }
 
+void pk_stack_push_many(Pocket lisp, PKAtoms atoms) {
+    for (size_t i = 0; i < atoms.length; ++i) {
+        pk_stack_push(lisp, atoms.e[i]);
+    }
+}
+
 PKAtom *pk_stack_get(Pocket lisp, int stack_pointer) {
     if (stack_pointer == 0) {
         return lisp->cache.nil;

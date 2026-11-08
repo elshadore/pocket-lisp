@@ -2,10 +2,6 @@
 The todo list for POCKET LISP
 
 ## V1
-- [ ] array/table/string-array/byte-array/new arguments
-  - `(array 10 20 30 40)`
-  - `(make-array 5 'fill)`
-  
 - [ ] `cond` macro
   
 - [ ] Special Form Objects
@@ -14,6 +10,11 @@ The todo list for POCKET LISP
   - `--destroy` method
   - we need some form of dispatch for methods. where we dont care if the method is there or not.
   - `(message hello 'method 1 2 3 4 5)`
+  
+- [ ] cat
+  - [ ] string / char
+  - [ ] list
+  - [ ] blob
 
 - [ ] methods for many things
   - [ ] +
@@ -43,6 +44,7 @@ The todo list for POCKET LISP
 - [ ] `->string`
 - [ ] `->list`
 - [ ] implement `cat`
+- [ ] implement `reverse`
   - dispatch on first type
   
 - [ ] exotic number parsing
