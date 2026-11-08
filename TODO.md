@@ -2,8 +2,6 @@
 The todo list for POCKET LISP
 
 ## V1
-- [ ] `cond` macro
-  
 - [ ] Special Form Objects
 
 - [ ] Destroy Atom
@@ -12,7 +10,12 @@ The todo list for POCKET LISP
   - `(message hello 'method 1 2 3 4 5)`
   
 - [ ] cat
-  - [ ] string / char
+  - [x] string / char
+  - [ ] list
+  - [ ] blob
+  
+- [ ] implement `reverse`
+  - [ ] string
   - [ ] list
   - [ ] blob
 
@@ -39,13 +42,8 @@ The todo list for POCKET LISP
 
 - [ ] Unicode Strings and Characters (utf8)
   - [ ] fn, λ, lambda
+  
 - [ ] `string-split`
-- [ ] `->bytes`
-- [ ] `->string`
-- [ ] `->list`
-- [ ] implement `cat`
-- [ ] implement `reverse`
-  - dispatch on first type
   
 - [ ] exotic number parsing
   - 0b010101

@@ -721,6 +721,8 @@ PKAtom *pk_atom_list_filter(Pocket lisp, PKAtom *list, PKAtom *function);
 PKAtom *pk_atom_list_fap(Pocket lisp, PKAtom *list, PKAtom *function);
 PKAtom *pk_atom_list_reduce(Pocket lisp, PKAtom *list, PKAtom *function, PKAtom *init);
 PKAtom *pk_atom_assoc(Pocket lisp, PKAtom *alist, PKAtom *key);
+PKAtom *pk_atom_alist_to_plist(Pocket lisp, PKAtom *alist);
+PKAtom *pk_atom_plist_to_alist(Pocket lisp, PKAtom *plist);
 PKAtom *pk_atom_to_list_bytes(Pocket lisp, PKBlob bytes);
 PKAtom *pk_atom_to_list_chars(Pocket lisp, PKStr string);
 PKAtom *pk_atom_to_list_table(Pocket lisp, PKHashmap *map);

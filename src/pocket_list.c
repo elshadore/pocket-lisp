@@ -231,6 +231,84 @@ PKAtom *pk_atom_assoc(Pocket lisp, PKAtom *alist, PKAtom *key) {
     return lisp->cache.nil;
 }
 
+PKAtom *pk_atom_alist_to_plist(Pocket lisp, PKAtom *alist) {
+    PKAccum acc = pk_accum_new(lisp);
+    PKAtom *iter = alist;
+
+    while (pk_atom_is_cons(iter)) {
+        PKAtom *entry = iter->cons.car;
+
+        if (!pk_atom_is_cons(entry)) {
+            PKStr ty = pk_ident_atomty(entry->header.type);
+            pk_errorf(lisp, "pk_atom_alist_to_plist: expected a cons entry, got %.*s", (int)ty.length, ty.c);
+            return lisp->cache.nil;
+        }
+
+        PKAtom *key = entry->cons.car;
+        PKAtom *value = entry->cons.cdr;
+
+        if (pk_atom_is_cons(value)) {
+            PKStr ty = pk_ident_atomty(value->header.type);
+            pk_errorf(lisp, "pk_atom_alist_to_plist: expected an atom entry value, got %.*s", (int)ty.length, ty.c);
+            return lisp->cache.nil;
+        }
+
+        pk_accum_push(&acc, key);
+        pk_accum_push(&acc, value);
+
+        iter = iter->cons.cdr;
+    }
+
+    if (!pk_atom_is_nil(iter)) {
+        PKStr ty = pk_ident_atomty(iter->header.type);
+        pk_errorf(lisp, "pk_atom_alist_to_plist: expected a proper list, got %.*s", (int)ty.length, ty.c);
+        return lisp->cache.nil;
+    }
+
+    return acc.head;
+}
+
+PKAtom *pk_atom_plist_to_alist(Pocket lisp, PKAtom *plist) {
+    PKAccum acc = pk_accum_new(lisp);
+    PKAtom *iter = plist;
+
+    while (pk_atom_is_cons(iter)) {
+        PKAtom *key = iter->cons.car;
+
+        if (pk_atom_is_cons(key)) {
+            PKStr ty = pk_ident_atomty(key->header.type);
+            pk_errorf(lisp, "pk_atom_plist_to_alist: expected an atom key, got %.*s", (int)ty.length, ty.c);
+            return lisp->cache.nil;
+        }
+
+        if (!pk_atom_is_cons(iter->cons.cdr)) {
+            pk_errorf(lisp, "pk_atom_plist_to_alist: key is missing a value");
+            return lisp->cache.nil;
+        }
+
+        PKAtomCons *rest = (PKAtomCons *)iter->cons.cdr;
+        PKAtom *value = rest->car;
+
+        if (pk_atom_is_cons(value)) {
+            PKStr ty = pk_ident_atomty(value->header.type);
+            pk_errorf(lisp, "pk_atom_plist_to_alist: expected an atom value, got %.*s", (int)ty.length, ty.c);
+            return lisp->cache.nil;
+        }
+
+        pk_accum_push(&acc, (PKAtom *)pk_atom_cons(lisp, key, value));
+
+        iter = rest->cdr;
+    }
+
+    if (!pk_atom_is_nil(iter)) {
+        PKStr ty = pk_ident_atomty(iter->header.type);
+        pk_errorf(lisp, "pk_atom_plist_to_alist: expected a proper list, got %.*s", (int)ty.length, ty.c);
+        return lisp->cache.nil;
+    }
+
+    return acc.head;
+}
+
 void pk_atom_list_to_array(Pocket lisp, PKAtom *list, PKArray *array) {
     PKAtom *iter = list;
     while (pk_atom_is_cons(iter)) {
