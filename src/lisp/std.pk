@@ -95,12 +95,11 @@
 ## Basic for loop syntax for iterating over a list.
 (defmacro dolist ((el seq) :rest body)
      (let ((temp (gensym)))
-         `(progn
-            (let ((,temp ,seq))
-                 ((,el nil))
-                (while ,temp
-                   (setq ,el (car ,temp))
-                   (setq ,temp (cdr ,temp)))))))
+         `(let ((,temp ,seq) (,el nil))
+            (while ,temp
+               (setq ,el (car ,temp))
+               ,@body
+               (setq ,temp (cdr ,temp))))))
                    
 ## nil? -> (not x)
 ## A shortcut function essentially.
