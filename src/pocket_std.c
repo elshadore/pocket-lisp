@@ -926,9 +926,89 @@ void pk_method_to_byte_blob(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_byte(lisp, blob->bytes.e[0]));
 }
 
+void pk_method_to_byte_number(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_byte(lisp, pk_atom_number_to_byte(lisp, number)));
+}
+
+void pk_method_to_byte_character(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomChar *character = pk_atom_assert_character(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_byte(lisp, pk_atom_character_to_byte(lisp, character)));
+}
+
+void pk_method_to_list_table(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomTable *table = pk_atom_assert_table(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, pk_atom_table_to_list(lisp, table));
+}
+
+void pk_method_to_list_array(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomArray *array = pk_atom_assert_array(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, pk_atom_array_to_list(lisp, array));
+}
+
+void pk_method_to_string_string_array(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomStringArray *array = pk_atom_assert_string_array(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string_array_to_string(lisp, array));
+}
+
+void pk_method_to_chars_string_array(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomStringArray *array = pk_atom_assert_string_array(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, pk_atom_string_array_to_chars(lisp, array));
+}
+
+void pk_method_to_list_string_array(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomStringArray *array = pk_atom_assert_string_array(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, pk_atom_string_array_to_chars(lisp, array));
+}
+
+void pk_method_to_char_string_array(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomStringArray *array = pk_atom_assert_string_array(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string_array_to_char(lisp, array));
+}
+
+void pk_method_to_byte_byte_array(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomByteArray *array = pk_atom_assert_byte_array(lisp, pk_stack_get(lisp, 1));
+    size_t index = pk_atom_to_size_t(lisp, pk_stack_get(lisp, 2));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_byte(lisp, pk_atom_byte_array_to_byte(lisp, array, index)));
+}
+
+void pk_method_to_bytes_byte_array(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomByteArray *array = pk_atom_assert_byte_array(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_byte_array(lisp, pk_atom_byte_array_to_bytes(lisp, array)));
+}
+
+void pk_method_to_list_byte_array(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomByteArray *array = pk_atom_assert_byte_array(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, pk_atom_byte_array_to_list(lisp, array));
+}
+
 void pk_method_to_list_nil(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_push_nil(lisp);
+}
+
+void pk_method_to_string_nil(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_string(lisp, PK_STR_EMPTY);
+}
+
+void pk_method_to_string_cons(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKWriter w = PK_WRITER_EMPTY;
+    pk_writer_atom(lisp, &w, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(&w)));
+    pk_writer_deinit(lisp, &w);
 }
 
 void pk_method_loader(Pocket lisp, PKStr type, PKFunLoad *methods, size_t length) {
@@ -952,6 +1032,7 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("length"), .fun = pk_method_length_nil, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("member?"), .fun = pk_method_is_member_nil, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->list"), .fun = pk_method_to_list_nil, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->string"), .fun = pk_method_to_string_nil, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Nil"), methods, pk_alen(methods));
     }
@@ -963,6 +1044,7 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("length"), .fun = pk_method_length_list, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("member?"), .fun = pk_method_is_member_list, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->list"), .fun = pk_method_to_list_list, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->string"), .fun = pk_method_to_string_cons, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Cons"), methods, pk_alen(methods));
     }
@@ -972,6 +1054,7 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("->string"), .fun = pk_method_to_string_number, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->int"), .fun = pk_method_to_int_number, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->float"), .fun = pk_method_to_float_number, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->byte"), .fun = pk_method_to_byte_number, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Number"), methods, pk_alen(methods));
     }
@@ -993,6 +1076,7 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("->string"), .fun = pk_method_to_string_character, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->int"), .fun = pk_method_to_int_character, .args = 1, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("->char"), .fun = pk_method_to_char_character, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->byte"), .fun = pk_method_to_byte_character, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Character"), methods, pk_alen(methods));
     }
@@ -1015,6 +1099,7 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("find"), .fun = pk_method_find_table, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("remove"), .fun = pk_method_remove_table, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("member?"), .fun = pk_method_is_member_table, .args = 2, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->list"), .fun = pk_method_to_list_table, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Table"), methods, pk_alen(methods));
     }
@@ -1024,6 +1109,7 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("append"), .fun = pk_method_append_array, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("el"), .fun = pk_method_el_array, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("length"), .fun = pk_method_length_array, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->list"), .fun = pk_method_to_list_array, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Array"), methods, pk_alen(methods));
     }
@@ -1033,6 +1119,10 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("append"), .fun = pk_method_append_string_array, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("el"), .fun = pk_method_el_string_array, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("length"), .fun = pk_method_length_string_array, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->string"), .fun = pk_method_to_string_string_array, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->chars"), .fun = pk_method_to_chars_string_array, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->list"), .fun = pk_method_to_list_string_array, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->char"), .fun = pk_method_to_char_string_array, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("String-Array"), methods, pk_alen(methods));
     }
@@ -1042,6 +1132,9 @@ void pk_std_load_cmethods(Pocket lisp) {
             {.symbol = pk_str("append"), .fun = pk_method_append_byte_array, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("el"), .fun = pk_method_el_byte_array, .args = 2, .arity = PK_ARITY_NORMAL},
             {.symbol = pk_str("length"), .fun = pk_method_length_byte_array, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->byte"), .fun = pk_method_to_byte_byte_array, .args = 2, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->bytes"), .fun = pk_method_to_bytes_byte_array, .args = 1, .arity = PK_ARITY_NORMAL},
+            {.symbol = pk_str("->list"), .fun = pk_method_to_list_byte_array, .args = 1, .arity = PK_ARITY_NORMAL},
         };
         pk_method_loader(lisp, pk_str("Byte-Array"), methods, pk_alen(methods));
     }

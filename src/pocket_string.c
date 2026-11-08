@@ -41,14 +41,23 @@ PKAtomChar *pk_atom_char(Pocket lisp, char c) {
     return result;
 }
 
-PKAtomChar *pk_atom_string_to_char(Pocket lisp, PKAtomString *string) {
-    if (string->str.length == 0) {
+char pk_atom_str_to_char(Pocket lisp, PKStr string) {
+    if (string.length == 0) {
         pk_errors(lisp, pk_str("string is empty"));
     }
-    if (string->str.length > 1) {
+    if (string.length > 1) {
         pk_errors(lisp, pk_str("string greater than a single character"));
     }
-    return pk_atom_char(lisp, string->str.c[0]);
+    return string.c[0];
+}
+
+PKAtomChar *pk_atom_string_to_char(Pocket lisp, PKAtomString *string) {
+    return pk_atom_char(lisp, pk_atom_str_to_char(lisp, string->str));
+}
+
+pk_u8 pk_atom_character_to_byte(Pocket lisp, PKAtomChar *character) {
+    (void)lisp;
+    return (pk_u8)character->c;
 }
 
 PKAtom *pk_atom_string_to_chars(Pocket lisp, PKAtomString *string) {

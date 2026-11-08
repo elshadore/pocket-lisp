@@ -148,3 +148,36 @@ PKAtomStringArray *pk_atom_assert_string_array(Pocket lisp, PKAtom *atom) {
     pk_atom_assert_type(lisp, atom, lisp->cache.type_string_array);
     return (PKAtomStringArray *)atom;
 }
+
+PKAtom *pk_atom_array_to_list(Pocket lisp, PKAtomArray *array) {
+    PKAtoms atoms = pk_array_slice(&array->atoms);
+    return pk_atom_list(lisp, atoms);
+}
+
+PKAtomString *pk_atom_string_array_to_string(Pocket lisp, PKAtomStringArray *array) {
+    PKStr str = pk_writer_slice(&array->string);
+    return pk_atom_string(lisp, str);
+}
+
+PKAtom *pk_atom_string_array_to_chars(Pocket lisp, PKAtomStringArray *array) {
+    PKStr str = pk_writer_slice(&array->string);
+    return pk_atom_to_list_chars(lisp, str);
+}
+
+PKAtomChar *pk_atom_string_array_to_char(Pocket lisp, PKAtomStringArray *array) {
+    return pk_atom_char(lisp, pk_atom_str_to_char(lisp, pk_writer_slice(&array->string)));
+}
+
+pk_u8 pk_atom_byte_array_to_byte(Pocket lisp, PKAtomByteArray *array, size_t index) {
+    return pk_atom_byte_array_el(lisp, array, index);
+}
+
+PKBlob pk_atom_byte_array_to_bytes(Pocket lisp, PKAtomByteArray *array) {
+    (void)lisp;
+    return pk_bytes_slice(&array->bytes);
+}
+
+PKAtom *pk_atom_byte_array_to_list(Pocket lisp, PKAtomByteArray *array) {
+    PKBlob bytes = pk_bytes_slice(&array->bytes);
+    return pk_atom_to_list_bytes(lisp, bytes);
+}

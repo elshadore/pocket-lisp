@@ -62,3 +62,7 @@ size_t pk_atom_table_length(Pocket lisp, PKAtomTable *table) {
     (void)lisp;
     return table->map.count;
 }
+
+PKAtom *pk_atom_table_to_list(Pocket lisp, PKAtomTable *table) {
+    return pk_atom_to_list_table(lisp, &table->map);
+}
