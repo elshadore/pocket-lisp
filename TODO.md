@@ -11,6 +11,9 @@ The todo list for POCKET LISP
   
 - [ ] multiple append
 
+- [ ] Iterator objects
+  - maybe implemented in lisp (not c)
+
 - [ ] methods for many things
   - [ ] +
   - [ ] -
@@ -22,8 +25,6 @@ The todo list for POCKET LISP
   - [ ] >
   - [ ] >=
   - [ ] =
-  - [ ] ->symbol
-  - [ ] ->keyword
   
 - [ ] fix debug stack dump
   - so we see frames clearly
@@ -85,6 +86,9 @@ The todo list for POCKET LISP
 
 - [ ] Create CMake Build
 
+- [ ] Emacs Mode Syntax Highlighting
+  - basic syntax highlighter
+
 - [ ] Small, Big, Symbol, Pools
   
 - [ ] Upgrade to Arbitary Precision Bytecode
@@ -99,7 +103,7 @@ The todo list for POCKET LISP
 - [ ] potential rename to `micro lisp`
   - `.ul` `.ulc` `.uld` `(udex:install "foo")`
 - [ ] Custom cfmt
-  - for printing atoms as well as datums
+  - for printing atoms as well as c data
 - [ ] Read Common Lisp Standard
 - [ ] `struct-eq`
 - [ ] Pretty Printing

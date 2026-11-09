@@ -1,5 +1,11 @@
 #include "pocket_internals.h"
 
+typedef struct PKPushFmtData_ {
+    const char *fmt;
+    PKWriter w;
+    va_list args;
+} PKPushFmtData;
+
 void pk_push_nil(Pocket lisp) {
     pk_stack_push(lisp, lisp->cache.nil);
 }
@@ -31,12 +37,6 @@ void pk_push_string(Pocket lisp, PKStr string) {
 void pk_push_stringc(Pocket lisp, char *cstring) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_stringc(lisp, cstring));
 }
-
-typedef struct PKPushFmtData_ {
-    const char *fmt;
-    PKWriter w;
-    va_list args;
-} PKPushFmtData;
 
 void pk_push_stringf_body(void *user_closure, Pocket lisp) {
     PKPushFmtData *data = (PKPushFmtData *)user_closure;
