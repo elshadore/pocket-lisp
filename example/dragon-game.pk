@@ -1,0 +1,20 @@
+(defclass Location ()
+      name
+      routes
+)
+
+(defun location (name routes)
+    (new 'Location 'name name 'routes routes))
+
+(defvar *locations* (table
+     'starting-town (location "Starting Town" '(metal-city))
+     'metal-city (location "Metal City" '(starting-town))))
+
+(defvar *current-location* 'starting-town)
+
+(defun can-move? (from to)
+     (member? (getq-slot (find *locations* from) routes) to))
+
+(defun move (to)
+    (when (can-move? *current-location* to)
+        (setq *current-location* to)))

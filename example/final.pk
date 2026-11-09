@@ -1,3 +1,20 @@
 #!/bin/pocket -e
 
 (+ 1 2 3)
+
+(defclass Vector2 ()
+   x
+   y
+)
+
+## Autogenerates function o algo
+(Vector2
+    :x 1
+    :y 2)
+
+## Compares symbols with keywords
+(symbolic= 'x :x)
+-> true
+
+## Compares symbols, keyword, strings, and characters
+(textual= 'x "x")
