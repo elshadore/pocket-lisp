@@ -18,3 +18,9 @@
 
 ## Compares symbols, keyword, strings, and characters
 (textual= 'x "x")
+
+## Return statements
+(lambda (x)
+    (unless x
+         (return "not cool!"))
+    x)
