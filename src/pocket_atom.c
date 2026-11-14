@@ -38,12 +38,7 @@ PKAtomKind pk_atom_kind(PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_CONS: return PK_ATOMKIND_OBJECT;
         case PK_ATOMTY_ARRAY: return PK_ATOMKIND_OBJECT;
-        case PK_ATOMTY_STRING_ARRAY: return PK_ATOMKIND_OBJECT;
-        case PK_ATOMTY_BYTE_ARRAY: return PK_ATOMKIND_OBJECT;
-        case PK_ATOMTY_TABLE: return PK_ATOMKIND_OBJECT;
-        case PK_ATOMTY_LOBJECT: return PK_ATOMKIND_OBJECT;
-        case PK_ATOMTY_COBJECT: return PK_ATOMKIND_OBJECT;
-        case PK_ATOMTY_STREAM: return PK_ATOMKIND_OBJECT;
+        case PK_ATOMTY_OBJECT: return PK_ATOMKIND_OBJECT;
         case PK_ATOMTY_DESTROYED: return PK_ATOMKIND_VALUE;
         case PK_ATOMTY_UNDEFINED: return PK_ATOMKIND_VALUE;
         case PK_ATOMTY_NIL: return PK_ATOMKIND_VALUE;
@@ -52,8 +47,6 @@ PKAtomKind pk_atom_kind(PKAtom *atom) {
         case PK_ATOMTY_STRING: return PK_ATOMKIND_VALUE;
         case PK_ATOMTY_SYMBOL: return PK_ATOMKIND_VALUE;
         case PK_ATOMTY_KEYWORD: return PK_ATOMKIND_VALUE;
-        case PK_ATOMTY_CHARACTER: return PK_ATOMKIND_VALUE;
-        case PK_ATOMTY_BLOB: return PK_ATOMKIND_VALUE;
         case PK_ATOMTY_CFUN: return PK_ATOMKIND_VALUE;
         case PK_ATOMTY_LFUN: return PK_ATOMKIND_VALUE;
         case PK_ATOMTY_CMACRO: return PK_ATOMKIND_VALUE;
@@ -99,39 +92,9 @@ PKAtom *pk_atom_clone_rec_(Pocket lisp, PKHashmap *memo, PKAtom *atom) {
             }
             return (PKAtom *)result;
         }
-        case PK_ATOMTY_STRING_ARRAY: {
-            PKAtomStringArray *result = pk_atom_string_array(lisp, PK_ATOMS_EMPTY);
-            pk_hashmap_insert(lisp, memo, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
-            pk_atom_string_array_append_str(lisp, result, pk_writer_slice(&atom->string_array.string));
-            return (PKAtom *)result;
-        }
-        case PK_ATOMTY_BYTE_ARRAY: {
-            PKAtomByteArray *result = pk_atom_byte_array(lisp, PK_ATOMS_EMPTY);
-            pk_hashmap_insert(lisp, memo, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
-            return (PKAtom *)result;
-        }
-        case PK_ATOMTY_TABLE: {
-            PKAtomTable *result = pk_atom_table(lisp);
-            pk_hashmap_insert(lisp, memo, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
-            PKHashmap *map = &atom->table.map;
-            for (size_t i = 0; i < map->capacity; ++i) {
-                PKHashmapSlot *slot = &map->e[i];
-                if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) {
-                    pk_atom_table_put(lisp, result,
-                        pk_atom_clone_rec_(lisp, memo, slot->key),
-                        pk_atom_clone_rec_(lisp, memo, slot->value));
-                }
-            }
-            return (PKAtom *)result;
-        }
-        case PK_ATOMTY_LOBJECT: {
-            PKAtomLObject *result = (PKAtomLObject *)pk_atom_object_new(lisp, atom->lobject.type);
-            pk_hashmap_insert(lisp, memo, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
-            PKAtoms slots = atom->lobject.slots;
-            for (size_t i = 0; i < slots.length; ++i) {
-                result->slots.e[i] = pk_atom_clone_rec_(lisp, memo, slots.e[i]);
-            }
-            return (PKAtom *)result;
+        case PK_ATOMTY_OBJECT: {
+            pk_errors(lisp, pk_str("pk_atom_clone(), TODO: thing about object cloning"));
+            return lisp->cache.nil;
         }
         default: {
             pk_errors(lisp, pk_str("pk_atom_clone(), cannot clone this type, TODO: better error message for this"));
@@ -194,22 +157,8 @@ bool pk_atom_is_circular_rec_(Pocket lisp, PKHashmap *visited, PKAtom *atom) {
             }
             break;
         }
-        case PK_ATOMTY_TABLE: {
-            PKHashmap *map = &atom->table.map;
-            for (size_t i = 0; !result && (i < map->capacity); ++i) {
-                PKHashmapSlot *slot = &map->e[i];
-                if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) {
-                    result = pk_atom_is_circular_rec_(lisp, visited, slot->key)
-                        || pk_atom_is_circular_rec_(lisp, visited, slot->value);
-                }
-            }
-            break;
-        }
-        case PK_ATOMTY_LOBJECT: {
-            PKAtoms slots = atom->lobject.slots;
-            for (size_t i = 0; !result && (i < slots.length); ++i) {
-                result = pk_atom_is_circular_rec_(lisp, visited, slots.e[i]);
-            }
+        case PK_ATOMTY_OBJECT: {
+            pk_errors(lisp, pk_str("pk_atom_is_circular(): TODO: implement object is circular logic"));
             break;
         }
         default: break;
@@ -253,29 +202,6 @@ bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
     if (lhs == rhs) {
         return true;
     }
-    if (lhs->header.type != rhs->header.type) {
-        switch (lhs->header.type) {
-            case PK_ATOMTY_CHARACTER: {
-                if (rhs->header.type != PK_ATOMTY_STRING) {
-                    return false;
-                }
-                if (rhs->string.str.length != 1) {
-                    return false;
-                }
-                return lhs->character.c == rhs->string.str.c[0];
-            }
-            case PK_ATOMTY_STRING: {
-                if (rhs->header.type != PK_ATOMTY_CHARACTER) {
-                    return false;
-                }
-                if (lhs->string.str.length != 1) {
-                    return false;
-                }
-                return lhs->string.str.c[0] == rhs->character.c;
-            }
-            default: return false;
-        }
-    }
     switch (lhs->header.type) {
         case PK_ATOMTY_NUMBER: {
             if (lhs->number.num_type != rhs->number.num_type) {
@@ -296,9 +222,6 @@ bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
         }
         case PK_ATOMTY_STRING: {
             return pk_str_eq(lhs->string.str, rhs->string.str);
-        }
-        case PK_ATOMTY_CHARACTER: {
-            return lhs->character.c == rhs->character.c;
         }
         default: return false;
     }

@@ -45,43 +45,6 @@ PKAtomString *pk_atom_string_char(Pocket lisp, char c) {
     return pk_atom_string(lisp, str);
 }
 
-PKAtomChar *pk_atom_char(Pocket lisp, char c) {
-    PKAtomChar *result = (PKAtomChar *)pk_atom_alloc(lisp);
-
-    result->header.type = PK_ATOMTY_CHARACTER;
-    result->c = c;
-
-    return result;
-}
-
-char pk_atom_str_to_char(Pocket lisp, PKStr string) {
-    if (string.length == 0) {
-        pk_errors(lisp, pk_str("string is empty"));
-    }
-    if (string.length > 1) {
-        pk_errors(lisp, pk_str("string greater than a single character"));
-    }
-    return string.c[0];
-}
-
-PKAtomChar *pk_atom_string_to_char(Pocket lisp, PKAtomString *string) {
-    return pk_atom_char(lisp, pk_atom_str_to_char(lisp, string->str));
-}
-
-pk_u8 pk_atom_character_to_byte(Pocket lisp, PKAtomChar *character) {
-    (void)lisp;
-    return (pk_u8)character->c;
-}
-
-PKAtom *pk_atom_string_to_chars(Pocket lisp, PKAtomString *string) {
-    return pk_atom_to_list_chars(lisp, string->str);
-}
-
-PKAtomBlob *pk_atom_string_to_bytes(Pocket lisp, PKAtomString *string) {
-    PKBlob blob = {(pk_u8 *)string->str.c, string->str.length};
-    return pk_atom_blob(lisp, blob);
-}
-
 PKAtomSymbol *pk_atom_string_to_symbol(Pocket lisp, PKAtomString *string) {
     return pk_atom_symbol(lisp, string->str);
 }
@@ -145,24 +108,6 @@ char pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index) {
     return string->str.c[index];
 }
 
-PKStr pk_atom_as_string(Pocket lisp, PKAtom *atom) {
-    switch (atom->header.type) {
-        case PK_ATOMTY_STRING: {
-            return atom->string.str;
-        }
-        case PK_ATOMTY_CHARACTER: {
-            return (PKStr) {
-                .c = &atom->character.c,
-                .length = 1,
-            };
-        }
-        default: {
-            pk_error_type2(lisp, atom, lisp->cache.type_string, lisp->cache.type_character);
-            return PK_STR_EMPTY;
-        }
-    }
-}
-
 size_t pk_atom_string_length(Pocket lisp, PKAtomString *string) {
     (void)lisp;
     return string->str.length;
@@ -172,25 +117,12 @@ bool pk_atom_is_string(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_STRING;
 }
 
-bool pk_atom_is_character(PKAtom *atom) {
-    return atom->header.type == PK_ATOMTY_CHARACTER;
-}
-
 PKAtomString *pk_atom_assert_string(Pocket lisp, PKAtom *atom) {
     if (pk_atom_is_string(atom)) {
         return (PKAtomString *)atom;
     } else {
         pk_error_type(lisp, atom, lisp->cache.type_string);
         return lisp->cache.empty_string;
-    }
-}
-
-PKAtomChar *pk_atom_assert_character(Pocket lisp, PKAtom *atom) {
-    if (pk_atom_is_character(atom)) {
-        return (PKAtomChar *)atom;
-    } else {
-        pk_error_type(lisp, atom, lisp->cache.type_character);
-        return (PKAtomChar *)lisp->cache.nil;
     }
 }
 

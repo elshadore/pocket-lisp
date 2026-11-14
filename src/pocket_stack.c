@@ -91,11 +91,11 @@ void pk_swap(Pocket lisp, int a, int b){
     lisp->stack.e[ib] = temp;
 }
 
-void pk_dig(Pocket lisp, int stack_pointer){
+void pk_dupe(Pocket lisp, int stack_pointer){
     pk_stack_push(lisp, pk_stack_get(lisp, stack_pointer));
 }
 
-void pk_dig_to(Pocket lisp, int from, int to){
+void pk_insert(Pocket lisp, int from, int to){
     size_t ia = pk_sp_index(lisp, from);
     size_t ib = pk_sp_index(lisp, to);
     lisp->stack.e[ib] = lisp->stack.e[ia];

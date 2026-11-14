@@ -21,48 +21,14 @@ void pk_atom_deinit(Pocket lisp, PKAtom *atom) {
             break;
         }
         case PK_ATOMTY_SYMBOL: {
-            pk_slotmap_deinit(lisp, &atom->symbol.slots);
-            pk_hashmap_deinit(lisp, &atom->symbol.methods);
             break;
         }
-        case PK_ATOMTY_LOBJECT: {
-            pk_atoms_free(lisp, &atom->lobject.slots);
-            break;
-        }
-        case PK_ATOMTY_COBJECT: {
-            if (((PKAtomSymbol *)atom->cobject.type)->type_type == PK_TYPETY_C_OWNED) {
-                pk_free(lisp, atom->cobject.data);
-            }
-            break;
-        }
-        case PK_ATOMTY_BLOB: {
-            pk_blob_free(lisp, &atom->blob.bytes);
-            break;
-        }
-        case PK_ATOMTY_STREAM: {
-            if (atom->stream.f != NULL) {
-                (void)fflush(atom->stream.f);
-                if (!atom->stream.keep_open) {
-                    (void)fclose(atom->stream.f);
-                }
-                atom->stream.f = NULL;
-            }
+        case PK_ATOMTY_OBJECT: {
+            pk_errors(lisp, pk_str("pk_atom_deinit(): TODO: object destroy"));
             break;
         }
         case PK_ATOMTY_ARRAY: {
             pk_array_deinit(lisp, &atom->array.atoms);
-            break;
-        }
-        case PK_ATOMTY_STRING_ARRAY: {
-            pk_writer_deinit(lisp, &atom->string_array.string);
-            break;
-        }
-        case PK_ATOMTY_BYTE_ARRAY: {
-            pk_bytes_deinit(lisp, &atom->byte_array.bytes);
-            break;
-        }
-        case PK_ATOMTY_TABLE: {
-            pk_hashmap_deinit(lisp, &atom->table.map);
             break;
         }
         default: break;

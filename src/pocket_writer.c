@@ -186,27 +186,6 @@ void pk_writer_symbol_name(Pocket lisp, PKWriter *w, PKStr name) {
     pk_writer_char(lisp, w, '|');
 }
 
-void pk_writer_atom_char(Pocket lisp, PKWriter *w, char c) {
-    pk_writer_string(lisp, w, pk_str("^\\"));
-    PKStr name = PK_STR_EMPTY;
-    if (pk_char_to_cname(c, &name)) {
-        pk_writer_string(lisp, w, name);
-    } else {
-        pk_writer_char(lisp, w, c);
-    }
-}
-
-void pk_writer_atom_blob(Pocket lisp, PKWriter *w, PKBlob blob) {
-    pk_writer_char(lisp, w, '[');
-    if (blob.length > 0) {
-        for (size_t i = 0; i < (blob.length - 1); ++i) {
-            pk_writer_fmt(lisp, w, "%u ", blob.e[i]);
-        }
-        pk_writer_fmt(lisp, w, "%u", blob.e[blob.length - 1]);
-    }
-    pk_writer_char(lisp, w, ']');
-}
-
 void pk_writer_atom_recursive(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom);
 
 void pk_writer_write_atom(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *atom) {
@@ -239,10 +218,6 @@ void pk_writer_write_atom(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *a
         }
         case PK_ATOMTY_SYMBOL: {
             pk_writer_symbol_name(lisp, w, atom->symbol.name->str);
-            break;
-        }
-        case PK_ATOMTY_CHARACTER: {
-            pk_writer_atom_char(lisp, w, atom->character.c);
             break;
         }
         case PK_ATOMTY_KEYWORD: {
@@ -296,15 +271,9 @@ void pk_writer_write_atom(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *a
             pk_writer_simple_function(lisp, w, atom, pk_str("Macro::lisp"), atom->lmacro.arity);
             break;
         }
-        case PK_ATOMTY_BLOB: {
-            pk_writer_atom_blob(lisp, w, atom->blob.bytes);
-            break;
-        }
         case PK_ATOMTY_ARRAY: {
             PKArray *array = &atom->array.atoms;
-            pk_writer_string(lisp, w, pk_str("&<"));
-            pk_writer_string(lisp, w, pk_str("Array::"));
-            pk_writer_char(lisp, w, '(');
+            pk_writer_char(lisp, w, '[');
             (void)pk_hashmap_insert(lisp, clones, atom, atom, PK_HASHMAP_INSERT_NORMAL);
             for (size_t i = 0; i < array->count; ++i) {
                 if (i != 0) {
@@ -312,87 +281,37 @@ void pk_writer_write_atom(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *a
                 }
                 pk_writer_atom_recursive(lisp, w, clones, array->e[i]);
             }
-            pk_writer_string(lisp, w, pk_str(")>"));
+            pk_writer_char(lisp, w, ']');
             break;
         }
-        case PK_ATOMTY_STRING_ARRAY: {
-            pk_writer_string(lisp, w, pk_str("&<String-Array::\""));
-            pk_writer_string_escaped(lisp, w, pk_writer_slice(&atom->string_array.string));
-            pk_writer_string(lisp, w, pk_str("\">"));
+        case PK_ATOMTY_OBJECT: {
+            pk_errors(lisp, pk_str("TODO: writing objects"));
             break;
         }
-        case PK_ATOMTY_BYTE_ARRAY: {
-            pk_writer_string(lisp, w, pk_str("&<Byte-Array::"));
-            pk_writer_atom_blob(lisp, w, pk_bytes_slice(&atom->byte_array.bytes));
-            pk_writer_string(lisp, w, pk_str(">"));
-            break;
-        }
-        case PK_ATOMTY_TABLE: {
-            PKHashmap *map = &atom->table.map;
-            pk_writer_string(lisp, w, pk_str("&<"));
-            pk_writer_string(lisp, w, pk_str("Table::"));
-            pk_writer_char(lisp, w, '(');
-            (void)pk_hashmap_insert(lisp, clones, atom, atom, PK_HASHMAP_INSERT_NORMAL);
-            bool first = true;
-            for (size_t i = 0; i < map->capacity; ++i) {
-                PKHashmapSlot *slot = &map->e[i];
-                if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) {
-                    if (!first) {
-                        pk_writer_char(lisp, w, ' ');
-                    }
-                    first = false;
-                    pk_writer_char(lisp, w, '(');
-                    pk_writer_atom_recursive(lisp, w, clones, slot->key);
-                    pk_writer_string(lisp, w, pk_str(" . "));
-                    pk_writer_atom_recursive(lisp, w, clones, slot->value);
-                    pk_writer_char(lisp, w, ')');
-                }
-            }
-            pk_writer_string(lisp, w, pk_str(")>"));
-            break;
-        }
-        case PK_ATOMTY_COBJECT: {
-            pk_writer_simple_object(lisp, w, atom, atom->cobject.type->name->str);
-            break;
-        }
-        case PK_ATOMTY_LOBJECT: {
-            PKAtomSymbol *type = atom->lobject.type;
-            PKAtoms slots = atom->lobject.slots;
-            pk_writer_string(lisp, w, pk_str("&<"));
-            pk_writer_symbol_name(lisp, w, type->name->str);
-            pk_writer_string(lisp, w, pk_str("::"));
-            pk_writer_char(lisp, w, '(');
-            (void)pk_hashmap_insert(lisp, clones, atom, atom, PK_HASHMAP_INSERT_NORMAL);
-            size_t printed = 0;
-            for (size_t index = 0; index < slots.length; ++index) {
-                PKAtom *symbol = NULL;
-                for (size_t i = 0; i < type->slots.capacity; ++i) {
-                    PKSlotmapSlot *slot = &type->slots.e[i];
-                    if ((slot->state == PK_SLOTMAP_SLOT_OCCUPIED) && (slot->index == index)) {
-                        symbol = slot->symbol;
-                        break;
-                    }
-                }
-                if (symbol == NULL) {
-                    continue;
-                }
-                if (printed != 0) {
-                    pk_writer_char(lisp, w, ' ');
-                }
-                printed += 1;
-                pk_writer_char(lisp, w, '(');
-                pk_writer_atom_recursive(lisp, w, clones, (PKAtom *)symbol);
-                pk_writer_string(lisp, w, pk_str(" . "));
-                pk_writer_atom_recursive(lisp, w, clones, slots.e[index]);
-                pk_writer_char(lisp, w, ')');
-            }
-            pk_writer_string(lisp, w, pk_str(")>"));
-            break;
-        }
-        case PK_ATOMTY_STREAM: {
-            pk_writer_simple_object(lisp, w, atom, pk_str("Stream"));
-            break;
-        }
+        /* case PK_ATOMTY_TABLE: { */
+        /*     PKHashmap *map = &atom->table.map; */
+        /*     pk_writer_string(lisp, w, pk_str("&<")); */
+        /*     pk_writer_string(lisp, w, pk_str("Table::")); */
+        /*     pk_writer_char(lisp, w, '('); */
+        /*     (void)pk_hashmap_insert(lisp, clones, atom, atom, PK_HASHMAP_INSERT_NORMAL); */
+        /*     bool first = true; */
+        /*     for (size_t i = 0; i < map->capacity; ++i) { */
+        /*         PKHashmapSlot *slot = &map->e[i]; */
+        /*         if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) { */
+        /*             if (!first) { */
+        /*                 pk_writer_char(lisp, w, ' '); */
+        /*             } */
+        /*             first = false; */
+        /*             pk_writer_char(lisp, w, '('); */
+        /*             pk_writer_atom_recursive(lisp, w, clones, slot->key); */
+        /*             pk_writer_string(lisp, w, pk_str(" . ")); */
+        /*             pk_writer_atom_recursive(lisp, w, clones, slot->value); */
+        /*             pk_writer_char(lisp, w, ')'); */
+        /*         } */
+        /*     } */
+        /*     pk_writer_string(lisp, w, pk_str(")>")); */
+        /*     break; */
+        /* } */
         case PK_ATOMTY_DESTROYED: {
             pk_writer_simple_object(lisp, w, atom, pk_str("Destroyed"));
             break;

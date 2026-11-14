@@ -98,21 +98,13 @@ PKAtom *pk_funcall_resolve_function(Pocket lisp, PKAtoms slice) {
     PKAtomSymbol *asym = (PKAtomSymbol *)function;
     PKStr name = asym->name->str;
 
-    if (slice.length >= 2) {
-        PKAtom *object = slice.e[0];
-        PKAtomSymbol *type = pk_atom_typeof(lisp, object);
-        PKAtom *method = pk_atom_method_get_raw(lisp, type, asym);
-        if (!pk_atom_is_undefined(method)) {
-            return method;
-        }
-    }
 
-    PKAtom *lookup = pk_env_get(lisp, PK_ENV_FUN, asym);
-    if (pk_atom_is_undefined(lookup)) {
-        pk_errorf(lisp, "pk_funcall: undefined function or method %.*s", (int)name.length, name.c);
+    PKAtom *fetch = pk_env_fetch(lisp, PK_ENV_FUN, asym);
+    if (pk_atom_is_undefined(fetch)) {
+        pk_errorf(lisp, "pk_funcall: undefined function %.*s", (int)name.length, name.c);
         return lisp->cache.nil;
     } else {
-        return lookup;
+        return fetch;
     }
 }
 

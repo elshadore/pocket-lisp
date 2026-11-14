@@ -50,10 +50,6 @@ PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr string) {
     result->var = lisp->cache.undefined;
     result->fun = lisp->cache.undefined;
     result->name = name;
-    result->type_type = PK_TYPETY_NOTYPE;
-    result->slots = PK_SLOTMAP_EMPTY;
-    result->methods = PK_HASHMAP_EMPTY;
-    result->owned_memory = 0;
 
     pk_hashmap_insert(lisp, &lisp->symbolizer, (PKAtom *)name, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
     

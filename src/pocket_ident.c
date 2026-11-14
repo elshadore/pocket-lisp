@@ -13,18 +13,11 @@ PKStr pk_ident_atomty(pk_u8 type) {
         case PK_ATOMTY_KEYWORD: return pk_str("KEYWORD");
         case PK_ATOMTY_CONS: return pk_str("CONS");
         case PK_ATOMTY_ARRAY: return pk_str("ARRAY");
-        case PK_ATOMTY_TABLE: return pk_str("TABLE");
         case PK_ATOMTY_CFUN: return pk_str("CFUN");
         case PK_ATOMTY_LFUN: return pk_str("LFUN");
         case PK_ATOMTY_CMACRO: return pk_str("CMACRO");
         case PK_ATOMTY_LMACRO: return pk_str("LMACRO");
-        case PK_ATOMTY_LOBJECT: return pk_str("LOBJECT");
-        case PK_ATOMTY_COBJECT: return pk_str("COBJECT");
-        case PK_ATOMTY_CHARACTER: return pk_str("CHARACTER");
-        case PK_ATOMTY_BLOB: return pk_str("BLOB");
-        case PK_ATOMTY_STRING_ARRAY: return pk_str("STRING_ARRAY");
-        case PK_ATOMTY_BYTE_ARRAY: return pk_str("BYTE_ARRAY");
-        case PK_ATOMTY_STREAM: return pk_str("STREAM");
+        case PK_ATOMTY_OBJECT: return pk_str("OBJECT");
         case PK_ATOMTY_DESTROYED: return pk_str("DESTROYED");
         default: return pk_str("UNKNOWN");
     }

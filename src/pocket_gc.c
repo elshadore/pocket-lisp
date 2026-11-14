@@ -128,8 +128,6 @@ void pk_gc_mark(Pocket lisp, PKAtom *atom) {
             pk_gc_mark(lisp, (PKAtom *)symbol->name);
             pk_gc_mark(lisp, (PKAtom *)symbol->var);
             pk_gc_mark(lisp, (PKAtom *)symbol->fun);
-            pk_gc_mark_slotmap(lisp, &symbol->slots);
-            pk_gc_mark_hashmap(lisp, &symbol->methods);
             break;
         }
         case PK_ATOMTY_LFUN: {
@@ -140,21 +138,12 @@ void pk_gc_mark(Pocket lisp, PKAtom *atom) {
             pk_gc_mark_atoms(lisp, atom->lmacro.atoms);
             break;
         }
-        case PK_ATOMTY_LOBJECT: {
-            pk_gc_mark(lisp, (PKAtom *)atom->lobject.type);
-            pk_gc_mark_atoms(lisp, atom->lobject.slots);
-            break;
-        }
-        case PK_ATOMTY_COBJECT: {
-            pk_gc_mark(lisp, (PKAtom *)atom->cobject.type);
-            break;
-        }
         case PK_ATOMTY_ARRAY: {
             pk_gc_mark_atoms(lisp, pk_array_slice(&atom->array.atoms));
             break;
         }
-        case PK_ATOMTY_TABLE: {
-            pk_gc_mark_hashmap(lisp, &atom->table.map);
+        case PK_ATOMTY_OBJECT: {
+            pk_errors(lisp, pk_str("TODO: implement object gc"));
             break;
         }
         default: break;

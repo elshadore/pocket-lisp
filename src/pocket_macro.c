@@ -186,7 +186,7 @@ bool pk_macroexpand1_(Pocket lisp, int atom) {
         }
 
         PKAtomSymbol *asymbol = (PKAtomSymbol *)head;
-        PKAtom *get = pk_env_get(lisp, PK_ENV_FUN, asymbol);
+        PKAtom *get = pk_env_fetch(lisp, PK_ENV_FUN, asymbol);
         if (pk_atom_is_macro(get)) {
             pk_atom_apply(lisp, PK_CALL_MACRO, get, a->cons.cdr);
             lisp->stack.e[abs] = pk_stack_head(lisp);

@@ -68,6 +68,13 @@ typedef enum PK_CALL_ {
 
 #define pk_alen(array_) (sizeof(array_) / sizeof(*array_))
 
+typedef struct PKFunArgs_ {
+    PK_ARITY arity;
+    pk_u8 args;
+    pk_u8 options;
+    int kwargs;
+} PKFunArgs;
+
 PK_API Pocket pk_init(void *user_env);
 PK_API void pk_deinit(Pocket lisp);
 
@@ -76,8 +83,8 @@ PK_API void pk_pop2(Pocket lisp);
 PK_API void pk_pop3(Pocket lisp);
 PK_API void pk_popn(Pocket lisp, size_t n);
 PK_API void pk_swap(Pocket lisp, int a, int b);
-PK_API void pk_dig(Pocket lisp, int stack_pointer);
-PK_API void pk_dig_to(Pocket lisp, int from, int to);
+PK_API void pk_dupe(Pocket lisp, int stack_pointer);
+PK_API void pk_insert(Pocket lisp, int from, int to);
 PK_API void pk_swap_pop2(Pocket lisp);
 PK_API void pk_swap_pop3(Pocket lisp);
 
@@ -89,7 +96,6 @@ PK_API int pk_sp_relative(Pocket lisp, int stack_pointer);
 PK_API void pk_push_nil(Pocket lisp);
 PK_API void pk_push_true(Pocket lisp);
 PK_API void pk_push_bool(Pocket lisp, bool boolean);
-PK_API void pk_push_undefined(Pocket lisp);
 PK_API void pk_push_int(Pocket lisp, int integer);
 PK_API void pk_push_float(Pocket lisp, float floater);
 PK_API void pk_push_string(Pocket lisp, PKStr string);
@@ -104,24 +110,15 @@ PK_API void pk_push_keywordc(Pocket lisp, char *ckeyword);
 PK_API PK_PRINTF_FMT(2, 3) void pk_push_keywordf(Pocket lisp, const char *fmt, ...);
 PK_API void pk_push_cons(Pocket lisp, int car, int cdr);
 PK_API void pk_list(Pocket lisp, int head, int tail);
-PK_API void pk_push_cfun(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options);
-PK_API void pk_push_cmacro(Pocket lisp, void *user_closure, PKFun fun, pk_u8 args, PK_ARITY arity, pk_u8 options);
+PK_API void pk_push_function(Pocket lisp, void *user_closure, PKFun fun, PKFunArgs *args);
+PK_API void pk_push_macro(Pocket lisp, void *user_closure, PKFun fun, PKFunArgs *args);
 PK_API void pk_push_array(Pocket lisp);
-PK_API void pk_push_string_array(Pocket lisp);
-PK_API void pk_push_byte_array(Pocket lisp);
-PK_API void pk_push_table(Pocket lisp);
-PK_API void pk_push_stream(Pocket lisp, FILE *stream, bool keep_open);
 
 PK_API void pk_destroy(Pocket lisp, int atom);
 
-PK_API void pk_append(Pocket lisp, int obj, int element);
 PK_API void pk_cat(Pocket lisp, int lhs, int rhs);
-PK_API void pk_el(Pocket lisp, int obj, size_t index);
+PK_API void pk_nth(Pocket lisp, int obj, size_t index);
 PK_API size_t pk_length(Pocket lisp, int obj);
-PK_API void pk_put(Pocket lisp, int obj, int key, int value);
-PK_API void pk_rem(Pocket lisp, int obj, int key);
-PK_API void pk_find(Pocket lisp, int obj, int key);
-PK_API bool pk_is_member(Pocket lisp, int obj, int key);
 
 PK_API void pk_clone(Pocket lisp, int stack_pointer);
 PK_API bool pk_is_circular(Pocket lisp, int stack_pointer);
@@ -145,8 +142,7 @@ PK_API void pk_mod(Pocket lisp, int lhs, int rhs);
 
 PK_API void pk_let(Pocket lisp, PK_ENV env, int symbol, int value);
 PK_API void pk_set(Pocket lisp, PK_ENV env, int symbol, int value);
-PK_API void pk_get(Pocket lisp, PK_ENV env, int symbol);
-PK_API void pk_get_raw(Pocket lisp, PK_ENV env, int symbol);
+PK_API void pk_fetch(Pocket lisp, PK_ENV env, int symbol);
 PK_API bool pk_is_bound(Pocket lisp, PK_ENV env, int symbol);
 PK_API void pk_unbind(Pocket lisp, PK_ENV env, int symbol);
 
@@ -172,7 +168,6 @@ PK_API void pk_funcall(Pocket lisp, PK_CALL call, size_t args);
 PK_API void pk_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args);
 
 PK_API PK_RES pk_protect(Pocket lisp, void *user_closure, PKFun fun, size_t args);
-PK_API PK_RES pk_protect_noreturn(Pocket lisp, void *user_closure, PKFun fun, size_t args);
 PK_API PK_RES pk_catch(Pocket lisp, int symbol, void *user_closure, PKFun fun, size_t args);
 
 PK_API void pk_propagate(Pocket lisp);
@@ -186,21 +181,16 @@ PK_API void pk_errors(Pocket lisp, PKStr message);
 PK_API PK_PRINTF_FMT(2, 3) void pk_errorf(Pocket lisp, const char *fmt, ...);
 PK_API void pk_error_oom(Pocket lisp);
 
-PK_API bool pk_is_type(Pocket lisp, int atom, int type);
-PK_API void pk_assert_type(Pocket lisp, int atom, int type);
-
-PK_API void pk_define_type_c_owned(Pocket lisp, int symbol, size_t size);
-PK_API void pk_define_type_c_user(Pocket lisp, int symbol);
-PK_API void pk_define_type_lisp(Pocket lisp, int symbol, int slots);
-
-PK_API void pk_new(Pocket lisp, int type);
-
 PK_API void pk_typeof(Pocket lisp, int stack_pointer);
-PK_API void pk_slot_set(Pocket lisp, int object, int slot, int value);
-PK_API void pk_slot_get(Pocket lisp, int object, int slot);
-PK_API void pk_method_set(Pocket lisp, int type, int symbol, int method);
-PK_API void pk_method_get(Pocket lisp, int type, int symbol);
-PK_API void pk_method_get_raw(Pocket lisp, int type, int symbol);
+
+PK_API void pk_object(Pocket lisp, void *object_data);
+PK_API void *pk_object_data(Pocket lisp, int object);
+PK_API void pk_object_type(Pocket lisp, int object);
+
+PK_API void pk_put(Pocket lisp, int object, int key, int value);
+PK_API void pk_get(Pocket lisp, int object, int key);
+PK_API bool pk_is_member(Pocket lisp, int object, int key);
+PK_API void pk_remove(Pocket lisp, int object, int key);
 
 PK_API bool pk_lt(Pocket lisp, int lhs, int rhs);
 PK_API bool pk_lte(Pocket lisp, int lhs, int rhs);
@@ -209,9 +199,6 @@ PK_API bool pk_gte(Pocket lisp, int lhs, int rhs);
 PK_API bool pk_eq(Pocket lisp, int lhs, int rhs);
 PK_API bool pk_object_eq(Pocket lisp, int lhs, int rhs);
 PK_API bool pk_struct_eq(Pocket lisp, int lhs, int rhs);
-
-PK_API void *pk_cobject_data(Pocket lisp, int cobject);
-PK_API size_t pk_cobject_size(Pocket lisp, int cobject);
 
 PK_API int pk_to_int(Pocket lisp, int number);
 PK_API float pk_to_float(Pocket lisp, int number);

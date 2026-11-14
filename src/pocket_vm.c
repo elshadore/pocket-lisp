@@ -69,7 +69,7 @@ void pk_vm_op_get(Pocket lisp, PKVM *vm, PK_ENV env) {
     pk_vm_inc(lisp, vm);
 
     PKAtomSymbol *symbol = pk_atom_assert_symbol(lisp, pk_vm_get_atom(lisp, vm, pk_vat(vm)));
-    pk_stack_push(lisp, pk_env_get_strict(lisp, env, symbol));
+    pk_stack_push(lisp, pk_env_fetch_strict(lisp, env, symbol));
 
     pk_vm_inc(lisp, vm);
 }

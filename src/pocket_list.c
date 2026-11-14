@@ -171,25 +171,6 @@ PKAtom *pk_atom_to_list_bytes(Pocket lisp, PKBlob bytes) {
     return acc.head;
 }
 
-PKAtom *pk_atom_to_list_chars(Pocket lisp, PKStr string) {
-    PKAccum acc = pk_accum_new(lisp);
-    for (size_t i = 0; i < string.length; ++i) {
-        pk_accum_push(&acc, (PKAtom *)pk_atom_char(lisp, string.c[i]));
-    }
-    return acc.head;
-}
-
-PKAtom *pk_atom_to_list_table(Pocket lisp, PKHashmap *map) {
-    PKAccum acc = pk_accum_new(lisp);
-    for (size_t i = 0; i < map->capacity; ++i) {
-        PKHashmapSlot *slot = &map->e[i];
-        if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) {
-            pk_accum_push(&acc, (PKAtom *)pk_atom_cons(lisp, slot->key, slot->value));
-        }
-    }
-    return acc.head;
-}
-
 PKAtom *pk_atom_list_cat(Pocket lisp, PKAtoms atoms) {
     if (atoms.length == 0) {
         return lisp->cache.nil;

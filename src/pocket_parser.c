@@ -243,55 +243,6 @@ void pk_parse_atom_write_escape(Pocket lisp, PKParser *r, PKWriter *w) {
     }
 }
 
-PKAtom *pk_parse_atom_char(Pocket lisp, PKParser *r) {
-    if (pk_pat(r) != '^') {
-        pk_parser_error(lisp, r, pk_str("character literal does not start with ^, character"));
-        return lisp->cache.nil;
-    }
-
-    pk_parser_ince(lisp, r);
-
-    if (pk_pat(r) != '\\') {
-        pk_parser_error(lisp, r, pk_str("expected \\ after ^, character"));
-        return lisp->cache.nil;
-    }
-
-    pk_parser_ince(lisp, r);
-
-    char c = pk_pat(r);
-
-    // TODO: pk_char_is_graphical
-    if (pk_char_is_alphabet(c) || c == '-') {
-        size_t save = r->curr;
-        while (pk_parser_inc(r) && (pk_char_is_alphabet(pk_pat(r)) || pk_char_is_digit(pk_pat(r)) || pk_pat(r) == '-'));
-
-        PKStr name = (PKStr) {
-            .c = (char *)r->str.c + save,
-            .length = r->curr - save,
-        };
-
-        char mapped = '\0';
-        if (pk_char_from_cname(name, &mapped)) {
-            return (PKAtom *)pk_atom_char(lisp, mapped);
-        }
-
-        if (name.length == 1) {
-            return (PKAtom *)pk_atom_char(lisp, c);
-        }
-
-        pk_parser_error(lisp, r, pk_str("unknown character name"));
-        return lisp->cache.nil;
-    }
-
-    if (c == '\0') {
-        pk_parser_error(lisp, r, pk_str("parser is finished, expected character after \\"));
-        return lisp->cache.nil;
-    }
-
-    pk_parser_ince(lisp, r);
-    return (PKAtom *)pk_atom_char(lisp, c);
-}
-
 PKAtom *pk_parse_atom_string_(Pocket lisp, PKParser *r, PKWriter *w) {
     if (pk_pat(r) != '\"') {
          pk_parser_error(lisp, r, pk_str("string does not start with \", character"));
@@ -323,88 +274,6 @@ PKAtom *pk_parse_atom_string(Pocket lisp, PKParser *r) {
     pk_writer_deinit(lisp, &w);
     
     return result;
-}
-
-pk_u8 pk_parse_byte(Pocket lisp, PKParser *r) {
-    char c = pk_pat(r);
-    if (!pk_char_is_digit(c)) {
-        pk_parser_error(lisp, r, pk_str("byte pattern does not start with a digit"));
-        return 0;
-    }
-    
-    size_t acc = pk_char_to_digit(c);
-
-    {
-        char c = '\0';
-        while (pk_parser_peek(r, &c)) {
-            if (!pk_char_is_digit(c)) {
-                break;
-            }
-            pk_parser_ince(lisp, r);
-            acc *= 10;
-            acc += pk_char_to_digit(c);
-            if (acc > UINT8_MAX) {
-                pk_parser_error(lisp, r, pk_str("blob byte member larger than 255"));
-                return 0;
-            }
-        }
-    }
-    
-    return (pk_u8)acc;
-}
-    
-PKAtom *pk_parse_atom_blob_(Pocket lisp, PKParser *r, PKBytes *b) {
-    if (pk_pat(r) != '[') {
-         pk_parser_error(lisp, r, pk_str("blob does not start with [, character"));
-         return lisp->cache.nil;
-    }
-    
-    pk_parser_ince(lisp, r);
-    
-    bool first = true;
-    bool whitespace = pk_parser_trim_whitespace(r);
-    for (;;) {
-        if (pk_pat(r) == ']') {
-            (void)pk_parser_inc(r);
-            return (PKAtom *)pk_atom_blob(lisp, pk_bytes_slice(b));
-        }
-        if (!whitespace && !first) {
-            pk_parser_error(lisp, r, pk_str("expected whitespace seperation between blob bytes"));
-            return lisp->cache.nil;
-        }
-        pk_bytes_push(lisp, b, pk_parse_byte(lisp, r), 8);
-        pk_parser_ince(lisp, r);
-        whitespace = pk_parser_trim_whitespace(r);
-        first = false;
-    }
-}
-    
-typedef struct PKParseBlobData_ {
-    PKParser *r;
-    PKBytes b;
-} PKParseBlobData;
-
-void pk_parse_atom_blob_body(void *user_closure, Pocket lisp) {
-    PKParseBlobData *data = (PKParseBlobData *)user_closure;
-    pk_stack_push(lisp, pk_parse_atom_blob_(lisp, data->r, &data->b));
-}
-
-PKAtom *pk_parse_atom_blob(Pocket lisp, PKParser *r) {
-    PKParseBlobData data = (PKParseBlobData) {
-        .r = r,
-        .b = PK_BYTES_EMPTY,
-    };
-
-    PK_RES result = pk_protect(lisp, &data, pk_parse_atom_blob_body, 0);
-
-    pk_bytes_deinit(lisp, &data.b);
-
-    if (result == PK_YIELDED) {
-        pk_propagate(lisp);
-    }
-
-    PKAtom *out = pk_stack_head_pop(lisp);
-    return out;
 }
 
 PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r) {
@@ -660,7 +529,8 @@ PKAtom *pk_parse_atom(Pocket lisp, PKParser *r) {
             return lisp->cache.nil;
         }
         case '[': {
-            return pk_parse_atom_blob(lisp, r);
+            pk_parser_error(lisp, r, pk_str("TODO: implement array parsing"));
+            return lisp->cache.nil;
         }
         case ']': {
             pk_parser_error(lisp, r, pk_str("encountered end of blob ], character without start of list [, character"));
@@ -683,9 +553,6 @@ PKAtom *pk_parse_atom(Pocket lisp, PKParser *r) {
         }
         case ':': {
             return pk_parse_atom_keyword(lisp, r);
-        }
-        case '^': {
-            return pk_parse_atom_char(lisp, r);
         }
         case '&': {
             pk_parser_error(lisp, r, pk_str("cannot parse printed lisp object notation"));

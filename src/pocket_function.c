@@ -1,13 +1,13 @@
 #include "pocket_internals.h"
 
-PKAtomCFun *pk_atom_cfun(Pocket lisp, void *user_closure, PKFun fun, PK_CALL call, PK_ARITY arity, pk_u8 args, pk_u8 options) {
-    if (arity == PK_ARITY_OPTIONAL) {
-        if (options == 0) {
+PKAtomCFun *pk_atom_cfun(Pocket lisp, void *user_closure, PKFun fun, PK_CALL call, PKFunArgs *args) {
+    if (args->arity == PK_ARITY_OPTIONAL) {
+        if (args->options == 0) {
             pk_errorf(lisp, "pk_atom_cfun: optional arity requires at least 1 optional, got 0");
             return NULL;
         }
-        if (options > args) {
-            pk_errorf(lisp, "pk_atom_cfun: %u options exceeds the %u declared args", options, args);
+        if (args->options > args->args) {
+            pk_errorf(lisp, "pk_atom_cfun: %u options exceeds the %u declared args", args->options, args->args);
             return NULL;
         }
     }
@@ -23,9 +23,9 @@ PKAtomCFun *pk_atom_cfun(Pocket lisp, void *user_closure, PKFun fun, PK_CALL cal
     atom->user_closure = user_closure;
     atom->fun = fun;
     atom->arity = (PKArity) {
-        .type = (pk_u8)arity,
-        .args = args,
-        .options = options,
+        .type = (pk_u8)args->arity,
+        .args = args->args,
+        .options = args->options,
     };
         
     return atom;
@@ -131,7 +131,7 @@ PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun) {
 PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom) {
     PKAtom *a = atom;
     if (pk_atom_is_symbol(a)) {
-        a = pk_env_get(lisp, PK_ENV_FUN, (PKAtomSymbol *)a);
+        a = pk_env_fetch(lisp, PK_ENV_FUN, (PKAtomSymbol *)a);
         if (pk_atom_is_undefined(a)) {
             PKStr name = ((PKAtomSymbol *)atom)->name->str;
             pk_errorf(lisp, "pk_atom_hexdump: undefined function %.*s", (int)name.length, name.c);
