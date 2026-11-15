@@ -11,7 +11,7 @@ FILE *pk_fs_file_open(Pocket lisp, PKStr file_path, PKStr mode) {
     (void)memcpy(cfile_path, file_path.c, file_path.length);
     cfile_path[file_path.length] = '\0';
 
-    char *cfile_mode = cfile_path + file_path.length;
+    char *cfile_mode = cfile_path + file_path.length + 1;
     (void)memcpy(cfile_mode, mode.c, mode.length);
     cfile_path[length] = '\0';
 
@@ -50,6 +50,12 @@ PKAtomObject *pk_fs_file_open_object(Pocket lisp, PKStr file_path, PKStr mode) {
 
 PKAtomObject *pk_fs_file_open_inherit(Pocket lisp, FILE *file) {
     return pk_atom_object(lisp, pk_atom_symbol(lisp, pk_str("Stream")), file, pk_fs_file_object_destroy);
+}
+
+void pk_fs_stream_write(Pocket lisp, PKAtomObject *stream, PKStr input) {
+    (void)lisp;
+    FILE *f = (FILE *)stream->user_data;
+    fwrite(input.c, sizeof(char), input.length, f);
 }
 
 PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path) {

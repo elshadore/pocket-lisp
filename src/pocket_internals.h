@@ -865,6 +865,7 @@ PKAtomObject *pk_fs_file_open_object(Pocket lisp, PKStr file_path, PKStr mode);
 PKAtomObject *pk_fs_file_open_inherit(Pocket lisp, FILE *file);
 PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path);
 PKAtomString *pk_fs_slurp(Pocket lisp, PKAtomString *file_path);
+void pk_fs_stream_write(Pocket lisp, PKAtomObject *stream, PKStr input);
 PKAtom *pk_fs_read_user_input(Pocket lisp);
 
 void pk_gc_mark_cache(Pocket lisp);
