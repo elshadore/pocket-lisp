@@ -54,7 +54,7 @@ void pk_debug_stackdump(Pocket lisp, const char *tag) {
     
     pk_writer_cstr(lisp, &w, "--DEBUG-DUMP-STACK-END--");
     
-    pk_internal_println(lisp, pk_writer_slice(&w));
+    pk_internal_print(lisp, pk_writer_slice(&w));
 
     pk_writer_deinit(lisp, &w);
 }
@@ -97,7 +97,7 @@ void pk_debug_envdump(Pocket lisp, const char *tag) {
     
     pk_writer_cstr(lisp, &w, "--DEBUG-DUMP-ENV-END--");
     
-    pk_internal_println(lisp, pk_writer_slice(&w));
+    pk_internal_print(lisp, pk_writer_slice(&w));
 
     pk_writer_deinit(lisp, &w);
 }
@@ -164,7 +164,7 @@ void pk_debug_leakcheck(Pocket lisp, const char *tag) {
     
     pk_writer_cstr(lisp, &w, "--DEBUG-DUMP-LEAKED-MEMORY-END--");
     
-    pk_internal_println(lisp, pk_writer_slice(&w));
+    pk_internal_print(lisp, pk_writer_slice(&w));
 
     pk_writer_deinit(lisp, &w);
 }

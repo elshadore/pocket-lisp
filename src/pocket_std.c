@@ -1,6 +1,14 @@
 #include "pocket_internals.h"
 #include "pocket_std.h"
 
+typedef struct PKFunLoad_ {
+    PKStr symbol;
+    PKFun fun;
+    pk_u8 args;
+    PK_ARITY arity;
+    pk_u8 options;
+} PKFunLoad;
+
 void pk_fun_stub(void *user_closure, Pocket lisp) {
     (void)user_closure;
     (void)lisp;
@@ -365,6 +373,12 @@ void pk_fun_print(void *user_closure, Pocket lisp) {
     pk_push_nil(lisp);
 }
 
+void pk_fun_puts(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_atom_puts(lisp, pk_stack_get(lisp, 1));
+    pk_push_nil(lisp);
+}
+
 void pk_fun_format(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_format(lisp, 1);
@@ -491,21 +505,23 @@ void pk_fun_to_keyword(void *user_closure, Pocket lisp) {
 
 void pk_fun_to_int(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_stack_push(lisp, (PKAtom *)pk_atom_int(lisp, pk_to_int(lisp, 1)));;
+    pk_stack_push(lisp, (PKAtom *)pk_atom_int(lisp, pk_to_int(lisp, 1)));
 }
 
 void pk_fun_to_float(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_stack_push(lisp, (PKAtom *)pk_atom_float(lisp, pk_to_int(lisp, 1)));;
+    pk_stack_push(lisp, (PKAtom *)pk_atom_float(lisp, pk_to_int(lisp, 1)));
 }
 
-typedef struct PKFunLoad_ {
-    PKStr symbol;
-    PKFun fun;
-    pk_u8 args;
-    PK_ARITY arity;
-    pk_u8 options;
-} PKFunLoad;
+void pk_fun_read_user_input(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, (PKAtom *)pk_fs_read_user_input(lisp));
+}
+
+void pk_fun_file_slurp(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, (PKAtom *)pk_fs_slurp(lisp, pk_atom_assert_string(lisp, pk_stack_get(lisp, 1))));
+}
 
 void pk_std_load_cfun(Pocket lisp) {
     PKFunLoad funs[] = {
@@ -569,7 +585,7 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("apply"), .fun = pk_fun_apply, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("macro-apply"), .fun = pk_fun_macro_apply, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("funcall"), .fun = pk_fun_funcall, .args = 1, .arity = PK_ARITY_VARIADIC},
-        {.symbol = pk_str("print"), .fun = pk_fun_print, .args = 1, .arity = PK_ARITY_NORMAL},
+        
         {.symbol = pk_str("eval"), .fun = pk_fun_eval, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("evlist"), .fun = pk_fun_evlist, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("format"), .fun = pk_fun_format, .args = 1, .arity = PK_ARITY_NORMAL},
@@ -577,7 +593,12 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("macroexpand1"), .fun = pk_fun_macroexpand1, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("macroexpand"), .fun = pk_fun_macroexpand, .args = 1, .arity = PK_ARITY_NORMAL},
 
+        {.symbol = pk_str("print"), .fun = pk_fun_print, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("puts"), .fun = pk_fun_puts, .args = 1, .arity = PK_ARITY_NORMAL},
+        
         {.symbol = pk_str("file-open"), .fun = pk_fun_file_open, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 1},
+        {.symbol = pk_str("file-slurp"), .fun = pk_fun_file_slurp, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("read-user-input"), .fun = pk_fun_read_user_input, .args = 0, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("array"), .fun = pk_fun_array, .args = 0, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("make-array"), .fun = pk_fun_make_array, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 2},
@@ -604,6 +625,7 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("->keyword"), .fun = pk_fun_to_keyword, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("->int"), .fun = pk_fun_to_int, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("->float"), .fun = pk_fun_to_float, .args = 1, .arity = PK_ARITY_NORMAL},
+        
     };
 
     size_t length = pk_alen(funs);

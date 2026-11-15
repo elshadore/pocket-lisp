@@ -116,12 +116,6 @@
        (set-cdr last list)
        list))
 
-(defmacro setq-slot (object symbol value)
-     `(set-slot ,object ',symbol ,value))
-     
-(defmacro getq-slot (object symbol)
-     `(get-slot ,object ',symbol))
-
 (defun type= (object type)
     (= (typeof object) type))
 
@@ -131,51 +125,7 @@
 (defun assoc-value (alist key)
     (cdr (assoc alist key)))
 
-(defun read-char (stream)
-     (->char (read stream 1 :string)))
-
-(defun read-byte (stream)
-     (read stream 1 :byte))
-
-(defun read-until (stream :opt delimiter)
-     (var acc (string-array))
-     (var cond true)
-     (while cond
-          (var char (read-char stream))
-          (if (and char (!= char delimiter))
-              (append acc char)
-              (setq cond nil)))
-     (->string acc))
-
-(defun read-line (stream)
-     (read-until stream ^\newline))
-
-(defun read-all (stream)
-     (read-until stream nil))
-
-(defun read-user-input-char ()
-     (read-char stdin))
-
-(defun read-user-input ()
-     (read-line stdin))
-
-(defun file-close (stream)
-    (when (type= stream 'Stream)
-        (destroy stream)))
-
-## Open the file FILEPATH and read all its contents
-(defun file-slurp (filepath)
-    (var file (file-open filepath))
-    (var result (read-all file))
-    (destroy file)
-    result)
-     
 ## Load code in from a file path FILE.
 (defun load (filepath)
     (evlist (parse-list (file-slurp file))))
 
-(defun puts (text :opt stream)
-    (var stream (or stream stdout))
-    (write stream text)
-    (flush stream)
-    text)

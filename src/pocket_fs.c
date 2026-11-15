@@ -1,7 +1,3 @@
-// A bunch of junk functions that we are keeping around for posterity.
-// If any one of these break. Just trash them.
-// None of these function should be exported/publicised into pocket_internals.h
-
 #include "pocket_internals.h"
 
 PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path) {

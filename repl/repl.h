@@ -19,7 +19,6 @@
  "(when (= (cadr args) \"-e\")\n" \
  "  (setq repl-running nil)\n" \
  "  (parse-eval-print (caddr args)))\n" \
- "  \n" \
  "\n" \
  "(while repl-running\n" \
  "  (puts \"LISP>> \")\n" \

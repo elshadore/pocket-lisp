@@ -694,9 +694,10 @@ PKAtom *pk_atom_object_to_alist(Pocket lisp, PKAtomObject *object);
     
 PKAtom *pk_atom_list_symbols(Pocket lisp);
 
-void pk_internal_println(Pocket lisp, PKStr print);
+void pk_internal_print(Pocket lisp, PKStr print);
+void pk_internal_puts(Pocket lisp, PKStr print);
 void pk_atom_print(Pocket lisp, PKAtom *atom);
-void pk_atom_write(Pocket lisp, PKAtom *atom);
+void pk_atom_puts(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_format(Pocket lisp, PKAtom *atom);
 
 void pk_frame_push(Pocket lisp, PKAtom *function, size_t arity);
@@ -858,6 +859,10 @@ PKAtom *pk_atom_destroy(Pocket lisp, PKAtom *atom);
 
 PKVM pk_vm_init(PKAtom *lfun, size_t save);
 void pk_vm_exec(Pocket lisp, PKVM *vm);
+
+PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path);
+PKAtomString *pk_fs_slurp(Pocket lisp, PKAtomString *file_path);
+PKAtom *pk_fs_read_user_input(Pocket lisp);
 
 void pk_gc_mark_cache(Pocket lisp);
 void pk_gc_mark(Pocket lisp, PKAtom *atom);

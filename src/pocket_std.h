@@ -120,12 +120,6 @@
  "       (set-cdr last list)\n" \
  "       list))\n" \
  "\n" \
- "(defmacro setq-slot (object symbol value)\n" \
- "     `(set-slot ,object ',symbol ,value))\n" \
- "     \n" \
- "(defmacro getq-slot (object symbol)\n" \
- "     `(get-slot ,object ',symbol))\n" \
- "\n" \
  "(defun type= (object type)\n" \
  "    (= (typeof object) type))\n" \
  "\n" \
@@ -135,53 +129,9 @@
  "(defun assoc-value (alist key)\n" \
  "    (cdr (assoc alist key)))\n" \
  "\n" \
- "(defun read-char (stream)\n" \
- "     (->char (read stream 1 :string)))\n" \
- "\n" \
- "(defun read-byte (stream)\n" \
- "     (read stream 1 :byte))\n" \
- "\n" \
- "(defun read-until (stream :opt delimiter)\n" \
- "     (var acc (string-array))\n" \
- "     (var cond true)\n" \
- "     (while cond\n" \
- "          (var char (read-char stream))\n" \
- "          (if (and char (!= char delimiter))\n" \
- "              (append acc char)\n" \
- "              (setq cond nil)))\n" \
- "     (->string acc))\n" \
- "\n" \
- "(defun read-line (stream)\n" \
- "     (read-until stream ^\\newline))\n" \
- "\n" \
- "(defun read-all (stream)\n" \
- "     (read-until stream nil))\n" \
- "\n" \
- "(defun read-user-input-char ()\n" \
- "     (read-char stdin))\n" \
- "\n" \
- "(defun read-user-input ()\n" \
- "     (read-line stdin))\n" \
- "\n" \
- "(defun file-close (stream)\n" \
- "    (when (type= stream 'Stream)\n" \
- "        (destroy stream)))\n" \
- "\n" \
- "## Open the file FILEPATH and read all its contents\n" \
- "(defun file-slurp (filepath)\n" \
- "    (var file (file-open filepath))\n" \
- "    (var result (read-all file))\n" \
- "    (destroy file)\n" \
- "    result)\n" \
- "     \n" \
  "## Load code in from a file path FILE.\n" \
  "(defun load (filepath)\n" \
  "    (evlist (parse-list (file-slurp file))))\n" \
- "\n" \
- "(defun puts (text :opt stream)\n" \
- "    (var stream (or stream stdout))\n" \
- "    (write stream text)\n" \
- "    (flush stream)\n" \
- "    text)\n"
+ "\n"
 
 #endif // POCKET_STD_H
