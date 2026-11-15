@@ -523,6 +523,36 @@ void pk_fun_file_slurp(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_fs_slurp(lisp, pk_atom_assert_string(lisp, pk_stack_get(lisp, 1))));
 }
 
+void pk_fun_object(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_object(lisp, NULL, 1, 2);
+}
+
+void pk_fun_object_type(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_object_type(lisp, 1);
+}
+
+void pk_fun_put(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_put(lisp, 1, 2, 3);
+}
+
+void pk_fun_get(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_get(lisp, 1, 2);
+}
+
+void pk_fun_remove(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_remove(lisp, 1, 2);
+}
+
+void pk_fun_is_member(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_is_member(lisp, 1, 2);
+}
+
 void pk_std_load_cfun(Pocket lisp) {
     PKFunLoad funs[] = {
         {.symbol = pk_str("identity"), .fun = pk_fun_identity, .args = 1, .arity = PK_ARITY_NORMAL},
@@ -625,6 +655,13 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("->keyword"), .fun = pk_fun_to_keyword, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("->int"), .fun = pk_fun_to_int, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("->float"), .fun = pk_fun_to_float, .args = 1, .arity = PK_ARITY_NORMAL},
+        
+        {.symbol = pk_str("object"), .fun = pk_fun_object, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 1},
+        {.symbol = pk_str("object-type"), .fun = pk_fun_object_type, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("put"), .fun = pk_fun_put, .args = 3, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("get"), .fun = pk_fun_get, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("remove"), .fun = pk_fun_remove, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("member?"), .fun = pk_fun_is_member, .args = 2, .arity = PK_ARITY_NORMAL},
         
     };
 

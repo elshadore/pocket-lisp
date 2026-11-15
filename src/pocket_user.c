@@ -423,6 +423,22 @@ size_t pk_length(Pocket lisp, int obj) {
     return pk_generic_length(lisp, aobj);
 }
 
+void pk_object(Pocket lisp, void *object_data, int type, int properties) {
+    (void)properties;
+    PKAtomSymbol *atype = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, type));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_object(lisp, atype, object_data));
+}
+
+void *pk_object_data(Pocket lisp, int object) {
+    PKAtomObject *aobject = pk_atom_assert_object(lisp, pk_stack_get(lisp, object));
+    return aobject->user_data;
+}
+
+void pk_object_type(Pocket lisp, int object) {
+    PKAtomObject *aobject = pk_atom_assert_object(lisp, pk_stack_get(lisp, object));
+    pk_stack_push(lisp, (PKAtom *)aobject->type);
+}
+
 void pk_put(Pocket lisp, int object, int key, int value) {
     PKAtomObject *aobject = pk_atom_assert_object(lisp, pk_stack_get(lisp, object));
     PKAtom *akey = pk_stack_get(lisp, key);

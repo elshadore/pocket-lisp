@@ -1,0 +1,25 @@
+(defvar *textures* (table))
+(defvar *colours* (table))
+
+(defmacro dotimes-2d ((x y width height) :rest body)
+     `(dotimes (,y ,height)
+           (dotimes (,x ,width)
+               ,@body)))
+
+(defun on-edge? (x y width height)
+    (or (= x 0) (= x (- width 1)) (= y 0) (= y (- height 1))))
+
+(progn
+    (var scale 32)
+    (var length 16)
+    (dotimes-2d (x y length length)
+        ## (var texture (if (= (% (+ x y) 2) 0)) 'grass 'wall)
+        (var texture (if (on-edge? x y length length) 'wall 'grass))
+        ## (draw-rect (* x scale)
+        ##            (* y scale)
+        ##            scale
+        ##            scale
+        ##            :texture texture
+        ##            :colour 'white)
+        (draw-rect x y :texture texture :scale scale)
+        ))

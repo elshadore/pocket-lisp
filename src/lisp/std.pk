@@ -129,3 +129,5 @@
 (defun load (filepath)
     (evlist (parse-list (file-slurp file))))
 
+(defun table (:rest properties)
+    (apply 'object (cons 'Table properties)))

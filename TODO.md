@@ -2,32 +2,20 @@
 The todo list for POCKET LISP
 
 ## V1
-- [ ] Remove Old Object System
-  
-
 - [ ] New Object System
   - Properties
   - C Data
+  
+- [ ] Properties on All Objects
+  - Symbols
+  - Functions
+  - Macros
 
 - [ ] Special Form Objects
-
-- [ ] multiple append
 
 - [ ] Iterator objects
   - maybe implemented in lisp (not c)
 
-- [ ] methods for many things
-  - [ ] +
-  - [ ] -
-  - [ ] /
-  - [ ] *
-  - [ ] %
-  - [ ] <=
-  - [ ] <
-  - [ ] >
-  - [ ] >=
-  - [ ] =
-  
 - [ ] fix debug stack dump
   - so we see frames clearly
   - print frame name
@@ -38,26 +26,19 @@ The todo list for POCKET LISP
   - 0b010101
   - 0xfeefee
   - 0oaaaaaa <- idk octal
+  
 - [ ] Seperation of std into multiple libraries
   - core
   - fs
   - streams
   
-- [ ] there are a bunch of user functions that need to be converted to method calling
-
 - [ ] Remove ternary operator from all c code.
-- [ ] underscored internal functions should be `pk_atom_*` instead
 - [ ] `cleared` remove symbol.
 
 - [ ] Testing Suite
 
 - [ ] Unicode Strings and Characters (utf8)
   - [ ] fn, λ, lambda
-  
-- [ ] Big Numbers
-- [ ] Full Float Parsing and Printing
-  - [ ] Parsing
-  - [ ] Printing
   
 - [ ] STD Filesystem API
   - Files (streams)
@@ -102,6 +83,11 @@ The todo list for POCKET LISP
 - [ ] Full Code Review
   
 ## V2
+- [ ] Big Numbers
+- [ ] Full Float Parsing and Printing
+  - [ ] Parsing
+  - [ ] Printing
+  
 - [ ] potential rename to `micro lisp`
   - `.ul` `.ulc` `.uld` `(udex:install "foo")`
 - [ ] Custom cfmt
