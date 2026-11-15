@@ -285,33 +285,29 @@ void pk_writer_write_atom(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *a
             break;
         }
         case PK_ATOMTY_OBJECT: {
-            pk_errors(lisp, pk_str("TODO: writing objects"));
+            PKAtomSymbol *type = atom->object.type;
+            PKHashmap *map = &atom->object.props;
+            pk_writer_string(lisp, w, pk_str("&<"));
+            pk_writer_symbol_name(lisp, w, type->name->str);
+            pk_writer_string(lisp, w, pk_str("::"));
+            pk_writer_char(lisp, w, '(');
+            (void)pk_hashmap_insert(lisp, clones, atom, atom, PK_HASHMAP_INSERT_NORMAL);
+            bool first = true;
+            for (size_t i = 0; i < map->capacity; ++i) {
+                PKHashmapSlot *slot = &map->e[i];
+                if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) {
+                    if (!first) {
+                        pk_writer_char(lisp, w, ' ');
+                    }
+                    pk_writer_atom_recursive(lisp, w, clones, slot->key);
+                    pk_writer_char(lisp, w, ' ');
+                    pk_writer_atom_recursive(lisp, w, clones, slot->value);
+                    first = false;
+                }
+            }
+            pk_writer_string(lisp, w, pk_str(")>"));
             break;
         }
-        /* case PK_ATOMTY_TABLE: { */
-        /*     PKHashmap *map = &atom->table.map; */
-        /*     pk_writer_string(lisp, w, pk_str("&<")); */
-        /*     pk_writer_string(lisp, w, pk_str("Table::")); */
-        /*     pk_writer_char(lisp, w, '('); */
-        /*     (void)pk_hashmap_insert(lisp, clones, atom, atom, PK_HASHMAP_INSERT_NORMAL); */
-        /*     bool first = true; */
-        /*     for (size_t i = 0; i < map->capacity; ++i) { */
-        /*         PKHashmapSlot *slot = &map->e[i]; */
-        /*         if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) { */
-        /*             if (!first) { */
-        /*                 pk_writer_char(lisp, w, ' '); */
-        /*             } */
-        /*             first = false; */
-        /*             pk_writer_char(lisp, w, '('); */
-        /*             pk_writer_atom_recursive(lisp, w, clones, slot->key); */
-        /*             pk_writer_string(lisp, w, pk_str(" . ")); */
-        /*             pk_writer_atom_recursive(lisp, w, clones, slot->value); */
-        /*             pk_writer_char(lisp, w, ')'); */
-        /*         } */
-        /*     } */
-        /*     pk_writer_string(lisp, w, pk_str(")>")); */
-        /*     break; */
-        /* } */
         case PK_ATOMTY_DESTROYED: {
             pk_writer_simple_object(lisp, w, atom, pk_str("Destroyed"));
             break;

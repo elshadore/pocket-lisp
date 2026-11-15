@@ -139,7 +139,9 @@ void pk_gc_mark(Pocket lisp, PKAtom *atom) {
             break;
         }
         case PK_ATOMTY_OBJECT: {
-            pk_errors(lisp, pk_str("TODO: implement object gc"));
+            PKAtomObject *object = (PKAtomObject *)atom;
+            pk_gc_mark(lisp, (PKAtom *)object->type);
+            pk_gc_mark_hashmap(lisp, &object->props);
             break;
         }
         default: break;

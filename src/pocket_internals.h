@@ -284,6 +284,7 @@ typedef struct PKAtomObject_ {
     PKAtomHeader header;
     PKAtomSymbol *type;
     void *user_data;
+    PKGCFun gc;
     PKHashmap props;
 } PKAtomObject;
 
@@ -682,8 +683,8 @@ PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom);
 
 PKAtomSymbol *pk_atom_typeof(Pocket lisp, PKAtom *atom);
 
-PKAtomObject *pk_atom_object(Pocket lisp, PKAtomSymbol *type, void *user_data);
-PKAtomObject *pk_atom_object_cons(Pocket lisp, PKAtomSymbol *type, void *user_data, PKAtoms init);
+PKAtomObject *pk_atom_object(Pocket lisp, PKAtomSymbol *type, void *user_data, PKGCFun gc);
+PKAtomObject *pk_atom_object_cons(Pocket lisp, PKAtomSymbol *type, void *user_data, PKGCFun gc, PKAtoms init);
 PKAtom *pk_atom_object_put(Pocket lisp, PKAtomObject *object, PKAtom *key, PKAtom *value);
 PKAtom *pk_atom_object_remove(Pocket lisp, PKAtomObject *object, PKAtom *key);
 PKAtom *pk_atom_object_get(Pocket lisp, PKAtomObject *object, PKAtom *key);

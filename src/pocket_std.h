@@ -132,6 +132,8 @@
  "## Load code in from a file path FILE.\n" \
  "(defun load (filepath)\n" \
  "    (evlist (parse-list (file-slurp file))))\n" \
- "\n"
+ "\n" \
+ "(defun table (:rest properties)\n" \
+ "    (apply 'object (cons 'Table properties)))\n"
 
 #endif // POCKET_STD_H

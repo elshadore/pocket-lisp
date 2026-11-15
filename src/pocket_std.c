@@ -525,7 +525,7 @@ void pk_fun_file_slurp(void *user_closure, Pocket lisp) {
 
 void pk_fun_object(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_object(lisp, NULL, 1, 2);
+    pk_object(lisp, NULL, NULL, 1, 2);
 }
 
 void pk_fun_object_type(void *user_closure, Pocket lisp) {

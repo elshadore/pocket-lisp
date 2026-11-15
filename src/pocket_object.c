@@ -1,21 +1,22 @@
 #include "pocket_internals.h"
 
-PKAtomObject *pk_atom_object(Pocket lisp, PKAtomSymbol *type, void *user_data) {
+PKAtomObject *pk_atom_object(Pocket lisp, PKAtomSymbol *type, void *user_data, PKGCFun gc) {
     PKAtomObject *result = (PKAtomObject *)pk_atom_alloc(lisp);
     
     result->header.type = PK_ATOMTY_OBJECT;
     result->type = type;
     result->user_data = user_data;
+    result->gc = gc;
     result->props = PK_HASHMAP_EMPTY;
     
     return result;
 }
 
-PKAtomObject *pk_atom_object_cons(Pocket lisp, PKAtomSymbol *type, void *user_data, PKAtoms init) {
+PKAtomObject *pk_atom_object_cons(Pocket lisp, PKAtomSymbol *type, void *user_data, PKGCFun gc, PKAtoms init) {
     if ((init.length % 2) != 0) {
         pk_errors(lisp, pk_str("object construction must be a list of key value pairs"));
     }
-    PKAtomObject *result = pk_atom_object(lisp, type, user_data);
+    PKAtomObject *result = pk_atom_object(lisp, type, user_data, gc);
     
     size_t half = init.length / 2;
     for (size_t i = 0; i < half; ++i) {

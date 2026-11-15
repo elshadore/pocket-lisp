@@ -24,7 +24,11 @@ void pk_atom_deinit(Pocket lisp, PKAtom *atom) {
             break;
         }
         case PK_ATOMTY_OBJECT: {
-            pk_errors(lisp, pk_str("pk_atom_deinit(): TODO: object destroy"));
+            PKAtomObject *object = (PKAtomObject *)atom;
+            if (object->gc != NULL) {
+                (object->gc)(object->user_data);
+            }
+            pk_hashmap_deinit(lisp, &object->props);
             break;
         }
         case PK_ATOMTY_ARRAY: {

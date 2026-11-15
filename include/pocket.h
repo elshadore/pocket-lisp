@@ -28,6 +28,7 @@ typedef uint64_t pk_u64;
 typedef struct PocketLispMachine_ *Pocket;
 
 typedef void (*PKFun)(void *user_closure, Pocket lisp);
+typedef void (*PKGCFun)(void *user_data);
 
 #define PK_PRINTF_FMT(fmt_, vargs_) __attribute__((format (printf, fmt_, vargs_)))
 
@@ -180,7 +181,7 @@ PK_API void pk_error_oom(Pocket lisp);
 
 PK_API void pk_typeof(Pocket lisp, int stack_pointer);
 
-PK_API void pk_object(Pocket lisp, void *object_data, int type, int properties);
+PK_API void pk_object(Pocket lisp, void *object_data, PKGCFun gc, int type, int properties);
 PK_API void *pk_object_data(Pocket lisp, int object);
 PK_API void pk_object_type(Pocket lisp, int object);
 
