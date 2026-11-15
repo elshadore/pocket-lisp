@@ -13,9 +13,6 @@ The todo list for POCKET LISP
 
 - [ ] Special Form Objects
 
-- [ ] Iterator objects
-  - maybe implemented in lisp (not c)
-
 - [ ] fix debug stack dump
   - so we see frames clearly
   - print frame name

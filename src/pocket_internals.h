@@ -861,6 +861,8 @@ PKAtom *pk_atom_destroy(Pocket lisp, PKAtom *atom);
 PKVM pk_vm_init(PKAtom *lfun, size_t save);
 void pk_vm_exec(Pocket lisp, PKVM *vm);
 
+PKAtomObject *pk_fs_file_open_object(Pocket lisp, PKStr file_path, PKStr mode);
+PKAtomObject *pk_fs_file_open_inherit(Pocket lisp, FILE *file);
 PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path);
 PKAtomString *pk_fs_slurp(Pocket lisp, PKAtomString *file_path);
 PKAtom *pk_fs_read_user_input(Pocket lisp);

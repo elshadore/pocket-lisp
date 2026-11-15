@@ -1,16 +1,60 @@
 #include "pocket_internals.h"
 
-PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path) {
+FILE *pk_fs_file_open(Pocket lisp, PKStr file_path, PKStr mode) {
     if (file_path.length == 0) {
         pk_errors(lisp, pk_str("empty file path"));
     }
 
-    char *cfile_path = (char *)pk_malloc(lisp, (file_path.length + 1) * sizeof(char));
+    size_t length = file_path.length + mode.length + 2;
+    char *cfile_path = (char *)pk_malloc(lisp, length * sizeof(char));
+    
     (void)memcpy(cfile_path, file_path.c, file_path.length);
     cfile_path[file_path.length] = '\0';
 
-    FILE *file = fopen(cfile_path, "r");
+    char *cfile_mode = cfile_path + file_path.length;
+    (void)memcpy(cfile_mode, mode.c, mode.length);
+    cfile_path[length] = '\0';
+
+    FILE *result = fopen(cfile_path, cfile_mode);
     pk_free(lisp, cfile_path);
+    
+    if (result == NULL) {
+        pk_errorf(
+            lisp,
+            "failed to open file: %.*s, with mode: %.*s",
+            (int)file_path.length,
+            file_path.c,
+            (int)mode.length,
+            mode.c
+        );
+    }
+
+    return result;
+}
+
+void pk_fs_file_object_destroy(void *object) {
+    if ((object != stdin) || (object != stdout) || (object != stderr)) {
+        fclose((FILE *)object);
+    }
+}
+
+PKAtomObject *pk_fs_file_open_object(Pocket lisp, PKStr file_path, PKStr mode) {
+    PKAtomObject *result = pk_atom_object(lisp, pk_atom_symbol(lisp, pk_str("Stream")), NULL, NULL);
+    
+    FILE *file = pk_fs_file_open(lisp, file_path, mode);
+    result->user_data = file;
+    result->gc = pk_fs_file_object_destroy;
+    
+    return result;
+}
+
+PKAtomObject *pk_fs_file_open_inherit(Pocket lisp, FILE *file) {
+    return pk_atom_object(lisp, pk_atom_symbol(lisp, pk_str("Stream")), file, pk_fs_file_object_destroy);
+}
+
+PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path) {
+    FILE *file = pk_fs_file_open(lisp, file_path, pk_str("r"));
+    
     if (file == NULL) {
         pk_errors(lisp, pk_str("cannot open file"));
     }

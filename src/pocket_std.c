@@ -394,9 +394,28 @@ void pk_fun_macroexpand(void *user_closure, Pocket lisp) {
     pk_macroexpand(lisp, 1);
 }
 
+void pk_fun_read_user_input(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, (PKAtom *)pk_fs_read_user_input(lisp));
+}
+
 void pk_fun_file_open(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_errors(lisp, pk_str("TODO: file open"));
+    PKAtomString *file_path = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    PKAtomString *mode = pk_atom_assert_string(lisp, pk_stack_get(lisp, 2));
+    PKAtomObject *stream = pk_fs_file_open_object(lisp, file_path->str, mode->str);
+    pk_stack_push(lisp, (PKAtom *)stream);
+}
+
+void pk_fun_file_slurp(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, (PKAtom *)pk_fs_slurp(lisp, pk_atom_assert_string(lisp, pk_stack_get(lisp, 1))));
+}
+
+void pk_fun_stream_close(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtom *atom = pk_stack_get(lisp, 1);
+    pk_stack_push(lisp, pk_atom_destroy(lisp, atom));
 }
 
 void pk_fun_destroy(void *user_closure, Pocket lisp) {
@@ -513,16 +532,6 @@ void pk_fun_to_float(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_float(lisp, pk_to_int(lisp, 1)));
 }
 
-void pk_fun_read_user_input(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_stack_push(lisp, (PKAtom *)pk_fs_read_user_input(lisp));
-}
-
-void pk_fun_file_slurp(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_stack_push(lisp, (PKAtom *)pk_fs_slurp(lisp, pk_atom_assert_string(lisp, pk_stack_get(lisp, 1))));
-}
-
 void pk_fun_object(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_object(lisp, NULL, NULL, 1, 2);
@@ -628,6 +637,7 @@ void pk_std_load_cfun(Pocket lisp) {
         
         {.symbol = pk_str("file-open"), .fun = pk_fun_file_open, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 1},
         {.symbol = pk_str("file-slurp"), .fun = pk_fun_file_slurp, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("stream-close"), .fun = pk_fun_stream_close, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("read-user-input"), .fun = pk_fun_read_user_input, .args = 0, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("array"), .fun = pk_fun_array, .args = 0, .arity = PK_ARITY_VARIADIC},
