@@ -4,54 +4,6 @@
 
 #include "pocket_internals.h"
 
-PKAtom *pk_atom_reverse(Pocket lisp, PKAtom *atom) {
-    switch (atom->header.type) {
-        case PK_ATOMTY_STRING: {
-            PKStr dupe = pk_str_dupe(lisp, atom->string.str);
-            pk_str_reverse_mut(dupe);
-            return (PKAtom *)pk_atom_string_nomemcpy(lisp, dupe);
-        }
-        case PK_ATOMTY_CONS: {
-            PKAtom *acc = lisp->cache.nil;
-            PKAtom *iter = atom;
-            while (pk_atom_is_cons(iter)) {
-                acc = (PKAtom *)pk_atom_cons(lisp, iter->cons.car, acc);
-                iter = iter->cons.cdr;
-            }
-            return acc;
-        }
-        case PK_ATOMTY_NIL: return lisp->cache.nil;
-        default: {
-            pk_error_type3(lisp, atom, lisp->cache.type_nil, lisp->cache.type_cons, lisp->cache.type_string);
-            return lisp->cache.nil;
-        }
-    }
-}
-
-PKAtom *pk_atom_to_list(Pocket lisp, PKAtom *atom) {
-    switch (atom->header.type) {
-        case PK_ATOMTY_NIL: {
-            return lisp->cache.nil;
-        }
-        case PK_ATOMTY_CONS: {
-            return atom;
-        }
-        case PK_ATOMTY_ARRAY: {
-            PKAtoms atoms = pk_array_slice(&atom->array.atoms);
-            return pk_atom_list(lisp, atoms);
-        }
-        case PK_ATOMTY_STRING: {
-            PKStr str = atom->string.str;
-            return pk_atom_to_list_chars(lisp, str);
-        }
-        default: {
-            PKStr ty = pk_ident_atomty(atom->header.type);
-            pk_errorf(lisp, "pk_atom_to_list: unsupported type %.*s", (int)ty.length, ty.c);
-            return lisp->cache.nil;
-        }
-    }
-}
-
 PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path) {
     if (file_path.length == 0) {
         pk_errors(lisp, pk_str("empty file path"));

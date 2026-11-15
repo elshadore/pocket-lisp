@@ -57,35 +57,10 @@ void pk_init_cache(Pocket lisp) {
     c->type_keyword = pk_atom_symbol(lisp, pk_str("Keyword"));
     c->type_cons = pk_atom_symbol(lisp, pk_str("Cons"));
     c->type_array = pk_atom_symbol(lisp, pk_str("Array"));
-    c->type_table = pk_atom_symbol(lisp, pk_str("Table"));
+    c->type_object = pk_atom_symbol(lisp, pk_str("Object"));
     c->type_function = pk_atom_symbol(lisp, pk_str("Function"));
     c->type_macro = pk_atom_symbol(lisp, pk_str("Macro"));
-    c->type_character = pk_atom_symbol(lisp, pk_str("Character"));
-    c->type_blob = pk_atom_symbol(lisp, pk_str("Blob"));
-    c->type_string_array = pk_atom_symbol(lisp, pk_str("String-Array"));
-    c->type_byte_array = pk_atom_symbol(lisp, pk_str("Byte-Array"));
-    c->type_stream = pk_atom_symbol(lisp, pk_str("Stream"));
     c->type_destroyed = pk_atom_symbol(lisp, pk_str("Destroyed"));
-
-    pk_atom_define_type_primitive(lisp, c->type_unknown);
-    pk_atom_define_type_primitive(lisp, c->type_undefined);
-    pk_atom_define_type_primitive(lisp, c->type_nil);
-    pk_atom_define_type_primitive(lisp, c->type_true);
-    pk_atom_define_type_primitive(lisp, c->type_number);
-    pk_atom_define_type_primitive(lisp, c->type_string);
-    pk_atom_define_type_primitive(lisp, c->type_symbol);
-    pk_atom_define_type_primitive(lisp, c->type_keyword);
-    pk_atom_define_type_primitive(lisp, c->type_cons);
-    pk_atom_define_type_primitive(lisp, c->type_array);
-    pk_atom_define_type_primitive(lisp, c->type_table);
-    pk_atom_define_type_primitive(lisp, c->type_function);
-    pk_atom_define_type_primitive(lisp, c->type_macro);
-    pk_atom_define_type_primitive(lisp, c->type_character);
-    pk_atom_define_type_primitive(lisp, c->type_blob);
-    pk_atom_define_type_primitive(lisp, c->type_string_array);
-    pk_atom_define_type_primitive(lisp, c->type_byte_array);
-    pk_atom_define_type_primitive(lisp, c->type_stream);
-    pk_atom_define_type_primitive(lisp, c->type_destroyed);
 }
 
 Pocket pk_init(void *user_env) {

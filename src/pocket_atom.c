@@ -283,3 +283,10 @@ size_t pk_atom_hash(PKAtom *atom) {
         }
     }
 }
+
+PKAtomSymbol *pk_atom_typeof(Pocket lisp, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_SYMBOL: return lisp->cache.type_symbol;
+        default: return lisp->cache.type_unknown;
+    }
+}

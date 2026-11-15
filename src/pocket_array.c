@@ -36,7 +36,7 @@ void pk_atom_array_append_many(Pocket lisp, PKAtomArray *array, PKAtoms atoms) {
     }
 }
 
-PKAtom *pk_atom_array_el(Pocket lisp, PKAtomArray *array, size_t index) {
+PKAtom *pk_atom_array_nth(Pocket lisp, PKAtomArray *array, size_t index) {
     PKArray *atoms = &array->atoms;
     if (index >= atoms->count) {
         pk_errorf(lisp, "array index: %zu, is out of bounds, array length is %zu", index, atoms->count);
@@ -55,6 +55,8 @@ bool pk_atom_is_array(PKAtom *atom) {
 }
 
 PKAtomArray *pk_atom_assert_array(Pocket lisp, PKAtom *atom) {
-    pk_atom_assert_type(lisp, atom, lisp->cache.type_array);
+    if (!pk_atom_is_array(atom)) {
+        pk_error_type(lisp, atom, lisp->cache.type_array);
+    }
     return (PKAtomArray *)atom;
 }

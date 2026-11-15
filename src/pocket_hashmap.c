@@ -191,3 +191,17 @@ PKAtom *pk_hashmap_to_alist(Pocket lisp, PKHashmap *map) {
 
     return acc.head;
 }
+
+PKAtom *pk_hashmap_to_plist(Pocket lisp, PKHashmap *map) {
+    PKAccum acc = pk_accum_new(lisp);
+
+    for (size_t i = 0; i < map->capacity; ++i) {
+        PKHashmapSlot *slot = &map->e[i];
+        if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) {
+            pk_accum_push(&acc, slot->key);
+            pk_accum_push(&acc, slot->value);
+        }
+    }
+
+    return acc.head;
+}

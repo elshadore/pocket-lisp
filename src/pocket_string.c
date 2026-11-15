@@ -71,8 +71,8 @@ PKAtomString *pk_atom_stringc(Pocket lisp, char *cstring) {
 void pk_atom_string_cat_body(void *user_closure, Pocket lisp) {
     PKAtomStringCatData *data = (PKAtomStringCatData *)user_closure;
     for (size_t i = 0; i < data->atoms.length; ++i) {
-        PKAtom *atom = data->atoms.e[i];
-        pk_writer_string(lisp, &data->w, pk_atom_as_string(lisp, atom));
+        PKAtomString *string = pk_atom_assert_string(lisp, data->atoms.e[i]);
+        pk_writer_string(lisp, &data->w, string->str);
     }
     pk_stack_push(lisp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(&data->w)));
 }
@@ -100,12 +100,16 @@ PKAtomString *pk_atom_string_reverse(Pocket lisp, PKStr input) {
     return pk_atom_string_nomemcpy(lisp, dupe);
 }
 
-char pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index) {
+PKAtomString *pk_atom_string_nth(Pocket lisp, PKAtomString *string, size_t index) {
     if (index >= string->str.length) {
         pk_errorf(lisp, "index: %zu, longer than the string length: %zu", index, string->str.length);
-        return '\0';
+        return lisp->cache.empty_string;
     }
-    return string->str.c[index];
+    PKStr str = (PKStr) {
+        .c = &string->str.c[index],
+        .length = 1,
+    };
+    return pk_atom_string(lisp, str);
 }
 
 size_t pk_atom_string_length(Pocket lisp, PKAtomString *string) {

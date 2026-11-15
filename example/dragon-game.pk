@@ -1,20 +1,21 @@
-(defclass Location ()
-      name
-      routes
-)
+(defmacro dg-define-route (name :rest properties)
+  `(put *dg-locations* (object 'DG-Route ,@properties)))
 
-(defun location (name routes)
-    (new 'Location 'name name 'routes routes))
+(defvar *dg-locations* nil)
 
-(defvar *locations* (table
-     'starting-town (location "Starting Town" '(metal-city))
-     'metal-city (location "Metal City" '(starting-town))))
+(dg-define-route starting-town
+                 :name "Starting Town"
+                 :routes '(metal-city))
 
-(defvar *current-location* 'starting-town)
+(dg-define-route metal-city
+                 :name "Metal City"
+                 :routes '(starting-town))
 
-(defun can-move? (from to)
-     (member? (getq-slot (find *locations* from) routes) to))
+(defvar *dg-current-location* 'starting-town)
 
-(defun move (to)
-    (when (can-move? *current-location* to)
-        (setq *current-location* to)))
+(defun dg-can-move? (from to)
+     (member? (get *dg-locations* from :routes) to))
+
+(defun dg-move (to)
+    (when (dg-can-move? *dg-current-location* to)
+        (setq *dg-current-location* to)))

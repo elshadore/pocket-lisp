@@ -55,6 +55,7 @@ void pk_gc_mark_cache(Pocket lisp) {
     pk_gc_mark(lisp, (PKAtom *)c->unquote_splice);
     pk_gc_mark(lisp, (PKAtom *)c->string_substitute);
     
+    pk_gc_mark(lisp, (PKAtom *)c->type_destroyed);
     pk_gc_mark(lisp, (PKAtom *)c->type_unknown);
     pk_gc_mark(lisp, (PKAtom *)c->type_undefined);
     pk_gc_mark(lisp, (PKAtom *)c->type_nil);
@@ -65,14 +66,9 @@ void pk_gc_mark_cache(Pocket lisp) {
     pk_gc_mark(lisp, (PKAtom *)c->type_keyword);
     pk_gc_mark(lisp, (PKAtom *)c->type_cons);
     pk_gc_mark(lisp, (PKAtom *)c->type_array);
-    pk_gc_mark(lisp, (PKAtom *)c->type_table);
+    pk_gc_mark(lisp, (PKAtom *)c->type_object);
     pk_gc_mark(lisp, (PKAtom *)c->type_function);
     pk_gc_mark(lisp, (PKAtom *)c->type_macro);
-    pk_gc_mark(lisp, (PKAtom *)c->type_character);
-    pk_gc_mark(lisp, (PKAtom *)c->type_blob);
-    pk_gc_mark(lisp, (PKAtom *)c->type_string_array);
-    pk_gc_mark(lisp, (PKAtom *)c->type_byte_array);
-    pk_gc_mark(lisp, (PKAtom *)c->type_stream);
 
     pk_gc_mark(lisp, lisp->throw_symbol);
     pk_gc_mark(lisp, lisp->throw_value);

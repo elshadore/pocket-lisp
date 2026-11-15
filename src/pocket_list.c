@@ -343,7 +343,7 @@ void pk_atom_list_to_array(Pocket lisp, PKAtom *list, PKArray *array) {
     }
 }
 
-PKAtom *pk_atom_list_el(Pocket lisp, PKAtom *list, size_t index) {
+PKAtom *pk_atom_list_nth(Pocket lisp, PKAtom *list, size_t index) {
     PKAtom *iter = list;
     size_t counter = 0;
     

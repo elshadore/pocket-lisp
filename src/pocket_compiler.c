@@ -747,27 +747,6 @@ void pk_compile_var(Pocket lisp, PKCompiler *c, PKAtom *form, PK_ENV env) {
     }
 }
 
-void pk_compile_defclass(Pocket lisp, PKCompiler *c, PKAtom *form) {
-    // Our ideal form is:
-    
-    // (defclass example ()
-    //   foo
-    //   bar
-    //   baz)
-    
-    // We will keep the () after defclass *symbol* for eventually adding inheritance.
-    
-    PKAtomCons *a = pk_atom_assert_cons(lisp, form);
-    PKAtom *name = (PKAtom *)pk_atom_assert_symbol(lisp, a->car);
-    PKAtomCons *b = pk_atom_assert_cons(lisp, a->cdr);
-    (void)pk_atom_assert_nil(lisp, b->car);
-    PKAtom *slots = b->cdr;
-
-    pk_cmp_load(lisp, c, name);
-    pk_cmp_load(lisp, c, slots);
-    pk_cmp_push_byte(lisp, c, PK_OP_DEFCLASS);
-}
-
 void pk_compile_special(Pocket lisp, PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, bool *is_special) {
 
     if (symbol == lisp->cache.lambda) {
@@ -943,10 +922,6 @@ void pk_compile_special(Pocket lisp, PKCompiler *c, PKAtomSymbol *symbol, PKAtom
     } else if (symbol == lisp->cache.fsetq) {
         pk_compile_set(lisp, c, args, PK_ENV_FUN);
 
-        *is_special = true;
-    } else if (symbol == lisp->cache.defclass) {
-        pk_compile_defclass(lisp, c, args);
-        
         *is_special = true;
     } else {
         *is_special = false;

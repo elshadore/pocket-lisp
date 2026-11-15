@@ -86,16 +86,6 @@ void pk_vm_op_set(Pocket lisp, PKVM *vm, PK_ENV env) {
     lisp->stack.e[lisp->stack.count - 1] = slice.e[1];
 }
 
-void pk_vm_op_defclass(Pocket lisp, PKVM *vm) {
-    PKAtoms slice = pk_stack_slice_down(lisp, 2);
-    PKAtomSymbol *name = pk_atom_assert_symbol(lisp, slice.e[0]);
-    pk_atom_define_type_lisp_atom(lisp, name, slice.e[1]);
-
-    pk_stack_pop_unchecked(lisp, 2);
-    pk_stack_push(lisp, (PKAtom *)name);
-    pk_vm_inc(lisp, vm);
-}
-
 void pk_vm_op_exec(Pocket lisp, PKVM *vm) {
     vm->opcode = vm->op;
     switch (vm->op) {
@@ -280,10 +270,6 @@ void pk_vm_op_exec(Pocket lisp, PKVM *vm) {
             size_t n = (size_t)pk_vat(vm);
             pk_popn(lisp, n);
             pk_vm_inc(lisp, vm);
-            return;
-        }
-        case PK_OP_DEFCLASS: {
-            pk_vm_op_defclass(lisp, vm);
             return;
         }
         default: {

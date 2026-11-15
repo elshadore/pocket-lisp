@@ -1,181 +1,150 @@
 #include "pocket_internals.h"
 
-void pk_generic_append(Pocket lisp, PKAtom *array, PKAtom *atom) {
-    pk_stack_push(lisp, array);
-    pk_stack_push(lisp, atom);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("append")));
-    pk_funcall(lisp, PK_CALL_FUN, 2);
-    pk_pop(lisp);
+PKAtom *pk_generic_nth(Pocket lisp, PKAtom *atom, size_t index) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_CONS: {
+            return pk_atom_list_nth(lisp, atom, index);
+        }
+        case PK_ATOMTY_STRING: {
+            return (PKAtom *)pk_atom_string_nth(lisp, (PKAtomString *)atom, index);
+        }
+        case PK_ATOMTY_ARRAY: {
+            return (PKAtom *)pk_atom_array_nth(lisp, (PKAtomArray *)atom, index);
+        }
+        default: {
+            pk_error_type3(lisp, atom, lisp->cache.type_cons, lisp->cache.type_string, lisp->cache.type_array);
+            return lisp->cache.nil;
+        }
+    }
 }
 
-PKAtom *pk_generic_el(Pocket lisp, PKAtom *array, size_t index) {
-    pk_stack_push(lisp, array);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_size_t(lisp, index));
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("el")));
-    pk_funcall(lisp, PK_CALL_FUN, 2);
-    return pk_stack_head_pop(lisp);
+size_t pk_generic_length(Pocket lisp, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_NIL: {
+            return 0;
+        }
+        case PK_ATOMTY_CONS: {
+            return pk_atom_list_length(lisp, atom);
+        }
+        case PK_ATOMTY_STRING: {
+            return pk_atom_string_length(lisp, (PKAtomString *)atom);
+        }
+        case PK_ATOMTY_ARRAY: {
+            return pk_atom_array_length(lisp, (PKAtomArray *)atom);
+        }
+        default: {
+            pk_error_type4(lisp, atom, lisp->cache.type_nil, lisp->cache.type_cons, lisp->cache.type_string, lisp->cache.type_array);
+            return 0;
+        }
+    }
 }
 
-PKAtom *pk_generic_length_atom(Pocket lisp, PKAtom *seq) {
-    pk_stack_push(lisp, seq);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("length")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    return pk_stack_head_pop(lisp);
-}
-    
-size_t pk_generic_length(Pocket lisp, PKAtom *seq) {
-    return pk_atom_to_size_t(lisp, pk_generic_length_atom(lisp, seq));
-}
-
-PKAtom *pk_generic_put(Pocket lisp, PKAtom *obj, PKAtom *key, PKAtom *value) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, key);
-    pk_stack_push(lisp, value);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("put")));
-    pk_funcall(lisp, PK_CALL_FUN, 3);
-    return pk_stack_head_pop(lisp);
-}
-
-PKAtom *pk_generic_find(Pocket lisp, PKAtom *obj, PKAtom *key) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, key);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("find")));
-    pk_funcall(lisp, PK_CALL_FUN, 2);
-    return pk_stack_head_pop(lisp);
+PKAtom *pk_generic_to_list(Pocket lisp, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_NIL: {
+            return lisp->cache.nil;
+        }
+        case PK_ATOMTY_CONS: {
+            return atom;
+        }
+        case PK_ATOMTY_ARRAY: {
+            PKAtoms atoms = pk_array_slice(&atom->array.atoms);
+            return pk_atom_list(lisp, atoms);
+        }
+        default: {
+            pk_error_type3(lisp, atom, lisp->cache.type_nil, lisp->cache.type_cons, lisp->cache.type_array);
+            return lisp->cache.nil;
+        }
+    }
 }
 
-PKAtom *pk_generic_remove(Pocket lisp, PKAtom *obj, PKAtom *key) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, key);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("remove")));
-    pk_funcall(lisp, PK_CALL_FUN, 2);
-    return pk_stack_head_pop(lisp);
+PKAtom *pk_generic_cat(Pocket lisp, PKAtom *atom, PKAtoms atoms) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_NIL: {
+            return lisp->cache.nil;
+        }
+        case PK_ATOMTY_CONS: {
+            return pk_atom_list_cat(lisp, atoms);
+        }
+        case PK_ATOMTY_STRING: {
+            return (PKAtom *)pk_atom_string_cat(lisp, atoms);
+        }
+        default: {
+            pk_error_type3(lisp, atom, lisp->cache.type_nil, lisp->cache.type_cons, lisp->cache.type_string);
+            return lisp->cache.nil;
+        }
+    }
 }
 
-PKAtom *pk_generic_is_member_atom(Pocket lisp, PKAtom *obj, PKAtom *key) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, key);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("member?")));
-    pk_funcall(lisp, PK_CALL_FUN, 2);
-    return pk_stack_head_pop(lisp);
+PKAtom *pk_generic_reverse(Pocket lisp, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_NIL: {
+            return lisp->cache.nil;
+        }
+        case PK_ATOMTY_STRING: {
+            return (PKAtom *)pk_atom_string_reverse(lisp, atom->string.str);
+        }
+        case PK_ATOMTY_CONS: {
+            return pk_atom_list_reverse(lisp, atom);
+        }
+        default: {
+            pk_error_type3(lisp, atom, lisp->cache.type_nil, lisp->cache.type_cons, lisp->cache.type_string);
+            return lisp->cache.nil;
+        }
+    }
 }
 
-bool pk_generic_is_member(Pocket lisp, PKAtom *obj, PKAtom *key) {
-    return pk_atom_is_true(pk_generic_is_member_atom(lisp, obj, key));
+PKAtomString *pk_generic_to_string(Pocket lisp, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_STRING: {
+            return (PKAtomString *)atom;
+        }
+        case PK_ATOMTY_SYMBOL: {
+            return atom->symbol.name;
+        }
+        case PK_ATOMTY_KEYWORD: {
+            return pk_atom_keyword_to_string(lisp, (PKAtomKeyword *)atom);
+        }
+        default: {
+            pk_error_type3(lisp, atom, lisp->cache.type_string, lisp->cache.type_symbol, lisp->cache.type_keyword);
+            return lisp->cache.empty_string;
+        }
+    }
 }
 
-PKAtom *pk_generic_read_char(Pocket lisp, PKAtom *obj) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("read-char")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    return pk_stack_head_pop(lisp);
+PKAtomSymbol *pk_generic_to_symbol(Pocket lisp, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_SYMBOL: {
+            return (PKAtomSymbol *)atom;
+        }
+        case PK_ATOMTY_KEYWORD: {
+            return pk_atom_keyword_to_symbol(lisp, (PKAtomKeyword *)atom);
+        }
+        case PK_ATOMTY_STRING: {
+            return pk_atom_string_to_symbol(lisp, (PKAtomString *)atom);
+        }
+        default: {
+            pk_error_type3(lisp, atom, lisp->cache.type_string, lisp->cache.type_symbol, lisp->cache.type_keyword);
+            return (PKAtomSymbol *)lisp->cache.nil;
+        }
+    }
 }
 
-PKAtom *pk_generic_read_byte(Pocket lisp, PKAtom *obj) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("read-byte")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    return pk_stack_head_pop(lisp);
-}
-
-PKAtom *pk_generic_read(Pocket lisp, PKAtom *obj, size_t amount, PKAtom *mode) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_size_t(lisp, amount));
-    pk_stack_push(lisp, mode);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("read-byte")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    return pk_stack_head_pop(lisp);
-}
-
-void pk_generic_write(Pocket lisp, PKAtom *obj, PKAtom *atom) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, atom);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("write")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    pk_pop(lisp);
-}
-
-PKAtom *pk_generic_cat(Pocket lisp, PKAtom *obj, PKAtoms atoms) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push_many(lisp, atoms);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("cat")));
-    pk_funcall(lisp, PK_CALL_FUN, 1 + atoms.length);
-    return pk_stack_head_pop(lisp);
-}
-
-PKAtom *pk_generic_reverse(Pocket lisp, PKAtom *obj) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("reverse")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    return pk_stack_head_pop(lisp);
-}
-
-PKAtom *pk_generic_to_list(Pocket lisp, PKAtom *obj) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->list")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    return pk_stack_head_pop(lisp);
-}
-
-PKAtom *pk_generic_to_string(Pocket lisp, PKAtom *obj) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->string")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    return pk_stack_head_pop(lisp);
-}
-
-PKAtom *pk_generic_to_symbol(Pocket lisp, PKAtom *obj) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->symbol")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    return pk_stack_head_pop(lisp);
-}
-
-PKAtom *pk_generic_to_keyword(Pocket lisp, PKAtom *obj) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->keyword")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    return pk_stack_head_pop(lisp);
-}
-
-PKAtom *pk_generic_to_char(Pocket lisp, PKAtom *obj) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->char")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    return pk_stack_head_pop(lisp);
-}
-
-PKAtom *pk_generic_to_chars(Pocket lisp, PKAtom *obj) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->chars")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    return pk_stack_head_pop(lisp);
-}
-
-PKAtom *pk_generic_to_bytes(Pocket lisp, PKAtom *obj) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->bytes")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    return pk_stack_head_pop(lisp);
-}
-
-PKAtom *pk_generic_to_byte(Pocket lisp, PKAtom *obj) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->byte")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    return pk_stack_head_pop(lisp);
-}
-
-PKAtom *pk_generic_to_int(Pocket lisp, PKAtom *obj) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->int")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    return pk_stack_head_pop(lisp);
-}
-
-PKAtom *pk_generic_to_float(Pocket lisp, PKAtom *obj) {
-    pk_stack_push(lisp, obj);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_str("->float")));
-    pk_funcall(lisp, PK_CALL_FUN, 1);
-    return pk_stack_head_pop(lisp);
+PKAtomKeyword *pk_generic_to_keyword(Pocket lisp, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_SYMBOL: {
+            return pk_atom_symbol_to_keyword(lisp, (PKAtomSymbol *)atom);
+        }
+        case PK_ATOMTY_KEYWORD: {
+            return (PKAtomKeyword *)atom;
+            
+        }
+        case PK_ATOMTY_STRING: {
+            return pk_atom_string_to_keyword(lisp, (PKAtomString *)atom);
+        }
+        default: {
+            pk_error_type3(lisp, atom, lisp->cache.type_string, lisp->cache.type_symbol, lisp->cache.type_keyword);
+            return (PKAtomKeyword *)lisp->cache.nil;
+        }
+    }
 }

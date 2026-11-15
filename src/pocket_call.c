@@ -213,6 +213,26 @@ PK_RES pk_int_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args, 
 
     return PK_OK;
 }
+
+PK_RES pk_protect(Pocket lisp, void *user_closure, PKFun fun, size_t args) {
+    pk_frame_push(lisp, (PKAtom *)lisp->cache.protect, args);
+    pk_frame_mode_set_protect(lisp);
+    PK_RES result = pk_int_fastcall(lisp, user_closure, fun, args, lisp->cache.nil);
+    pk_frame_return_push(lisp);
+    return result;
+}
+
+PK_RES pk_protect_noreturn(Pocket lisp, void *user_closure, PKFun fun, size_t args) {
+    pk_frame_push(lisp, (PKAtom *)lisp->cache.protect, args);
+    pk_frame_mode_set_protect(lisp);
+    PK_RES result = pk_int_fastcall(lisp, user_closure, fun, args, lisp->cache.nil);
+    if (result == PK_YIELDED) {
+        pk_frame_return_push(lisp);
+    } else {
+        pk_frame_unwind(lisp);
+    }
+    return result;
+}
     
 PK_RES pk_atom_catch(Pocket lisp, PKAtomSymbol *symbol, void *user_closure, PKFun fun, size_t args) {
     pk_frame_push(lisp, (PKAtom *)symbol, args);

@@ -279,26 +279,6 @@ void pk_fun_list_funs(void *user_closure, Pocket lisp) {
     pk_list_funs(lisp);
 }
 
-void pk_fun_list_types(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_list_types(lisp);
-}
-
-void pk_fun_list_methods(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_list_methods(lisp, 1);
-}
-
-void pk_fun_list_slots(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_list_slots(lisp, 1);
-}
-
-void pk_fun_list_implementors(void *user_closure, Pocket lisp) {
-    (void)user_closure;
-    pk_list_implementors(lisp, 1);
-}
-
 void pk_fun_list_symbols(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_list_symbols(lisp);
@@ -430,6 +410,14 @@ void pk_fun_make_array(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_array_make(lisp, count, fill));
 }
 
+void pk_fun_append(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    int top = pk_top(lisp);
+    for (int i = 2; i <= top; ++i) {
+        pk_append(lisp, 1, i);
+    }
+}
+    
 void pk_fun_gensym(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_push_gensym(lisp);
@@ -468,6 +456,47 @@ void pk_fun_alist_to_plist(void *user_closure, Pocket lisp) {
 void pk_fun_plist_to_alist(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_stack_push(lisp, pk_atom_plist_to_alist(lisp, pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_nth(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    size_t index = pk_atom_to_size_t(lisp, pk_stack_get(lisp, 2));
+    pk_nth(lisp, 1, index);
+}
+
+void pk_fun_length(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, (PKAtom *)pk_atom_size_t(lisp, pk_length(lisp, 1)));
+}
+
+void pk_fun_to_list(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_to_list(lisp, 1);
+}
+
+void pk_fun_to_string(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, (PKAtom *)pk_generic_to_string(lisp, pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_to_symbol(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, (PKAtom *)pk_generic_to_symbol(lisp, pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_to_keyword(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, (PKAtom *)pk_generic_to_keyword(lisp, pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_to_int(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, (PKAtom *)pk_atom_int(lisp, pk_to_int(lisp, 1)));;
+}
+
+void pk_fun_to_float(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, (PKAtom *)pk_atom_float(lisp, pk_to_int(lisp, 1)));;
 }
 
 typedef struct PKFunLoad_ {
@@ -526,10 +555,6 @@ void pk_std_load_cfun(Pocket lisp) {
 
         {.symbol = pk_str("list-vars"), .fun = pk_fun_list_vars, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("list-funs"), .fun = pk_fun_list_funs, .args = 0, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("list-types"), .fun = pk_fun_list_types, .args = 0, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("list-methods"), .fun = pk_fun_list_methods, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("list-slots"), .fun = pk_fun_list_slots, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("list-implementors"), .fun = pk_fun_list_implementors, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("list-symbols"), .fun = pk_fun_list_symbols, .args = 0, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("funcatch"), .fun = pk_fun_funcatch, .args = 2, .arity = PK_ARITY_NORMAL},
@@ -556,6 +581,7 @@ void pk_std_load_cfun(Pocket lisp) {
 
         {.symbol = pk_str("array"), .fun = pk_fun_array, .args = 0, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("make-array"), .fun = pk_fun_make_array, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 2},
+        {.symbol = pk_str("append"), .fun = pk_fun_append, .args = 2, .arity = PK_ARITY_VARIADIC},
         
         {.symbol = pk_str("gensym"), .fun = pk_fun_gensym, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("typeof"), .fun = pk_fun_typeof, .args = 1, .arity = PK_ARITY_NORMAL},
@@ -568,6 +594,16 @@ void pk_std_load_cfun(Pocket lisp) {
         
         {.symbol = pk_str("alist->plist"), .fun = pk_fun_alist_to_plist, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("plist->alist"), .fun = pk_fun_plist_to_alist, .args = 1, .arity = PK_ARITY_NORMAL},
+        
+        {.symbol = pk_str("nth"), .fun = pk_fun_nth, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("length"), .fun = pk_fun_length, .args = 1, .arity = PK_ARITY_NORMAL},
+        
+        {.symbol = pk_str("->list"), .fun = pk_fun_to_list, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("->string"), .fun = pk_fun_to_string, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("->symbol"), .fun = pk_fun_to_symbol, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("->keyword"), .fun = pk_fun_to_keyword, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("->int"), .fun = pk_fun_to_int, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("->float"), .fun = pk_fun_to_float, .args = 1, .arity = PK_ARITY_NORMAL},
     };
 
     size_t length = pk_alen(funs);
