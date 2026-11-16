@@ -402,12 +402,14 @@ void pk_fun_read_user_input(void *user_closure, Pocket lisp) {
 void pk_fun_file_open(void *user_closure, Pocket lisp) {
     (void)user_closure;
     PKAtomString *file_path = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
-    PKStr mode = pk_str("r");
+    PKAtomString *mode = NULL;
     PKAtom *file_mode = pk_stack_get(lisp, 2);
     if (!pk_atom_is_nil(file_mode)) {
-        mode = pk_atom_assert_string(lisp, file_mode)->str;
+        mode = pk_atom_assert_string(lisp, file_mode);
+    } else {
+        mode = pk_atom_string(lisp, pk_str("r"));
     }
-    PKAtomObject *stream = pk_fs_file_open_object(lisp, file_path->str, mode);
+    PKAtomObject *stream = pk_fs_file_open_object(lisp, file_path, mode);
     pk_stack_push(lisp, (PKAtom *)stream);
 }
 

@@ -38,12 +38,15 @@ void pk_fs_file_object_destroy(void *object) {
     }
 }
 
-PKAtomObject *pk_fs_file_open_object(Pocket lisp, PKStr file_path, PKStr mode) {
+PKAtomObject *pk_fs_file_open_object(Pocket lisp, PKAtomString *file_path, PKAtomString *mode) {
     PKAtomObject *result = pk_atom_object(lisp, pk_atom_symbol(lisp, pk_str("Stream")), NULL, NULL);
     
-    FILE *file = pk_fs_file_open(lisp, file_path, mode);
+    FILE *file = pk_fs_file_open(lisp, file_path->str, mode->str);
     result->user_data = file;
     result->gc = pk_fs_file_object_destroy;
+
+    pk_atom_object_put(lisp, result, (PKAtom *)pk_atom_symbol(lisp, pk_str("file")), (PKAtom *)file_path);
+    pk_atom_object_put(lisp, result, (PKAtom *)pk_atom_symbol(lisp, pk_str("mode")), (PKAtom *)mode);
     
     return result;
 }
