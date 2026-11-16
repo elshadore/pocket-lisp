@@ -23,3 +23,60 @@
         ##            :colour 'white)
         (draw-rect x y :texture texture :scale scale)
         ))
+
+(defvar *current-map* nil)
+
+(defun create-map (width height :opt fill)
+     (object 'Map
+         :tiles (make-array (* width height) fill)
+         :width width
+         :height height))
+
+(defmacro with-current-map (map :rest body)
+      `(let ((*current-map* ,map)) ,@body))
+
+(defun map-width (:opt (map *current-map*))
+     (get map :width))
+
+(defun map-height (:opt (map *current-map*))
+     (get map :height))
+     
+(defun index-2d (x y width)
+     (+ (* y width) x))
+     
+(defun set-map-tile (x y tile :opt (map *current-map*))
+    (aset (get map :tiles) (index-2d x y (map-width)) tile))
+
+(defun get-map-tile (x y :opt (map *current-map*))
+    (aget (get map :tiles) (index-2d x y (map-width))))
+
+(with-current-map (create-map 16 16 'wall)
+    (set-map-tile 1 1 'grass)
+    (set-map-tile 6 6 'brush)
+    (dotimes-2d (x y (map-width) (map-height))
+         (set-map-tile x y 'lava)))
+
+(cge/set-window-title "THIS IS COOL")
+(cge/get-window-title)
+
+(defun on-tick ()
+     (print $"hello: {(cge/delta-time)}")
+
+(cge/generate-timed-callback 60 'on-tick)
+
+(cge/spawn-gameobject
+    :pos '(22 22 22)
+    :parent *current-gameobject*)
+
+(defun my-callback (:opt go)
+     (cge/with-gameobject (cge/gameobject-child 'physics-2d)
+           (when (cge/gameobject-alive?)
+                 
+           )
+     )
+     (cge/set-gameobject-pos 420 69 20))
+
+(cge/set-gameobject-attrs
+      :name "Funny"
+      :callback 'my-callback
+)

@@ -61,6 +61,30 @@ void pk_fs_stream_write(Pocket lisp, PKAtomObject *stream, PKStr input) {
     fwrite(input.c, sizeof(char), input.length, f);
 }
 
+/* PKAtomString *pk_fs_stream_read_string(Pocket lisp, PKAtomObject *stream, size_t count) { */
+    
+/* } */
+
+/* PKAtom *pk_fs_stream_read_bytes(Pocket lisp, PKAtomObject *stream, size_t count) { */
+    
+/* } */
+
+/* PKAtomString *pk_fs_stream_read_char(Pocket lisp, PKAtomObject *stream) { */
+    
+/* } */
+
+/* PKAtomNumber *pk_fs_stream_read_byte(Pocket lisp, PKAtomObject *stream) { */
+    
+/* } */
+
+/* PKAtomString *pk_fs_stream_read_all(Pocket lisp, PKAtomObject *stream) { */
+    
+/* } */
+
+/* PKAtomString *pk_fs_stream_read_until(Pocket lisp, PKAtomObject *stream, PKAtomString *match) { */
+    
+/* } */
+
 PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path) {
     FILE *file = pk_fs_file_open(lisp, file_path, pk_str("r"));
     

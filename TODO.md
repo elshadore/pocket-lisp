@@ -2,16 +2,14 @@
 The todo list for POCKET LISP
 
 ## V1
-- [ ] New Object System
-  - Properties
-  - C Data
-  
-- [ ] Properties on All Objects
+- [ ] Properties on *Most* Objects
   - Symbols
   - Functions
   - Macros
+  - Special Forms
 
 - [ ] Special Form Objects
+  - all special forms moved to objects
 
 - [ ] fix debug stack dump
   - so we see frames clearly
@@ -24,27 +22,40 @@ The todo list for POCKET LISP
   - 0xfeefee
   - 0oaaaaaa <- idk octal
   
-- [ ] Seperation of std into multiple libraries
-  - core
+- [ ] Array Parsing
+  - just parsing no evaluation
+  - `[(+ 1 2 3) 4 2 11]`
+  - -> essentially quotes the data inside
+  
+- [ ] floats
+  - printing
+  - parsing
+  
+- [ ] Math functions
+  - sin
+  - cos
+  
+- [ ] Seperation of std into multiple libraries (seperation in multiple files)
   - fs
-  - streams
+  - system (shell)
+  - math
   
 - [ ] Remove ternary operator from all c code.
 - [ ] `cleared` remove symbol.
 
 - [ ] Testing Suite
 
-- [ ] Unicode Strings and Characters (utf8)
-  - [ ] fn, λ, lambda
-  
 - [ ] STD Filesystem API
   - Files (streams)
+    - read / write
+    - tempfile
   - Directories
-  - Paths
+    - mkdir
   
 - [ ] STD Shell Command / Process API
   - Async Command -> Process
   - Sync Command
+    - `(shell "echo hello")`
   
 - [ ] `progv`
 
@@ -58,12 +69,7 @@ The todo list for POCKET LISP
 - [ ] User Review of Macro
 - [ ] User Review of wether we are allocating too much on the stack in the bytecode VM
    - i.e we are not popping temp values
-- [ ] Typed Destructuring Bind
-  - for lambda
   
-- [ ] defmethod
-  - typed lambda form
-
 - [ ] Create CMake Build
 
 - [ ] Emacs Mode Syntax Highlighting
@@ -80,6 +86,9 @@ The todo list for POCKET LISP
 - [ ] Full Code Review
   
 ## V2
+- [ ] Unicode Strings and Characters (utf8)
+  - [ ] fn, λ, lambda
+  
 - [ ] Big Numbers
 - [ ] Full Float Parsing and Printing
   - [ ] Parsing
