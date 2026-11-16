@@ -27,6 +27,7 @@ void pk_atom_deinit(Pocket lisp, PKAtom *atom) {
             PKAtomObject *object = (PKAtomObject *)atom;
             if (object->gc != NULL) {
                 (object->gc)(object->user_data);
+                object->user_data = NULL;
             }
             pk_hashmap_deinit(lisp, &object->props);
             break;
