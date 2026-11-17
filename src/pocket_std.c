@@ -418,14 +418,14 @@ void pk_fun_file_slurp(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_fs_slurp(lisp, pk_atom_assert_string(lisp, pk_stack_get(lisp, 1))));
 }
 
-void pk_fun_stream_write(void *user_closure, Pocket lisp) {
+void pk_fun_file_write(void *user_closure, Pocket lisp) {
     (void)user_closure;
     PKAtomObject *stream = pk_atom_assert_object(lisp, pk_stack_get(lisp, 1));
     PKAtomString *write = pk_atom_assert_string(lisp, pk_stack_get(lisp, 2));
-    pk_fs_stream_write(lisp, stream, write->str);
+    pk_fs_file_write(lisp, stream, write->str);
 }
     
-void pk_fun_stream_close(void *user_closure, Pocket lisp) {
+void pk_fun_file_close(void *user_closure, Pocket lisp) {
     (void)user_closure;
     PKAtom *atom = pk_stack_get(lisp, 1);
     pk_stack_push(lisp, pk_atom_destroy(lisp, atom));
@@ -650,8 +650,8 @@ void pk_std_load_cfun(Pocket lisp) {
         
         {.symbol = pk_str("file-open"), .fun = pk_fun_file_open, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 1},
         {.symbol = pk_str("file-slurp"), .fun = pk_fun_file_slurp, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("stream-write"), .fun = pk_fun_stream_write, .args = 2, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("stream-close"), .fun = pk_fun_stream_close, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("file-write"), .fun = pk_fun_file_write, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("file-close"), .fun = pk_fun_file_close, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("read-user-input"), .fun = pk_fun_read_user_input, .args = 0, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("array"), .fun = pk_fun_array, .args = 0, .arity = PK_ARITY_VARIADIC},

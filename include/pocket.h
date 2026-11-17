@@ -63,6 +63,22 @@ typedef enum PK_CALL_ {
     PK_CALL_MACRO,
 } PK_CALL;
 
+typedef enum PK_TYPE_ {
+    PK_TYPE_UNKNOWN = 0,
+    PK_TYPE_DESTROYED,
+    PK_TYPE_NIL,
+    PK_TYPE_TRUE,
+    PK_TYPE_NUMBER,
+    PK_TYPE_STRING,
+    PK_TYPE_SYMBOL,
+    PK_TYPE_KEYWORD,
+    PK_TYPE_CONS,
+    PK_TYPE_ARRAY,
+    PK_TYPE_OBJECT,
+    PK_TYPE_FUNCTION,
+    PK_TYPE_MACRO,
+} PK_TYPE;
+
 #define pk_str(text_) (PKStr) {.c = (text_), .length = ((sizeof(text_) / sizeof(char)) - 1)}
 
 #define PK_STR_EMPTY (PKStr){.c = NULL, .length = 0}
@@ -179,12 +195,17 @@ PK_API void pk_errors(Pocket lisp, PKStr message);
 PK_API PK_PRINTF_FMT(2, 3) void pk_errorf(Pocket lisp, const char *fmt, ...);
 PK_API void pk_error_oom(Pocket lisp);
 
-PK_API void pk_typeof(Pocket lisp, int stack_pointer);
+PK_API PK_TYPE pk_typeof(Pocket lisp, int stack_pointer);
+PK_API void pk_type_check1(Pocket lisp, int stack_pointer, PK_TYPE a);
+PK_API void pk_type_check2(Pocket lisp, int stack_pointer, PK_TYPE a, PK_TYPE b);
+PK_API void pk_type_check3(Pocket lisp, int stack_pointer, PK_TYPE a, PK_TYPE b, PK_TYPE c);
 
 PK_API void pk_object(Pocket lisp, void *object_data, PKGCFun gc, int type, int properties);
-PK_API void *pk_object_data(Pocket lisp, int object);
+PK_API void *pk_object_data(Pocket lisp, int object, int type);
 PK_API void pk_object_type(Pocket lisp, int object);
 
+PK_API void pk_properties(Pocket lisp, int stack_pointer);
+PK_API void pk_set_props(Pocket lisp, int stack_pointer, int props);
 PK_API void pk_put(Pocket lisp, int object, int key, int value);
 PK_API void pk_get(Pocket lisp, int object, int key);
 PK_API bool pk_is_member(Pocket lisp, int object, int key);

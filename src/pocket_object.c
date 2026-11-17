@@ -28,6 +28,19 @@ PKAtomObject *pk_atom_object_cons(Pocket lisp, PKAtomSymbol *type, void *user_da
     return result;
 }
 
+void *pk_atom_object_data(Pocket lisp, PKAtomObject *object, PKAtom *typecheck) {
+    if (!pk_atom_is_nil(typecheck)) {
+        PKAtomSymbol *type = pk_atom_assert_symbol(lisp, typecheck);
+        if (type != object->type) {
+            pk_errors(lisp, pk_str("object typecheck failed"));
+        }
+    }
+    if (object->user_data == NULL) {
+        pk_errors(lisp, pk_str("object has no userdata"));
+    }
+    return object->user_data;
+}
+
 PKAtom *pk_atom_object_put(Pocket lisp, PKAtomObject *object, PKAtom *key, PKAtom *value) {
     PKAtom *result = pk_hashmap_insert(lisp, &object->props, key, value, PK_HASHMAP_INSERT_NORMAL);
     if (pk_atom_is_undefined(result)) {

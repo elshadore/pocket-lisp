@@ -304,3 +304,23 @@ PKAtomSymbol *pk_atom_typeof(Pocket lisp, PKAtom *atom) {
         default: return lisp->cache.type_unknown;
     }
 }
+
+PK_TYPE pk_atom_typeof_user(PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_DESTROYED: return PK_TYPE_DESTROYED;
+        case PK_ATOMTY_NIL: return PK_TYPE_NIL;
+        case PK_ATOMTY_TRUE: return PK_TYPE_TRUE;
+        case PK_ATOMTY_NUMBER: return PK_TYPE_NUMBER;
+        case PK_ATOMTY_STRING: return PK_TYPE_STRING;
+        case PK_ATOMTY_SYMBOL: return PK_TYPE_SYMBOL;
+        case PK_ATOMTY_KEYWORD: return PK_TYPE_KEYWORD;
+        case PK_ATOMTY_CONS: return PK_TYPE_CONS;
+        case PK_ATOMTY_ARRAY: return PK_TYPE_ARRAY;
+        case PK_ATOMTY_OBJECT: return PK_TYPE_OBJECT;
+        case PK_ATOMTY_CFUN: return PK_TYPE_FUNCTION;
+        case PK_ATOMTY_LFUN: return PK_TYPE_FUNCTION;
+        case PK_ATOMTY_CMACRO: return PK_TYPE_MACRO;
+        case PK_ATOMTY_LMACRO: return PK_TYPE_MACRO;
+        default: return PK_TYPE_UNKNOWN;
+    }
+}

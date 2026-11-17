@@ -39,7 +39,7 @@ void pk_fs_file_object_destroy(void *object) {
 }
 
 PKAtomObject *pk_fs_file_open_object(Pocket lisp, PKAtomString *file_path, PKAtomString *mode) {
-    PKAtomObject *result = pk_atom_object(lisp, pk_atom_symbol(lisp, pk_str("Stream")), NULL, NULL);
+    PKAtomObject *result = pk_atom_object(lisp, pk_atom_symbol(lisp, pk_str("File")), NULL, NULL);
     
     FILE *file = pk_fs_file_open(lisp, file_path->str, mode->str);
     result->user_data = file;
@@ -52,10 +52,10 @@ PKAtomObject *pk_fs_file_open_object(Pocket lisp, PKAtomString *file_path, PKAto
 }
 
 PKAtomObject *pk_fs_file_open_inherit(Pocket lisp, FILE *file) {
-    return pk_atom_object(lisp, pk_atom_symbol(lisp, pk_str("Stream")), file, pk_fs_file_object_destroy);
+    return pk_atom_object(lisp, pk_atom_symbol(lisp, pk_str("File")), file, pk_fs_file_object_destroy);
 }
 
-void pk_fs_stream_write(Pocket lisp, PKAtomObject *stream, PKStr input) {
+void pk_fs_file_write(Pocket lisp, PKAtomObject *stream, PKStr input) {
     (void)lisp;
     FILE *f = (FILE *)stream->user_data;
     fwrite(input.c, sizeof(char), input.length, f);

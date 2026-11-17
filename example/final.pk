@@ -1,4 +1,5 @@
 (defvar *textures* (table))
+
 (defvar *colours* (table))
 
 (defmacro dotimes-2d ((x y width height) :rest body)
@@ -71,9 +72,7 @@
 (defun my-callback (:opt go)
      (cge/with-gameobject (cge/gameobject-child 'physics-2d)
            (when (cge/gameobject-alive?)
-                 
-           )
-     )
+               (cge/setq-go position '(1 2 3))))
      (cge/set-gameobject-pos 420 69 20))
 
 (cge/set-gameobject-attrs

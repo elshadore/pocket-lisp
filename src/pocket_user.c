@@ -429,9 +429,10 @@ void pk_object(Pocket lisp, void *object_data, PKGCFun gc, int type, int propert
     pk_stack_push(lisp, (PKAtom *)pk_atom_object(lisp, atype, object_data, gc));
 }
 
-void *pk_object_data(Pocket lisp, int object) {
+void *pk_object_data(Pocket lisp, int object, int type) {
     PKAtomObject *aobject = pk_atom_assert_object(lisp, pk_stack_get(lisp, object));
-    return aobject->user_data;
+    PKAtom *typecheck = pk_stack_get(lisp, type);
+    return pk_atom_object_data(lisp, aobject, typecheck);
 }
 
 void pk_object_type(Pocket lisp, int object) {
@@ -464,8 +465,8 @@ bool pk_is_member(Pocket lisp, int object, int key) {
     return pk_atom_object_is_member(lisp, aobject, akey);
 }
 
-void pk_typeof(Pocket lisp, int stack_pointer) {
-    pk_stack_push(lisp, (PKAtom *)pk_atom_typeof(lisp, pk_stack_get(lisp, stack_pointer)));
+PK_TYPE pk_typeof(Pocket lisp, int stack_pointer) {
+    return pk_atom_typeof_user(pk_stack_get(lisp, stack_pointer));
 }
 
 void pk_map(Pocket lisp, int seq, int fun) {

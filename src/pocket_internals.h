@@ -682,9 +682,11 @@ PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun);
 PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom);
 
 PKAtomSymbol *pk_atom_typeof(Pocket lisp, PKAtom *atom);
+PK_TYPE pk_atom_typeof_user(PKAtom *atom);
 
 PKAtomObject *pk_atom_object(Pocket lisp, PKAtomSymbol *type, void *user_data, PKGCFun gc);
 PKAtomObject *pk_atom_object_cons(Pocket lisp, PKAtomSymbol *type, void *user_data, PKGCFun gc, PKAtoms init);
+void *pk_atom_object_data(Pocket lisp, PKAtomObject *object, PKAtom *typecheck);
 PKAtom *pk_atom_object_put(Pocket lisp, PKAtomObject *object, PKAtom *key, PKAtom *value);
 PKAtom *pk_atom_object_remove(Pocket lisp, PKAtomObject *object, PKAtom *key);
 PKAtom *pk_atom_object_get(Pocket lisp, PKAtomObject *object, PKAtom *key);
@@ -865,7 +867,7 @@ PKAtomObject *pk_fs_file_open_object(Pocket lisp, PKAtomString *file_path, PKAto
 PKAtomObject *pk_fs_file_open_inherit(Pocket lisp, FILE *file);
 PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path);
 PKAtomString *pk_fs_slurp(Pocket lisp, PKAtomString *file_path);
-void pk_fs_stream_write(Pocket lisp, PKAtomObject *stream, PKStr input);
+void pk_fs_file_write(Pocket lisp, PKAtomObject *stream, PKStr input);
 PKAtom *pk_fs_read_user_input(Pocket lisp);
 
 void pk_gc_mark_cache(Pocket lisp);
