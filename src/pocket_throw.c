@@ -87,7 +87,7 @@ void pk_error_oom(Pocket lisp) {
 }
 
 void pk_throw(Pocket lisp, int symbol, int value) {
-    PK_TYPE a = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, symbol));
+    PKAtomSymbol *a = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, symbol));
     PKAtom *b = pk_stack_get(lisp, value);
     pk_jmp_trigger(lisp, a, b);
 }
