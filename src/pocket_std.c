@@ -247,12 +247,12 @@ void pk_fun_fset(void *user_closure, Pocket lisp) {
 
 void pk_fun_fetch(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_get(lisp, PK_ENV_VAR, 1);
+    pk_fetch(lisp, PK_ENV_VAR, 1);
 }
 
 void pk_fun_ffetch(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_get(lisp, PK_ENV_FUN, 1);
+    pk_fetch(lisp, PK_ENV_FUN, 1);
 }
 
 void pk_fun_bound(void *user_closure, Pocket lisp) {
@@ -504,10 +504,15 @@ void pk_fun_plist_to_alist(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, pk_atom_plist_to_alist(lisp, pk_stack_get(lisp, 1)));
 }
 
-void pk_fun_nth(void *user_closure, Pocket lisp) {
+void pk_fun_el(void *user_closure, Pocket lisp) {
     (void)user_closure;
     size_t index = pk_atom_to_size_t(lisp, pk_stack_get(lisp, 2));
-    pk_nth(lisp, 1, index);
+    pk_el(lisp, 1, index);
+}
+
+void pk_fun_is_element(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_is_element(lisp, 1, 2);
 }
 
 void pk_fun_length(void *user_closure, Pocket lisp) {
@@ -547,6 +552,13 @@ void pk_fun_to_float(void *user_closure, Pocket lisp) {
 
 void pk_fun_object(void *user_closure, Pocket lisp) {
     (void)user_closure;
+    PKAtomSymbol *type = pk_atom_assert_symbol(lisp, pk_stack_get(lisp, 1));
+    PKAtoms slice = pk_atoms_slice(pk_stack_slice(lisp), 1);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_object_cons(lisp, type, NULL, NULL, slice));
+}
+
+void pk_fun_make_object(void *user_closure, Pocket lisp) {
+    (void)user_closure;
     pk_object(lisp, NULL, NULL, 1, 2);
 }
 
@@ -570,9 +582,14 @@ void pk_fun_remove(void *user_closure, Pocket lisp) {
     pk_remove(lisp, 1, 2);
 }
 
-void pk_fun_is_member(void *user_closure, Pocket lisp) {
+void pk_fun_is_property(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_is_member(lisp, 1, 2);
+    pk_get(lisp, 1, 2);
+}
+
+void pk_fun_properties(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_properties(lisp, 1);
 }
 
 void pk_std_load_cfun(Pocket lisp) {
@@ -657,6 +674,9 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("array"), .fun = pk_fun_array, .args = 0, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("make-array"), .fun = pk_fun_make_array, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 2},
         {.symbol = pk_str("append"), .fun = pk_fun_append, .args = 2, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str("el"), .fun = pk_fun_el, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("element?"), .fun = pk_fun_is_element, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("length"), .fun = pk_fun_length, .args = 1, .arity = PK_ARITY_NORMAL},
         
         {.symbol = pk_str("gensym"), .fun = pk_fun_gensym, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("typeof"), .fun = pk_fun_typeof, .args = 1, .arity = PK_ARITY_NORMAL},
@@ -670,9 +690,6 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("alist->plist"), .fun = pk_fun_alist_to_plist, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("plist->alist"), .fun = pk_fun_plist_to_alist, .args = 1, .arity = PK_ARITY_NORMAL},
         
-        {.symbol = pk_str("nth"), .fun = pk_fun_nth, .args = 2, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("length"), .fun = pk_fun_length, .args = 1, .arity = PK_ARITY_NORMAL},
-        
         {.symbol = pk_str("->list"), .fun = pk_fun_to_list, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("->string"), .fun = pk_fun_to_string, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("->symbol"), .fun = pk_fun_to_symbol, .args = 1, .arity = PK_ARITY_NORMAL},
@@ -680,12 +697,14 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("->int"), .fun = pk_fun_to_int, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("->float"), .fun = pk_fun_to_float, .args = 1, .arity = PK_ARITY_NORMAL},
         
-        {.symbol = pk_str("object"), .fun = pk_fun_object, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 1},
+        {.symbol = pk_str("object"), .fun = pk_fun_object, .args = 1, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str("make-object"), .fun = pk_fun_make_object, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 1},
         {.symbol = pk_str("object-type"), .fun = pk_fun_object_type, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("put"), .fun = pk_fun_put, .args = 3, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("get"), .fun = pk_fun_get, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("remove"), .fun = pk_fun_remove, .args = 2, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("member?"), .fun = pk_fun_is_member, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("property?"), .fun = pk_fun_is_property, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("properties"), .fun = pk_fun_properties, .args = 1, .arity = PK_ARITY_NORMAL},
         
     };
 

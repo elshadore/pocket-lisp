@@ -135,8 +135,9 @@ PK_API void pk_destroy(Pocket lisp, int atom);
 
 PK_API void pk_append(Pocket lisp, int array, int new);
 PK_API void pk_cat(Pocket lisp, int lhs, int rhs);
-PK_API void pk_nth(Pocket lisp, int obj, size_t index);
-PK_API size_t pk_length(Pocket lisp, int obj);
+PK_API void pk_el(Pocket lisp, int seq, size_t index);
+PK_API bool pk_is_element(Pocket lisp, int seq, int element);
+PK_API size_t pk_length(Pocket lisp, int seq);
 
 PK_API void pk_clone(Pocket lisp, int stack_pointer);
 PK_API bool pk_is_circular(Pocket lisp, int stack_pointer);
@@ -208,7 +209,7 @@ PK_API void pk_properties(Pocket lisp, int stack_pointer);
 PK_API void pk_set_props(Pocket lisp, int stack_pointer, int props);
 PK_API void pk_put(Pocket lisp, int object, int key, int value);
 PK_API void pk_get(Pocket lisp, int object, int key);
-PK_API bool pk_is_member(Pocket lisp, int object, int key);
+PK_API bool pk_is_property(Pocket lisp, int object, int key);
 PK_API void pk_remove(Pocket lisp, int object, int key);
 
 PK_API bool pk_lt(Pocket lisp, int lhs, int rhs);

@@ -8,6 +8,8 @@ The todo list for POCKET LISP
   - Macros
   - Special Forms
 
+- [ ] Remove Type Symbols
+
 - [ ] Special Form Objects
   - all special forms moved to objects
 
@@ -56,7 +58,7 @@ The todo list for POCKET LISP
   - Async Command -> Process
   - Sync Command
     - `(shell "echo hello")`
-  
+    
 - [ ] `progv`
 
 - [ ] options
@@ -69,6 +71,10 @@ The todo list for POCKET LISP
 - [ ] User Review of Macro
 - [ ] User Review of wether we are allocating too much on the stack in the bytecode VM
    - i.e we are not popping temp values
+  
+- [ ] keyword arguments
+  `(def foo (a b :key c d e)
+      (print $"{a}, {b}, {c}, {d}, {e}"))`
   
 - [ ] Create CMake Build
 

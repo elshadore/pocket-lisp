@@ -1,19 +1,37 @@
 #include "pocket_internals.h"
 
-PKAtom *pk_generic_nth(Pocket lisp, PKAtom *atom, size_t index) {
+PKAtom *pk_generic_el(Pocket lisp, PKAtom *atom, size_t index) {
     switch (atom->header.type) {
         case PK_ATOMTY_CONS: {
-            return pk_atom_list_nth(lisp, atom, index);
+            return pk_atom_list_el(lisp, atom, index);
         }
         case PK_ATOMTY_STRING: {
-            return (PKAtom *)pk_atom_string_nth(lisp, (PKAtomString *)atom, index);
+            return (PKAtom *)pk_atom_string_el(lisp, (PKAtomString *)atom, index);
         }
         case PK_ATOMTY_ARRAY: {
-            return (PKAtom *)pk_atom_array_nth(lisp, (PKAtomArray *)atom, index);
+            return (PKAtom *)pk_atom_array_el(lisp, (PKAtomArray *)atom, index);
         }
         default: {
             pk_error_type3(lisp, atom, lisp->cache.type_cons, lisp->cache.type_string, lisp->cache.type_array);
             return lisp->cache.nil;
+        }
+    }
+}
+
+bool pk_generic_is_element(Pocket lisp, PKAtom *atom, PKAtom *element) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_NIL: {
+            return false;
+        }
+        case PK_ATOMTY_CONS: {
+            return pk_atom_list_is_element(lisp, atom, element);
+        }
+        case PK_ATOMTY_ARRAY: {
+            return pk_atom_array_is_element(lisp, (PKAtomArray *)atom, element);
+        }
+        default: {
+            pk_error_type3(lisp, atom, lisp->cache.type_nil, lisp->cache.type_cons, lisp->cache.type_array);
+            return 0;
         }
     }
 }
@@ -137,7 +155,6 @@ PKAtomKeyword *pk_generic_to_keyword(Pocket lisp, PKAtom *atom) {
         }
         case PK_ATOMTY_KEYWORD: {
             return (PKAtomKeyword *)atom;
-            
         }
         case PK_ATOMTY_STRING: {
             return pk_atom_string_to_keyword(lisp, (PKAtomString *)atom);

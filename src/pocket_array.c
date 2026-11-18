@@ -36,13 +36,23 @@ void pk_atom_array_append_many(Pocket lisp, PKAtomArray *array, PKAtoms atoms) {
     }
 }
 
-PKAtom *pk_atom_array_nth(Pocket lisp, PKAtomArray *array, size_t index) {
+PKAtom *pk_atom_array_el(Pocket lisp, PKAtomArray *array, size_t index) {
     PKArray *atoms = &array->atoms;
     if (index >= atoms->count) {
         pk_errorf(lisp, "array index: %zu, is out of bounds, array length is %zu", index, atoms->count);
         return lisp->cache.nil;
     }
     return atoms->e[index];
+}
+
+bool pk_atom_array_is_element(Pocket lisp, PKAtomArray *array, PKAtom *element) {
+    PKAtoms atoms = pk_array_slice(&array->atoms);
+    for (size_t i = 0; i < atoms.length; ++i) {
+        if (pk_atom_eq(lisp, element, atoms.e[i])) {
+            return true;
+        }
+    }
+    return false;
 }
 
 size_t pk_atom_array_length(Pocket lisp, PKAtomArray *array) {

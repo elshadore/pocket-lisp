@@ -100,7 +100,7 @@ PKAtomString *pk_atom_string_reverse(Pocket lisp, PKStr input) {
     return pk_atom_string_nomemcpy(lisp, dupe);
 }
 
-PKAtomString *pk_atom_string_nth(Pocket lisp, PKAtomString *string, size_t index) {
+PKAtomString *pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index) {
     if (index >= string->str.length) {
         pk_errorf(lisp, "index: %zu, longer than the string length: %zu", index, string->str.length);
         return lisp->cache.empty_string;
