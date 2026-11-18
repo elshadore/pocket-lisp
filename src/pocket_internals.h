@@ -508,11 +508,6 @@ PKAtomKind pk_atom_kind(PKAtom *atom);
 
 PKAtom *pk_atom_clone(Pocket lisp, PKAtom *atom);
 
-bool pk_atom_is_type(Pocket lisp, PKAtom *atom, PKAtomSymbol *type);
-bool pk_atom_is_type2(Pocket lisp, PKAtom *atom, PKAtomSymbol *type1, PKAtomSymbol *type2);
-bool pk_atom_is_type3(Pocket lisp, PKAtom *atom, PKAtomSymbol *type1, PKAtomSymbol *type2, PKAtomSymbol *type3);
-bool pk_atom_is_type4(Pocket lisp, PKAtom *atom, PKAtomSymbol *type1, PKAtomSymbol *type2, PKAtomSymbol *type3, PKAtomSymbol *type4);
-bool pk_atom_is_typen(Pocket lisp, PKAtom *atom, PKAtoms types);
 
 void pk_atom_assert_type(Pocket lisp, PKAtom *atom, PKAtomSymbol *type);
 
@@ -654,6 +649,7 @@ PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun);
 PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom);
 
 PK_TYPE pk_atom_typeof(PKAtom *atom);
+bool pk_atom_is_type(PKAtom *atom, PK_TYPE type);
 
 PKAtomObject *pk_atom_object(Pocket lisp, PKAtomSymbol *type, void *user_data, PKGCFun gc);
 PKAtomObject *pk_atom_object_cons(Pocket lisp, PKAtomSymbol *type, void *user_data, PKGCFun gc, PKAtoms init);

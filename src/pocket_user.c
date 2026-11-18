@@ -480,6 +480,34 @@ PK_TYPE pk_typeof(Pocket lisp, int stack_pointer) {
     return pk_atom_typeof(pk_stack_get(lisp, stack_pointer));
 }
 
+void pk_type_check1(Pocket lisp, int stack_pointer, PK_TYPE a) {
+    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
+    if (!pk_atom_is_type(atom, a)) {
+        pk_error_type(lisp, atom, a);
+    }
+}
+
+void pk_type_check2(Pocket lisp, int stack_pointer, PK_TYPE a, PK_TYPE b) {
+    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
+    if (!pk_atom_is_type(atom, a) && !pk_atom_is_type(atom, b)) {
+        pk_error_type2(lisp, atom, a, b);
+    }
+}
+
+void pk_type_check3(Pocket lisp, int stack_pointer, PK_TYPE a, PK_TYPE b, PK_TYPE c) {
+    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
+    if (!pk_atom_is_type(atom, a) && !pk_atom_is_type(atom, b) && !pk_atom_is_type(atom, c)) {
+        pk_error_type3(lisp, atom, a, b, c);
+    }
+}
+
+void pk_type_check4(Pocket lisp, int stack_pointer, PK_TYPE a, PK_TYPE b, PK_TYPE c, PK_TYPE d) {
+    PKAtom *atom = pk_stack_get(lisp, stack_pointer);
+    if (!pk_atom_is_type(atom, a) && !pk_atom_is_type(atom, b) && !pk_atom_is_type(atom, c) && !pk_atom_is_type(atom, d)) {
+        pk_error_type4(lisp, atom, a, b, c, d);
+    }
+}
+
 void pk_map(Pocket lisp, int seq, int fun) {
     PKAtom *aseq = pk_stack_get(lisp, seq);
     PKAtom *afun = pk_stack_get(lisp, fun);

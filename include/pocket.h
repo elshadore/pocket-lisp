@@ -200,6 +200,7 @@ PK_API PK_TYPE pk_typeof(Pocket lisp, int stack_pointer);
 PK_API void pk_type_check1(Pocket lisp, int stack_pointer, PK_TYPE a);
 PK_API void pk_type_check2(Pocket lisp, int stack_pointer, PK_TYPE a, PK_TYPE b);
 PK_API void pk_type_check3(Pocket lisp, int stack_pointer, PK_TYPE a, PK_TYPE b, PK_TYPE c);
+PK_API void pk_type_check4(Pocket lisp, int stack_pointer, PK_TYPE a, PK_TYPE b, PK_TYPE c, PK_TYPE d);
 
 PK_API void pk_object(Pocket lisp, void *object_data, PKGCFun gc, int type, int properties);
 PK_API void *pk_object_data(Pocket lisp, int object, int type);

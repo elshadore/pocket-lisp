@@ -303,3 +303,7 @@ PK_TYPE pk_atom_typeof(PKAtom *atom) {
         default: return PK_TYPE_UNKNOWN;
     }
 }
+
+bool pk_atom_is_type(PKAtom *atom, PK_TYPE type) {
+    return pk_atom_typeof(atom) == type;
+}
