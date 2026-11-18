@@ -471,7 +471,7 @@ void pk_fun_gensym(void *user_closure, Pocket lisp) {
 
 void pk_fun_typeof(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_typeof(lisp, 1);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_ident_type(pk_typeof(lisp, 1))));
 }
 
 void pk_fun_map(void *user_closure, Pocket lisp) {

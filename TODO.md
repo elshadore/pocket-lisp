@@ -7,8 +7,12 @@ The todo list for POCKET LISP
   - Functions
   - Macros
   - Special Forms
-
-- [ ] Remove Type Symbols
+  
+- [ ] Remove Basically All Cached Atom
+  can stay
+  - nil
+  - true
+  - empty-string
 
 - [ ] Special Form Objects
   - all special forms moved to objects
@@ -88,6 +92,8 @@ The todo list for POCKET LISP
   
 - [ ] Document C Functions
 - [ ] Documentation Tables
+
+- [ ] Arenas
 
 - [ ] Full Code Review
   

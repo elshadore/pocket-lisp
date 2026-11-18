@@ -477,7 +477,7 @@ void pk_properties(Pocket lisp, int stack_pointer) {
 }
 
 PK_TYPE pk_typeof(Pocket lisp, int stack_pointer) {
-    return pk_atom_typeof_user(pk_stack_get(lisp, stack_pointer));
+    return pk_atom_typeof(pk_stack_get(lisp, stack_pointer));
 }
 
 void pk_map(Pocket lisp, int seq, int fun) {

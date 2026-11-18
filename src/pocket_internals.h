@@ -399,20 +399,6 @@ struct PKPool_ {
     .unquote_splice = NULL, \
     .string_substitute = NULL, \
     \
-    .type_unknown = NULL, \
-    .type_undefined = NULL, \
-    .type_nil = NULL, \
-    .type_true = NULL, \
-    .type_number = NULL, \
-    .type_string = NULL, \
-    .type_symbol = NULL, \
-    .type_keyword = NULL, \
-    .type_cons = NULL, \
-    .type_array = NULL, \
-    .type_object = NULL, \
-    .type_function = NULL, \
-    .type_macro = NULL, \
-    .type_destroyed = NULL, \
 }
 
 typedef struct PKCache_ {
@@ -457,21 +443,6 @@ typedef struct PKCache_ {
     PKAtomSymbol *unquote;
     PKAtomSymbol *unquote_splice;
     PKAtomSymbol *string_substitute;
-
-    PKAtomSymbol *type_unknown;
-    PKAtomSymbol *type_undefined;
-    PKAtomSymbol *type_nil;
-    PKAtomSymbol *type_true;
-    PKAtomSymbol *type_number;
-    PKAtomSymbol *type_string;
-    PKAtomSymbol *type_symbol;
-    PKAtomSymbol *type_keyword;
-    PKAtomSymbol *type_cons;
-    PKAtomSymbol *type_array;
-    PKAtomSymbol *type_object;
-    PKAtomSymbol *type_function;
-    PKAtomSymbol *type_macro;
-    PKAtomSymbol *type_destroyed;
 } PKCache;
 
 #define POCKET_LISP_MACHINE_EMPTY (PocketLispMachine) { \
@@ -682,8 +653,7 @@ void pk_atom_lfun_exec(Pocket lisp, PKAtomLFun *lfun);
 PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun);
 PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom);
 
-PKAtomSymbol *pk_atom_typeof(Pocket lisp, PKAtom *atom);
-PK_TYPE pk_atom_typeof_user(PKAtom *atom);
+PK_TYPE pk_atom_typeof(PKAtom *atom);
 
 PKAtomObject *pk_atom_object(Pocket lisp, PKAtomSymbol *type, void *user_data, PKGCFun gc);
 PKAtomObject *pk_atom_object_cons(Pocket lisp, PKAtomSymbol *type, void *user_data, PKGCFun gc, PKAtoms init);

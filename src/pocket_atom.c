@@ -284,28 +284,7 @@ size_t pk_atom_hash(PKAtom *atom) {
     }
 }
 
-PKAtomSymbol *pk_atom_typeof(Pocket lisp, PKAtom *atom) {
-    switch (atom->header.type) {
-        case PK_ATOMTY_DESTROYED: return lisp->cache.type_destroyed;
-        case PK_ATOMTY_UNDEFINED: return lisp->cache.type_undefined;
-        case PK_ATOMTY_NIL: return lisp->cache.type_nil;
-        case PK_ATOMTY_TRUE: return lisp->cache.type_true;
-        case PK_ATOMTY_NUMBER: return lisp->cache.type_number;
-        case PK_ATOMTY_STRING: return lisp->cache.type_string;
-        case PK_ATOMTY_SYMBOL: return lisp->cache.type_symbol;
-        case PK_ATOMTY_KEYWORD: return lisp->cache.type_keyword;
-        case PK_ATOMTY_CONS: return lisp->cache.type_cons;
-        case PK_ATOMTY_ARRAY: return lisp->cache.type_array;
-        case PK_ATOMTY_OBJECT: return lisp->cache.type_object;
-        case PK_ATOMTY_CFUN: return lisp->cache.type_function;
-        case PK_ATOMTY_LFUN: return lisp->cache.type_function;
-        case PK_ATOMTY_CMACRO: return lisp->cache.type_macro;
-        case PK_ATOMTY_LMACRO: return lisp->cache.type_macro;
-        default: return lisp->cache.type_unknown;
-    }
-}
-
-PK_TYPE pk_atom_typeof_user(PKAtom *atom) {
+PK_TYPE pk_atom_typeof(PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_DESTROYED: return PK_TYPE_DESTROYED;
         case PK_ATOMTY_NIL: return PK_TYPE_NIL;
