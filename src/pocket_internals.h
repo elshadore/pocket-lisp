@@ -516,10 +516,10 @@ PKAtom *pk_atom_alloc(Pocket lisp);
 void pk_atom_free(Pocket lisp, PKAtom *atom);
 
 void pk_error_atom(Pocket lisp, PKAtom *message);
-void pk_error_type(Pocket lisp, PKAtom *found, PKAtomSymbol *expected);
-void pk_error_type2(Pocket lisp, PKAtom *found, PKAtomSymbol *expected1, PKAtomSymbol *expected2);
-void pk_error_type3(Pocket lisp, PKAtom *found, PKAtomSymbol *expected1, PKAtomSymbol *expected2, PKAtomSymbol *expected3);
-void pk_error_type4(Pocket lisp, PKAtom *found, PKAtomSymbol *expected1, PKAtomSymbol *expected2, PKAtomSymbol *expected3, PKAtomSymbol *expected4);
+void pk_error_type(Pocket lisp, PKAtom *found, PK_TYPE expected);
+void pk_error_type2(Pocket lisp, PKAtom *found, PK_TYPE expected1, PK_TYPE expected2);
+void pk_error_type3(Pocket lisp, PKAtom *found, PK_TYPE expected1, PK_TYPE expected2, PK_TYPE expected3);
+void pk_error_type4(Pocket lisp, PKAtom *found, PK_TYPE expected1, PK_TYPE expected2, PK_TYPE expected3, PK_TYPE expected4);
 void pk_error_writer(Pocket lisp, PKWriter *w);
 PKAtom *pk_error_value(Pocket lisp);
 
@@ -842,6 +842,7 @@ void pk_cmp_load(Pocket lisp, PKCompiler *c, PKAtom *atom);
 void pk_compile_strsub(Pocket lisp, PKCompiler *c, PKStr string);
 
 PKStr pk_ident_atomty(pk_u8 type);
+PKStr pk_ident_type(PK_TYPE type);
 PKStr pk_ident_opcode(pk_u8 op);
 PKStr pk_ident_arity(pk_u8 arity);
 PKStr pk_ident_env(PK_ENV env);

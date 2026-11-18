@@ -23,6 +23,25 @@ PKStr pk_ident_atomty(pk_u8 type) {
     }
 }
 
+PKStr pk_ident_type(PK_TYPE type) {
+    switch (type) {
+        case PK_TYPE_UNKNOWN: return pk_str("Unknown");
+        case PK_TYPE_DESTROYED: return pk_str("Destroyed");
+        case PK_TYPE_NIL: return pk_str("Nil");
+        case PK_TYPE_TRUE: return pk_str("True");
+        case PK_TYPE_NUMBER: return pk_str("Number");
+        case PK_TYPE_STRING: return pk_str("String");
+        case PK_TYPE_SYMBOL: return pk_str("Symbol");
+        case PK_TYPE_KEYWORD: return pk_str("Keyword");
+        case PK_TYPE_CONS: return pk_str("Cons");
+        case PK_TYPE_ARRAY: return pk_str("Array");
+        case PK_TYPE_OBJECT: return pk_str("Object");
+        case PK_TYPE_FUNCTION: return pk_str("Function");
+        case PK_TYPE_MACRO: return pk_str("Macro");
+        default: return pk_str("Unknown");
+    }
+}
+
 PKStr pk_ident_opcode(pk_u8 op) {
     switch (op) {
         case PK_OP_ILLEGAL: return pk_str("ILLEGAL");

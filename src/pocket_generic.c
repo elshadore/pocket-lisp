@@ -165,3 +165,22 @@ PKAtomKeyword *pk_generic_to_keyword(Pocket lisp, PKAtom *atom) {
         }
     }
 }
+
+/* PKAtom *pk_generic_property_put(Pocket lisp, PKAtom *pobj, PKAtom *key, PKAtom *value) { */
+/* } */
+
+/* PKAtom *pk_generic_property_get(Pocket lisp, PKAtom *pobj, PKAtom *key) { */
+    
+/* } */
+
+/* PKAtom *pk_generic_property_remove(Pocket lisp, PKAtom *pobj, PKAtom *key) { */
+    
+/* } */
+
+/* bool pk_generic_property_is_property(Pocket lisp, PKAtom *pobj, PKAtom *key) { */
+    
+/* } */
+
+/* PKAtom *pk_generic_properties(Pocket lisp, PKAtom *pobj) { */
+    
+/* } */
