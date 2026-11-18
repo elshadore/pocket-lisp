@@ -82,7 +82,7 @@ PKCallConv pk_callconv(Pocket lisp, PKAtom *function, pk_u8 args) {
         case PK_ATOMTY_CMACRO: return pk_callconv_(lisp, PK_FUNTY_C, args, function->cmacro.arity);
         case PK_ATOMTY_LMACRO: return pk_callconv_(lisp, PK_FUNTY_LISP, args, function->lmacro.arity);
         default: {
-            pk_error_type2(lisp, function, lisp->cache.type_function, lisp->cache.type_macro);
+            pk_error_type2(lisp, function, PK_TYPE_FUNCTION, PK_TYPE_MACRO);
             return PK_CALLCONV_EMPTY;
         }
     }
@@ -142,7 +142,7 @@ void pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
                 break;
             }
             default: {
-                pk_error_type(lisp, function, lisp->cache.type_function);
+                pk_error_type(lisp, function, PK_TYPE_FUNCTION);
                 break;
             }
         }
@@ -157,7 +157,7 @@ void pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
                 break;
             }
             default: {
-                pk_error_type(lisp, function, lisp->cache.type_macro);
+                pk_error_type(lisp, function, PK_TYPE_MACRO);
                 break;
             }
         }

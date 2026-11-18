@@ -122,12 +122,10 @@ bool pk_atom_is_string(PKAtom *atom) {
 }
 
 PKAtomString *pk_atom_assert_string(Pocket lisp, PKAtom *atom) {
-    if (pk_atom_is_string(atom)) {
-        return (PKAtomString *)atom;
-    } else {
-        pk_error_type(lisp, atom, lisp->cache.type_string);
-        return lisp->cache.empty_string;
+    if (!pk_atom_is_string(atom)) {
+        pk_error_type(lisp, atom, PK_TYPE_STRING);
     }
+    return (PKAtomString *)atom;
 }
 
 bool pk_atom_string_cmp(PKAtomString *string, PKStr comp) {

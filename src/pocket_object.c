@@ -82,12 +82,10 @@ bool pk_atom_is_object(PKAtom *atom) {
 }
 
 PKAtomObject *pk_atom_assert_object(Pocket lisp, PKAtom *atom) {
-    if (pk_atom_is_object(atom)) {
-        return (PKAtomObject *)atom;
-    } else {
-        pk_error_type(lisp, atom, lisp->cache.type_object);
-        return NULL;
+    if (!pk_atom_is_object(atom)) {
+        pk_error_type(lisp, atom, PK_TYPE_OBJECT);
     }
+    return (PKAtomObject *)atom;
 }
 
 size_t pk_atom_object_length(Pocket lisp, PKAtomObject *object) {

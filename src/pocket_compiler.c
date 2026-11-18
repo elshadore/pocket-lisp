@@ -328,7 +328,7 @@ void pk_compile_bind(Pocket lisp, PKCompiler *c, PKAtom *bind, PK_ENV env) {
         }
         case PK_ATOMTY_NIL: break;
         default: {
-            pk_error_type2(lisp, bind, lisp->cache.type_cons, lisp->cache.type_nil);
+            pk_error_type2(lisp, bind, PK_TYPE_CONS, PK_TYPE_NIL);
             break;
         }
     }
@@ -664,7 +664,7 @@ void pk_compile_jmp_(Pocket lisp, PKCompiler *c, PKAtom *args, pk_u8 op, pk_u8 e
             pk_cmp_push_byte(lisp, c, empty_op);
             return;
         } else {
-            pk_error_type2(lisp, args, lisp->cache.type_cons, lisp->cache.type_nil);
+            pk_error_type2(lisp, args, PK_TYPE_CONS, PK_TYPE_NIL);
             return;
         }
     }

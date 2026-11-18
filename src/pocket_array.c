@@ -66,7 +66,7 @@ bool pk_atom_is_array(PKAtom *atom) {
 
 PKAtomArray *pk_atom_assert_array(Pocket lisp, PKAtom *atom) {
     if (!pk_atom_is_array(atom)) {
-        pk_error_type(lisp, atom, lisp->cache.type_array);
+        pk_error_type(lisp, atom, PK_TYPE_ARRAY);
     }
     return (PKAtomArray *)atom;
 }

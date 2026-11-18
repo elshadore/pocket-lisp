@@ -12,7 +12,7 @@ PKAtom *pk_generic_el(Pocket lisp, PKAtom *atom, size_t index) {
             return (PKAtom *)pk_atom_array_el(lisp, (PKAtomArray *)atom, index);
         }
         default: {
-            pk_error_type3(lisp, atom, lisp->cache.type_cons, lisp->cache.type_string, lisp->cache.type_array);
+            pk_error_type3(lisp, atom, PK_TYPE_CONS, PK_TYPE_STRING, PK_TYPE_ARRAY);
             return lisp->cache.nil;
         }
     }
@@ -30,7 +30,7 @@ bool pk_generic_is_element(Pocket lisp, PKAtom *atom, PKAtom *element) {
             return pk_atom_array_is_element(lisp, (PKAtomArray *)atom, element);
         }
         default: {
-            pk_error_type3(lisp, atom, lisp->cache.type_nil, lisp->cache.type_cons, lisp->cache.type_array);
+            pk_error_type3(lisp, atom, PK_TYPE_NIL, PK_TYPE_CONS, PK_TYPE_ARRAY);
             return 0;
         }
     }
@@ -51,7 +51,7 @@ size_t pk_generic_length(Pocket lisp, PKAtom *atom) {
             return pk_atom_array_length(lisp, (PKAtomArray *)atom);
         }
         default: {
-            pk_error_type4(lisp, atom, lisp->cache.type_nil, lisp->cache.type_cons, lisp->cache.type_string, lisp->cache.type_array);
+            pk_error_type4(lisp, atom, PK_TYPE_NIL, PK_TYPE_CONS, PK_TYPE_STRING, PK_TYPE_ARRAY);
             return 0;
         }
     }
@@ -70,7 +70,7 @@ PKAtom *pk_generic_to_list(Pocket lisp, PKAtom *atom) {
             return pk_atom_list(lisp, atoms);
         }
         default: {
-            pk_error_type3(lisp, atom, lisp->cache.type_nil, lisp->cache.type_cons, lisp->cache.type_array);
+            pk_error_type3(lisp, atom, PK_TYPE_NIL, PK_TYPE_CONS, PK_TYPE_ARRAY);
             return lisp->cache.nil;
         }
     }
@@ -88,7 +88,7 @@ PKAtom *pk_generic_cat(Pocket lisp, PKAtom *atom, PKAtoms atoms) {
             return (PKAtom *)pk_atom_string_cat(lisp, atoms);
         }
         default: {
-            pk_error_type3(lisp, atom, lisp->cache.type_nil, lisp->cache.type_cons, lisp->cache.type_string);
+            pk_error_type3(lisp, atom, PK_TYPE_NIL, PK_TYPE_CONS, PK_TYPE_STRING);
             return lisp->cache.nil;
         }
     }
@@ -106,7 +106,7 @@ PKAtom *pk_generic_reverse(Pocket lisp, PKAtom *atom) {
             return pk_atom_list_reverse(lisp, atom);
         }
         default: {
-            pk_error_type3(lisp, atom, lisp->cache.type_nil, lisp->cache.type_cons, lisp->cache.type_string);
+            pk_error_type3(lisp, atom, PK_TYPE_NIL, PK_TYPE_CONS, PK_TYPE_STRING);
             return lisp->cache.nil;
         }
     }
@@ -124,7 +124,7 @@ PKAtomString *pk_generic_to_string(Pocket lisp, PKAtom *atom) {
             return pk_atom_keyword_to_string(lisp, (PKAtomKeyword *)atom);
         }
         default: {
-            pk_error_type3(lisp, atom, lisp->cache.type_string, lisp->cache.type_symbol, lisp->cache.type_keyword);
+            pk_error_type3(lisp, atom, PK_TYPE_STRING, PK_TYPE_SYMBOL, PK_TYPE_KEYWORD);
             return lisp->cache.empty_string;
         }
     }
@@ -142,7 +142,7 @@ PKAtomSymbol *pk_generic_to_symbol(Pocket lisp, PKAtom *atom) {
             return pk_atom_string_to_symbol(lisp, (PKAtomString *)atom);
         }
         default: {
-            pk_error_type3(lisp, atom, lisp->cache.type_string, lisp->cache.type_symbol, lisp->cache.type_keyword);
+            pk_error_type3(lisp, atom, PK_TYPE_STRING, PK_TYPE_SYMBOL, PK_TYPE_KEYWORD);
             return (PKAtomSymbol *)lisp->cache.nil;
         }
     }
@@ -160,7 +160,7 @@ PKAtomKeyword *pk_generic_to_keyword(Pocket lisp, PKAtom *atom) {
             return pk_atom_string_to_keyword(lisp, (PKAtomString *)atom);
         }
         default: {
-            pk_error_type3(lisp, atom, lisp->cache.type_string, lisp->cache.type_symbol, lisp->cache.type_keyword);
+            pk_error_type3(lisp, atom, PK_TYPE_STRING, PK_TYPE_SYMBOL, PK_TYPE_KEYWORD);
             return (PKAtomKeyword *)lisp->cache.nil;
         }
     }
