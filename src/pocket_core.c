@@ -85,6 +85,8 @@ void pk_deinit(Pocket lisp) {
         return;
     }
 
+    pk_arena_deinit(lisp);
+    
     pk_array_deinit(lisp, &lisp->stack);
     pk_free(lisp, lisp->frames.e);
     lisp->frames = PK_FRAMES_EMPTY;
@@ -106,6 +108,8 @@ void pk_deinit(Pocket lisp) {
             pk_free(lisp, pool);
         }
     }
+
+    pk_arena_deinit(lisp);
 
     *lisp = POCKET_LISP_MACHINE_EMPTY;
 

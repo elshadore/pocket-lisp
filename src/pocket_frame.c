@@ -16,6 +16,7 @@ void pk_frame_push(Pocket lisp, PKAtom *function, size_t arity) {
     lisp->current_frame = (PKFrame) {
         .stack_offset = stack_offset,
         .let_offset = lets_offset,
+        .arena_save = pk_arena_save(lisp),
         .mode = PK_FRAME_MODE_NORMAL,
         .function = function,
         .jmp = NULL,
@@ -36,7 +37,8 @@ void pk_frame_unwind(Pocket lisp) {
     
     size_t stack_count = lisp->current_frame.stack_offset;
     size_t lets_unwind = lisp->lets.count - lisp->current_frame.let_offset;
-    
+
+    pk_arena_restore(lisp, unwind.arena_save);
     pk_env_let_unwind(lisp, lets_unwind);
     
     lisp->stack.count = stack_count;

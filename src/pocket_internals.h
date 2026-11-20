@@ -312,25 +312,20 @@ struct PKJmp_ {
 #define PK_ARENA_DEFAULT_SIZE (1024)
 
 #define PK_ARENA_EMPTY (PKArena) { \
-    .a_link_to_the_past = NULL, \
     .buffer = NULL, \
-    .offset = 0, \
     .head = 0, \
-    .size = 0, \
 }
 
 typedef struct PKArena_ PKArena;
 struct PKArena_ {
-    PKArena *a_link_to_the_past;
     void *buffer;
-    size_t offset;
     size_t head;
-    size_t size;
 };
 
 #define PK_FRAME_EMPTY (PKFrame){ \
     .stack_offset = 0, \
     .let_offset = 0, \
+    .arena_save = 0, \
     .catch = NULL, \
     .jmp = NULL, \
     .mode = PK_FRAME_MODE_PROTECT, \
@@ -344,6 +339,7 @@ struct PKArena_ {
 typedef struct PKFrame_ {
     size_t stack_offset;
     size_t let_offset;
+    size_t arena_save;
     PKAtomSymbol *catch;
     PKJmp *jmp;
     pk_u8 mode;
@@ -471,7 +467,7 @@ typedef struct PKCache_ {
     .symbolizer = PK_HASHMAP_EMPTY, \
     .gensym_counter = 0, \
     .gc_enabled = false, \
-    .arena = NULL, \
+    .arena = PK_ARENA_EMPTY, \
     .current_frame = PK_FRAME_EMPTY, \
     .throw_symbol = NULL, \
     .throw_value = NULL, \
@@ -490,7 +486,7 @@ typedef struct PocketLispMachine_ {
     PKHashmap symbolizer;
     size_t gensym_counter;
     bool gc_enabled;
-    PKArena *arena;
+    PKArena arena;
     PKPool *pool;
     PKAtomFree *free;
     PKCache cache;
@@ -503,6 +499,15 @@ void *pk_realloc(Pocket lisp, void *ptr, size_t new_size);
 void pk_free(Pocket lisp, void *ptr);
 
 void pk_pool_expand(Pocket lisp);
+
+void pk_arena_deinit(Pocket lisp);
+void *pk_arena_alloc(Pocket lisp, size_t save, size_t size, void *copy);
+void *pk_arena_allign_word(Pocket lisp);
+size_t pk_arena_save(Pocket lisp);
+void pk_arena_restore(Pocket lisp, size_t save);
+char *pk_arena_string(Pocket lisp, size_t save, PKStr string);
+pk_u8 *pk_arena_bytes(Pocket lisp, size_t save, PKBlob blob);
+PKAtom *pk_arena_atoms(Pocket lisp, size_t save, PKAtoms atoms);
 
 PKAtom *pk_atom_alloc(Pocket lisp);
 void pk_atom_free(Pocket lisp, PKAtom *atom);
