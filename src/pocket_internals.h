@@ -309,6 +309,25 @@ struct PKJmp_ {
     jmp_buf buf;
 };
 
+#define PK_ARENA_DEFAULT_SIZE (1024)
+
+#define PK_ARENA_EMPTY (PKArena) { \
+    .a_link_to_the_past = NULL, \
+    .buffer = NULL, \
+    .offset = 0, \
+    .head = 0, \
+    .size = 0, \
+}
+
+typedef struct PKArena_ PKArena;
+struct PKArena_ {
+    PKArena *a_link_to_the_past;
+    void *buffer;
+    size_t offset;
+    size_t head;
+    size_t size;
+};
+
 #define PK_FRAME_EMPTY (PKFrame){ \
     .stack_offset = 0, \
     .let_offset = 0, \
@@ -452,6 +471,7 @@ typedef struct PKCache_ {
     .symbolizer = PK_HASHMAP_EMPTY, \
     .gensym_counter = 0, \
     .gc_enabled = false, \
+    .arena = NULL, \
     .current_frame = PK_FRAME_EMPTY, \
     .throw_symbol = NULL, \
     .throw_value = NULL, \
@@ -470,6 +490,7 @@ typedef struct PocketLispMachine_ {
     PKHashmap symbolizer;
     size_t gensym_counter;
     bool gc_enabled;
+    PKArena *arena;
     PKPool *pool;
     PKAtomFree *free;
     PKCache cache;
