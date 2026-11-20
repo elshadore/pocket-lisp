@@ -1,2 +1,0 @@
-(defvar foo (file-open "./example/test.txt"))
-(repl-quit)

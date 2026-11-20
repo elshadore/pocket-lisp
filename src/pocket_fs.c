@@ -1,92 +1,44 @@
 #include "pocket_internals.h"
 
-FILE *pk_fs_file_open(Pocket lisp, PKStr file_path, PKStr mode) {
+FILE *pk_fs_file_open(Pocket lisp, PKStr file_path, const char *mode) {
     if (file_path.length == 0) {
         pk_errors(lisp, pk_str("empty file path"));
     }
 
-    size_t length = file_path.length + mode.length + 2;
-    char *cfile_path = (char *)pk_malloc(lisp, length * sizeof(char));
+    char *cfile_path = (char *)pk_malloc(lisp, file_path.length * sizeof(char));
     
     (void)memcpy(cfile_path, file_path.c, file_path.length);
     cfile_path[file_path.length] = '\0';
 
-    char *cfile_mode = cfile_path + file_path.length + 1;
-    (void)memcpy(cfile_mode, mode.c, mode.length);
-    cfile_path[length] = '\0';
-
-    FILE *result = fopen(cfile_path, cfile_mode);
+    FILE *result = fopen(cfile_path, mode);
     pk_free(lisp, cfile_path);
     
     if (result == NULL) {
         pk_errorf(
             lisp,
-            "failed to open file: %.*s, with mode: %.*s",
+            "failed to open file: %.*s, with mode: %s",
             (int)file_path.length,
             file_path.c,
-            (int)mode.length,
-            mode.c
+            mode
         );
     }
 
     return result;
 }
 
-void pk_fs_file_object_destroy(void *object) {
-    if ((object != stdin) || (object != stdout) || (object != stderr)) {
-        fclose((FILE *)object);
-    }
-}
-
-PKAtomObject *pk_fs_file_open_object(Pocket lisp, PKAtomString *file_path, PKAtomString *mode) {
-    PKAtomObject *result = pk_atom_object(lisp, pk_atom_symbol(lisp, pk_str("File")), NULL, NULL);
-    
-    FILE *file = pk_fs_file_open(lisp, file_path->str, mode->str);
-    result->user_data = file;
-    result->gc = pk_fs_file_object_destroy;
-
-    pk_atom_object_put(lisp, result, (PKAtom *)pk_atom_symbol(lisp, pk_str("file")), (PKAtom *)file_path);
-    pk_atom_object_put(lisp, result, (PKAtom *)pk_atom_symbol(lisp, pk_str("mode")), (PKAtom *)mode);
-    
-    return result;
-}
-
-PKAtomObject *pk_fs_file_open_inherit(Pocket lisp, FILE *file) {
-    return pk_atom_object(lisp, pk_atom_symbol(lisp, pk_str("File")), file, pk_fs_file_object_destroy);
-}
-
-void pk_fs_file_write(Pocket lisp, PKAtomObject *stream, PKStr input) {
+void pk_fs_file_splat_str(Pocket lisp, PKStr file_path, PKStr input) {
     (void)lisp;
-    FILE *f = (FILE *)stream->user_data;
-    fwrite(input.c, sizeof(char), input.length, f);
+    FILE *file = pk_fs_file_open(lisp, file_path, "w");
+    fwrite(input.c, sizeof(char), input.length, file);
+    fclose(file);
 }
 
-/* PKAtomString *pk_fs_stream_read_string(Pocket lisp, PKAtomObject *stream, size_t count) { */
-    
-/* } */
+void pk_fs_file_splat(Pocket lisp, PKAtomString *file_path, PKAtomString *input) {
+    pk_fs_file_splat_str(lisp, file_path->str, input->str);
+}
 
-/* PKAtom *pk_fs_stream_read_bytes(Pocket lisp, PKAtomObject *stream, size_t count) { */
-    
-/* } */
-
-/* PKAtomString *pk_fs_stream_read_char(Pocket lisp, PKAtomObject *stream) { */
-    
-/* } */
-
-/* PKAtomNumber *pk_fs_stream_read_byte(Pocket lisp, PKAtomObject *stream) { */
-    
-/* } */
-
-/* PKAtomString *pk_fs_stream_read_all(Pocket lisp, PKAtomObject *stream) { */
-    
-/* } */
-
-/* PKAtomString *pk_fs_stream_read_until(Pocket lisp, PKAtomObject *stream, PKAtomString *match) { */
-    
-/* } */
-
-PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path) {
-    FILE *file = pk_fs_file_open(lisp, file_path, pk_str("r"));
+PKAtomString *pk_fs_file_slurp_str(Pocket lisp, PKStr file_path) {
+    FILE *file = pk_fs_file_open(lisp, file_path, "r");
     
     if (file == NULL) {
         pk_errors(lisp, pk_str("cannot open file"));
@@ -112,8 +64,8 @@ PKAtomString *pk_fs_slurp_str(Pocket lisp, PKStr file_path) {
     return result;
 }
 
-PKAtomString *pk_fs_slurp(Pocket lisp, PKAtomString *file_path) {
-    return pk_fs_slurp_str(lisp, file_path->str);
+PKAtomString *pk_fs_file_slurp(Pocket lisp, PKAtomString *file_path) {
+    return pk_fs_file_slurp_str(lisp, file_path->str);
 }
 
 #define READ_BUFFER_MAX (1024)

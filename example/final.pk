@@ -77,5 +77,4 @@
 
 (cge/set-gameobject-attrs
       :name "Funny"
-      :callback 'my-callback
-)
+      :callback 'my-callback)

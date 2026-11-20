@@ -2,73 +2,83 @@
 The todo list for POCKET LISP
 
 ## V1
+- [ ] Lisp Arena
+  - Put Cache in Arena (As in actual struct)
+  - Remove Writer (Change writer api to Arena api)
+  - Lots of Functions to Update (that allocate temp memory)
+
 - [ ] Properties on *Most* Objects
   - Symbols
   - Functions
   - Macros
-  - Special Forms
   
-- [ ] Remove Basically All Cached Atom
-  can stay
-  - nil
-  - true
-  - empty-string
-
-- [ ] Special Form Objects
-  - all special forms moved to objects
-
+- [ ] Symbol, Keyword, String Equality
+  - `(= 'foo "foo" :foo) -> true`
+  - `(keyword= :foo :foo) -> true`
+  - `(string= "foo" "foo") -> true`
+  - `(symbol= 'foo 'foo) -> true`
+  
+- [ ] Remove most of the FILE API
+  - keep file-slurp
+  - keep read-user-input
+  - add file-splat
+    - blob
+    - string
+  
 - [ ] fix debug stack dump
   - so we see frames clearly
   - print frame name
   
 - [ ] `string-split`
+    - `(string-split "foo foo foo" " ")`
+    - `(char? "a")`
+    
+- [ ] Reintroduce Blobs
+  - `[0 255 64 32]`
+  - Blob functions (cat, el, ...)
+  - `(byte? 64)`
   
 - [ ] exotic number parsing
   - 0b010101
   - 0xfeefee
   - 0oaaaaaa <- idk octal
   
-- [ ] Array Parsing
-  - just parsing no evaluation
-  - `[(+ 1 2 3) 4 2 11]`
-  - -> essentially quotes the data inside
+- [ ] Array Printing
+  - `&<Array::(1 2 3 4 5 6)>`
+  
+- [ ] Immortal Atoms
+  - Allocated in Arena
+  
+- [ ] Math functions
+  need more to list here look at scheme reference
+  - sin
+  - cos
   
 - [ ] floats
   - printing
   - parsing
-  
-- [ ] Math functions
-  - sin
-  - cos
-  
-- [ ] Seperation of std into multiple libraries (seperation in multiple files)
-  - fs
-  - system (shell)
-  - math
   
 - [ ] Remove ternary operator from all c code.
 - [ ] `cleared` remove symbol.
 
 - [ ] Testing Suite
 
-- [ ] STD Filesystem API
-  - Files (streams)
-    - read / write
-    - tempfile
-  - Directories
-    - mkdir
-  
-- [ ] STD Shell Command / Process API
-  - Async Command -> Process
-  - Sync Command
-    - `(shell "echo hello")`
-    
-- [ ] `progv`
+- [ ] Environment Letting (with Objects)
+  - `(with-environment (var-object fun-object) ...)`
 
-- [ ] options
+- [ ] Pretty Printing
+
+- [ ] Variables
   - number printing style
+    - decimal
+    - octal
+    - hexadecimal
+  - byte number printing style
+    - decimal
+    - octal
+    - hexadecimal
   - gc enabled
-  - default reading style
+  - pretty printing
 
 - [ ] User Review of Compiler
   - in particular, destructuring bind.
@@ -81,6 +91,8 @@ The todo list for POCKET LISP
       (print $"{a}, {b}, {c}, {d}, {e}"))`
   
 - [ ] Create CMake Build
+- [ ] C Build
+  - `pocket_all.c`
 
 - [ ] Emacs Mode Syntax Highlighting
   - basic syntax highlighter
@@ -91,13 +103,41 @@ The todo list for POCKET LISP
   - Not limited to 8bit args
   
 - [ ] Document C Functions
-- [ ] Documentation Tables
-
-- [ ] Arenas
+- [ ] Documentation Properties
+- [ ] README
 
 - [ ] Full Code Review
+
+- [ ] Lock Special Form Symbols
+  - Cannot Set the Function or Variable
+
+- [ ] Memory Caching
+  - Single Char Strings
+  - Numbers 0 - 100
+  
+- [ ] Rust Build
+   - review `mlua` rust package
+   
+- [ ] Fug Bixes
   
 ## V2
+- [ ] Seperation of std into multiple libraries (seperation in multiple files)
+  - fs
+  - system (shell)
+  - math
+  
+- [ ] STD Filesystem API
+  - Files
+    - read / write
+    - tempfile
+  - Directories
+    - mkdir
+  
+- [ ] STD Shell Command / Process API
+  - Async Command -> Process
+  - Sync Command
+    - `(shell "echo hello")`
+    
 - [ ] Unicode Strings and Characters (utf8)
   - [ ] fn, λ, lambda
   
