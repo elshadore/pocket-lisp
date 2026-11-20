@@ -18,13 +18,6 @@ The todo list for POCKET LISP
   - `(string= "foo" "foo") -> true`
   - `(symbol= 'foo 'foo) -> true`
   
-- [ ] Remove most of the FILE API
-  - keep file-slurp
-  - keep read-user-input
-  - add file-splat
-    - blob
-    - string
-  
 - [ ] fix debug stack dump
   - so we see frames clearly
   - print frame name
@@ -37,14 +30,13 @@ The todo list for POCKET LISP
   - `[0 255 64 32]`
   - Blob functions (cat, el, ...)
   - `(byte? 64)`
+  - file-slurp
+  - file-splat
   
 - [ ] exotic number parsing
   - 0b010101
   - 0xfeefee
   - 0oaaaaaa <- idk octal
-  
-- [ ] Array Printing
-  - `&<Array::(1 2 3 4 5 6)>`
   
 - [ ] Immortal Atoms
   - Allocated in Arena
