@@ -154,11 +154,36 @@ bool pk_atom_is_circular(Pocket lisp, PKAtom *atom) {
     return result;
 }
 
+bool pk_atom_text(PKAtom *atom, PKStr *text) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_STRING: {
+            *text = atom->string.str;
+            return true;
+        }
+        case PK_ATOMTY_SYMBOL: {
+            *text = atom->symbol.name->str;
+            return true;
+        }
+        case PK_ATOMTY_KEYWORD: {
+            *text = atom->keyword.id;
+            return true;
+        }
+        default: return false;
+    }
+}
+
 bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
     (void)lisp;
     if (lhs == rhs) {
         return true;
     }
+
+    PKStr ltext = PK_STR_EMPTY;
+    PKStr rtext = PK_STR_EMPTY;
+    if (pk_atom_text(lhs, &ltext) && pk_atom_text(rhs, &rtext)) {
+        return pk_str_eq(ltext, rtext);
+    }
+
     switch (lhs->header.type) {
         case PK_ATOMTY_NUMBER: {
             if (lhs->number.num_type != rhs->number.num_type) {
@@ -173,12 +198,6 @@ bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
                 }
                 default: return false;
             }
-        }
-        case PK_ATOMTY_KEYWORD: {
-            return pk_str_eq(lhs->keyword.id, rhs->keyword.id);
-        }
-        case PK_ATOMTY_STRING: {
-            return pk_str_eq(lhs->string.str, rhs->string.str);
         }
         default: return false;
     }
