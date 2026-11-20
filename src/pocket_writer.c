@@ -273,7 +273,7 @@ void pk_writer_write_atom(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *a
         }
         case PK_ATOMTY_ARRAY: {
             PKArray *array = &atom->array.atoms;
-            pk_writer_char(lisp, w, '[');
+            pk_writer_string(lisp, w, pk_str("&<Array::("));
             (void)pk_hashmap_insert(lisp, clones, atom, atom, PK_HASHMAP_INSERT_NORMAL);
             for (size_t i = 0; i < array->count; ++i) {
                 if (i != 0) {
@@ -281,7 +281,7 @@ void pk_writer_write_atom(Pocket lisp, PKWriter *w, PKHashmap *clones, PKAtom *a
                 }
                 pk_writer_atom_recursive(lisp, w, clones, array->e[i]);
             }
-            pk_writer_char(lisp, w, ']');
+            pk_writer_string(lisp, w, pk_str(")>"));
             break;
         }
         case PK_ATOMTY_OBJECT: {
