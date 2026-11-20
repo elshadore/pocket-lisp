@@ -2,11 +2,6 @@
 The todo list for POCKET LISP
 
 ## V1
-- [ ] Lisp Arena
-  - Put Cache in Arena (As in actual struct)
-  - Remove Writer (Change writer api to Arena api)
-  - Lots of Functions to Update (that allocate temp memory)
-
 - [ ] Properties on *Most* Objects
   - Symbols
   - Functions

@@ -41,7 +41,6 @@ void pk_writer_cstr(Pocket lisp, const char *cstr) {
     if (length == 0) {
         return;
     }
-    lisp->writer.count += length;
     pk_writer_expand(lisp, length);
     memcpy(lisp->writer.c + lisp->writer.count, cstr, length);
     lisp->writer.count += length;
