@@ -171,11 +171,15 @@ PKAtom *pk_generic_property_put(Pocket lisp, PKAtom *pobj, PKAtom *key, PKAtom *
         case PK_ATOMTY_SYMBOL: {
             return pk_atom_symbol_put(lisp, (PKAtomSymbol *)pobj, key, value);
         }
-        case PK_ATOMTY_CFUN:
+        case PK_ATOMTY_CFUN: {
+            return pk_atom_cfun_put(lisp, (PKAtomCFun *)pobj, key, value);
+        }
         case PK_ATOMTY_CMACRO: {
             return pk_atom_cfun_put(lisp, (PKAtomCFun *)pobj, key, value);
         }
-        case PK_ATOMTY_LFUN:
+        case PK_ATOMTY_LFUN: {
+            return pk_atom_lfun_put(lisp, (PKAtomLFun *)pobj, key, value);
+        }
         case PK_ATOMTY_LMACRO: {
             return pk_atom_lfun_put(lisp, (PKAtomLFun *)pobj, key, value);
         }
@@ -194,11 +198,15 @@ PKAtom *pk_generic_property_get(Pocket lisp, PKAtom *pobj, PKAtom *key) {
         case PK_ATOMTY_SYMBOL: {
             return pk_atom_symbol_get(lisp, (PKAtomSymbol *)pobj, key);
         }
-        case PK_ATOMTY_CFUN:
+        case PK_ATOMTY_CFUN: {
+            return pk_atom_cfun_get(lisp, (PKAtomCFun *)pobj, key);
+        }
         case PK_ATOMTY_CMACRO: {
             return pk_atom_cfun_get(lisp, (PKAtomCFun *)pobj, key);
         }
-        case PK_ATOMTY_LFUN:
+        case PK_ATOMTY_LFUN: {
+            return pk_atom_lfun_get(lisp, (PKAtomLFun *)pobj, key);
+        }
         case PK_ATOMTY_LMACRO: {
             return pk_atom_lfun_get(lisp, (PKAtomLFun *)pobj, key);
         }
@@ -217,11 +225,15 @@ PKAtom *pk_generic_property_remove(Pocket lisp, PKAtom *pobj, PKAtom *key) {
         case PK_ATOMTY_SYMBOL: {
             return pk_atom_symbol_remove(lisp, (PKAtomSymbol *)pobj, key);
         }
-        case PK_ATOMTY_CFUN:
+        case PK_ATOMTY_CFUN: {
+            return pk_atom_cfun_remove(lisp, (PKAtomCFun *)pobj, key);
+        }
         case PK_ATOMTY_CMACRO: {
             return pk_atom_cfun_remove(lisp, (PKAtomCFun *)pobj, key);
         }
-        case PK_ATOMTY_LFUN:
+        case PK_ATOMTY_LFUN: {
+            return pk_atom_lfun_remove(lisp, (PKAtomLFun *)pobj, key);
+        }
         case PK_ATOMTY_LMACRO: {
             return pk_atom_lfun_remove(lisp, (PKAtomLFun *)pobj, key);
         }
@@ -240,11 +252,15 @@ bool pk_generic_property_is_property(Pocket lisp, PKAtom *pobj, PKAtom *key) {
         case PK_ATOMTY_SYMBOL: {
             return pk_atom_symbol_is_property(lisp, (PKAtomSymbol *)pobj, key);
         }
-        case PK_ATOMTY_CFUN:
+        case PK_ATOMTY_CFUN: {
+            return pk_atom_cfun_is_property(lisp, (PKAtomCFun *)pobj, key);
+        }
         case PK_ATOMTY_CMACRO: {
             return pk_atom_cfun_is_property(lisp, (PKAtomCFun *)pobj, key);
         }
-        case PK_ATOMTY_LFUN:
+        case PK_ATOMTY_LFUN: {
+            return pk_atom_lfun_is_property(lisp, (PKAtomLFun *)pobj, key);
+        }
         case PK_ATOMTY_LMACRO: {
             return pk_atom_lfun_is_property(lisp, (PKAtomLFun *)pobj, key);
         }
@@ -263,11 +279,15 @@ PKAtom *pk_generic_properties(Pocket lisp, PKAtom *pobj) {
         case PK_ATOMTY_SYMBOL: {
             return pk_atom_symbol_to_plist(lisp, (PKAtomSymbol *)pobj);
         }
-        case PK_ATOMTY_CFUN:
+        case PK_ATOMTY_CFUN: {
+            return pk_atom_cfun_to_plist(lisp, (PKAtomCFun *)pobj);
+        }
         case PK_ATOMTY_CMACRO: {
             return pk_atom_cfun_to_plist(lisp, (PKAtomCFun *)pobj);
         }
-        case PK_ATOMTY_LFUN:
+        case PK_ATOMTY_LFUN: {
+            return pk_atom_lfun_to_plist(lisp, (PKAtomLFun *)pobj);
+        }
         case PK_ATOMTY_LMACRO: {
             return pk_atom_lfun_to_plist(lisp, (PKAtomLFun *)pobj);
         }
