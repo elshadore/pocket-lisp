@@ -55,12 +55,12 @@ PKAtomKind pk_atom_kind(PKAtom *atom) {
     }
 }
 
-PKAtom *pk_atom_clone_rec_(Pocket lisp, PKHashmap *memo, PKAtom *atom) {
+PKAtom *pk_atom_clone_recursive(Pocket lisp, PKAtom *atom) {
     if (pk_atom_kind(atom) == PK_ATOMKIND_VALUE) {
         return atom;
     }
 
-    PKAtom *have = pk_hashmap_get(lisp, memo, atom);
+    PKAtom *have = pk_hashmap_get(lisp, &lisp->cloner, atom);
     if (!pk_atom_is_undefined(have)) {
         return have;
     }
@@ -68,27 +68,27 @@ PKAtom *pk_atom_clone_rec_(Pocket lisp, PKHashmap *memo, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_CONS: {
             PKAtomCons *result = pk_atom_cons(lisp, lisp->cache.nil, lisp->cache.nil);
-            pk_hashmap_insert(lisp, memo, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
-            result->car = pk_atom_clone_rec_(lisp, memo, atom->cons.car);
+            pk_hashmap_insert(lisp, &lisp->cloner, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
+            result->car = pk_atom_clone_recursive(lisp, atom->cons.car);
 
             PKAtom *iter = atom->cons.cdr;
             PKAtom *current = (PKAtom *)result;
-            while (pk_atom_is_cons(iter) && pk_atom_is_undefined(pk_hashmap_get(lisp, memo, iter))) {
+            while (pk_atom_is_cons(iter) && pk_atom_is_undefined(pk_hashmap_get(lisp, &lisp->cloner, iter))) {
                 PKAtomCons *next = pk_atom_cons(lisp, lisp->cache.nil, lisp->cache.nil);
-                pk_hashmap_insert(lisp, memo, iter, (PKAtom *)next, PK_HASHMAP_INSERT_NORMAL);
-                next->car = pk_atom_clone_rec_(lisp, memo, iter->cons.car);
+                pk_hashmap_insert(lisp, &lisp->cloner, iter, (PKAtom *)next, PK_HASHMAP_INSERT_NORMAL);
+                next->car = pk_atom_clone_recursive(lisp, iter->cons.car);
                 current->cons.cdr = (PKAtom *)next;
                 current = (PKAtom *)next;
                 iter = iter->cons.cdr;
             }
-            current->cons.cdr = pk_atom_clone_rec_(lisp, memo, iter);
+            current->cons.cdr = pk_atom_clone_recursive(lisp, iter);
             return (PKAtom *)result;
         }
         case PK_ATOMTY_ARRAY: {
             PKAtomArray *result = pk_atom_array(lisp, PK_ATOMS_EMPTY);
-            pk_hashmap_insert(lisp, memo, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
+            pk_hashmap_insert(lisp, &lisp->cloner, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
             for (size_t i = 0; i < atom->array.atoms.count; ++i) {
-                pk_atom_array_append(lisp, result, pk_atom_clone_rec_(lisp, memo, atom->array.atoms.e[i]));
+                pk_atom_array_append(lisp, result, pk_atom_clone_recursive(lisp, atom->array.atoms.e[i]));
             }
             return (PKAtom *)result;
         }
@@ -103,32 +103,11 @@ PKAtom *pk_atom_clone_rec_(Pocket lisp, PKHashmap *memo, PKAtom *atom) {
     }
 }
 
-typedef struct PKAtomCloneData_ {
-    PKHashmap *memo;
-    PKAtom *atom;
-} PKAtomCloneData;
-
-void pk_atom_clone_body(void *user_closure, Pocket lisp) {
-    PKAtomCloneData *data = (PKAtomCloneData *)user_closure;
-    pk_stack_push(lisp, pk_atom_clone_rec_(lisp, data->memo, data->atom));
-}
-
 PKAtom *pk_atom_clone(Pocket lisp, PKAtom *atom) {
-    PKHashmap memo = PK_HASHMAP_EMPTY;
-    PKAtomCloneData data = (PKAtomCloneData) {
-        .memo = &memo,
-        .atom = atom,
-    };
-
-    PK_RES result = pk_protect(lisp, &data, pk_atom_clone_body, 0);
-    pk_hashmap_deinit(lisp, &memo);
-
-    if (result == PK_YIELDED) {
-        pk_propagate(lisp);
-    }
-
-    PKAtom *out = pk_stack_head_pop(lisp);
-    return out;
+    pk_hashmap_deinit(lisp, &lisp->cloner);
+    PKAtom *result = pk_atom_clone_recursive(lisp, atom);
+    pk_hashmap_deinit(lisp, &lisp->cloner);
+    return result;
 }
 
 bool pk_atom_is_circular_rec_(Pocket lisp, PKHashmap *visited, PKAtom *atom) {

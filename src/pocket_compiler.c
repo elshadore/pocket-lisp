@@ -16,6 +16,13 @@ typedef struct PKQQ_ {
     bool packed_cons;
 } PKQQ;
 
+typedef struct PKAtomCompileData_ {
+    PKCompiler c;
+    PKAtom *value;
+    PK_MODE mode;
+    PKAtom *result;
+} PKAtomCompileData;
+
 PKCompiler pk_cmp_new(PK_CALL type) {
     return (PKCompiler) {
         .atoms = PK_ARRAY_EMPTY,
@@ -748,7 +755,6 @@ void pk_compile_var(Pocket lisp, PKCompiler *c, PKAtom *form, PK_ENV env) {
 }
 
 void pk_compile_special(Pocket lisp, PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, bool *is_special) {
-
     if (symbol == lisp->cache.lambda) {
         PKAtomCons *a = pk_atom_assert_cons(lisp, args);
         PKAtomLFun *lfun = pk_compile_lambda(lisp, PK_CALL_FUN, a->car, a->cdr);
@@ -1186,13 +1192,6 @@ PKAtomLFun *pk_compile_lambda(Pocket lisp, PK_CALL type, PKAtom *args, PKAtom *b
     PKAtom *out = pk_stack_head_pop(lisp);
     return (PKAtomLFun *)out;
 }
-
-typedef struct PKAtomCompileData_ {
-    PKCompiler c;
-    PKAtom *value;
-    PK_MODE mode;
-    PKAtom *result;
-} PKAtomCompileData;
 
 void pk_atom_compile_body(void *user_closure, Pocket lisp) {
     PKAtomCompileData *data = (PKAtomCompileData *)user_closure;
