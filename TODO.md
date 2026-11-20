@@ -13,6 +13,8 @@ The todo list for POCKET LISP
   - `(string= "foo" "foo") -> true`
   - `(symbol= 'foo 'foo) -> true`
   
+- [ ] `struct-eq`
+
 - [ ] fix debug stack dump
   - so we see frames clearly
   - print frame name
@@ -138,7 +140,6 @@ The todo list for POCKET LISP
 - [ ] Custom cfmt
   - for printing atoms as well as c data
 - [ ] Read Common Lisp Standard
-- [ ] `struct-eq`
 - [ ] Pretty Printing
 - [ ] `unwind-protect`
 - [ ] `ecase`

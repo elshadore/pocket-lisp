@@ -499,8 +499,11 @@ void pk_error_writer(Pocket lisp);
 PKAtom *pk_error_value(Pocket lisp);
 
 bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+bool pk_atom_eq_atoms(Pocket lisp, PKAtoms atoms);
 bool pk_atom_struct_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+bool pk_atom_struct_eq_atoms(Pocket lisp, PKAtoms atoms);
 bool pk_atom_object_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
+bool pk_atom_object_eq_atoms(Pocket lisp, PKAtoms atoms);
 bool pk_atom_text_qeq(Pocket lisp, PKAtom *text, PKStr cmp);
 size_t pk_atom_hash(PKAtom *atom);
 

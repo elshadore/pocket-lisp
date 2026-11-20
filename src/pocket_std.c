@@ -91,38 +91,20 @@ void pk_fun_mod(void *user_closure, Pocket lisp) {
 
 void pk_fun_eq(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    int top = pk_top(lisp);
-    for (int i = 1; i < top; ++i) {
-        if (!pk_eq(lisp, i, i + 1)) {
-            pk_push_bool(lisp, false);
-            return;
-        }
-    }
-    pk_push_bool(lisp, true);
+    PKAtoms slice = pk_stack_slice(lisp);
+    pk_push_bool(lisp, pk_atom_eq_atoms(lisp, slice));
 }
 
 void pk_fun_struct_eq(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    int top = pk_top(lisp);
-    for (int i = 1; i < top; ++i) {
-        if (!pk_struct_eq(lisp, i, i + 1)) {
-            pk_push_bool(lisp, false);
-            return;
-        }
-    }
-    pk_push_bool(lisp, true);
+    PKAtoms slice = pk_stack_slice(lisp);
+    pk_push_bool(lisp, pk_atom_struct_eq_atoms(lisp, slice));
 }
 
 void pk_fun_object_eq(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    int top = pk_top(lisp);
-    for (int i = 1; i < top; ++i) {
-        if (!pk_object_eq(lisp, i, i + 1)) {
-            pk_push_bool(lisp, false);
-            return;
-        }
-    }
-    pk_push_bool(lisp, true);
+    PKAtoms slice = pk_stack_slice(lisp);
+    pk_push_bool(lisp, pk_atom_object_eq_atoms(lisp, slice));
 }
 
 void pk_fun_lt(void *user_closure, Pocket lisp) {
