@@ -28,6 +28,7 @@ PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr string) {
     result->var = lisp->cache.undefined;
     result->fun = lisp->cache.undefined;
     result->name = name;
+    result->props = PK_HASHMAP_EMPTY;
 
     pk_hashmap_insert(lisp, &lisp->symbolizer, (PKAtom *)name, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
     
@@ -41,6 +42,46 @@ PKAtomString *pk_atom_symbol_to_string(Pocket lisp, PKAtomSymbol *symbol) {
 
 PKAtomKeyword *pk_atom_symbol_to_keyword(Pocket lisp, PKAtomSymbol *symbol) {
     return pk_atom_keyword(lisp, symbol->name->str);
+}
+
+PKAtom *pk_atom_symbol_put(Pocket lisp, PKAtomSymbol *symbol, PKAtom *key, PKAtom *value) {
+    if (pk_atom_is_nil(value)) {
+        (void)pk_hashmap_remove(lisp, &symbol->props, key);
+    } else {
+        (void)pk_hashmap_insert(lisp, &symbol->props, key, value, PK_HASHMAP_INSERT_NORMAL);
+    }
+    return (PKAtom *)symbol;
+}
+
+PKAtom *pk_atom_symbol_remove(Pocket lisp, PKAtomSymbol *symbol, PKAtom *key) {
+    PKAtom *result = pk_hashmap_remove(lisp, &symbol->props, key);
+    if (pk_atom_is_undefined(result)) {
+        return lisp->cache.nil;
+    } else {
+        return result;
+    }
+}
+
+PKAtom *pk_atom_symbol_get(Pocket lisp, PKAtomSymbol *symbol, PKAtom *key) {
+    PKAtom *result = pk_hashmap_get(lisp, &symbol->props, key);
+    if (pk_atom_is_undefined(result)) {
+        return lisp->cache.nil;
+    } else {
+        return result;
+    }
+}
+
+bool pk_atom_symbol_is_property(Pocket lisp, PKAtomSymbol *symbol, PKAtom *key) {
+    PKAtom *result = pk_hashmap_get(lisp, &symbol->props, key);
+    if (pk_atom_is_undefined(result)) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+PKAtom *pk_atom_symbol_to_plist(Pocket lisp, PKAtomSymbol *symbol) {
+    return pk_hashmap_to_plist(lisp, &symbol->props);
 }
 
 PKAtomSymbol *pk_atom_symbolc(Pocket lisp, char *csymbol) {

@@ -109,14 +109,25 @@ void pk_gc_mark(Pocket lisp, PKAtom *atom) {
             pk_gc_mark(lisp, (PKAtom *)symbol->name);
             pk_gc_mark(lisp, (PKAtom *)symbol->var);
             pk_gc_mark(lisp, (PKAtom *)symbol->fun);
+            pk_gc_mark_hashmap(lisp, &symbol->props);
+            break;
+        }
+        case PK_ATOMTY_CFUN: {
+            pk_gc_mark_hashmap(lisp, &atom->cfun.props);
+            break;
+        }
+        case PK_ATOMTY_CMACRO: {
+            pk_gc_mark_hashmap(lisp, &atom->cmacro.props);
             break;
         }
         case PK_ATOMTY_LFUN: {
             pk_gc_mark_atoms(lisp, atom->lfun.atoms);
+            pk_gc_mark_hashmap(lisp, &atom->lfun.props);
             break;
         }
         case PK_ATOMTY_LMACRO: {
             pk_gc_mark_atoms(lisp, atom->lmacro.atoms);
+            pk_gc_mark_hashmap(lisp, &atom->lmacro.props);
             break;
         }
         case PK_ATOMTY_ARRAY: {

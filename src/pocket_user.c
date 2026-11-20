@@ -399,33 +399,33 @@ void pk_object_type(Pocket lisp, int object) {
 }
 
 void pk_put(Pocket lisp, int object, int key, int value) {
-    PKAtomObject *aobject = pk_atom_assert_object(lisp, pk_stack_get(lisp, object));
+    PKAtom *aobject = pk_stack_get(lisp, object);
     PKAtom *akey = pk_stack_get(lisp, key);
     PKAtom *avalue = pk_stack_get(lisp, value);
-    pk_stack_push(lisp, pk_atom_object_put(lisp, aobject, akey, avalue));
+    pk_stack_push(lisp, pk_generic_property_put(lisp, aobject, akey, avalue));
 }
 
 void pk_get(Pocket lisp, int object, int key) {
-    PKAtomObject *aobject = pk_atom_assert_object(lisp, pk_stack_get(lisp, object));
+    PKAtom *aobject = pk_stack_get(lisp, object);
     PKAtom *akey = pk_stack_get(lisp, key);
-    pk_stack_push(lisp, pk_atom_object_get(lisp, aobject, akey));
+    pk_stack_push(lisp, pk_generic_property_get(lisp, aobject, akey));
 }
 
 void pk_remove(Pocket lisp, int object, int key) {
-    PKAtomObject *aobject = pk_atom_assert_object(lisp, pk_stack_get(lisp, object));
+    PKAtom *aobject = pk_stack_get(lisp, object);
     PKAtom *akey = pk_stack_get(lisp, key);
-    pk_stack_push(lisp, pk_atom_object_remove(lisp, aobject, akey));
+    pk_stack_push(lisp, pk_generic_property_remove(lisp, aobject, akey));
 }
 
 bool pk_is_property(Pocket lisp, int object, int key) {
-    PKAtomObject *aobject = pk_atom_assert_object(lisp, pk_stack_get(lisp, object));
+    PKAtom *aobject = pk_stack_get(lisp, object);
     PKAtom *akey = pk_stack_get(lisp, key);
-    return pk_atom_object_is_property(lisp, aobject, akey);
+    return pk_generic_property_is_property(lisp, aobject, akey);
 }
 
 void pk_properties(Pocket lisp, int stack_pointer) {
-    PKAtomObject *aobject = pk_atom_assert_object(lisp, pk_stack_get(lisp, stack_pointer));
-    pk_stack_push(lisp, pk_atom_object_to_plist(lisp, aobject));
+    PKAtom *aobject = pk_stack_get(lisp, stack_pointer);
+    pk_stack_push(lisp, pk_generic_properties(lisp, aobject));
 }
 
 PK_TYPE pk_typeof(Pocket lisp, int stack_pointer) {

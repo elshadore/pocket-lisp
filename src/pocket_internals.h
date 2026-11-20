@@ -197,6 +197,7 @@ typedef struct PKAtomSymbol_ {
     PKAtomString *name;
     PKAtom *var;
     PKAtom *fun;
+    PKHashmap props;
 } PKAtomSymbol;
 
 typedef struct PKAtomKeyword_ {
@@ -225,6 +226,7 @@ typedef struct PKAtomCFun_ {
     PKArity arity;
     void *user_closure;
     PKFun fun;
+    PKHashmap props;
 } PKAtomCFun;
 
 #define PK_OP_ILLEGAL (0)
@@ -273,6 +275,7 @@ typedef struct PKAtomLFun_ {
     PKArity arity;
     PKBlob bc;
     PKAtoms atoms;
+    PKHashmap props;
 } PKAtomLFun;
 
 typedef struct PKAtomArray_ {
@@ -515,7 +518,6 @@ PKAtomKind pk_atom_kind(PKAtom *atom);
 
 PKAtom *pk_atom_clone(Pocket lisp, PKAtom *atom);
 
-
 void pk_atom_assert_type(Pocket lisp, PKAtom *atom, PKAtomSymbol *type);
 
 bool pk_atom_is_circular(Pocket lisp, PKAtom *atom);
@@ -630,6 +632,12 @@ PKAtomKeyword *pk_atom_symbol_to_keyword(Pocket lisp, PKAtomSymbol *symbol);
 PKAtomString *pk_atom_keyword_to_string(Pocket lisp, PKAtomKeyword *keyword);
 PKAtomSymbol *pk_atom_keyword_to_symbol(Pocket lisp, PKAtomKeyword *keyword);
 
+PKAtom *pk_atom_symbol_put(Pocket lisp, PKAtomSymbol *symbol, PKAtom *key, PKAtom *value);
+PKAtom *pk_atom_symbol_remove(Pocket lisp, PKAtomSymbol *symbol, PKAtom *key);
+PKAtom *pk_atom_symbol_get(Pocket lisp, PKAtomSymbol *symbol, PKAtom *key);
+bool pk_atom_symbol_is_property(Pocket lisp, PKAtomSymbol *symbol, PKAtom *key);
+PKAtom *pk_atom_symbol_to_plist(Pocket lisp, PKAtomSymbol *symbol);
+
 PKAtomCFun *pk_atom_cfun(Pocket lisp, void *user_closure, PKFun fun, PK_CALL call, PKFunArgs *args);
 
 PKAtomArray *pk_atom_array(Pocket lisp, PKAtoms init);
@@ -654,6 +662,18 @@ void pk_atom_cfun_exec(Pocket lisp, PKAtomCFun *cfun);
 void pk_atom_lfun_exec(Pocket lisp, PKAtomLFun *lfun);
 PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun);
 PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom);
+
+PKAtom *pk_atom_cfun_put(Pocket lisp, PKAtomCFun *cfun, PKAtom *key, PKAtom *value);
+PKAtom *pk_atom_cfun_remove(Pocket lisp, PKAtomCFun *cfun, PKAtom *key);
+PKAtom *pk_atom_cfun_get(Pocket lisp, PKAtomCFun *cfun, PKAtom *key);
+bool pk_atom_cfun_is_property(Pocket lisp, PKAtomCFun *cfun, PKAtom *key);
+PKAtom *pk_atom_cfun_to_plist(Pocket lisp, PKAtomCFun *cfun);
+
+PKAtom *pk_atom_lfun_put(Pocket lisp, PKAtomLFun *lfun, PKAtom *key, PKAtom *value);
+PKAtom *pk_atom_lfun_remove(Pocket lisp, PKAtomLFun *lfun, PKAtom *key);
+PKAtom *pk_atom_lfun_get(Pocket lisp, PKAtomLFun *lfun, PKAtom *key);
+bool pk_atom_lfun_is_property(Pocket lisp, PKAtomLFun *lfun, PKAtom *key);
+PKAtom *pk_atom_lfun_to_plist(Pocket lisp, PKAtomLFun *lfun);
 
 PK_TYPE pk_atom_typeof(PKAtom *atom);
 bool pk_atom_is_type(PKAtom *atom, PK_TYPE type);
@@ -696,6 +716,11 @@ PKAtom *pk_generic_reverse(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_generic_to_string(Pocket lisp, PKAtom *atom);
 PKAtomSymbol *pk_generic_to_symbol(Pocket lisp, PKAtom *atom);
 PKAtomKeyword *pk_generic_to_keyword(Pocket lisp, PKAtom *atom);
+PKAtom *pk_generic_property_put(Pocket lisp, PKAtom *pobj, PKAtom *key, PKAtom *value);
+PKAtom *pk_generic_property_get(Pocket lisp, PKAtom *pobj, PKAtom *key);
+PKAtom *pk_generic_property_remove(Pocket lisp, PKAtom *pobj, PKAtom *key);
+bool pk_generic_property_is_property(Pocket lisp, PKAtom *pobj, PKAtom *key);
+PKAtom *pk_generic_properties(Pocket lisp, PKAtom *pobj);
 
 void pk_jmp_trigger(Pocket lisp, PKAtomSymbol *symbol, PKAtom *value);
 void pk_jmp_leave(Pocket lisp);

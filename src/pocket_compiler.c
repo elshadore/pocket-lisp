@@ -1017,6 +1017,7 @@ PKAtomLFun *pk_compile_compile(Pocket lisp, PKCompiler *c, pk_u8 args, pk_u8 ari
         .args = args,
         .options = options,
     };
+    result->props = PK_HASHMAP_EMPTY;
 
     c->transferred = true;
 

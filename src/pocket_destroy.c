@@ -13,14 +13,25 @@ void pk_atom_deinit(Pocket lisp, PKAtom *atom) {
         case PK_ATOMTY_LFUN: {
             pk_free(lisp, atom->lfun.bc.e);
             pk_free(lisp, atom->lfun.atoms.e);
+            pk_hashmap_deinit(lisp, &atom->lfun.props);
             break;
         }
         case PK_ATOMTY_LMACRO: {
             pk_free(lisp, atom->lmacro.bc.e);
             pk_free(lisp, atom->lmacro.atoms.e);
+            pk_hashmap_deinit(lisp, &atom->lmacro.props);
+            break;
+        }
+        case PK_ATOMTY_CFUN: {
+            pk_hashmap_deinit(lisp, &atom->cfun.props);
+            break;
+        }
+        case PK_ATOMTY_CMACRO: {
+            pk_hashmap_deinit(lisp, &atom->cmacro.props);
             break;
         }
         case PK_ATOMTY_SYMBOL: {
+            pk_hashmap_deinit(lisp, &atom->symbol.props);
             break;
         }
         case PK_ATOMTY_OBJECT: {

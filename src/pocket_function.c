@@ -27,8 +27,49 @@ PKAtomCFun *pk_atom_cfun(Pocket lisp, void *user_closure, PKFun fun, PK_CALL cal
         .args = args->args,
         .options = args->options,
     };
-        
+    atom->props = PK_HASHMAP_EMPTY;
+
     return atom;
+}
+
+PKAtom *pk_atom_cfun_put(Pocket lisp, PKAtomCFun *cfun, PKAtom *key, PKAtom *value) {
+    if (pk_atom_is_nil(value)) {
+        (void)pk_hashmap_remove(lisp, &cfun->props, key);
+    } else {
+        (void)pk_hashmap_insert(lisp, &cfun->props, key, value, PK_HASHMAP_INSERT_NORMAL);
+    }
+    return (PKAtom *)cfun;
+}
+
+PKAtom *pk_atom_cfun_remove(Pocket lisp, PKAtomCFun *cfun, PKAtom *key) {
+    PKAtom *result = pk_hashmap_remove(lisp, &cfun->props, key);
+    if (pk_atom_is_undefined(result)) {
+        return lisp->cache.nil;
+    } else {
+        return result;
+    }
+}
+
+PKAtom *pk_atom_cfun_get(Pocket lisp, PKAtomCFun *cfun, PKAtom *key) {
+    PKAtom *result = pk_hashmap_get(lisp, &cfun->props, key);
+    if (pk_atom_is_undefined(result)) {
+        return lisp->cache.nil;
+    } else {
+        return result;
+    }
+}
+
+bool pk_atom_cfun_is_property(Pocket lisp, PKAtomCFun *cfun, PKAtom *key) {
+    PKAtom *result = pk_hashmap_get(lisp, &cfun->props, key);
+    if (pk_atom_is_undefined(result)) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+PKAtom *pk_atom_cfun_to_plist(Pocket lisp, PKAtomCFun *cfun) {
+    return pk_hashmap_to_plist(lisp, &cfun->props);
 }
 
 void pk_atom_cfun_exec(Pocket lisp, PKAtomCFun *cfun) {
@@ -38,6 +79,46 @@ void pk_atom_cfun_exec(Pocket lisp, PKAtomCFun *cfun) {
 void pk_atom_lfun_exec(Pocket lisp, PKAtomLFun *lfun) {
     PKVM vm = pk_vm_init((PKAtom *)lfun, 0);
     pk_vm_exec(lisp, &vm);
+}
+
+PKAtom *pk_atom_lfun_put(Pocket lisp, PKAtomLFun *lfun, PKAtom *key, PKAtom *value) {
+    if (pk_atom_is_nil(value)) {
+        (void)pk_hashmap_remove(lisp, &lfun->props, key);
+    } else {
+        (void)pk_hashmap_insert(lisp, &lfun->props, key, value, PK_HASHMAP_INSERT_NORMAL);
+    }
+    return (PKAtom *)lfun;
+}
+
+PKAtom *pk_atom_lfun_remove(Pocket lisp, PKAtomLFun *lfun, PKAtom *key) {
+    PKAtom *result = pk_hashmap_remove(lisp, &lfun->props, key);
+    if (pk_atom_is_undefined(result)) {
+        return lisp->cache.nil;
+    } else {
+        return result;
+    }
+}
+
+PKAtom *pk_atom_lfun_get(Pocket lisp, PKAtomLFun *lfun, PKAtom *key) {
+    PKAtom *result = pk_hashmap_get(lisp, &lfun->props, key);
+    if (pk_atom_is_undefined(result)) {
+        return lisp->cache.nil;
+    } else {
+        return result;
+    }
+}
+
+bool pk_atom_lfun_is_property(Pocket lisp, PKAtomLFun *lfun, PKAtom *key) {
+    PKAtom *result = pk_hashmap_get(lisp, &lfun->props, key);
+    if (pk_atom_is_undefined(result)) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+PKAtom *pk_atom_lfun_to_plist(Pocket lisp, PKAtomLFun *lfun) {
+    return pk_hashmap_to_plist(lisp, &lfun->props);
 }
 
 PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun) {
