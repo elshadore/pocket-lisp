@@ -110,29 +110,29 @@ PKAtom *pk_atom_clone(Pocket lisp, PKAtom *atom) {
     return result;
 }
 
-bool pk_atom_is_circular_rec_(Pocket lisp, PKHashmap *visited, PKAtom *atom) {
+bool pk_atom_is_circular_recursive(Pocket lisp, PKAtom *atom) {
     if (pk_atom_kind(atom) != PK_ATOMKIND_OBJECT) {
         return false;
     }
 
-    PKAtom *state = pk_hashmap_get(lisp, visited, atom);
+    PKAtom *state = pk_hashmap_get(lisp, &lisp->cloner, atom);
     if (!pk_atom_is_undefined(state)) {
         return !pk_atom_is_true(state);
     }
 
-    pk_hashmap_insert(lisp, visited, atom, lisp->cache.nil, PK_HASHMAP_INSERT_NORMAL);
+    pk_hashmap_insert(lisp, &lisp->cloner, atom, lisp->cache.nil, PK_HASHMAP_INSERT_NORMAL);
     bool result = false;
 
     switch (atom->header.type) {
         case PK_ATOMTY_CONS: {
-            result = pk_atom_is_circular_rec_(lisp, visited, atom->cons.car)
-                || pk_atom_is_circular_rec_(lisp, visited, atom->cons.cdr);
+            result = pk_atom_is_circular_recursive(lisp, atom->cons.car)
+                || pk_atom_is_circular_recursive(lisp, atom->cons.cdr);
             break;
         }
         case PK_ATOMTY_ARRAY: {
             PKArray *array = &atom->array.atoms;
             for (size_t i = 0; !result && (i < array->count); ++i) {
-                result = pk_atom_is_circular_rec_(lisp, visited, array->e[i]);
+                result = pk_atom_is_circular_recursive(lisp, array->e[i]);
             }
             break;
         }
@@ -143,37 +143,15 @@ bool pk_atom_is_circular_rec_(Pocket lisp, PKHashmap *visited, PKAtom *atom) {
         default: break;
     }
 
-    pk_hashmap_insert(lisp, visited, atom, lisp->cache.atom_true, PK_HASHMAP_INSERT_NORMAL);
+    pk_hashmap_insert(lisp, &lisp->cloner, atom, lisp->cache.atom_true, PK_HASHMAP_INSERT_NORMAL);
     return result;
 }
 
-typedef struct PKAtomCircularData_ {
-    PKHashmap *visited;
-    PKAtom *atom;
-} PKAtomCircularData;
-
-void pk_atom_is_circular_body(void *user_closure, Pocket lisp) {
-    PKAtomCircularData *data = (PKAtomCircularData *)user_closure;
-    bool result = pk_atom_is_circular_rec_(lisp, data->visited, data->atom);
-    pk_stack_push(lisp, result ? (PKAtom *)lisp->cache.atom_true : lisp->cache.nil);
-}
-
 bool pk_atom_is_circular(Pocket lisp, PKAtom *atom) {
-    PKHashmap visited = PK_HASHMAP_EMPTY;
-    PKAtomCircularData data = (PKAtomCircularData) {
-        .visited = &visited,
-        .atom = atom,
-    };
-
-    PK_RES result = pk_protect(lisp, &data, pk_atom_is_circular_body, 0);
-    pk_hashmap_deinit(lisp, &visited);
-
-    if (result == PK_YIELDED) {
-        pk_propagate(lisp);
-    }
-
-    PKAtom *out = pk_stack_head_pop(lisp);
-    return pk_atom_is_true(out);
+    pk_hashmap_deinit(lisp, &lisp->cloner);
+    bool result = pk_atom_is_circular_recursive(lisp, atom);
+    pk_hashmap_deinit(lisp, &lisp->cloner);
+    return result;
 }
 
 bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
