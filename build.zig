@@ -108,7 +108,6 @@ pub fn build(b: *std.Build) void {
     };
 
     const src = [_][]const u8{
-        "src/pocket_arena.c",
         "src/pocket_array.c",
         "src/pocket_atom.c",
         "src/pocket_call.c",

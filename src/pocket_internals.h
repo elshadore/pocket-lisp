@@ -86,7 +86,7 @@ typedef struct PKSlotmap_ {
     size_t capacity;
 } PKSlotmap;
 
-#define PK_WRITER_EMPTY (PKWriter){.c = NULL, .count = 0, .capacity = 0}
+#define PK_WRITER_EMPTY (PKWriter) {.c = NULL, .count = 0, .capacity = 0}
 
 typedef struct PKWriter_ {
     char *c;
@@ -309,23 +309,9 @@ struct PKJmp_ {
     jmp_buf buf;
 };
 
-#define PK_ARENA_DEFAULT_SIZE (1024)
-
-#define PK_ARENA_EMPTY (PKArena) { \
-    .buffer = NULL, \
-    .head = 0, \
-}
-
-typedef struct PKArena_ PKArena;
-struct PKArena_ {
-    void *buffer;
-    size_t head;
-};
-
 #define PK_FRAME_EMPTY (PKFrame){ \
     .stack_offset = 0, \
     .let_offset = 0, \
-    .arena_save = 0, \
     .catch = NULL, \
     .jmp = NULL, \
     .mode = PK_FRAME_MODE_PROTECT, \
@@ -339,7 +325,6 @@ struct PKArena_ {
 typedef struct PKFrame_ {
     size_t stack_offset;
     size_t let_offset;
-    size_t arena_save;
     PKAtomSymbol *catch;
     PKJmp *jmp;
     pk_u8 mode;
@@ -465,9 +450,10 @@ typedef struct PKCache_ {
     .lets = PK_LETS_EMPTY, \
     .frames = PK_FRAMES_EMPTY, \
     .symbolizer = PK_HASHMAP_EMPTY, \
+    .cloner = PK_HASHMAP_EMPTY, \
+    .writer = PK_WRITER_EMPTY, \
     .gensym_counter = 0, \
     .gc_enabled = false, \
-    .arena = PK_ARENA_EMPTY, \
     .current_frame = PK_FRAME_EMPTY, \
     .throw_symbol = NULL, \
     .throw_value = NULL, \
@@ -484,9 +470,10 @@ typedef struct PocketLispMachine_ {
     PKAtom *throw_symbol;
     PKAtom *throw_value;
     PKHashmap symbolizer;
+    PKHashmap cloner;
+    PKWriter writer;
     size_t gensym_counter;
     bool gc_enabled;
-    PKArena arena;
     PKPool *pool;
     PKAtomFree *free;
     PKCache cache;
@@ -500,15 +487,6 @@ void pk_free(Pocket lisp, void *ptr);
 
 void pk_pool_expand(Pocket lisp);
 
-void pk_arena_deinit(Pocket lisp);
-void *pk_arena_alloc(Pocket lisp, size_t save, size_t size, void *copy);
-void *pk_arena_allign_word(Pocket lisp);
-size_t pk_arena_save(Pocket lisp);
-void pk_arena_restore(Pocket lisp, size_t save);
-char *pk_arena_string(Pocket lisp, size_t save, PKStr string);
-pk_u8 *pk_arena_bytes(Pocket lisp, size_t save, PKBlob blob);
-PKAtom *pk_arena_atoms(Pocket lisp, size_t save, PKAtoms atoms);
-
 PKAtom *pk_atom_alloc(Pocket lisp);
 void pk_atom_free(Pocket lisp, PKAtom *atom);
 
@@ -517,7 +495,7 @@ void pk_error_type(Pocket lisp, PKAtom *found, PK_TYPE expected);
 void pk_error_type2(Pocket lisp, PKAtom *found, PK_TYPE expected1, PK_TYPE expected2);
 void pk_error_type3(Pocket lisp, PKAtom *found, PK_TYPE expected1, PK_TYPE expected2, PK_TYPE expected3);
 void pk_error_type4(Pocket lisp, PKAtom *found, PK_TYPE expected1, PK_TYPE expected2, PK_TYPE expected3, PK_TYPE expected4);
-void pk_error_writer(Pocket lisp, PKWriter *w);
+void pk_error_writer(Pocket lisp);
 PKAtom *pk_error_value(Pocket lisp);
 
 bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
@@ -748,7 +726,7 @@ void pk_stack_op_list_merge(Pocket lisp, size_t depth);
 void pk_stack_op_strcat(Pocket lisp, size_t depth);
     
 PKAtom *pk_parse_atom(Pocket lisp, PKParser *r);
-PKAtom *pk_parse_atom_barred(Pocket lisp, PKParser *r, PKWriter *w, PK_SYMTY type);
+PKAtom *pk_parse_atom_barred(Pocket lisp, PKParser *r, PK_SYMTY type);
 PKAtom *pk_parse_atom_keyword(Pocket lisp, PKParser *r);
 PKAtom *pk_parse_atom_string(Pocket lisp, PKParser *r);
 PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r);
@@ -758,21 +736,20 @@ PKAtom *pk_parse_atom_cons(Pocket lisp, PKParser *r);
 PKAtom *pk_parse_atom_from_str(Pocket lisp, PKStr string, PK_MODE mode);
 PKAtom *pk_parse_atom_from_string(Pocket lisp, PKAtomString *string, PK_MODE mode);
     
-void pk_writer_deinit(Pocket lisp, PKWriter *w);
-void pk_writer_expand(Pocket lisp, PKWriter *w, size_t needed);
-void pk_writer_char(Pocket lisp, PKWriter *w, char c);
-void pk_writer_cstr(Pocket lisp, PKWriter *w, const char *cstr);
-void pk_writer_string(Pocket lisp, PKWriter *w, PKStr string);
-void pk_writer_string_escaped(Pocket lisp, PKWriter *w, PKStr string);
-void pk_writer_vfmt(Pocket lisp, PKWriter *w, const char *fmt, va_list args);
-PK_PRINTF_FMT(3, 4) void pk_writer_fmt(Pocket lisp, PKWriter *w, const char *fmt, ...);
-void pk_writer_int(Pocket lisp, PKWriter *w, int integer);
-void pk_writer_address(Pocket lisp, PKWriter *w, size_t address);
-void pk_writer_newline(Pocket lisp, PKWriter *w);
-PKStr pk_writer_slice(PKWriter *w);
-void pk_writer_reset(PKWriter *w);
-void pk_writer_symbol_name(Pocket lisp, PKWriter *w, PKStr name);
-void pk_writer_atom(Pocket lisp, PKWriter *w, PKAtom *atom);
+void pk_writer_destroy(Pocket lisp);
+void pk_writer_reset(Pocket lisp);
+void pk_writer_char(Pocket lisp, char c);
+void pk_writer_cstr(Pocket lisp, const char *cstr);
+void pk_writer_string(Pocket lisp, PKStr string);
+void pk_writer_string_escaped(Pocket lisp, PKStr string);
+void pk_writer_vfmt(Pocket lisp, const char *fmt, va_list args);
+PK_PRINTF_FMT(2, 3) void pk_writer_fmt(Pocket lisp, const char *fmt, ...);
+void pk_writer_int(Pocket lisp, int integer);
+void pk_writer_address(Pocket lisp, size_t address);
+void pk_writer_newline(Pocket lisp);
+PKStr pk_writer_slice(Pocket lisp);
+void pk_writer_symbol(Pocket lisp, PKStr ident);
+void pk_writer_atom(Pocket lisp, PKAtom *atom);
     
 PKStr pk_str_alloc(Pocket lisp, size_t length);
 PKStr pk_str_dupe(Pocket lisp, PKStr input);

@@ -43,7 +43,7 @@ PKStr pk_strsub_slice(PKStrSub *sub) {
     };
 }
 
-void pk_compile_strsub_(Pocket lisp, PKStrSub *sub) {
+void pk_compile_strsub_main(Pocket lisp, PKStrSub *sub) {
     size_t count = 0;
     pk_strsub_mark(sub);
 
@@ -53,15 +53,15 @@ void pk_compile_strsub_(Pocket lisp, PKStrSub *sub) {
             if (pk_strsub_at(sub) != '{') {
                 pk_errors(lisp, pk_str("bad escape"));
             }
-            pk_writer_char(lisp, &sub->w, '{');
+            pk_writer_char(lisp, '{');
             pk_strsub_ince(lisp, sub);
         } else if (pk_strsub_at(sub) == '{') {
             if (sub->w.count > 0) {
-                pk_cmp_load(lisp, sub->cmp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(&sub->w)));
+                pk_cmp_load(lisp, sub->cmp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(lisp)));
                 count += 1;
             }
 
-            pk_writer_reset(&sub->w);
+            pk_writer_reset(lisp);
             pk_strsub_ince(lisp, sub);
 
             pk_strsub_mark(sub);
@@ -79,12 +79,12 @@ void pk_compile_strsub_(Pocket lisp, PKStrSub *sub) {
 
             count += 1;
         } else {
-            pk_writer_char(lisp, &sub->w, pk_strsub_at(sub));
+            pk_writer_char(lisp, pk_strsub_at(sub));
         }
     } while (pk_strsub_inc(sub));
 
     if (sub->w.count > 0) {
-        pk_cmp_load(lisp, sub->cmp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(&sub->w)));
+        pk_cmp_load(lisp, sub->cmp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(lisp)));
         count += 1;
     }
 
@@ -94,41 +94,21 @@ void pk_compile_strsub_(Pocket lisp, PKStrSub *sub) {
     }
 }
 
-typedef struct PKStrSubCompileData_ {
-    PKStrSub sub;
-} PKStrSubCompileData;
-
-void pk_compile_strsub_body(void *user_closure, Pocket lisp) {
-    PKStrSubCompileData *data = (PKStrSubCompileData *)user_closure;
-    pk_compile_strsub_(lisp, &data->sub);
-}
-
 void pk_compile_strsub(Pocket lisp, PKCompiler *c, PKStr string) {
     if (string.length == 0) {
         pk_cmp_load(lisp, c, (PKAtom *)lisp->cache.empty_string);
         return;
     }
 
-    PKStrSubCompileData data = (PKStrSubCompileData) {
-        .sub = (PKStrSub) {
-            .c = string.c[0],
-            .string = string,
-            .curr = 0,
-            .mark = 0,
-            .cmp = c,
-            .w = PK_WRITER_EMPTY,
-        },
+    PKStrSub sub = (PKStrSub) {
+        .c = string.c[0],
+        .string = string,
+        .curr = 0,
+        .mark = 0,
+        .cmp = c,
     };
 
-    bool old_gc = pk_gc_set_enable(lisp, false);
+    pk_compile_strsub_main(lisp, &sub);
     
-    PK_RES result = pk_protect_noreturn(lisp, &data, pk_compile_strsub_body, 0);
-    
-    (void)pk_gc_set_enable(lisp, old_gc);
-    
-    pk_writer_deinit(lisp, &data.sub.w);
-
-    if (result == PK_YIELDED) {
-        pk_propagate(lisp);
-    }
+    pk_writer_reset(lisp);
 }

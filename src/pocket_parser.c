@@ -6,41 +6,10 @@
 
 #define pk_pat(r_) (r_)->c
 
-typedef struct PKParseBarredData_ {
-    PKParser *r;
-    PKWriter w;
-    PK_SYMTY type;
-} PKParseBarredData;
-
-void pk_parse_barred_body(void *user_closure, Pocket lisp) {
-    PKParseBarredData *data = (PKParseBarredData *)user_closure;
-    pk_stack_push(lisp, pk_parse_atom_barred(lisp, data->r, &data->w, data->type));
-}
-
-PKAtom *pk_parse_barred(Pocket lisp, PKParser *r, PK_SYMTY type) {
-    PKParseBarredData data = (PKParseBarredData) {
-        .r = r,
-        .w = PK_WRITER_EMPTY,
-        .type = type,
-    };
-
-    PK_RES result = pk_protect(lisp, &data, pk_parse_barred_body, 0);
-
-    pk_writer_deinit(lisp, &data.w);
-
-    if (result == PK_YIELDED) {
-        pk_propagate(lisp);
-    }
-
-    PKAtom *out = pk_stack_head_pop(lisp);
-    return out;
-}
-
-
-void pk_parser_error_(Pocket lisp, PKParser *r, PKWriter *w, PKStr error_message) {
+void pk_parser_error(Pocket lisp, PKParser *r, PKStr error_message) {
+    pk_writer_reset(lisp);
     pk_writer_fmt(
         lisp,
-        w,
         "parser error:\n  curr: [%zu / %zu]\n  bol = %zu\n  line = %zu\n  char = %c\n  error:",
         r->curr,
         r->str.length,
@@ -49,15 +18,10 @@ void pk_parser_error_(Pocket lisp, PKParser *r, PKWriter *w, PKStr error_message
         r->c
     );
 
-    pk_writer_string(lisp, w, error_message);
-    pk_writer_newline(lisp, w);
-    pk_errors(lisp, pk_writer_slice(w));
-}
+    pk_writer_string(lisp, error_message);
+    pk_writer_newline(lisp);
 
-void pk_parser_error(Pocket lisp, PKParser *r, PKStr error_message) {
-    PKWriter w = PK_WRITER_EMPTY;
-    pk_parser_error_(lisp, r, &w, error_message);
-    pk_writer_deinit(lisp, &w);
+    pk_error_writer(lisp);
 }
 
 bool pk_parser_inc(PKParser *r) {
@@ -144,7 +108,7 @@ PKAtom *pk_parse_atom_keyword(Pocket lisp, PKParser *r) {
     pk_parser_ince(lisp, r);
     
     if (pk_pat(r) == '|') {
-        return pk_parse_barred(lisp, r, PK_SYMTY_KEYWORD);
+        return pk_parse_atom_barred(lisp, r, PK_SYMTY_KEYWORD);
     }
     
     save = r->curr;
@@ -166,38 +130,38 @@ PKAtom *pk_parse_atom_keyword(Pocket lisp, PKParser *r) {
     return (PKAtom *)pk_atom_keyword(lisp, slice);
 }
 
-void pk_parse_atom_write_escape(Pocket lisp, PKParser *r, PKWriter *w) {
+void pk_parse_atom_write_escape(Pocket lisp, PKParser *r) {
     switch (pk_pat(r)) {
         case 'a': {
-            pk_writer_char(lisp, w, '\a');
+            pk_writer_char(lisp, '\a');
             break;
         }
         case 'b': {
-            pk_writer_char(lisp, w, '\b');
+            pk_writer_char(lisp, '\b');
             break;
         }
         case 'e': {
-            pk_writer_char(lisp, w, '\x1B');
+            pk_writer_char(lisp, '\x1B');
             break;
         }
         case 'f': {
-            pk_writer_char(lisp, w, '\f');
+            pk_writer_char(lisp, '\f');
             break;
         }
         case 'n': {
-            pk_writer_char(lisp, w, '\n');
+            pk_writer_char(lisp, '\n');
             break;
         }
         case 'r': {
-            pk_writer_char(lisp, w, '\r');
+            pk_writer_char(lisp, '\r');
             break;
         }
         case 't': {
-            pk_writer_char(lisp, w, '\t');
+            pk_writer_char(lisp, '\t');
             break;
         }
         case 'v': {
-            pk_writer_char(lisp, w, '\v');
+            pk_writer_char(lisp, '\v');
             break;
         }
         case 'x': {
@@ -217,23 +181,23 @@ void pk_parse_atom_write_escape(Pocket lisp, PKParser *r, PKWriter *w) {
                 pk_parser_error(lisp, r, pk_str("hex escape invalid"));
             }
             byte = (pk_u8)((pk_char_to_hex(a) << 4) | pk_char_to_hex(b));
-            pk_writer_char(lisp, w, (char)byte);
+            pk_writer_char(lisp, (char)byte);
             break;
         }
         case '|': {
-            pk_writer_char(lisp, w, '|');
+            pk_writer_char(lisp, '|');
             break;
         }
         case '\\': {
-            pk_writer_char(lisp, w, '\\');
+            pk_writer_char(lisp, '\\');
             break;
         }
         case '\'': {
-            pk_writer_char(lisp, w, '\'');
+            pk_writer_char(lisp, '\'');
             break;
         }
         case '\"': {
-            pk_writer_char(lisp, w, '\"');
+            pk_writer_char(lisp, '\"');
             break;
         }
         default: {
@@ -243,7 +207,9 @@ void pk_parse_atom_write_escape(Pocket lisp, PKParser *r, PKWriter *w) {
     }
 }
 
-PKAtom *pk_parse_atom_string_(Pocket lisp, PKParser *r, PKWriter *w) {
+PKAtom *pk_parse_atom_string(Pocket lisp, PKParser *r) {
+    pk_writer_reset(lisp);
+    
     if (pk_pat(r) != '\"') {
          pk_parser_error(lisp, r, pk_str("string does not start with \", character"));
          return lisp->cache.nil;
@@ -253,27 +219,21 @@ PKAtom *pk_parse_atom_string_(Pocket lisp, PKParser *r, PKWriter *w) {
         if (pk_pat(r) == '\"') {
             
             (void)pk_parser_inc(r);
-            return (PKAtom *)pk_atom_string(lisp, pk_writer_slice(w));
+            PKAtom *result = (PKAtom *)pk_atom_string(lisp, pk_writer_slice(lisp));
+            pk_writer_reset(lisp);
+            return result;
             
         } else if (pk_pat(r) == '\\') {
             pk_parser_ince(lisp, r);
-            pk_parse_atom_write_escape(lisp, r, w);
+            pk_parse_atom_write_escape(lisp, r);
         } else {
-            pk_writer_char(lisp, w, pk_pat(r));
+            pk_writer_char(lisp, pk_pat(r));
         }
     }
     
     pk_parser_error(lisp, r, pk_str("string unterminated"));
-    return lisp->cache.nil;
-}
     
-PKAtom *pk_parse_atom_string(Pocket lisp, PKParser *r) {
-    PKWriter w = PK_WRITER_EMPTY;
-    
-    PKAtom *result = pk_parse_atom_string_(lisp, r, &w);
-    pk_writer_deinit(lisp, &w);
-    
-    return result;
+    return (PKAtom *)lisp->cache.empty_string;
 }
 
 PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r) {
@@ -332,15 +292,17 @@ PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r) {
     return (PKAtom *)pk_atom_int(lisp, acc);
 }
 
-PKAtom *pk_parse_atom_barred(Pocket lisp, PKParser *r, PKWriter *w, PK_SYMTY type) {
+PKAtom *pk_parse_atom_barred(Pocket lisp, PKParser *r, PK_SYMTY type) {
     pk_parser_ince(lisp, r);
+
+    pk_writer_reset(lisp);
     
     while ((!pk_parser_is_finished(r)) && (pk_pat(r) != '|')) {
         if (pk_pat(r) == '\\') {
             pk_parser_ince(lisp, r);
-            pk_parse_atom_write_escape(lisp, r, w);
+            pk_parse_atom_write_escape(lisp, r);
         } else {
-            pk_writer_char(lisp, w, pk_pat(r));
+            pk_writer_char(lisp, pk_pat(r));
         }
         (void)pk_parser_inc(r);
     }
@@ -355,7 +317,7 @@ PKAtom *pk_parse_atom_barred(Pocket lisp, PKParser *r, PKWriter *w, PK_SYMTY typ
         }
     }
     
-    PKStr slice = pk_writer_slice(w);
+    PKStr slice = pk_writer_slice(lisp);
     if (slice.length == 0) {
         if (type == PK_SYMTY_SYMBOL) {
             pk_parser_error(lisp, r, pk_str("empty symbol between | characters"));
@@ -367,18 +329,21 @@ PKAtom *pk_parse_atom_barred(Pocket lisp, PKParser *r, PKWriter *w, PK_SYMTY typ
     }
     
     (void)pk_parser_inc(r);
+    PKAtom *result = lisp->cache.nil;
     if (type == PK_SYMTY_SYMBOL) {
-        return (PKAtom *)pk_atom_symbol(lisp, slice);
+        result = (PKAtom *)pk_atom_symbol(lisp, slice);
     } else {
-        return (PKAtom *)pk_atom_keyword(lisp, slice);
+        result = (PKAtom *)pk_atom_keyword(lisp, slice);
     }
+    pk_writer_reset(lisp);
+    return result;
 }
 
 PKAtom *pk_parse_atom_symbol(Pocket lisp, PKParser *r) {
     size_t save = r->curr;
 
     if (pk_pat(r) == '|') {
-        return pk_parse_barred(lisp, r, PK_SYMTY_SYMBOL);
+        return pk_parse_atom_barred(lisp, r, PK_SYMTY_SYMBOL);
     }
     
     if (!pk_char_is_symbol(pk_pat(r))) {
@@ -405,17 +370,16 @@ PKAtom *pk_parse_atom_symbol(Pocket lisp, PKParser *r) {
     return (PKAtom *)pk_atom_symbol(lisp, slice);
 }
 
-typedef struct PKParseConsData_ {
-    PKParser *r;
-} PKParseConsData;
-
-void pk_parse_atom_cons_body(void *user_closure, Pocket lisp) {
-    PKParseConsData *data = (PKParseConsData *)user_closure;
-    PKParser *r = data->r;
+PKAtom *pk_parse_atom_cons(Pocket lisp, PKParser *r) {
+    if (pk_pat(r) != '(') {
+        pk_parser_error(lisp, r, pk_str("expected list to begin with (, character"));
+        return lisp->cache.nil;
+    }
 
     pk_parser_ince(lisp, r);
 
-    size_t count = 0;
+    PKAccum acc = pk_accum_new(lisp);
+    
     bool first = true;
     bool separated = false;
     bool whitespace = pk_parser_trim_whitespace(r);
@@ -424,37 +388,33 @@ void pk_parse_atom_cons_body(void *user_closure, Pocket lisp) {
         if (pk_pat(r) == ')') {
             (void)pk_parser_inc(r);
             if (first) {
-                pk_stack_push(lisp, lisp->cache.nil);
+                return lisp->cache.nil;
             } else {
-                pk_stack_op_list(lisp, count);
+                return acc.head;
             }
-            return;
         } else if (!first && !whitespace && !separated) {
             pk_parser_error(lisp, r, pk_str("list elements must be seperated with whitespace"));
-            return;
         } else if (pk_pat(r) == '.') {
             if (first) {
                 pk_parser_error(lisp, r, pk_str("cannot create a dotted cons without elements before the dot"));
-                return;
             }
             pk_parser_ince(lisp, r);
             (void)pk_parser_trim_whitespace(r);
 
             PKAtom *packed_cons = pk_parse_atom(lisp, r);
-            pk_stack_push(lisp, packed_cons);
-            pk_stack_op_list_packed(lisp, count + 1);
+            acc.tail->cons.cdr = packed_cons;
 
             (void)pk_parser_trim_whitespace(r);
             if (pk_pat(r) != ')') {
                 pk_parser_error(lisp, r, pk_str("cannot create a dotted cons with multiple elements after the dot"));
-                return;
+                return lisp->cache.nil;
             }
 
             (void)pk_parser_inc(r);
-            return;
+            return lisp->cache.nil;
         } else {
-            pk_stack_push(lisp, pk_parse_atom(lisp, r));
-            count += 1;
+            PKAtom *atom = pk_parse_atom(lisp, r);
+            pk_accum_push(&acc, atom);
             first = false;
             char last = r->str.c[r->curr - 1];
             if (last == ')' || last == '"') {
@@ -467,25 +427,7 @@ void pk_parse_atom_cons_body(void *user_closure, Pocket lisp) {
     }
 
     pk_parser_error(lisp, r, pk_str("unterminated list"));
-}
-
-PKAtom *pk_parse_atom_cons(Pocket lisp, PKParser *r) {
-    if (pk_pat(r) != '(') {
-        pk_parser_error(lisp, r, pk_str("expected list to begin with (, character"));
-        return lisp->cache.nil;
-    }
-
-    PKParseConsData data = (PKParseConsData) {
-        .r = r,
-    };
-
-    PK_RES result = pk_protect(lisp, &data, pk_parse_atom_cons_body, 0);
-
-    if (result == PK_YIELDED) {
-        pk_propagate(lisp);
-    }
-
-    return pk_stack_head_pop(lisp);
+    return lisp->cache.nil;
 }
 
 PKAtom *pk_parse_atom_simple_macro(Pocket lisp, PKParser *r, PKAtomSymbol *macro) {

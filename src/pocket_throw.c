@@ -1,11 +1,5 @@
 #include "pocket_internals.h"
 
-void pk_error_writer(Pocket lisp, PKWriter *w) {
-    PKAtomString *message = pk_atom_string(lisp, pk_writer_slice(w));
-    pk_writer_deinit(lisp, w);
-    pk_jmp_trigger(lisp, lisp->cache.error, (PKAtom *)message);
-}
-
 void pk_propagate(Pocket lisp) {
     if (lisp->throw_symbol == lisp->cache.nil) {
         pk_errors(lisp, pk_str("not in a propagate context"));
@@ -23,63 +17,68 @@ void pk_errors(Pocket lisp, PKStr message) {
     pk_jmp_trigger(lisp, lisp->cache.error, (PKAtom *)string);
 }
 
+void pk_error_writer(Pocket lisp) {
+    pk_errors(lisp, pk_writer_slice(lisp));
+}
+
 PK_PRINTF_FMT(2, 3) void pk_errorf(Pocket lisp, const char *fmt, ...) {
-    PKWriter w = PK_WRITER_EMPTY;
+    pk_writer_reset(lisp);
+    
     va_list args;
 
     va_start(args, fmt);
-    pk_writer_vfmt(lisp, &w, fmt, args);
+    pk_writer_vfmt(lisp, fmt, args);
     va_end(args);
 
-    pk_error_writer(lisp, &w);
+    pk_error_writer(lisp);
 }
 
 void pk_error_type(Pocket lisp, PKAtom *found, PK_TYPE expected) {
-    PKWriter w = PK_WRITER_EMPTY;
-    pk_writer_string(lisp, &w, pk_str("expected "));
-    pk_writer_string(lisp, &w, pk_ident_type(expected));
-    pk_writer_string(lisp, &w, pk_str(", got "));
-    pk_writer_atom(lisp, &w, found);
-    pk_error_writer(lisp, &w);
+    pk_writer_reset(lisp);
+    pk_writer_string(lisp, pk_str("expected "));
+    pk_writer_string(lisp, pk_ident_type(expected));
+    pk_writer_string(lisp, pk_str(", got "));
+    pk_writer_atom(lisp, found);
+    pk_error_writer(lisp);
 }
 
 void pk_error_type2(Pocket lisp, PKAtom *found, PK_TYPE expected1, PK_TYPE expected2) {
-    PKWriter w = PK_WRITER_EMPTY;
-    pk_writer_string(lisp, &w, pk_str("expected "));
-    pk_writer_string(lisp, &w, pk_ident_type(expected1));
-    pk_writer_string(lisp, &w, pk_str(", "));
-    pk_writer_string(lisp, &w, pk_ident_type(expected2));
-    pk_writer_string(lisp, &w, pk_str(", got "));
-    pk_writer_atom(lisp, &w, found);
-    pk_error_writer(lisp, &w);
+    pk_writer_reset(lisp);
+    pk_writer_string(lisp, pk_str("expected "));
+    pk_writer_string(lisp, pk_ident_type(expected1));
+    pk_writer_string(lisp, pk_str(", "));
+    pk_writer_string(lisp, pk_ident_type(expected2));
+    pk_writer_string(lisp, pk_str(", got "));
+    pk_writer_atom(lisp, found);
+    pk_error_writer(lisp);
 }
 
 void pk_error_type3(Pocket lisp, PKAtom *found, PK_TYPE expected1, PK_TYPE expected2, PK_TYPE expected3) {
-    PKWriter w = PK_WRITER_EMPTY;
-    pk_writer_string(lisp, &w, pk_str("expected "));
-    pk_writer_string(lisp, &w, pk_ident_type(expected1));
-    pk_writer_string(lisp, &w, pk_str(", "));
-    pk_writer_string(lisp, &w, pk_ident_type(expected2));
-    pk_writer_string(lisp, &w, pk_str(", "));
-    pk_writer_string(lisp, &w, pk_ident_type(expected3));
-    pk_writer_string(lisp, &w, pk_str(", got "));
-    pk_writer_atom(lisp, &w, found);
-    pk_error_writer(lisp, &w);
+    pk_writer_reset(lisp);
+    pk_writer_string(lisp, pk_str("expected "));
+    pk_writer_string(lisp, pk_ident_type(expected1));
+    pk_writer_string(lisp, pk_str(", "));
+    pk_writer_string(lisp, pk_ident_type(expected2));
+    pk_writer_string(lisp, pk_str(", "));
+    pk_writer_string(lisp, pk_ident_type(expected3));
+    pk_writer_string(lisp, pk_str(", got "));
+    pk_writer_atom(lisp, found);
+    pk_error_writer(lisp);
 }
 
 void pk_error_type4(Pocket lisp, PKAtom *found, PK_TYPE expected1, PK_TYPE expected2, PK_TYPE expected3, PK_TYPE expected4) {
-    PKWriter w = PK_WRITER_EMPTY;
-    pk_writer_string(lisp, &w, pk_str("expected "));
-    pk_writer_string(lisp, &w, pk_ident_type(expected1));
-    pk_writer_string(lisp, &w, pk_str(", "));
-    pk_writer_string(lisp, &w, pk_ident_type(expected2));
-    pk_writer_string(lisp, &w, pk_str(", "));
-    pk_writer_string(lisp, &w, pk_ident_type(expected3));
-    pk_writer_string(lisp, &w, pk_str(", "));
-    pk_writer_string(lisp, &w, pk_ident_type(expected4));
-    pk_writer_string(lisp, &w, pk_str(", got "));
-    pk_writer_atom(lisp, &w, found);
-    pk_error_writer(lisp, &w);
+    pk_writer_reset(lisp);
+    pk_writer_string(lisp, pk_str("expected "));
+    pk_writer_string(lisp, pk_ident_type(expected1));
+    pk_writer_string(lisp, pk_str(", "));
+    pk_writer_string(lisp, pk_ident_type(expected2));
+    pk_writer_string(lisp, pk_str(", "));
+    pk_writer_string(lisp, pk_ident_type(expected3));
+    pk_writer_string(lisp, pk_str(", "));
+    pk_writer_string(lisp, pk_ident_type(expected4));
+    pk_writer_string(lisp, pk_str(", got "));
+    pk_writer_atom(lisp, found);
+    pk_error_writer(lisp);
 }
 
 void pk_error_oom(Pocket lisp) {

@@ -40,18 +40,20 @@ void pk_atom_lfun_exec(Pocket lisp, PKAtomLFun *lfun) {
     pk_vm_exec(lisp, &vm);
 }
 
-PKAtomString *pk_lfun_hexdump_(Pocket lisp, PKWriter *w, PKAtomLFun *lfun) {
-    pk_writer_string(lisp, w, pk_str("*~HEX-DUMP~*\n"));
-    pk_writer_string(lisp, w, pk_str("SECTION-CODE:\n"));
+PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun) {
+    pk_writer_reset(lisp);
+    
+    pk_writer_string(lisp, pk_str("*~HEX-DUMP~*\n"));
+    pk_writer_string(lisp, pk_str("SECTION-CODE:\n"));
     
     for (size_t i = 0; i < lfun->bc.length; ++i) {
-        pk_writer_string(lisp, w, pk_str("["));
-        pk_writer_fmt(lisp, w, "%zu", i);
-        pk_writer_string(lisp, w, pk_str("] => "));
+        pk_writer_string(lisp, pk_str("["));
+        pk_writer_fmt(lisp, "%zu", i);
+        pk_writer_string(lisp, pk_str("] => "));
         
         pk_u8 byte = lfun->bc.e[i];
         PKStr ident = pk_ident_opcode(byte);
-        pk_writer_string(lisp, w, ident);
+        pk_writer_string(lisp, ident);
         
         PK_OPCODE_TY ty = pk_opcode_ty(byte);
         
@@ -65,8 +67,8 @@ PKAtomString *pk_lfun_hexdump_(Pocket lisp, PKWriter *w, PKAtomLFun *lfun) {
                 }
                 pk_u8 data = lfun->bc.e[i];
                 PKAtom *atom = lfun->atoms.e[data];
-                pk_writer_string(lisp, w, pk_str(" => "));
-                pk_writer_atom(lisp, w, atom);
+                pk_writer_string(lisp, pk_str(" => "));
+                pk_writer_atom(lisp, atom);
                 break;
             }
             case PK_OPCODE_TY_LIT: {
@@ -78,54 +80,28 @@ PKAtomString *pk_lfun_hexdump_(Pocket lisp, PKWriter *w, PKAtomLFun *lfun) {
                 }
                 pk_u8 data = lfun->bc.e[i];
                 
-                pk_writer_string(lisp, w, pk_str(" => "));
-                pk_writer_fmt(lisp, w, "%u", data);
+                pk_writer_string(lisp, pk_str(" => "));
+                pk_writer_fmt(lisp, "%u", data);
                 break;
             }
             default: break;
         }
-        pk_writer_newline(lisp, w);
+        pk_writer_newline(lisp);
     }
 
-    pk_writer_newline(lisp, w);
+    pk_writer_newline(lisp);
     
-    pk_writer_string(lisp, w, pk_str("SECTION-DATA:\n"));
+    pk_writer_string(lisp, pk_str("SECTION-DATA:\n"));
     for (size_t i = 0; i < lfun->atoms.length; ++i) {
-        pk_writer_atom(lisp, w, lfun->atoms.e[i]);
-        pk_writer_newline(lisp, w);
+        pk_writer_atom(lisp, lfun->atoms.e[i]);
+        pk_writer_newline(lisp);
     }
     
-    pk_writer_newline(lisp, w);
+    pk_writer_newline(lisp);
 
-    return pk_atom_string(lisp, pk_writer_slice(w));
-}
-    
-typedef struct PKLfunHexdumpData_ {
-    PKWriter w;
-    PKAtomLFun *lfun;
-} PKLfunHexdumpData;
-
-void pk_lfun_hexdump_body(void *user_closure, Pocket lisp) {
-    PKLfunHexdumpData *data = (PKLfunHexdumpData *)user_closure;
-    pk_stack_push(lisp, (PKAtom *)pk_lfun_hexdump_(lisp, &data->w, data->lfun));
-}
-
-PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun) {
-    PKLfunHexdumpData data = (PKLfunHexdumpData) {
-        .w = PK_WRITER_EMPTY,
-        .lfun = lfun,
-    };
-
-    PK_RES result = pk_protect(lisp, &data, pk_lfun_hexdump_body, 0);
-
-    pk_writer_deinit(lisp, &data.w);
-
-    if (result == PK_YIELDED) {
-        pk_propagate(lisp);
-    }
-
-    PKAtom *out = pk_stack_head_pop(lisp);
-    return (PKAtomString *)out;
+    PKAtomString *result = pk_atom_string(lisp, pk_writer_slice(lisp));
+    pk_writer_reset(lisp);
+    return result;
 }
 
 PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom) {
