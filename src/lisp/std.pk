@@ -148,3 +148,6 @@
 
 (defun table (:rest properties)
     (apply 'object (cons 'Table properties)))
+
+(defun char? (x)
+   (and (type= x 'String) (= (length x) 1)))

@@ -2,15 +2,49 @@
 The todo list for POCKET LISP
 
 ## V1
+- [ ] Reintroduce Blobs
+  - `[0 255 64 32]`
+  - Blob functions (cat, el, ...)
+  - `(byte? 64)`
+  - file-slurp
+  - file-splat
+  - file-append
+  
+- [ ] Immortal Atoms
+  A Flag
+  - Statically Allocated
+    - true
+    - nil
+    - empty-string
+    - empty-blob
+  - Dynamically Allocated
+    - symbols (quote, lambda, ect...)
+    - cached stuff
+    
+- [ ] User Conversion Functions
+  - `pk_to_*` -> convert lisp type
+    - `pk_to_string`
+    - `pk_to_symbol`
+    - `pk_to_keyword`
+    - `pk_to_blob`
+    - `pk_to_int`
+    - `pk_to_float`
+  - `pk_as_*` -> return c type
+    - `pk_as_string`
+    - `pk_as_blob`
+    - `pk_as_int`
+    - `pk_as_float`
+  
 - [ ] Zig Build not Correctly Regenerating even after Generating Headers
 
-- [ ] Properties on *Most* Objects
-  - Symbols
-  - Functions
-  - Macros
-  
 - [ ] Apply
    - `(apply '+ 1 2 3 '(4 5 6 7))`
+   
+- [ ] OPCode Renames
+  - `Get_Var` -> Fetch
+  - `Get_Fun` -> FFetch
+  - `Let_Var` -> Let
+  - `Let_Fun` -> FLet
   
 - [ ] Symbol, Keyword, String Equality
   - `(= 'foo "foo" :foo) -> true`
@@ -28,33 +62,17 @@ The todo list for POCKET LISP
     - `(string-split "foo foo foo" " ")`
     - `(char? "a")`
     
-- [ ] Reintroduce Blobs
-  - `[0 255 64 32]`
-  - Blob functions (cat, el, ...)
-  - `(byte? 64)`
-  - file-slurp
-  - file-splat
-  
 - [ ] exotic number parsing
   - 0b010101
   - 0xfeefee
   - 0oaaaaaa <- idk octal
   
-- [ ] Immortal Atoms
-  - Statically Allocated
-    - true
-    - nil
-    - empty-string
-    - empty-blob
-  - Dynamically Allocated
-    - symbols (quote, lambda, ect...)
-    - cached stuff
-  
+- [ ] Public Number Conv
+- [ ] Vectorized Math
 - [ ] Math functions
   need more to list here look at scheme reference
   - sin
   - cos
-  
 - [ ] floats
   - printing
   - parsing

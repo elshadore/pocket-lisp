@@ -32,10 +32,23 @@ typedef void (*PKGCFun)(void *user_data);
 
 #define PK_PRINTF_FMT(fmt_, vargs_) __attribute__((format (printf, fmt_, vargs_)))
 
+#define pk_str(text_) (PKStr) {.c = (text_), .length = ((sizeof(text_) / sizeof(char)) - 1)}
+
+#define PK_STR_EMPTY (PKStr){.c = NULL, .length = 0}
+
+#define pk_alen(array_) (sizeof(array_) / sizeof(*array_))
+
 typedef struct PKStr_ {
     char *c;
     size_t length;
 } PKStr;
+
+#define PK_BLOB_EMPTY (PKBlob){.e = NULL, .length = 0}
+
+typedef struct PKBlob_ {
+    pk_u8 *e;
+    size_t length;
+} PKBlob;
 
 typedef enum PK_RES_ {
     PK_YIELDED = 0,
@@ -78,12 +91,6 @@ typedef enum PK_TYPE_ {
     PK_TYPE_FUNCTION,
     PK_TYPE_MACRO,
 } PK_TYPE;
-
-#define pk_str(text_) (PKStr) {.c = (text_), .length = ((sizeof(text_) / sizeof(char)) - 1)}
-
-#define PK_STR_EMPTY (PKStr){.c = NULL, .length = 0}
-
-#define pk_alen(array_) (sizeof(array_) / sizeof(*array_))
 
 typedef struct PKFunArgs_ {
     PK_ARITY arity;
@@ -144,12 +151,12 @@ PK_API bool pk_is_circular(Pocket lisp, int stack_pointer);
 PK_API void pk_reverse(Pocket lisp, int seq);
 PK_API void pk_to_list(Pocket lisp, int seq);
 
+PK_API void pk_assoc(Pocket lisp, int alist, int key);
+
 PK_API void pk_car(Pocket lisp, int cons);
 PK_API void pk_cdr(Pocket lisp, int cons);
-PK_API void pk_assoc(Pocket lisp, int alist, int key);
 PK_API void pk_car_strict(Pocket lisp, int cons);
 PK_API void pk_cdr_strict(Pocket lisp, int cons);
-
 PK_API void pk_set_car(Pocket lisp, int cons, int newcar);
 PK_API void pk_set_cdr(Pocket lisp, int cons, int newcdr);
 
@@ -223,6 +230,8 @@ PK_API bool pk_struct_eq(Pocket lisp, int lhs, int rhs);
 
 PK_API int pk_to_int(Pocket lisp, int number);
 PK_API float pk_to_float(Pocket lisp, int number);
+PK_API PKStr pk_to_string(Pocket lisp, int text);
+PK_API PKBlob pk_to_blob(Pocket lisp, int blob);
 
 PK_API void pk_map(Pocket lisp, int seq, int fun);
 PK_API void pk_filter(Pocket lisp, int seq, int fun);

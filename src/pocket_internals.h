@@ -23,13 +23,6 @@ typedef struct PKAtoms_ {
     size_t length;
 } PKAtoms;
 
-#define PK_BLOB_EMPTY (PKBlob){.e = NULL, .length = 0}
-
-typedef struct PKBlob_ {
-    pk_u8 *e;
-    size_t length;
-} PKBlob;
-
 #define PK_ARRAY_EMPTY (PKArray){.e = NULL, .count = 0, .capacity = 0}
 
 typedef struct PKArray_ {
@@ -155,6 +148,7 @@ typedef struct PKCallConv_ {
 #define PK_ATOMTY_LFUN (14)
 #define PK_ATOMTY_CMACRO (15)
 #define PK_ATOMTY_LMACRO (16)
+#define PK_ATOMTY_BLOB (17)
 
 typedef enum PKAtomKind_ {
     PK_ATOMKIND_VALUE = 0,
@@ -291,6 +285,11 @@ typedef struct PKAtomObject_ {
     PKHashmap props;
 } PKAtomObject;
 
+typedef struct PKAtomBlob_ {
+    PKAtomHeader header;
+    PKBlob bytes;
+} PKAtomBlob;
+
 typedef union PKAtomData_ {
     PKAtomHeader header;
     PKAtomFree free;
@@ -305,6 +304,7 @@ typedef union PKAtomData_ {
     PKAtomLFun lmacro;
     PKAtomArray array;
     PKAtomObject object;
+    PKAtomBlob blob;
 } PKAtomData;
 
 typedef struct PKJmp_ PKJmp;
