@@ -81,7 +81,7 @@ void pk_deinit(Pocket lisp) {
     lisp->lets = PK_LETS_EMPTY;
     pk_hashmap_deinit(lisp, &lisp->symbolizer);
 
-    pk_gc_collect_no_cache(lisp);
+    pk_gc_collect(lisp);
 
     #ifdef PK_CFLAG_DEBUG
     pk_debug_leakcheck(lisp, "pk_deinit()");
