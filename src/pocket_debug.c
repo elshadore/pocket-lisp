@@ -118,7 +118,7 @@ void pk_debug_leakcheck(Pocket lisp, const char *tag) {
     for (PKPool *iter = lisp->pool; iter != NULL; iter = iter->next) {
         for (size_t i = 0; i < PK_POOL_MAX; ++i) {
             PKAtom *atom = &iter->e[i];
-            if (atom->header.type == PK_ATOMTY_FREE) {
+            if ((atom->header.type == PK_ATOMTY_FREE) || pk_atom_is_immortal(atom)) {
                 continue;
             }
             PKStr ident = pk_ident_atomty(atom->header.type);
