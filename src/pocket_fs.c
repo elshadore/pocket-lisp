@@ -26,19 +26,56 @@ FILE *pk_fs_file_open(Pocket lisp, PKStr file_path, const char *mode) {
     return result;
 }
 
-void pk_fs_file_splat_str(Pocket lisp, PKStr file_path, PKStr input) {
+void pk_fs_file_write_str(Pocket lisp, PKStr file_path, PKStr input, const char *mode) {
     (void)lisp;
-    FILE *file = pk_fs_file_open(lisp, file_path, "w");
+    FILE *file = pk_fs_file_open(lisp, file_path, mode);
     fwrite(input.c, sizeof(char), input.length, file);
     fclose(file);
 }
 
-void pk_fs_file_splat(Pocket lisp, PKAtomString *file_path, PKAtomString *input) {
-    pk_fs_file_splat_str(lisp, file_path->str, input->str);
+void pk_fs_file_write_bytes(Pocket lisp, PKStr file_path, PKBlob input, const char *mode) {
+    (void)lisp;
+    FILE *file = pk_fs_file_open(lisp, file_path, mode);
+    fwrite(input.e, sizeof(pk_u8), input.length, file);
+    fclose(file);
 }
 
-PKAtomString *pk_fs_file_slurp_str(Pocket lisp, PKStr file_path) {
-    FILE *file = pk_fs_file_open(lisp, file_path, "r");
+void pk_fs_file_write(Pocket lisp, PKAtomString *file_path, PKAtom *input) {
+    switch (input->header.type) {
+        case PK_ATOMTY_STRING: {
+            pk_fs_file_write_str(lisp, file_path->str, input->string.str, "w");
+            break;
+        }
+        case PK_ATOMTY_BLOB: {
+            pk_fs_file_write_bytes(lisp, file_path->str, input->blob.bytes, "wb");
+            break;
+        }
+        default: {
+            pk_error_type2(lisp, input, PK_TYPE_STRING, PK_TYPE_BLOB);
+            break;
+        }
+    }
+}
+
+void pk_fs_file_append(Pocket lisp, PKAtomString *file_path, PKAtom *input) {
+    switch (input->header.type) {
+        case PK_ATOMTY_STRING: {
+            pk_fs_file_write_str(lisp, file_path->str, input->string.str, "a");
+            break;
+        }
+        case PK_ATOMTY_BLOB: {
+            pk_fs_file_write_bytes(lisp, file_path->str, input->blob.bytes, "ab");
+            break;
+        }
+        default: {
+            pk_error_type2(lisp, input, PK_TYPE_STRING, PK_TYPE_BLOB);
+            break;
+        }
+    }
+}
+
+PKAtomString *pk_fs_file_read_string(Pocket lisp, PKAtomString *file_path) {
+    FILE *file = pk_fs_file_open(lisp, file_path->str, "r");
     
     if (file == NULL) {
         pk_errors(lisp, pk_str("cannot open file"));
@@ -64,8 +101,31 @@ PKAtomString *pk_fs_file_slurp_str(Pocket lisp, PKStr file_path) {
     return result;
 }
 
-PKAtomString *pk_fs_file_slurp(Pocket lisp, PKAtomString *file_path) {
-    return pk_fs_file_slurp_str(lisp, file_path->str);
+PKAtomBlob *pk_fs_file_read_bytes(Pocket lisp, PKAtomString *file_path) {
+    FILE *file = pk_fs_file_open(lisp, file_path->str, "rb");
+    
+    if (file == NULL) {
+        pk_errors(lisp, pk_str("cannot open file"));
+    }
+
+    fseek(file, 0, SEEK_END);
+    long length = ftell(file);
+    if (length < 0) {
+        fclose(file);
+        pk_errors(lisp, pk_str("cannot get file size"));
+    }
+    rewind(file);
+
+    PKAtomBlob *result = pk_atom_blob_alloc(lisp, (size_t)length);
+
+    size_t read = fread(result->bytes.e, 1, (size_t)length, file);
+    fclose(file);
+
+    if ((size_t)length != read) {
+        pk_errors(lisp, pk_str("cannot read file"));
+    }
+
+    return result;
 }
 
 PKAtom *pk_fs_read_user_input(Pocket lisp) {

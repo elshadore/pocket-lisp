@@ -381,16 +381,28 @@ void pk_fun_read_user_input(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_fs_read_user_input(lisp));
 }
 
-void pk_fun_file_slurp(void *user_closure, Pocket lisp) {
+void pk_fun_file_read_string(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_stack_push(lisp, (PKAtom *)pk_fs_file_slurp(lisp, pk_atom_assert_string(lisp, pk_stack_get(lisp, 1))));
+    pk_stack_push(lisp, (PKAtom *)pk_fs_file_read_string(lisp, pk_atom_assert_string(lisp, pk_stack_get(lisp, 1))));
 }
 
-void pk_fun_file_splat(void *user_closure, Pocket lisp) {
+void pk_fun_file_read_bytes(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, (PKAtom *)pk_fs_file_read_bytes(lisp, pk_atom_assert_string(lisp, pk_stack_get(lisp, 1))));
+}
+
+void pk_fun_file_write(void *user_closure, Pocket lisp) {
     (void)user_closure;
     PKAtomString *file_path = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
-    PKAtomString *contents = pk_atom_assert_string(lisp, pk_stack_get(lisp, 2));
-    pk_fs_file_splat(lisp, file_path, contents);
+    PKAtom *contents = pk_stack_get(lisp, 2);
+    pk_fs_file_write(lisp, file_path, contents);
+}
+
+void pk_fun_file_append(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *file_path = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    PKAtom *contents = pk_stack_get(lisp, 2);
+    pk_fs_file_append(lisp, file_path, contents);
 }
     
 void pk_fun_destroy(void *user_closure, Pocket lisp) {
@@ -707,8 +719,10 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("print"), .fun = pk_fun_print, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("puts"), .fun = pk_fun_puts, .args = 1, .arity = PK_ARITY_NORMAL},
         
-        {.symbol = pk_str("file-slurp"), .fun = pk_fun_file_slurp, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("file-splat"), .fun = pk_fun_file_splat, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("file-read-string"), .fun = pk_fun_file_read_string, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("file-read-bytes"), .fun = pk_fun_file_read_bytes, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("file-write"), .fun = pk_fun_file_write, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("file-append"), .fun = pk_fun_file_append, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("read-user-input"), .fun = pk_fun_read_user_input, .args = 0, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("array"), .fun = pk_fun_array, .args = 0, .arity = PK_ARITY_VARIADIC},

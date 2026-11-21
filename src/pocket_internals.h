@@ -565,6 +565,7 @@ PKAtomString *pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index)
 
 PKAtomBlob *pk_atom_blob_new_empty(Pocket lisp);
 PKAtomBlob *pk_atom_blob_nomemcpy(Pocket lisp, PKBlob blob);
+PKAtomBlob *pk_atom_blob_alloc(Pocket lisp, size_t length);
 PKAtomBlob *pk_atom_blob(Pocket lisp, PKBlob blob);
 PKAtomBlob *pk_atom_blob_cat(Pocket lisp, PKAtoms atoms);
 PKAtom *pk_atom_blob_el(Pocket lisp, PKAtomBlob *blob, size_t index);
@@ -884,10 +885,10 @@ PKAtom *pk_atom_destroy(Pocket lisp, PKAtom *atom);
 PKVM pk_vm_init(PKAtom *lfun, size_t save);
 void pk_vm_exec(Pocket lisp, PKVM *vm);
 
-void pk_fs_file_splat_str(Pocket lisp, PKStr file_path, PKStr input);
-void pk_fs_file_splat(Pocket lisp, PKAtomString *file_path, PKAtomString *input);
-PKAtomString *pk_fs_file_slurp_str(Pocket lisp, PKStr file_path);
-PKAtomString *pk_fs_file_slurp(Pocket lisp, PKAtomString *file_path);
+void pk_fs_file_write(Pocket lisp, PKAtomString *file_path, PKAtom *input);
+void pk_fs_file_append(Pocket lisp, PKAtomString *file_path, PKAtom *input);
+PKAtomString *pk_fs_file_read_string(Pocket lisp, PKAtomString *file_path);
+PKAtomBlob *pk_fs_file_read_bytes(Pocket lisp, PKAtomString *file_path);
 PKAtom *pk_fs_read_user_input(Pocket lisp);
 
 void pk_gc_mark_cache(Pocket lisp);

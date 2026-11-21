@@ -119,11 +119,6 @@
  "               ,@body\n" \
  "               (setq ,temp (cdr ,temp))))))\n" \
  "                   \n" \
- "## nil? -> (not x)\n" \
- "## A shortcut function essentially.\n" \
- "(defun nil? (x)\n" \
- "   (not x))\n" \
- "\n" \
  "## We expect a proper list as input. Not nil or a packed list.\n" \
  "(defun last-cons (list)\n" \
  "   (if (nil? (cdr list))\n" \
@@ -148,7 +143,7 @@
  "\n" \
  "## Load code in from a file path FILE.\n" \
  "(defun load (filepath)\n" \
- "    (evlist (parse-list (file-slurp file))))\n" \
+ "    (evlist (parse-list (file-read-string file))))\n" \
  "\n" \
  "(defun table (:rest properties)\n" \
  "    (apply 'object (cons 'Table properties)))\n"

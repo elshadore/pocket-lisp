@@ -18,6 +18,16 @@ PKAtomBlob *pk_atom_blob_nomemcpy(Pocket lisp, PKBlob blob) {
     return result;
 }
 
+PKAtomBlob *pk_atom_blob_alloc(Pocket lisp, size_t length) {
+    // if (length == 0) {
+    //     return lisp->cache.empty_string;
+    //}
+
+    PKBlob buffer = pk_blob_alloc(lisp, length);
+    
+    return pk_atom_blob_nomemcpy(lisp, buffer);
+}
+
 PKAtomBlob *pk_atom_blob(Pocket lisp, PKBlob blob) {
     PKBlob dupe = pk_blob_dupe(lisp, blob);
     return pk_atom_blob_nomemcpy(lisp, dupe);
