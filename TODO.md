@@ -2,10 +2,15 @@
 The todo list for POCKET LISP
 
 ## V1
+- [ ] Zig Build not Correctly Regenerating even after Generating Headers
+
 - [ ] Properties on *Most* Objects
   - Symbols
   - Functions
   - Macros
+  
+- [ ] Apply
+   - `(apply '+ 1 2 3 '(4 5 6 7))`
   
 - [ ] Symbol, Keyword, String Equality
   - `(= 'foo "foo" :foo) -> true`
@@ -36,7 +41,14 @@ The todo list for POCKET LISP
   - 0oaaaaaa <- idk octal
   
 - [ ] Immortal Atoms
-  - Allocated in Arena
+  - Statically Allocated
+    - true
+    - nil
+    - empty-string
+    - empty-blob
+  - Dynamically Allocated
+    - symbols (quote, lambda, ect...)
+    - cached stuff
   
 - [ ] Math functions
   need more to list here look at scheme reference
@@ -68,6 +80,10 @@ The todo list for POCKET LISP
     - hexadecimal
   - gc enabled
   - pretty printing
+  - defun / defvar overrides
+  - classic defvar behaviour
+  
+- [ ] Keyword Symbolizer
 
 - [ ] User Review of Compiler
   - in particular, destructuring bind.

@@ -2,6 +2,19 @@
 #define POCKET_STD_H
 
 #define PK_STD_CODE \
+ "(defun document (object :opt doc)\n" \
+ "     (put object 'doc doc)\n" \
+ "     doc)\n" \
+ "\n" \
+ "(defun document-function (symbol :opt doc)\n" \
+ "     (document (ffetch symbol) doc))\n" \
+ "\n" \
+ "(defun variable-documentation (symbol)\n" \
+ "     (get symbol 'doc))\n" \
+ "\n" \
+ "(defun function-documentation (symbol)\n" \
+ "     (get (ffetch symbol) 'doc))\n" \
+ "\n" \
  "## Classic when macro. Executes the body is the condition is not nil (true).\n" \
  "(defmacro when (cond :rest body)\n" \
  "    `(if ,cond (progn ,@body) nil))\n" \
@@ -13,8 +26,12 @@
  "(defun square (x)\n" \
  "   (* x x))\n" \
  "\n" \
+ "(document-function 'square \"Squares the number X.\")\n" \
+ "\n" \
  "(defun cube (x)\n" \
  "   (* x x x))\n" \
+ "\n" \
+ "(document-function 'cube \"Cubes the number X.\")\n" \
  "\n" \
  "## Textbook implemenation of a recursive fibonacci seq function.\n" \
  "(defun fib (n)\n" \

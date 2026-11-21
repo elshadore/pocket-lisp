@@ -823,6 +823,12 @@ void pk_hashmap_deinit(Pocket lisp, PKHashmap *map);
 PKAtom *pk_hashmap_to_alist(Pocket lisp, PKHashmap *map);
 PKAtom *pk_hashmap_to_plist(Pocket lisp, PKHashmap *map);
 
+PKAtom *pk_atom_property_put(Pocket lisp, PKAtom *object, PKHashmap *props, PKAtom *key, PKAtom *value);
+PKAtom *pk_atom_property_remove(Pocket lisp, PKHashmap *props, PKAtom *key);
+PKAtom *pk_atom_property_get(Pocket lisp, PKHashmap *props, PKAtom *key);
+bool pk_atom_property_is_property(Pocket lisp, PKHashmap *props, PKAtom *key);
+PKAtom *pk_atom_property_to_plist(Pocket lisp, PKHashmap *props);
+
 size_t pk_slotmap_hash(PKSlotmap *map, PKAtom *symbol);
 PKSlotmapSlot *pk_slotmap_get(Pocket lisp, PKSlotmap *map, PKAtom *symbol);
 void pk_slotmap_insert(Pocket lisp, PKSlotmap *map, PKAtom *symbol);

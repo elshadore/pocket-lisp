@@ -1,3 +1,16 @@
+(defun document (object :opt doc)
+     (put object 'doc doc)
+     doc)
+
+(defun document-function (symbol :opt doc)
+     (document (ffetch symbol) doc))
+
+(defun variable-documentation (symbol)
+     (get symbol 'doc))
+
+(defun function-documentation (symbol)
+     (get (ffetch symbol) 'doc))
+
 ## Classic when macro. Executes the body is the condition is not nil (true).
 (defmacro when (cond :rest body)
     `(if ,cond (progn ,@body) nil))
@@ -9,8 +22,12 @@
 (defun square (x)
    (* x x))
 
+(document-function 'square "Squares the number X.")
+
 (defun cube (x)
    (* x x x))
+
+(document-function 'cube "Cubes the number X.")
 
 ## Textbook implemenation of a recursive fibonacci seq function.
 (defun fib (n)

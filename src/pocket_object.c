@@ -42,39 +42,19 @@ void *pk_atom_object_data(Pocket lisp, PKAtomObject *object, PKAtom *typecheck) 
 }
 
 PKAtom *pk_atom_object_put(Pocket lisp, PKAtomObject *object, PKAtom *key, PKAtom *value) {
-    if (pk_atom_is_nil(value)) {
-        (void)pk_hashmap_remove(lisp, &object->props, key);
-    } else {
-        (void)pk_hashmap_insert(lisp, &object->props, key, value, PK_HASHMAP_INSERT_NORMAL);
-    }
-    return (PKAtom *)object;
+    return pk_atom_property_put(lisp, (PKAtom *)object, &object->props, key, value);
 }
 
 PKAtom *pk_atom_object_remove(Pocket lisp, PKAtomObject *object, PKAtom *key) {
-    PKAtom *result = pk_hashmap_remove(lisp, &object->props, key);
-    if (pk_atom_is_undefined(result)) {
-        return lisp->cache.nil;
-    } else {
-        return result;
-    }
+    return pk_atom_property_remove(lisp, &object->props, key);
 }
 
 PKAtom *pk_atom_object_get(Pocket lisp, PKAtomObject *object, PKAtom *key) {
-    PKAtom *result = pk_hashmap_get(lisp, &object->props, key);
-    if (pk_atom_is_undefined(result)) {
-        return lisp->cache.nil;
-    } else {
-        return result;
-    }
+    return pk_atom_property_get(lisp, &object->props, key);
 }
 
 bool pk_atom_object_is_property(Pocket lisp, PKAtomObject *object, PKAtom *key) {
-    PKAtom *result = pk_hashmap_get(lisp, &object->props, key);
-    if (pk_atom_is_undefined(result)) {
-        return false;
-    } else {
-        return true;
-    }
+    return pk_atom_property_is_property(lisp, &object->props, key);
 }
 
 bool pk_atom_is_object(PKAtom *atom) {
@@ -94,7 +74,7 @@ size_t pk_atom_object_length(Pocket lisp, PKAtomObject *object) {
 }
 
 PKAtom *pk_atom_object_to_plist(Pocket lisp, PKAtomObject *object) {
-    return pk_hashmap_to_plist(lisp, &object->props);
+    return pk_atom_property_to_plist(lisp, &object->props);
 }
 PKAtom *pk_atom_object_to_alist(Pocket lisp, PKAtomObject *object) {
     return pk_hashmap_to_alist(lisp, &object->props);
