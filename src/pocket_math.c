@@ -31,12 +31,12 @@ PKAtomNumber *pk_atom_byte(Pocket lisp, pk_u8 byte) {
     if (!pk_atom_is_number(lhs)) { \
         PKStr ty_ = pk_ident_atomty(lhs->header.type); \
         pk_errorf(lisp, "math op " #op_ ": lhs expected a number, got %.*s", (int)ty_.length, ty_.c); \
-        return lisp->cache.nil; \
+        return &PK_ATOM_NIL; \
     } \
     if (!pk_atom_is_number(rhs)) { \
         PKStr ty_ = pk_ident_atomty(rhs->header.type); \
         pk_errorf(lisp, "math op " #op_ ": rhs expected a number, got %.*s", (int)ty_.length, ty_.c); \
-        return lisp->cache.nil; \
+        return &PK_ATOM_NIL; \
     } \
     switch (lhs->number.num_type) { \
         case PK_NUMTY_INT: { \
@@ -45,7 +45,7 @@ PKAtomNumber *pk_atom_byte(Pocket lisp, pk_u8 byte) {
                 case PK_NUMTY_FLOAT: return (PKAtom *)pk_atom_float(lisp, (float)lhs->number.as.i op_ rhs->number.as.f); \
                 default: { \
                     pk_errorf(lisp, "math op " #op_ ": rhs has unknown number type %u", rhs->number.num_type); \
-                    return lisp->cache.nil; \
+                    return &PK_ATOM_NIL; \
                 } \
             } \
         } \
@@ -55,13 +55,13 @@ PKAtomNumber *pk_atom_byte(Pocket lisp, pk_u8 byte) {
                 case PK_NUMTY_FLOAT: return (PKAtom *)pk_atom_float(lisp, lhs->number.as.f op_ rhs->number.as.f); \
                 default: { \
                     pk_errorf(lisp, "math op " #op_ ": rhs has unknown number type %u", rhs->number.num_type); \
-                    return lisp->cache.nil; \
+                    return &PK_ATOM_NIL; \
                 } \
             } \
         } \
         default: { \
             pk_errorf(lisp, "math op " #op_ ": lhs has unknown number type %u", lhs->number.num_type); \
-            return lisp->cache.nil; \
+            return &PK_ATOM_NIL; \
         } \
     }
 

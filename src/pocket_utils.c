@@ -61,7 +61,7 @@ PKAccum pk_accum_new_with(Pocket lisp, PKAtom *init) {
 }
     
 PKAccum pk_accum_new(Pocket lisp) {
-    return pk_accum_new_with(lisp, lisp->cache.nil);
+    return pk_accum_new_with(lisp, &PK_ATOM_NIL);
 }
 
 void pk_accum_push(PKAccum *acc, PKAtom *atom) {

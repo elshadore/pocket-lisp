@@ -40,7 +40,7 @@ PKAtom *pk_atom_array_el(Pocket lisp, PKAtomArray *array, size_t index) {
     PKArray *atoms = &array->atoms;
     if (index >= atoms->count) {
         pk_errorf(lisp, "array index: %zu, is out of bounds, array length is %zu", index, atoms->count);
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     }
     return atoms->e[index];
 }

@@ -96,7 +96,7 @@ void pk_compile_strsub_main(Pocket lisp, PKStrSub *sub) {
 
 void pk_compile_strsub(Pocket lisp, PKCompiler *c, PKStr string) {
     if (string.length == 0) {
-        pk_cmp_load(lisp, c, (PKAtom *)lisp->cache.empty_string);
+        pk_cmp_load(lisp, c, (PKAtom *)&PK_ATOM_EMPTY_STRING);
         return;
     }
 

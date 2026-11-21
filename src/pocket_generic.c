@@ -16,7 +16,7 @@ PKAtom *pk_generic_el(Pocket lisp, PKAtom *atom, size_t index) {
         }
         default: {
             pk_error_type4(lisp, atom, PK_TYPE_CONS, PK_TYPE_STRING, PK_TYPE_ARRAY, PK_TYPE_BLOB);
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
     }
 }
@@ -66,7 +66,7 @@ size_t pk_generic_length(Pocket lisp, PKAtom *atom) {
 PKAtom *pk_generic_to_list(Pocket lisp, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_NIL: {
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
         case PK_ATOMTY_CONS: {
             return atom;
@@ -77,7 +77,7 @@ PKAtom *pk_generic_to_list(Pocket lisp, PKAtom *atom) {
         }
         default: {
             pk_error_type3(lisp, atom, PK_TYPE_NIL, PK_TYPE_CONS, PK_TYPE_ARRAY);
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
     }
 }
@@ -85,7 +85,7 @@ PKAtom *pk_generic_to_list(Pocket lisp, PKAtom *atom) {
 PKAtom *pk_generic_cat(Pocket lisp, PKAtom *atom, PKAtoms atoms) {
     switch (atom->header.type) {
         case PK_ATOMTY_NIL: {
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
         case PK_ATOMTY_CONS: {
             return pk_atom_list_cat(lisp, atoms);
@@ -98,7 +98,7 @@ PKAtom *pk_generic_cat(Pocket lisp, PKAtom *atom, PKAtoms atoms) {
         }
         default: {
             pk_error_type4(lisp, atom, PK_TYPE_NIL, PK_TYPE_CONS, PK_TYPE_STRING, PK_TYPE_BLOB);
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
     }
 }
@@ -106,7 +106,7 @@ PKAtom *pk_generic_cat(Pocket lisp, PKAtom *atom, PKAtoms atoms) {
 PKAtom *pk_generic_reverse(Pocket lisp, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_NIL: {
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
         case PK_ATOMTY_STRING: {
             return (PKAtom *)pk_atom_string_reverse(lisp, atom->string.str);
@@ -119,7 +119,7 @@ PKAtom *pk_generic_reverse(Pocket lisp, PKAtom *atom) {
         }
         default: {
             pk_error_type4(lisp, atom, PK_TYPE_NIL, PK_TYPE_CONS, PK_TYPE_STRING, PK_TYPE_BLOB);
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
     }
 }
@@ -140,7 +140,7 @@ PKAtomString *pk_generic_to_string(Pocket lisp, PKAtom *atom) {
         }
         default: {
             pk_error_type4(lisp, atom, PK_TYPE_STRING, PK_TYPE_SYMBOL, PK_TYPE_KEYWORD, PK_TYPE_BLOB);
-            return lisp->cache.empty_string;
+            return &PK_ATOM_EMPTY_STRING;
         }
     }
 }
@@ -158,7 +158,7 @@ PKAtomSymbol *pk_generic_to_symbol(Pocket lisp, PKAtom *atom) {
         }
         default: {
             pk_error_type3(lisp, atom, PK_TYPE_STRING, PK_TYPE_SYMBOL, PK_TYPE_KEYWORD);
-            return (PKAtomSymbol *)lisp->cache.nil;
+            return (PKAtomSymbol *)&PK_ATOM_NIL;
         }
     }
 }
@@ -176,7 +176,7 @@ PKAtomKeyword *pk_generic_to_keyword(Pocket lisp, PKAtom *atom) {
         }
         default: {
             pk_error_type3(lisp, atom, PK_TYPE_STRING, PK_TYPE_SYMBOL, PK_TYPE_KEYWORD);
-            return (PKAtomKeyword *)lisp->cache.nil;
+            return (PKAtomKeyword *)&PK_ATOM_NIL;
         }
     }
 }
@@ -203,7 +203,7 @@ PKAtom *pk_generic_property_put(Pocket lisp, PKAtom *pobj, PKAtom *key, PKAtom *
         }
         default: {
             pk_error_type4(lisp, pobj, PK_TYPE_SYMBOL, PK_TYPE_FUNCTION, PK_TYPE_MACRO, PK_TYPE_OBJECT);
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
     }
 }
@@ -230,7 +230,7 @@ PKAtom *pk_generic_property_get(Pocket lisp, PKAtom *pobj, PKAtom *key) {
         }
         default: {
             pk_error_type4(lisp, pobj, PK_TYPE_SYMBOL, PK_TYPE_FUNCTION, PK_TYPE_MACRO, PK_TYPE_OBJECT);
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
     }
 }
@@ -257,7 +257,7 @@ PKAtom *pk_generic_property_remove(Pocket lisp, PKAtom *pobj, PKAtom *key) {
         }
         default: {
             pk_error_type4(lisp, pobj, PK_TYPE_SYMBOL, PK_TYPE_FUNCTION, PK_TYPE_MACRO, PK_TYPE_OBJECT);
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
     }
 }
@@ -311,7 +311,7 @@ PKAtom *pk_generic_properties(Pocket lisp, PKAtom *pobj) {
         }
         default: {
             pk_error_type4(lisp, pobj, PK_TYPE_SYMBOL, PK_TYPE_FUNCTION, PK_TYPE_MACRO, PK_TYPE_OBJECT);
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
     }
 }

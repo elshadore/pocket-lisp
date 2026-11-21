@@ -104,7 +104,7 @@
 /* PKAtom *pk_atom_stream_read_char(Pocket lisp, PKAtomStream *stream) { */
 /*     int c = fgetc(stream->f); */
 /*     if (c == EOF) { */
-/*         return lisp->cache.nil; */
+/*         return &PK_ATOM_NIL; */
 /*     } */
 
 /*     return (PKAtom *)pk_atom_char(lisp, (char)c); */
@@ -113,7 +113,7 @@
 /* PKAtom *pk_atom_stream_read_byte(Pocket lisp, PKAtomStream *stream) { */
 /*     int c = fgetc(stream->f); */
 /*     if (c == EOF) { */
-/*         return lisp->cache.nil; */
+/*         return &PK_ATOM_NIL; */
 /*     } */
 
 /*     return (PKAtom *)pk_atom_byte(lisp, (pk_u8)c); */
@@ -141,7 +141,7 @@
 /*     } */
 
 /*     if (data->count == 0) { */
-/*         data->result = lisp->cache.nil; */
+/*         data->result = &PK_ATOM_NIL; */
 /*         pk_stack_push(lisp, data->result); */
 /*         return; */
 /*     } */

@@ -37,7 +37,7 @@ PK_RES pk_atom_evlist_(Pocket lisp, PKAtom *exprlist) {
         iter = iter->cons.cdr;
     }
     pk_frame_unwind(lisp);
-    pk_stack_push(lisp, lisp->cache.nil);
+    pk_stack_push(lisp, &PK_ATOM_NIL);
 
     return PK_OK;
 }

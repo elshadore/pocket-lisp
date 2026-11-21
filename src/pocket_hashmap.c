@@ -94,7 +94,7 @@ PKAtom *pk_hashmap_insert(Pocket lisp, PKHashmap *map, PKAtom *key, PKAtom *valu
         if (slot != NULL) {
             if ((type == PK_HASHMAP_INSERT_UNIQUE) && (slot->state == PK_HASHMAP_SLOT_OCCUPIED)) {
                 pk_errors(lisp, pk_str("table already has slot of this key"));
-                return lisp->cache.undefined;
+                return &PK_ATOM_UNDEFINED;
             }
             PKAtom *old_value = slot->value;
             slot->value = value;
@@ -110,12 +110,14 @@ PKAtom *pk_hashmap_insert(Pocket lisp, PKHashmap *map, PKAtom *key, PKAtom *valu
     };
     map->count += 1;
 
-    return lisp->cache.undefined;
+    return &PK_ATOM_UNDEFINED;
 }
 
 PKAtom *pk_hashmap_get_str(Pocket lisp, PKHashmap *map, PKStr key) {
+    (void)lisp;
+
     if (map->capacity == 0) {
-        return lisp->cache.undefined;
+        return &PK_ATOM_UNDEFINED;
     }
 
     size_t index = pk_hash_djb2(key) & (map->capacity - 1);
@@ -123,7 +125,7 @@ PKAtom *pk_hashmap_get_str(Pocket lisp, PKHashmap *map, PKStr key) {
     for (size_t i = 0; i < map->capacity; ++i) {
         PKHashmapSlot *slot = &map->e[index];
         if (slot->state == PK_HASHMAP_SLOT_UNOCCUPIED) {
-            return lisp->cache.undefined;
+            return &PK_ATOM_UNDEFINED;
         }
         if ((slot->state == PK_HASHMAP_SLOT_OCCUPIED) && pk_atom_is_string(slot->key)) {
             if (pk_str_eq(slot->key->string.str, key)) {
@@ -133,18 +135,18 @@ PKAtom *pk_hashmap_get_str(Pocket lisp, PKHashmap *map, PKStr key) {
         index = (index + 1) & (map->capacity - 1);
     }
 
-    return lisp->cache.undefined;
+    return &PK_ATOM_UNDEFINED;
 }
 
 PKAtom *pk_hashmap_get(Pocket lisp, PKHashmap *map, PKAtom *key) {
     if (map->capacity == 0) {
-        return lisp->cache.undefined;
+        return &PK_ATOM_UNDEFINED;
     }
 
     size_t vacancy = 0;
     PKHashmapSlot *slot = pk_hashmap_find(lisp, map, key, &vacancy);
     if (slot == NULL) {
-        return lisp->cache.undefined;
+        return &PK_ATOM_UNDEFINED;
     } else {
         return slot->value;
     }
@@ -152,20 +154,20 @@ PKAtom *pk_hashmap_get(Pocket lisp, PKHashmap *map, PKAtom *key) {
 
 PKAtom *pk_hashmap_remove(Pocket lisp, PKHashmap *map, PKAtom *key) {
     if (map->capacity == 0) {
-        return lisp->cache.undefined;
+        return &PK_ATOM_UNDEFINED;
     }
 
     size_t vacancy = 0;
     PKHashmapSlot *slot = pk_hashmap_find(lisp, map, key, &vacancy);
     if (slot == NULL) {
-        return lisp->cache.undefined;
+        return &PK_ATOM_UNDEFINED;
     }
 
     PKAtom *result = slot->value;
 
     *slot = (PKHashmapSlot) {
-        .key = lisp->cache.undefined,
-        .value = lisp->cache.undefined,
+        .key = &PK_ATOM_UNDEFINED,
+        .value = &PK_ATOM_UNDEFINED,
         .state = PK_HASHMAP_SLOT_DELETED,
     };
     map->count -= 1;

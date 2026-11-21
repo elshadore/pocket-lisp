@@ -15,7 +15,7 @@ void pk_set_top(Pocket lisp, int stack_pointer) {
     size_t count = lisp->current_frame.stack_offset + (size_t)absolute;
 
     while (lisp->stack.count < count) {
-        pk_array_push(lisp, &lisp->stack, lisp->cache.nil, 128);
+        pk_array_push(lisp, &lisp->stack, &PK_ATOM_NIL, 128);
     }
 
     lisp->stack.count = count;
@@ -125,7 +125,7 @@ void pk_stack_push_many(Pocket lisp, PKAtoms atoms) {
 
 PKAtom *pk_stack_get(Pocket lisp, int stack_pointer) {
     if (stack_pointer == 0) {
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     } else {
         return lisp->stack.e[pk_sp_index(lisp, stack_pointer)];
     }
@@ -141,7 +141,7 @@ PKAtom *pk_stack_set(Pocket lisp, int stack_pointer, PKAtom *value) {
 
 PKAtom *pk_stack_head(Pocket lisp) {
     if (pk_frame_length(lisp) == 0) {
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     } else {
         return lisp->stack.e[lisp->stack.count - 1];
     }
@@ -149,7 +149,7 @@ PKAtom *pk_stack_head(Pocket lisp) {
 
 PKAtom *pk_stack_head_pop(Pocket lisp) {
     if (pk_frame_length(lisp) == 0) {
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     } else {
         PKAtom *result = lisp->stack.e[lisp->stack.count - 1];
         lisp->stack.count -= 1;
@@ -160,7 +160,7 @@ PKAtom *pk_stack_head_pop(Pocket lisp) {
 PKAtom *pk_stack_head_strict(Pocket lisp) {
     if (pk_frame_length(lisp) == 0) {
         pk_errorf(lisp, "pk_stack_head_strict: stack underflow, frame holds %zu values", pk_frame_length(lisp));
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     } else {
         return lisp->stack.e[lisp->stack.count - 1];
     }
@@ -173,7 +173,7 @@ void pk_stack_head_set_unchecked(Pocket lisp, PKAtom *atom) {
 PKAtom *pk_stack_pop(Pocket lisp) {
     if (pk_frame_length(lisp) == 0) {
         pk_errorf(lisp, "pk_stack_pop: stack underflow, frame holds %zu values", pk_frame_length(lisp));
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     }
     PKAtom *result = lisp->stack.e[lisp->stack.count - 1];
     lisp->stack.count -= 1;

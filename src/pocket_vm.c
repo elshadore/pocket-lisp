@@ -44,7 +44,7 @@ void pk_vm_jmp_back(Pocket lisp, PKVM *vm, pk_u8 jmp) {
 PKAtom *pk_vm_get_atom(Pocket lisp, PKVM *vm, pk_u8 byte) {
     if (byte >= vm->lfun->lfun.atoms.length) {
         pk_errors(lisp, pk_str("bad atom index"));
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     }
     return vm->lfun->lfun.atoms.e[byte];
 }
@@ -122,7 +122,7 @@ void pk_vm_op_exec(Pocket lisp, PKVM *vm) {
             return;
         }
         case PK_OP_BLOCK_BEGIN: {
-            pk_frame_push(lisp, lisp->cache.nil, 0);
+            pk_frame_push(lisp, &PK_ATOM_NIL, 0);
             pk_vm_inc(lisp, vm);
             return;
         }
@@ -246,7 +246,7 @@ void pk_vm_op_exec(Pocket lisp, PKVM *vm) {
             return;
         }
         case PK_OP_PROTECT_BEGIN: {
-            pk_frame_push(lisp, lisp->cache.nil, 0);
+            pk_frame_push(lisp, &PK_ATOM_NIL, 0);
             pk_frame_mode_set_protect(lisp);
             pk_vm_inc(lisp, vm);
             return;

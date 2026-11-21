@@ -19,10 +19,12 @@ PKAtom *pk_atom_new_undefined(Pocket lisp) {
 }
 
 PKAtom *pk_atom_bool(Pocket lisp, bool boolean) {
+    (void)lisp;
+
     if (boolean) {
-        return lisp->cache.atom_true;
+        return &PK_ATOM_TRUE;
     } else {
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     }
 }
 
@@ -74,14 +76,14 @@ PKAtom *pk_atom_clone_recursive(Pocket lisp, PKAtom *atom) {
 
     switch (atom->header.type) {
         case PK_ATOMTY_CONS: {
-            PKAtomCons *result = pk_atom_cons(lisp, lisp->cache.nil, lisp->cache.nil);
+            PKAtomCons *result = pk_atom_cons(lisp, &PK_ATOM_NIL, &PK_ATOM_NIL);
             pk_hashmap_insert(lisp, &lisp->cloner, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
             result->car = pk_atom_clone_recursive(lisp, atom->cons.car);
 
             PKAtom *iter = atom->cons.cdr;
             PKAtom *current = (PKAtom *)result;
             while (pk_atom_is_cons(iter) && pk_atom_is_undefined(pk_hashmap_get(lisp, &lisp->cloner, iter))) {
-                PKAtomCons *next = pk_atom_cons(lisp, lisp->cache.nil, lisp->cache.nil);
+                PKAtomCons *next = pk_atom_cons(lisp, &PK_ATOM_NIL, &PK_ATOM_NIL);
                 pk_hashmap_insert(lisp, &lisp->cloner, iter, (PKAtom *)next, PK_HASHMAP_INSERT_NORMAL);
                 next->car = pk_atom_clone_recursive(lisp, iter->cons.car);
                 current->cons.cdr = (PKAtom *)next;
@@ -101,11 +103,11 @@ PKAtom *pk_atom_clone_recursive(Pocket lisp, PKAtom *atom) {
         }
         case PK_ATOMTY_OBJECT: {
             pk_errors(lisp, pk_str("pk_atom_clone(), TODO: thing about object cloning"));
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
         default: {
             pk_errors(lisp, pk_str("pk_atom_clone(), cannot clone this type, TODO: better error message for this"));
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
     }
 }
@@ -127,7 +129,7 @@ bool pk_atom_is_circular_recursive(Pocket lisp, PKAtom *atom) {
         return !pk_atom_is_true(state);
     }
 
-    pk_hashmap_insert(lisp, &lisp->cloner, atom, lisp->cache.nil, PK_HASHMAP_INSERT_NORMAL);
+    pk_hashmap_insert(lisp, &lisp->cloner, atom, &PK_ATOM_NIL, PK_HASHMAP_INSERT_NORMAL);
     bool result = false;
 
     switch (atom->header.type) {
@@ -150,7 +152,7 @@ bool pk_atom_is_circular_recursive(Pocket lisp, PKAtom *atom) {
         default: break;
     }
 
-    pk_hashmap_insert(lisp, &lisp->cloner, atom, lisp->cache.atom_true, PK_HASHMAP_INSERT_NORMAL);
+    pk_hashmap_insert(lisp, &lisp->cloner, atom, &PK_ATOM_TRUE, PK_HASHMAP_INSERT_NORMAL);
     return result;
 }
 

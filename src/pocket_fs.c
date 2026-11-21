@@ -134,7 +134,7 @@ PKAtom *pk_fs_read_user_input(Pocket lisp) {
         int c = getc(stdin);
         if (c == EOF) {
             if (pk_writer_str(lisp).length == 0) {
-                return lisp->cache.nil;
+                return &PK_ATOM_NIL;
             }
             break;
         }

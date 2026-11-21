@@ -102,7 +102,7 @@ PKAtom *pk_funcall_resolve_function(Pocket lisp, PKAtoms slice) {
     PKAtom *fetch = pk_env_fetch(lisp, PK_ENV_FUN, asym);
     if (pk_atom_is_undefined(fetch)) {
         pk_errorf(lisp, "pk_funcall: undefined function %.*s", (int)name.length, name.c);
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     } else {
         return fetch;
     }
@@ -217,7 +217,7 @@ PK_RES pk_int_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args, 
 PK_RES pk_protect(Pocket lisp, void *user_closure, PKFun fun, size_t args) {
     pk_frame_push(lisp, (PKAtom *)lisp->cache.protect, args);
     pk_frame_mode_set_protect(lisp);
-    PK_RES result = pk_int_fastcall(lisp, user_closure, fun, args, lisp->cache.nil);
+    PK_RES result = pk_int_fastcall(lisp, user_closure, fun, args, &PK_ATOM_NIL);
     pk_frame_return_push(lisp);
     return result;
 }
@@ -225,7 +225,7 @@ PK_RES pk_protect(Pocket lisp, void *user_closure, PKFun fun, size_t args) {
 PK_RES pk_protect_noreturn(Pocket lisp, void *user_closure, PKFun fun, size_t args) {
     pk_frame_push(lisp, (PKAtom *)lisp->cache.protect, args);
     pk_frame_mode_set_protect(lisp);
-    PK_RES result = pk_int_fastcall(lisp, user_closure, fun, args, lisp->cache.nil);
+    PK_RES result = pk_int_fastcall(lisp, user_closure, fun, args, &PK_ATOM_NIL);
     if (result == PK_YIELDED) {
         pk_frame_return_push(lisp);
     } else {

@@ -425,8 +425,8 @@ typedef struct PKCache_ {
     .gensym_counter = 0, \
     .gc_enabled = false, \
     .current_frame = PK_FRAME_EMPTY, \
-    .throw_symbol = NULL, \
-    .throw_value = NULL, \
+    .throw_symbol = &PK_ATOM_NIL, \
+    .throw_value = &PK_ATOM_NIL, \
     .pool = NULL, \
     .free = NULL, \
     .cache = PK_CACHE_EMPTY, \

@@ -1,6 +1,8 @@
 #include "pocket_internals.h"
 
 PKAtom *pk_env_fetch(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol) {
+    (void)lisp;
+
     switch (env) {
         case PK_ENV_VAR: {
             return symbol->var;
@@ -9,7 +11,7 @@ PKAtom *pk_env_fetch(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol) {
             return symbol->fun;
         }
         default: {
-            return lisp->cache.undefined;
+            return &PK_ATOM_UNDEFINED;
         }
     }
 }
@@ -17,7 +19,7 @@ PKAtom *pk_env_fetch(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol) {
 PKAtom *pk_env_fetch_loose(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol) {
     PKAtom *result = pk_env_fetch(lisp, env, symbol);
     if (pk_atom_is_undefined(result)) {
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     } else {
         return result;
     }
@@ -28,13 +30,15 @@ PKAtom *pk_env_fetch_strict(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol) {
     if (pk_atom_is_undefined(result)) {
         PKStr name = symbol->name->str;
         pk_errorf(lisp, "symbol: %.*s, is undefined\n", (int)name.length, name.c);
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     }
     return result;
 }
     
 PKAtom *pk_env_set(Pocket lisp, PK_ENV env, PKAtomSymbol *symbol, PKAtom *value) {
-    PKAtom *temp = lisp->cache.undefined;
+    (void)lisp;
+
+    PKAtom *temp = &PK_ATOM_UNDEFINED;
 
     switch (env) {
         case PK_ENV_VAR: {

@@ -12,7 +12,7 @@ PKAtom *pk_atom_property_put(Pocket lisp, PKAtom *object, PKHashmap *props, PKAt
 PKAtom *pk_atom_property_remove(Pocket lisp, PKHashmap *props, PKAtom *key) {
     PKAtom *result = pk_hashmap_remove(lisp, props, key);
     if (pk_atom_is_undefined(result)) {
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     } else {
         return result;
     }
@@ -21,7 +21,7 @@ PKAtom *pk_atom_property_remove(Pocket lisp, PKHashmap *props, PKAtom *key) {
 PKAtom *pk_atom_property_get(Pocket lisp, PKHashmap *props, PKAtom *key) {
     PKAtom *result = pk_hashmap_get(lisp, props, key);
     if (pk_atom_is_undefined(result)) {
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     } else {
         return result;
     }

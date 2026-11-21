@@ -111,11 +111,11 @@ bool pk_macroexpand_special_(Pocket lisp, size_t abs, PKAtom *head) {
                     pk_stack_push(lisp, b->cdr->cons.car);
                     expanded |= pk_macroexpand1_(lisp, -1);
                 } else {
-                    pk_stack_push(lisp, lisp->cache.nil);
+                    pk_stack_push(lisp, &PK_ATOM_NIL);
                 }
             } else {
                 pk_stack_push(lisp, binding);
-                pk_stack_push(lisp, lisp->cache.nil);
+                pk_stack_push(lisp, &PK_ATOM_NIL);
             }
 
             pk_stack_op_list(lisp, 2);
@@ -125,7 +125,7 @@ bool pk_macroexpand_special_(Pocket lisp, size_t abs, PKAtom *head) {
         }
 
         if (pairs == 0) {
-            pk_stack_push(lisp, lisp->cache.nil);
+            pk_stack_push(lisp, &PK_ATOM_NIL);
         } else {
             pk_stack_op_list(lisp, pairs);
         }
@@ -151,7 +151,7 @@ bool pk_macroexpand_special_(Pocket lisp, size_t abs, PKAtom *head) {
         head != (PKAtom *)lisp->cache.defclass &&
         head != (PKAtom *)lisp->cache.setq &&
         head != (PKAtom *)lisp->cache.fsetq) {
-        pk_stack_push(lisp, lisp->cache.nil);
+        pk_stack_push(lisp, &PK_ATOM_NIL);
         forms = 1;
     }
 

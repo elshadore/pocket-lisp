@@ -104,7 +104,7 @@ PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun) {
                 if (i >= lfun->bc.length) {
                     pk_errorf(lisp, "pk_lfun_hexdump_: bytecode truncated, operand missing at offset %zu of %zu",
                         i, lfun->bc.length);
-                    return lisp->cache.empty_string;
+                    return &PK_ATOM_EMPTY_STRING;
                 }
                 pk_u8 data = lfun->bc.e[i];
                 PKAtom *atom = lfun->atoms.e[data];
@@ -117,7 +117,7 @@ PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun) {
                 if (i >= lfun->bc.length) {
                     pk_errorf(lisp, "pk_lfun_hexdump_: bytecode truncated, operand missing at offset %zu of %zu",
                         i, lfun->bc.length);
-                    return lisp->cache.empty_string;
+                    return &PK_ATOM_EMPTY_STRING;
                 }
                 pk_u8 data = lfun->bc.e[i];
                 
@@ -152,7 +152,7 @@ PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom) {
         if (pk_atom_is_undefined(a)) {
             PKStr name = ((PKAtomSymbol *)atom)->name->str;
             pk_errorf(lisp, "pk_atom_hexdump: undefined function %.*s", (int)name.length, name.c);
-            return lisp->cache.empty_string;
+            return &PK_ATOM_EMPTY_STRING;
         }
     }
     PKAtomLFun *lfun = pk_atom_assert_lfun(lisp, a);

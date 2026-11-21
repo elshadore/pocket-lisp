@@ -19,12 +19,6 @@ bool pk_atom_is_immortal(PKAtom *atom) {
 void pk_gc_mark_cache(Pocket lisp) {
     PKCache *c = &lisp->cache;
     
-    pk_gc_mark(lisp, (PKAtom *)c->nil);
-    pk_gc_mark(lisp, (PKAtom *)c->atom_true);
-    pk_gc_mark(lisp, (PKAtom *)c->undefined);
-    pk_gc_mark(lisp, (PKAtom *)c->empty_string);
-    pk_gc_mark(lisp, (PKAtom *)c->out_of_memory);
-
     pk_gc_mark(lisp, (PKAtom *)c->lambda);
     pk_gc_mark(lisp, (PKAtom *)c->macro);
     

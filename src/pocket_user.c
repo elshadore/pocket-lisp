@@ -1,11 +1,11 @@
 #include "pocket_internals.h"
 
 void pk_push_nil(Pocket lisp) {
-    pk_stack_push(lisp, lisp->cache.nil);
+    pk_stack_push(lisp, &PK_ATOM_NIL);
 }
 
 void pk_push_true(Pocket lisp) {
-    pk_stack_push(lisp, lisp->cache.atom_true);
+    pk_stack_push(lisp, &PK_ATOM_TRUE);
 }
 
 void pk_push_bool(Pocket lisp, bool boolean) {
@@ -13,7 +13,7 @@ void pk_push_bool(Pocket lisp, bool boolean) {
 }
 
 void pk_push_undefined(Pocket lisp) {
-    pk_stack_push(lisp, lisp->cache.undefined);
+    pk_stack_push(lisp, &PK_ATOM_UNDEFINED);
 }
 
 void pk_push_int(Pocket lisp, int integer) {
@@ -209,7 +209,7 @@ bool pk_is_bound(Pocket lisp, PK_ENV env, int symbol) {
 
 void pk_unbind(Pocket lisp, PK_ENV env, int symbol) {
     PKAtom *asymbol = pk_stack_get(lisp, symbol);
-    (void)pk_env_set(lisp, env, pk_atom_assert_symbol(lisp, asymbol), lisp->cache.undefined);
+    (void)pk_env_set(lisp, env, pk_atom_assert_symbol(lisp, asymbol), &PK_ATOM_UNDEFINED);
 }
 
 void pk_list_funs(Pocket lisp) {
@@ -257,7 +257,7 @@ void pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
 }
 
 void pk_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args) {
-    (void)pk_int_fastcall(lisp, user_closure, fun, args, lisp->cache.nil);
+    (void)pk_int_fastcall(lisp, user_closure, fun, args, &PK_ATOM_NIL);
 }
     
 PK_RES pk_catch(Pocket lisp, int symbol, void *user_closure, PKFun fun, size_t args) {
@@ -337,7 +337,7 @@ void pk_error(Pocket lisp, int message) {
 
 void pk_push_throw_type(Pocket lisp) {
     if (lisp->throw_symbol == NULL) {
-        pk_stack_push(lisp, lisp->cache.nil);
+        pk_stack_push(lisp, &PK_ATOM_NIL);
     } else {
         pk_stack_push(lisp, lisp->throw_symbol);
     }
@@ -345,7 +345,7 @@ void pk_push_throw_type(Pocket lisp) {
 
 void pk_push_throw_value(Pocket lisp) {
     if (lisp->throw_value == NULL) {
-        pk_stack_push(lisp, lisp->cache.nil);
+        pk_stack_push(lisp, &PK_ATOM_NIL);
     } else {
         pk_stack_push(lisp, lisp->throw_value);
     }

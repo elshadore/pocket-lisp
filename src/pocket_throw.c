@@ -1,7 +1,7 @@
 #include "pocket_internals.h"
 
 void pk_propagate(Pocket lisp) {
-    if (lisp->throw_symbol == lisp->cache.nil) {
+    if (lisp->throw_symbol == &PK_ATOM_NIL) {
         pk_errors(lisp, pk_str("not in a propagate context"));
     } else {
         pk_jmp_trigger(lisp, (PKAtomSymbol *)lisp->throw_symbol, lisp->throw_value);
@@ -82,7 +82,7 @@ void pk_error_type4(Pocket lisp, PKAtom *found, PK_TYPE expected1, PK_TYPE expec
 }
 
 void pk_error_oom(Pocket lisp) {
-    pk_error_atom(lisp, (PKAtom *)lisp->cache.empty_string);
+    pk_error_atom(lisp, (PKAtom *)&PK_ATOM_EMPTY_STRING);
 }
 
 void pk_throw(Pocket lisp, int symbol, int value) {

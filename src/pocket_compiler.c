@@ -401,7 +401,7 @@ void pk_compile_let(Pocket lisp, PKCompiler *c, PKAtom *args, PK_ENV env) {
             if (pk_let_binding_is_pattern(binding)) {
                 pk_compile_pattern_symbols(lisp, c, binding->cons.car, false, &lets);
             } else {
-                PKAtom *symbol = lisp->cache.nil;
+                PKAtom *symbol = &PK_ATOM_NIL;
                 if (pk_atom_is_symbol(binding)) {
                     symbol = binding;
                 } else {
@@ -459,7 +459,7 @@ void pk_compile_let_star(Pocket lisp, PKCompiler *c, PKAtom *args, PK_ENV env) {
             continue;
         }
 
-        PKAtom *symbol = lisp->cache.nil;
+        PKAtom *symbol = &PK_ATOM_NIL;
         if (pk_atom_is_symbol(binding)) {
             pk_cmp_load_nil(lisp, c);
             symbol = binding;
@@ -562,7 +562,7 @@ void pk_compile_quasiquote_list(Pocket lisp, PKCompiler *c, PKAtom *list) {
         } else {
             pk_compile_quasiquote_value(lisp, c, iter, &spliced);
             qq.packed_cons = true;
-            iter = lisp->cache.nil;
+            iter = &PK_ATOM_NIL;
         }
 
         if (spliced != NULL) {
@@ -587,7 +587,9 @@ void pk_compile_quasiquote_list(Pocket lisp, PKCompiler *c, PKAtom *list) {
 }
 
 PKAtom *pk_cons_last(Pocket lisp, PKAtom *list) {
-    PKAtom *last = lisp->cache.nil;
+    (void)lisp;
+
+    PKAtom *last = &PK_ATOM_NIL;
     PKAtom *iter = list;
     while (pk_atom_is_cons(iter)) {
         last = iter->cons.car;
@@ -996,7 +998,7 @@ PKAtomLFun *pk_compile_compile(Pocket lisp, PKCompiler *c, pk_u8 args, pk_u8 ari
     PKAtomLFun *result = (PKAtomLFun *)pk_atom_alloc(lisp);
 
     for (size_t i = c->atoms.count; i < c->atoms.capacity; ++i) {
-        c->atoms.e[i] = lisp->cache.nil;
+        c->atoms.e[i] = &PK_ATOM_NIL;
     }
 
     for (size_t i = c->bc.count; i < c->bc.capacity; ++i) {

@@ -49,7 +49,7 @@ PKAtomBlob *pk_atom_blob_cat(Pocket lisp, PKAtoms atoms) {
 PKAtom *pk_atom_blob_el(Pocket lisp, PKAtomBlob *blob, size_t index) {
     if (index >= blob->bytes.length) {
         pk_errorf(lisp, "index: %zu, longer than the blob length: %zu", index, blob->bytes.length);
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     }
     return (PKAtom *)pk_atom_int(lisp, blob->bytes.e[index]);
 }

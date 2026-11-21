@@ -102,7 +102,7 @@ PKAtom *pk_parse_atom_keyword(Pocket lisp, PKParser *r) {
     
     if (pk_pat(r) != ':') {
         pk_parser_error(lisp, r, pk_str("keyword does not start with ':', character"));
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     }
     
     pk_parser_ince(lisp, r);
@@ -115,7 +115,7 @@ PKAtom *pk_parse_atom_keyword(Pocket lisp, PKParser *r) {
     
     if (!pk_char_is_symbol(pk_pat(r))) {
         pk_parser_error(lisp, r, pk_str("expected valid symbol character at start of keyword"));
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     }
 
     do {
@@ -212,7 +212,7 @@ PKAtom *pk_parse_atom_string(Pocket lisp, PKParser *r) {
     
     if (pk_pat(r) != '\"') {
          pk_parser_error(lisp, r, pk_str("string does not start with \", character"));
-         return lisp->cache.nil;
+         return &PK_ATOM_NIL;
     }
 
     while (pk_parser_inc(r)) {
@@ -233,7 +233,7 @@ PKAtom *pk_parse_atom_string(Pocket lisp, PKParser *r) {
     
     pk_parser_error(lisp, r, pk_str("string unterminated"));
     
-    return (PKAtom *)lisp->cache.empty_string;
+    return (PKAtom *)&PK_ATOM_EMPTY_STRING;
 }
 
 PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r) {
@@ -248,7 +248,7 @@ PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r) {
     
     if (!pk_char_is_digit(pk_pat(r))) {
         pk_parser_error(lisp, r, pk_str("expected digit character at start of number"));
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     }
     
     int acc = pk_char_to_digit(pk_pat(r));
@@ -263,7 +263,7 @@ PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r) {
         char peek = '\0';
         if (!pk_parser_peek(r, &peek) || !pk_char_is_digit(peek)) {
             pk_parser_error(lisp, r, pk_str("expected digit character after decimal point in number"));
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
 
         pk_parser_ince(lisp, r);
@@ -310,10 +310,10 @@ PKAtom *pk_parse_atom_barred(Pocket lisp, PKParser *r, PK_SYMTY type) {
     if (pk_parser_is_finished(r)) {
         if (type == PK_SYMTY_SYMBOL) {
             pk_parser_error(lisp, r, pk_str("unterminated symbol, expected closing |"));
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         } else {
             pk_parser_error(lisp, r, pk_str("unterminated keyword, expected closing |"));
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
     }
     
@@ -321,15 +321,15 @@ PKAtom *pk_parse_atom_barred(Pocket lisp, PKParser *r, PK_SYMTY type) {
     if (slice.length == 0) {
         if (type == PK_SYMTY_SYMBOL) {
             pk_parser_error(lisp, r, pk_str("empty symbol between | characters"));
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         } else {
             pk_parser_error(lisp, r, pk_str("empty keyword between | characters"));
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
     }
     
     (void)pk_parser_inc(r);
-    PKAtom *result = lisp->cache.nil;
+    PKAtom *result = &PK_ATOM_NIL;
     if (type == PK_SYMTY_SYMBOL) {
         result = (PKAtom *)pk_atom_symbol(lisp, slice);
     } else {
@@ -348,7 +348,7 @@ PKAtom *pk_parse_atom_symbol(Pocket lisp, PKParser *r) {
     
     if (!pk_char_is_symbol(pk_pat(r))) {
         pk_parser_error(lisp, r, pk_str("expected valid symbol character at start of symbol"));
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     }
 
     do {
@@ -361,10 +361,10 @@ PKAtom *pk_parse_atom_symbol(Pocket lisp, PKParser *r) {
     };
     
     if (pk_str_eq(slice, pk_str("nil"))) {
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     }
     if (pk_str_eq(slice, pk_str("true"))) {
-        return lisp->cache.atom_true;
+        return &PK_ATOM_TRUE;
     }
     
     return (PKAtom *)pk_atom_symbol(lisp, slice);
@@ -373,7 +373,7 @@ PKAtom *pk_parse_atom_symbol(Pocket lisp, PKParser *r) {
 PKAtom *pk_parse_atom_cons(Pocket lisp, PKParser *r) {
     if (pk_pat(r) != '(') {
         pk_parser_error(lisp, r, pk_str("expected list to begin with (, character"));
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     }
 
     pk_parser_ince(lisp, r);
@@ -388,7 +388,7 @@ PKAtom *pk_parse_atom_cons(Pocket lisp, PKParser *r) {
         if (pk_pat(r) == ')') {
             (void)pk_parser_inc(r);
             if (first) {
-                return lisp->cache.nil;
+                return &PK_ATOM_NIL;
             } else {
                 return acc.head;
             }
@@ -407,11 +407,11 @@ PKAtom *pk_parse_atom_cons(Pocket lisp, PKParser *r) {
             (void)pk_parser_trim_whitespace(r);
             if (pk_pat(r) != ')') {
                 pk_parser_error(lisp, r, pk_str("cannot create a dotted cons with multiple elements after the dot"));
-                return lisp->cache.nil;
+                return &PK_ATOM_NIL;
             }
 
             (void)pk_parser_inc(r);
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         } else {
             PKAtom *atom = pk_parse_atom(lisp, r);
             pk_accum_push(&acc, atom);
@@ -427,13 +427,13 @@ PKAtom *pk_parse_atom_cons(Pocket lisp, PKParser *r) {
     }
 
     pk_parser_error(lisp, r, pk_str("unterminated list"));
-    return lisp->cache.nil;
+    return &PK_ATOM_NIL;
 }
 
 PKAtom *pk_parse_atom_blob(Pocket lisp, PKParser *r) {
     if (pk_pat(r) != '[') {
         pk_parser_error(lisp, r, pk_str("blob does not start with [, character"));
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     }
 
     pk_parser_ince(lisp, r);
@@ -467,7 +467,7 @@ PKAtom *pk_parse_atom_blob(Pocket lisp, PKParser *r) {
     }
 
     pk_parser_error(lisp, r, pk_str("unterminated blob"));
-    return lisp->cache.nil;
+    return &PK_ATOM_NIL;
 }
 
 PKAtom *pk_parse_atom_simple_macro(Pocket lisp, PKParser *r, PKAtomSymbol *macro) {
@@ -480,7 +480,7 @@ PKAtom *pk_parse_atom_simple_macro(Pocket lisp, PKParser *r, PKAtomSymbol *macro
 }
 
 PKAtom *pk_parse_atom_unquote_macro(Pocket lisp, PKParser *r) {
-    PKAtom *macro = lisp->cache.nil;
+    PKAtom *macro = &PK_ATOM_NIL;
     
     pk_parser_ince(lisp, r);
     if (pk_pat(r) == '@') {
@@ -499,7 +499,7 @@ PKAtom *pk_parse_atom_unquote_macro(Pocket lisp, PKParser *r) {
 PKAtom *pk_parse_atom(Pocket lisp, PKParser *r) {
     if (pk_parser_is_finished(r)) {
          pk_parser_error(lisp, r, pk_str("parser is already finished in atom reading"));
-         return lisp->cache.nil;
+         return &PK_ATOM_NIL;
     }
     
     switch (pk_pat(r)) {
@@ -508,14 +508,14 @@ PKAtom *pk_parse_atom(Pocket lisp, PKParser *r) {
         }
         case ')': {
             pk_parser_error(lisp, r, pk_str("encountered end of list ), character without start of list (, character"));
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
         case '[': {
             return pk_parse_atom_blob(lisp, r);
         }
         case ']': {
             pk_parser_error(lisp, r, pk_str("encountered end of blob ], character without start of blob [, character"));
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
         case '\'': {
             return pk_parse_atom_simple_macro(lisp, r, lisp->cache.quote);
@@ -537,7 +537,7 @@ PKAtom *pk_parse_atom(Pocket lisp, PKParser *r) {
         }
         case '&': {
             pk_parser_error(lisp, r, pk_str("cannot parse printed lisp object notation"));
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
         default: {
             if (pk_parser_is_number_prefix(r)) {
@@ -551,13 +551,13 @@ PKAtom *pk_parse_atom(Pocket lisp, PKParser *r) {
 
 PKAtom *pk_parse_atom_from_str(Pocket lisp, PKStr string, PK_MODE mode) {
     if (string.length == 0) {
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     }
 
     PKParser r = pk_parser_init(string);
     (void)pk_parser_trim_whitespace(&r);
     if (pk_parser_is_finished(&r)) {
-        return lisp->cache.nil;
+        return &PK_ATOM_NIL;
     }
 
     PKAtom *first = pk_parse_atom(lisp, &r);
@@ -566,7 +566,7 @@ PKAtom *pk_parse_atom_from_str(Pocket lisp, PKStr string, PK_MODE mode) {
     if (mode == PK_MODE_EXPRESSION) {
         if (!pk_parser_is_finished(&r)) {
             pk_parser_error(lisp, &r, pk_str("trailing character"));
-            return lisp->cache.nil;
+            return &PK_ATOM_NIL;
         }
         return first;
     }
