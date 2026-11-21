@@ -867,6 +867,5 @@ void pk_gc_mark_cache(Pocket lisp);
 void pk_gc_mark(Pocket lisp, PKAtom *atom);
 bool pk_gc_set_enable(Pocket lisp, bool enabled);
 void pk_gc_collect(Pocket lisp);
-void pk_gc_collect_no_cache(Pocket lisp);
 
 #endif // POCKET_LISP_INTERNALS_H

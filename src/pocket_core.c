@@ -2,15 +2,12 @@
 
 void pk_init_cache(Pocket lisp) {
     PKCache *c = &lisp->cache;
-    
     c->lambda = pk_atom_symbol(lisp, pk_str("lambda"));
     c->macro = pk_atom_symbol(lisp, pk_str("macro"));
-    
     c->defvar = pk_atom_symbol(lisp, pk_str("defvar"));
     c->defun = pk_atom_symbol(lisp, pk_str("defun"));
     c->defmacro = pk_atom_symbol(lisp, pk_str("defmacro"));
     c->defclass = pk_atom_symbol(lisp, pk_str("defclass"));
-    
     c->progn = pk_atom_symbol(lisp, pk_str("progn"));
     c->sym_if = pk_atom_symbol(lisp, pk_str("if"));
     c->sym_while = pk_atom_symbol(lisp, pk_str("while"));
