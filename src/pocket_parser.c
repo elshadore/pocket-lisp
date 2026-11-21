@@ -430,6 +430,46 @@ PKAtom *pk_parse_atom_cons(Pocket lisp, PKParser *r) {
     return lisp->cache.nil;
 }
 
+PKAtom *pk_parse_atom_blob(Pocket lisp, PKParser *r) {
+    if (pk_pat(r) != '[') {
+        pk_parser_error(lisp, r, pk_str("blob does not start with [, character"));
+        return lisp->cache.nil;
+    }
+
+    pk_parser_ince(lisp, r);
+    pk_writer_reset(lisp);
+
+    bool first = true;
+    bool whitespace = pk_parser_trim_whitespace(r);
+
+    while (!pk_parser_is_finished(r)) {
+        if (pk_pat(r) == ']') {
+            (void)pk_parser_inc(r);
+            PKAtomBlob *result = pk_atom_blob(lisp, pk_writer_slice(lisp));
+            pk_writer_reset(lisp);
+            return (PKAtom *)result;
+        } else if (!first && !whitespace) {
+            pk_parser_error(lisp, r, pk_str("blob elements must be seperated with whitespace"));
+        } else if (!pk_parser_is_number_prefix(r)) {
+            pk_parser_error(lisp, r, pk_str("expected a number in blob"));
+        } else {
+            PKAtomNumber *number = pk_atom_assert_number(lisp, pk_parse_atom_number(lisp, r));
+            if (number->num_type != PK_NUMTY_INT) {
+                pk_parser_error(lisp, r, pk_str("blob elements must be integers"));
+            }
+            if (number->as.i < 0 || number->as.i > UINT8_MAX) {
+                pk_parser_error(lisp, r, pk_str("blob element is outside the byte range 0..255"));
+            }
+            pk_writer_byte(lisp, (pk_u8)number->as.i);
+            first = false;
+            whitespace = pk_parser_trim_whitespace(r);
+        }
+    }
+
+    pk_parser_error(lisp, r, pk_str("unterminated blob"));
+    return lisp->cache.nil;
+}
+
 PKAtom *pk_parse_atom_simple_macro(Pocket lisp, PKParser *r, PKAtomSymbol *macro) {
     pk_parser_ince(lisp, r);
 
@@ -471,11 +511,10 @@ PKAtom *pk_parse_atom(Pocket lisp, PKParser *r) {
             return lisp->cache.nil;
         }
         case '[': {
-            pk_parser_error(lisp, r, pk_str("TODO: implement array parsing"));
-            return lisp->cache.nil;
+            return pk_parse_atom_blob(lisp, r);
         }
         case ']': {
-            pk_parser_error(lisp, r, pk_str("encountered end of blob ], character without start of list [, character"));
+            pk_parser_error(lisp, r, pk_str("encountered end of blob ], character without start of blob [, character"));
             return lisp->cache.nil;
         }
         case '\'': {

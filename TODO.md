@@ -6,6 +6,8 @@ The todo list for POCKET LISP
   - `[0 255 64 32]`
   - Blob functions (cat, el, ...)
     - cat
+      - should cat numbers
+      - number->bytes
     - el
     - length
     - `to_string`
