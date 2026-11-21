@@ -57,7 +57,7 @@ void pk_compile_strsub_main(Pocket lisp, PKStrSub *sub) {
             pk_strsub_ince(lisp, sub);
         } else if (pk_strsub_at(sub) == '{') {
             if (sub->w.count > 0) {
-                pk_cmp_load(lisp, sub->cmp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(lisp)));
+                pk_cmp_load(lisp, sub->cmp, (PKAtom *)pk_atom_string(lisp, pk_writer_str(lisp)));
                 count += 1;
             }
 
@@ -84,7 +84,7 @@ void pk_compile_strsub_main(Pocket lisp, PKStrSub *sub) {
     } while (pk_strsub_inc(sub));
 
     if (sub->w.count > 0) {
-        pk_cmp_load(lisp, sub->cmp, (PKAtom *)pk_atom_string(lisp, pk_writer_slice(lisp)));
+        pk_cmp_load(lisp, sub->cmp, (PKAtom *)pk_atom_string(lisp, pk_writer_str(lisp)));
         count += 1;
     }
 

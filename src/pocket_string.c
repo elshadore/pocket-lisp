@@ -71,7 +71,7 @@ PKAtomString *pk_atom_string_cat(Pocket lisp, PKAtoms atoms) {
         pk_writer_string(lisp, string->str);
     }
     
-    PKAtomString *result = pk_atom_string(lisp, pk_writer_slice(lisp));
+    PKAtomString *result = pk_atom_string(lisp, pk_writer_str(lisp));
     pk_writer_reset(lisp);
     return result;
 }

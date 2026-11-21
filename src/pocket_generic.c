@@ -11,8 +11,11 @@ PKAtom *pk_generic_el(Pocket lisp, PKAtom *atom, size_t index) {
         case PK_ATOMTY_ARRAY: {
             return (PKAtom *)pk_atom_array_el(lisp, (PKAtomArray *)atom, index);
         }
+        case PK_ATOMTY_BLOB: {
+            return pk_atom_blob_el(lisp, (PKAtomBlob *)atom, index);
+        }
         default: {
-            pk_error_type3(lisp, atom, PK_TYPE_CONS, PK_TYPE_STRING, PK_TYPE_ARRAY);
+            pk_error_type4(lisp, atom, PK_TYPE_CONS, PK_TYPE_STRING, PK_TYPE_ARRAY, PK_TYPE_BLOB);
             return lisp->cache.nil;
         }
     }
@@ -49,6 +52,9 @@ size_t pk_generic_length(Pocket lisp, PKAtom *atom) {
         }
         case PK_ATOMTY_ARRAY: {
             return pk_atom_array_length(lisp, (PKAtomArray *)atom);
+        }
+        case PK_ATOMTY_BLOB: {
+            return pk_atom_blob_length(lisp, (PKAtomBlob *)atom);
         }
         default: {
             pk_error_type4(lisp, atom, PK_TYPE_NIL, PK_TYPE_CONS, PK_TYPE_STRING, PK_TYPE_ARRAY);
@@ -87,8 +93,11 @@ PKAtom *pk_generic_cat(Pocket lisp, PKAtom *atom, PKAtoms atoms) {
         case PK_ATOMTY_STRING: {
             return (PKAtom *)pk_atom_string_cat(lisp, atoms);
         }
+        case PK_ATOMTY_BLOB: {
+            return (PKAtom *)pk_atom_blob_cat(lisp, atoms);
+        }
         default: {
-            pk_error_type3(lisp, atom, PK_TYPE_NIL, PK_TYPE_CONS, PK_TYPE_STRING);
+            pk_error_type4(lisp, atom, PK_TYPE_NIL, PK_TYPE_CONS, PK_TYPE_STRING, PK_TYPE_BLOB);
             return lisp->cache.nil;
         }
     }
@@ -105,8 +114,11 @@ PKAtom *pk_generic_reverse(Pocket lisp, PKAtom *atom) {
         case PK_ATOMTY_CONS: {
             return pk_atom_list_reverse(lisp, atom);
         }
+        case PK_ATOMTY_BLOB: {
+            return (PKAtom *)pk_atom_blob_reverse(lisp, atom->blob.bytes);
+        }
         default: {
-            pk_error_type3(lisp, atom, PK_TYPE_NIL, PK_TYPE_CONS, PK_TYPE_STRING);
+            pk_error_type4(lisp, atom, PK_TYPE_NIL, PK_TYPE_CONS, PK_TYPE_STRING, PK_TYPE_BLOB);
             return lisp->cache.nil;
         }
     }
@@ -123,8 +135,11 @@ PKAtomString *pk_generic_to_string(Pocket lisp, PKAtom *atom) {
         case PK_ATOMTY_KEYWORD: {
             return pk_atom_keyword_to_string(lisp, (PKAtomKeyword *)atom);
         }
+        case PK_ATOMTY_BLOB: {
+            return pk_atom_blob_to_string(lisp, (PKAtomBlob *)atom);
+        }
         default: {
-            pk_error_type3(lisp, atom, PK_TYPE_STRING, PK_TYPE_SYMBOL, PK_TYPE_KEYWORD);
+            pk_error_type4(lisp, atom, PK_TYPE_STRING, PK_TYPE_SYMBOL, PK_TYPE_KEYWORD, PK_TYPE_BLOB);
             return lisp->cache.empty_string;
         }
     }

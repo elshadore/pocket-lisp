@@ -18,7 +18,7 @@ void pk_errors(Pocket lisp, PKStr message) {
 }
 
 void pk_error_writer(Pocket lisp) {
-    pk_errors(lisp, pk_writer_slice(lisp));
+    pk_errors(lisp, pk_writer_str(lisp));
 }
 
 PK_PRINTF_FMT(2, 3) void pk_errorf(Pocket lisp, const char *fmt, ...) {

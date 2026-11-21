@@ -21,7 +21,7 @@ void pk_atom_print(Pocket lisp, PKAtom *atom) {
 
     pk_writer_reset(lisp);
     pk_writer_atom(lisp, atom);
-    pk_internal_print(lisp, pk_writer_slice(lisp));
+    pk_internal_print(lisp, pk_writer_str(lisp));
     pk_writer_reset(lisp);
 }
 
@@ -34,15 +34,15 @@ void pk_atom_puts(Pocket lisp, PKAtom *atom) {
     
     pk_writer_reset(lisp);
     pk_writer_atom(lisp, atom);
-    pk_internal_puts(lisp, pk_writer_slice(lisp));
+    pk_internal_puts(lisp, pk_writer_str(lisp));
     pk_writer_reset(lisp);
 }
 
 PKAtomString *pk_atom_format(Pocket lisp, PKAtom *atom) {
     pk_writer_reset(lisp);
     pk_writer_atom(lisp, atom);
-    pk_internal_puts(lisp, pk_writer_slice(lisp));
-    PKAtomString *result = pk_atom_string(lisp, pk_writer_slice(lisp));
+    pk_internal_puts(lisp, pk_writer_str(lisp));
+    PKAtomString *result = pk_atom_string(lisp, pk_writer_str(lisp));
     pk_writer_reset(lisp);
     return result;
 }

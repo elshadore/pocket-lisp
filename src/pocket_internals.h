@@ -79,10 +79,10 @@ typedef struct PKSlotmap_ {
     size_t capacity;
 } PKSlotmap;
 
-#define PK_WRITER_EMPTY (PKWriter) {.c = NULL, .count = 0, .capacity = 0}
+#define PK_WRITER_EMPTY (PKWriter) {.e = NULL, .count = 0, .capacity = 0}
 
 typedef struct PKWriter_ {
-    char *c;
+    pk_u8 *e;
     size_t count;
     size_t capacity;
 } PKWriter;
@@ -562,6 +562,17 @@ PKAtomString *pk_atom_stringc(Pocket lisp, char *cstring);
 PKAtomString *pk_atom_string_cat(Pocket lisp, PKAtoms atoms);
 PKAtomString *pk_atom_string_reverse(Pocket lisp, PKStr input);
 PKAtomString *pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index);
+
+PKAtomBlob *pk_atom_blob_new_empty(Pocket lisp);
+PKAtomBlob *pk_atom_blob_nomemcpy(Pocket lisp, PKBlob blob);
+PKAtomBlob *pk_atom_blob(Pocket lisp, PKBlob blob);
+PKAtomBlob *pk_atom_blob_cat(Pocket lisp, PKAtoms atoms);
+PKAtom *pk_atom_blob_el(Pocket lisp, PKAtomBlob *blob, size_t index);
+size_t pk_atom_blob_length(Pocket lisp, PKAtomBlob *blob);
+PKAtomString *pk_atom_blob_to_string(Pocket lisp, PKAtomBlob *blob);
+PKAtomBlob *pk_atom_blob_reverse(Pocket lisp, PKBlob input);
+bool pk_atom_is_blob(PKAtom *atom);
+PKAtomBlob *pk_atom_assert_blob(Pocket lisp, PKAtom *atom);
 PKStr pk_atom_as_string(Pocket lisp, PKAtom *atom);
 size_t pk_atom_string_length(Pocket lisp, PKAtomString *string);
 
@@ -767,6 +778,8 @@ PKAtom *pk_parse_atom_from_string(Pocket lisp, PKAtomString *string, PK_MODE mod
 void pk_writer_destroy(Pocket lisp);
 void pk_writer_reset(Pocket lisp);
 void pk_writer_char(Pocket lisp, char c);
+void pk_writer_byte(Pocket lisp, pk_u8 byte);
+void pk_writer_bytes(Pocket lisp, PKBlob bytes);
 void pk_writer_cstr(Pocket lisp, const char *cstr);
 void pk_writer_string(Pocket lisp, PKStr string);
 void pk_writer_string_escaped(Pocket lisp, PKStr string);
@@ -775,7 +788,8 @@ PK_PRINTF_FMT(2, 3) void pk_writer_fmt(Pocket lisp, const char *fmt, ...);
 void pk_writer_int(Pocket lisp, int integer);
 void pk_writer_address(Pocket lisp, size_t address);
 void pk_writer_newline(Pocket lisp);
-PKStr pk_writer_slice(Pocket lisp);
+PKBlob pk_writer_slice(Pocket lisp);
+PKStr pk_writer_str(Pocket lisp);
 void pk_writer_symbol(Pocket lisp, PKStr ident);
 void pk_writer_atom(Pocket lisp, PKAtom *atom);
     

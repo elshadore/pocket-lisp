@@ -140,7 +140,7 @@ PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun) {
     
     pk_writer_newline(lisp);
 
-    PKAtomString *result = pk_atom_string(lisp, pk_writer_slice(lisp));
+    PKAtomString *result = pk_atom_string(lisp, pk_writer_str(lisp));
     pk_writer_reset(lisp);
     return result;
 }

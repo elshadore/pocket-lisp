@@ -219,7 +219,7 @@ PKAtom *pk_parse_atom_string(Pocket lisp, PKParser *r) {
         if (pk_pat(r) == '\"') {
             
             (void)pk_parser_inc(r);
-            PKAtom *result = (PKAtom *)pk_atom_string(lisp, pk_writer_slice(lisp));
+            PKAtom *result = (PKAtom *)pk_atom_string(lisp, pk_writer_str(lisp));
             pk_writer_reset(lisp);
             return result;
             
@@ -317,7 +317,7 @@ PKAtom *pk_parse_atom_barred(Pocket lisp, PKParser *r, PK_SYMTY type) {
         }
     }
     
-    PKStr slice = pk_writer_slice(lisp);
+    PKStr slice = pk_writer_str(lisp);
     if (slice.length == 0) {
         if (type == PK_SYMTY_SYMBOL) {
             pk_parser_error(lisp, r, pk_str("empty symbol between | characters"));

@@ -18,6 +18,7 @@ PKStr pk_ident_atomty(pk_u8 type) {
         case PK_ATOMTY_CMACRO: return pk_str("CMACRO");
         case PK_ATOMTY_LMACRO: return pk_str("LMACRO");
         case PK_ATOMTY_OBJECT: return pk_str("OBJECT");
+        case PK_ATOMTY_BLOB: return pk_str("BLOB");
         case PK_ATOMTY_DESTROYED: return pk_str("DESTROYED");
         default: return pk_str("UNKNOWN");
     }
@@ -38,6 +39,7 @@ PKStr pk_ident_type(PK_TYPE type) {
         case PK_TYPE_OBJECT: return pk_str("Object");
         case PK_TYPE_FUNCTION: return pk_str("Function");
         case PK_TYPE_MACRO: return pk_str("Macro");
+        case PK_TYPE_BLOB: return pk_str("Blob");
         default: return pk_str("Unknown");
     }
 }

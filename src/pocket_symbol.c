@@ -5,9 +5,9 @@ PKAtomSymbol *pk_atom_gensym(Pocket lisp) {
         pk_writer_reset(lisp);
         pk_writer_fmt(lisp, "GENSYM::%zu", lisp->gensym_counter);
         lisp->gensym_counter += 1;
-        PKAtom *get = pk_hashmap_get_str(lisp, &lisp->symbolizer, pk_writer_slice(lisp));
+        PKAtom *get = pk_hashmap_get_str(lisp, &lisp->symbolizer, pk_writer_str(lisp));
         if (pk_atom_is_undefined(get)) {
-            PKAtomSymbol *result = pk_atom_symbol(lisp, pk_writer_slice(lisp));
+            PKAtomSymbol *result = pk_atom_symbol(lisp, pk_writer_str(lisp));
             pk_writer_reset(lisp);
             return result;
         }

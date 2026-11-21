@@ -47,6 +47,7 @@ PKAtomKind pk_atom_kind(PKAtom *atom) {
         case PK_ATOMTY_STRING: return PK_ATOMKIND_VALUE;
         case PK_ATOMTY_SYMBOL: return PK_ATOMKIND_VALUE;
         case PK_ATOMTY_KEYWORD: return PK_ATOMKIND_VALUE;
+        case PK_ATOMTY_BLOB: return PK_ATOMKIND_VALUE;
         case PK_ATOMTY_CFUN: return PK_ATOMKIND_VALUE;
         case PK_ATOMTY_LFUN: return PK_ATOMKIND_VALUE;
         case PK_ATOMTY_CMACRO: return PK_ATOMKIND_VALUE;
@@ -321,6 +322,7 @@ PK_TYPE pk_atom_typeof(PKAtom *atom) {
         case PK_ATOMTY_LFUN: return PK_TYPE_FUNCTION;
         case PK_ATOMTY_CMACRO: return PK_TYPE_MACRO;
         case PK_ATOMTY_LMACRO: return PK_TYPE_MACRO;
+        case PK_ATOMTY_BLOB: return PK_TYPE_BLOB;
         default: return PK_TYPE_UNKNOWN;
     }
 }

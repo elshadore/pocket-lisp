@@ -43,6 +43,10 @@ void pk_atom_deinit(Pocket lisp, PKAtom *atom) {
             pk_hashmap_deinit(lisp, &object->props);
             break;
         }
+        case PK_ATOMTY_BLOB: {
+            pk_blob_free(lisp, &atom->blob.bytes);
+            break;
+        }
         case PK_ATOMTY_ARRAY: {
             pk_array_deinit(lisp, &atom->array.atoms);
             break;

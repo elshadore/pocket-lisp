@@ -7,8 +7,8 @@ void pk_writer_expand(Pocket lisp, size_t needed) {
         while (new_capacity < new_count) {
             new_capacity *= 2;
         }
-        char *new_c = pk_realloc(lisp, lisp->writer.c, new_capacity * sizeof(char));
-        lisp->writer.c = new_c;
+        pk_u8 *new_e = pk_realloc(lisp, lisp->writer.e, new_capacity * sizeof(pk_u8));
+        lisp->writer.e = new_e;
         lisp->writer.capacity = new_capacity;
     }
 }
@@ -18,32 +18,40 @@ void pk_writer_reset(Pocket lisp) {
 }
 
 void pk_writer_destroy(Pocket lisp) {
-    pk_free(lisp, lisp->writer.c);
+    pk_free(lisp, lisp->writer.e);
     lisp->writer = PK_WRITER_EMPTY;
 }
 
-void pk_writer_char(Pocket lisp, char c) {
+void pk_writer_byte(Pocket lisp, pk_u8 byte) {
     pk_writer_expand(lisp, 1);
-    lisp->writer.c[lisp->writer.count++] = c;
+    lisp->writer.e[lisp->writer.count++] = byte;
+}
+
+void pk_writer_char(Pocket lisp, char c) {
+    pk_writer_byte(lisp, (pk_u8)c);
+}
+
+void pk_writer_bytes(Pocket lisp, PKBlob bytes) {
+    if (bytes.length == 0) {
+        return;
+    }
+    pk_writer_expand(lisp, bytes.length);
+    memcpy(lisp->writer.e + lisp->writer.count, bytes.e, bytes.length);
+    lisp->writer.count += bytes.length;
 }
 
 void pk_writer_string(Pocket lisp, PKStr string) {
-    if (string.length == 0) {
-        return;
-    }
-    pk_writer_expand(lisp, string.length);
-    memcpy(lisp->writer.c + lisp->writer.count, string.c, string.length);
-    lisp->writer.count += string.length;
+    pk_writer_bytes(lisp, (PKBlob) {
+        .e = (pk_u8 *)string.c,
+        .length = string.length,
+    });
 }
 
 void pk_writer_cstr(Pocket lisp, const char *cstr) {
-    size_t length = strlen(cstr);
-    if (length == 0) {
-        return;
-    }
-    pk_writer_expand(lisp, length);
-    memcpy(lisp->writer.c + lisp->writer.count, cstr, length);
-    lisp->writer.count += length;
+    pk_writer_string(lisp, (PKStr) {
+        .c = (char *)cstr,
+        .length = strlen(cstr),
+    });
 }
 
 void pk_writer_string_escaped(Pocket lisp, PKStr string) {
@@ -87,7 +95,7 @@ void pk_writer_vfmt(Pocket lisp, const char *fmt, va_list args) {
 
     pk_writer_expand(lisp, length + 1);
 
-    (void)vsnprintf(lisp->writer.c + lisp->writer.count, length + 1, fmt, args);
+    (void)vsnprintf((char *)lisp->writer.e + lisp->writer.count, length + 1, fmt, args);
 
     lisp->writer.count += length;
 }
@@ -120,7 +128,7 @@ void pk_writer_int(Pocket lisp, int integer) {
     } while ((dec /= 10) > 0);
 
     PKStr str = (PKStr){
-        .c = lisp->writer.c + save,
+        .c = (char *)lisp->writer.e + save,
         .length = lisp->writer.count - save
     };
     pk_str_reverse_mut(str);
@@ -140,9 +148,16 @@ void pk_writer_newline(Pocket lisp) {
     pk_writer_char(lisp, '\n');
 }
 
-PKStr pk_writer_slice(Pocket lisp) {
+PKBlob pk_writer_slice(Pocket lisp) {
+    return (PKBlob) {
+        .e = lisp->writer.e,
+        .length = lisp->writer.count
+    };
+}
+
+PKStr pk_writer_str(Pocket lisp) {
     return (PKStr) {
-        .c = lisp->writer.c,
+        .c = (char *)lisp->writer.e,
         .length = lisp->writer.count
     };
 }
@@ -272,6 +287,18 @@ void pk_writer_write_atom(Pocket lisp, PKAtom *atom) {
         }
         case PK_ATOMTY_LMACRO: {
             pk_writer_simple_function(lisp, atom, pk_str("Macro::lisp"), atom->lmacro.arity);
+            break;
+        }
+        case PK_ATOMTY_BLOB: {
+            PKBlob blob = atom->blob.bytes;
+            pk_writer_char(lisp, '[');
+            for (size_t i = 0; i < blob.length; ++i) {
+                if (i != 0) {
+                    pk_writer_char(lisp, ' ');
+                }
+                pk_writer_fmt(lisp, "%u", blob.e[i]);
+            }
+            pk_writer_char(lisp, ']');
             break;
         }
         case PK_ATOMTY_ARRAY: {

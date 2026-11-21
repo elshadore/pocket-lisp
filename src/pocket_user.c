@@ -37,7 +37,7 @@ void pk_push_stringf(Pocket lisp, const char *fmt, ...) {
     va_start(args, fmt);
     pk_writer_reset(lisp);
     pk_writer_vfmt(lisp, fmt, args);
-    pk_push_string(lisp, pk_writer_slice(lisp));
+    pk_push_string(lisp, pk_writer_str(lisp));
     pk_writer_reset(lisp);
     va_end(args);
 }
@@ -55,7 +55,7 @@ void pk_push_symbolf(Pocket lisp, const char *fmt, ...) {
     va_start(args, fmt);
     pk_writer_reset(lisp);
     pk_writer_vfmt(lisp, fmt, args);
-    pk_push_symbol(lisp, pk_writer_slice(lisp));
+    pk_push_symbol(lisp, pk_writer_str(lisp));
     pk_writer_reset(lisp);
     va_end(args);
 }
@@ -77,7 +77,7 @@ void pk_push_keywordf(Pocket lisp, const char *fmt, ...) {
     va_start(args, fmt);
     pk_writer_reset(lisp);
     pk_writer_vfmt(lisp, fmt, args);
-    pk_push_keyword(lisp, pk_writer_slice(lisp));
+    pk_push_keyword(lisp, pk_writer_str(lisp));
     pk_writer_reset(lisp);
     va_end(args);
 }
@@ -111,6 +111,10 @@ void pk_push_macro(Pocket lisp, void *user_closure, PKFun fun, PKFunArgs *args) 
 
 void pk_push_array(Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_array(lisp, PK_ATOMS_EMPTY));
+}
+
+void pk_push_blob(Pocket lisp, PKBlob bytes) {
+    pk_stack_push(lisp, (PKAtom *)pk_atom_blob(lisp, bytes));
 }
 
 void pk_destroy(Pocket lisp, int atom) {
@@ -320,6 +324,11 @@ int pk_to_int(Pocket lisp, int number) {
 
 float pk_to_float(Pocket lisp, int number) {
     return pk_atom_to_float(lisp, pk_stack_get(lisp, number), PK_NUMBER_CONV_FLOAT_CONV);
+}
+
+PKBlob pk_to_blob(Pocket lisp, int blob) {
+    PKAtomBlob *ablo = pk_atom_assert_blob(lisp, pk_stack_get(lisp, blob));
+    return ablo->bytes;
 }
 
 void pk_error(Pocket lisp, int message) {
