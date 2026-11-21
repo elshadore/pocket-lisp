@@ -19,9 +19,9 @@ PKAtomBlob *pk_atom_blob_nomemcpy(Pocket lisp, PKBlob blob) {
 }
 
 PKAtomBlob *pk_atom_blob_alloc(Pocket lisp, size_t length) {
-    // if (length == 0) {
-    //     return lisp->cache.empty_string;
-    //}
+    if (length == 0) {
+        return &PK_ATOM_EMPTY_BLOB;
+    }
 
     PKBlob buffer = pk_blob_alloc(lisp, length);
     
