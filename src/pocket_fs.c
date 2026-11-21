@@ -68,16 +68,12 @@ PKAtomString *pk_fs_file_slurp(Pocket lisp, PKAtomString *file_path) {
     return pk_fs_file_slurp_str(lisp, file_path->str);
 }
 
-#define READ_BUFFER_MAX (1024)
-
-char READ_BUFFER[READ_BUFFER_MAX];
-
 PKAtom *pk_fs_read_user_input(Pocket lisp) {
-    size_t i = 0;
+    pk_writer_reset(lisp);
     for (;;) {
         int c = getc(stdin);
         if (c == EOF) {
-            if (i == 0) {
+            if (pk_writer_str(lisp).length == 0) {
                 return lisp->cache.nil;
             }
             break;
@@ -85,16 +81,12 @@ PKAtom *pk_fs_read_user_input(Pocket lisp) {
         if (c == '\n') {
             break;
         }
-        if (i == READ_BUFFER_MAX) {
-            pk_errors(lisp, pk_str("input too long"));
-        }
-        READ_BUFFER[i] = (char)c;
-        i += 1;
+        pk_writer_char(lisp, (char)c);
     }
 
-    PKStr slice = (PKStr){
-        .c = READ_BUFFER,
-        .length = i,
-    };
-    return (PKAtom *)pk_atom_string(lisp, slice);
+    PKAtom *result = (PKAtom *)pk_atom_string(lisp, pk_writer_str(lisp));
+    
+    pk_writer_reset(lisp);
+    
+    return result;
 }
