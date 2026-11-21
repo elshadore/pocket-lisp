@@ -115,11 +115,6 @@
                ,@body
                (setq ,temp (cdr ,temp))))))
                    
-## nil? -> (not x)
-## A shortcut function essentially.
-(defun nil? (x)
-   (not x))
-
 ## We expect a proper list as input. Not nil or a packed list.
 (defun last-cons (list)
    (if (nil? (cdr list))

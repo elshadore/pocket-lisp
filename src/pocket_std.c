@@ -436,6 +436,11 @@ void pk_fun_typeof(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_ident_type(pk_typeof(lisp, 1))));
 }
 
+void pk_fun_is_nil(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_nil(pk_stack_get(lisp, 1)));
+}
+
 void pk_fun_is_cons(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_push_bool(lisp, pk_atom_is_cons(pk_stack_get(lisp, 1)));
@@ -715,6 +720,7 @@ void pk_std_load_cfun(Pocket lisp) {
         
         {.symbol = pk_str("gensym"), .fun = pk_fun_gensym, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("typeof"), .fun = pk_fun_typeof, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("nil?"), .fun = pk_fun_is_nil, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("cons?"), .fun = pk_fun_is_cons, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("number?"), .fun = pk_fun_is_number, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("integer?"), .fun = pk_fun_is_integer, .args = 1, .arity = PK_ARITY_NORMAL},
