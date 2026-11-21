@@ -55,14 +55,6 @@ void pk_atom_deinit(Pocket lisp, PKAtom *atom) {
     }
 }
 
-bool pk_atom_is_immortal(Pocket lisp, PKAtom *atom) {
-    return (atom == lisp->cache.nil)
-        || (atom == lisp->cache.atom_true)
-        || (atom == lisp->cache.undefined)
-        || (atom == (PKAtom *)lisp->cache.empty_string)
-        || (atom == (PKAtom *)lisp->cache.out_of_memory);
-}
-
 PKAtom *pk_atom_destroy(Pocket lisp, PKAtom *atom) {
     pk_u8 type = atom->header.type;
 
@@ -70,7 +62,7 @@ PKAtom *pk_atom_destroy(Pocket lisp, PKAtom *atom) {
         return atom;
     }
 
-    if (pk_atom_is_immortal(lisp, atom)) {
+    if (pk_atom_is_immortal(atom)) {
         pk_errors(lisp, pk_str("cannot destroy immortal atoms"));
         return atom;
     }

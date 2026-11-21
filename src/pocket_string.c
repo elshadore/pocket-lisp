@@ -1,17 +1,8 @@
 #include "pocket_internals.h"
 
-PKAtomString *pk_atom_string_new_empty(Pocket lisp) {
-    PKAtomString *result = (PKAtomString *)pk_atom_alloc(lisp);
-    
-    result->header.type = PK_ATOMTY_STRING;
-    result->str = PK_STR_EMPTY;
-    
-    return result;
-}
-
 PKAtomString *pk_atom_string_nomemcpy(Pocket lisp, PKStr string) {
     if (string.length == 0) {
-        return lisp->cache.empty_string;
+        return &PK_ATOM_EMPTY_STRING;
     }
 
     PKAtomString *result = (PKAtomString *)pk_atom_alloc(lisp);
@@ -24,7 +15,7 @@ PKAtomString *pk_atom_string_nomemcpy(Pocket lisp, PKStr string) {
 
 PKAtomString *pk_atom_string(Pocket lisp, PKStr string) {
     if (string.length == 0) {
-        return lisp->cache.empty_string;
+        return &PK_ATOM_EMPTY_STRING;
     }
 
     PKStr dupe = pk_str_dupe(lisp, string);
@@ -50,7 +41,7 @@ PKAtomKeyword *pk_atom_string_to_keyword(Pocket lisp, PKAtomString *string) {
 
 PKAtomString *pk_atom_string_alloc(Pocket lisp, size_t length) {
     if (length == 0) {
-        return lisp->cache.empty_string;
+        return &PK_ATOM_EMPTY_STRING;
     }
 
     PKStr buffer = pk_str_alloc(lisp, length);
@@ -85,7 +76,7 @@ PKAtomString *pk_atom_string_reverse(Pocket lisp, PKStr input) {
 PKAtomString *pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index) {
     if (index >= string->str.length) {
         pk_errorf(lisp, "index: %zu, longer than the string length: %zu", index, string->str.length);
-        return lisp->cache.empty_string;
+        return &PK_ATOM_EMPTY_STRING;
     }
     PKStr str = (PKStr) {
         .c = &string->str.c[index],

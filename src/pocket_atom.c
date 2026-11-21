@@ -34,6 +34,12 @@ bool pk_atom_is_undefined(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_UNDEFINED;
 }
 
+void pk_atom_set_immortal(PKAtom *atom) {
+    if (!pk_atom_is_immortal(atom)) {
+        atom->header.flags |= PK_ATOMFLAG_IMMORTAL;
+    }
+}
+
 PKAtomKind pk_atom_kind(PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_CONS: return PK_ATOMKIND_OBJECT;

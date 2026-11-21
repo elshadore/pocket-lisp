@@ -25,12 +25,15 @@ PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr string) {
     PKAtomString *name = pk_atom_string(lisp, string);
 
     result->header.type = PK_ATOMTY_SYMBOL;
-    result->var = lisp->cache.undefined;
-    result->fun = lisp->cache.undefined;
+    result->var = &PK_ATOM_UNDEFINED;
+    result->fun = &PK_ATOM_UNDEFINED;
     result->name = name;
     result->props = PK_HASHMAP_EMPTY;
 
     pk_hashmap_insert(lisp, &lisp->symbolizer, (PKAtom *)name, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
+
+    pk_atom_set_immortal((PKAtom *)result);
+    pk_atom_set_immortal((PKAtom *)name);
     
     return result;
 }

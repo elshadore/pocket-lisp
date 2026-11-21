@@ -12,6 +12,10 @@ bool pk_atom_is_marked(PKAtom *atom) {
     return (atom->header.flags & PK_ATOMFLAG_MARKED) != 0;
 }
 
+bool pk_atom_is_immortal(PKAtom *atom) {
+    return (atom->header.flags & PK_ATOMFLAG_IMMORTAL) != 0;
+}
+
 void pk_gc_mark_cache(Pocket lisp) {
     PKCache *c = &lisp->cache;
     
@@ -69,15 +73,6 @@ void pk_gc_mark_hashmap(Pocket lisp, PKHashmap *map) {
     }
 }
 
-void pk_gc_mark_slotmap(Pocket lisp, PKSlotmap *map) {
-    for (size_t i = 0; i < map->capacity; ++i) {
-        PKSlotmapSlot *slot = &map->e[i];
-        if (slot->state == PK_SLOTMAP_SLOT_OCCUPIED) {
-            pk_gc_mark(lisp, slot->symbol);
-        }
-    }
-}
-
 void pk_gc_mark_atoms(Pocket lisp, PKAtoms atoms) {
     for (size_t i = 0; i < atoms.length; ++i) {
         pk_gc_mark(lisp, atoms.e[i]);
@@ -92,6 +87,9 @@ void pk_gc_mark(Pocket lisp, PKAtom *atom) {
     }
 
     if (pk_atom_is_marked(atom)) {
+        return;
+    }
+    if (pk_atom_is_immortal(atom)) {
         return;
     }
 
@@ -189,9 +187,13 @@ void pk_gc_collect_no_cache(Pocket lisp) {
         for (size_t i = 0; i < PK_POOL_MAX; ++i) {
             PKAtom *atom = &pool->e[i];
             if (atom->header.type != PK_ATOMTY_FREE) {
-                if (!pk_atom_is_marked(atom)) {
-                    pk_atom_free(lisp, atom);
+                if (pk_atom_is_immortal(atom)) {
+                    continue;
                 }
+                if (pk_atom_is_marked(atom)) {
+                    continue;
+                }
+                pk_atom_free(lisp, atom);
             }
             pk_atom_unmark(atom);
         }

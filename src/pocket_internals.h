@@ -62,23 +62,6 @@ typedef struct PKHashmap_ {
     size_t capacity;
 } PKHashmap;
 
-#define PK_SLOTMAP_SLOT_UNOCCUPIED (0)
-#define PK_SLOTMAP_SLOT_OCCUPIED (1)
-
-typedef struct PKSlotmapSlot_ {
-    PKAtom *symbol;
-    size_t index;
-    pk_u8 state;
-} PKSlotmapSlot;
-
-#define PK_SLOTMAP_EMPTY (PKSlotmap){.e = NULL, .count = 0, .capacity = 0}
-
-typedef struct PKSlotmap_ {
-    PKSlotmapSlot *e;
-    size_t count;
-    size_t capacity;
-} PKSlotmap;
-
 #define PK_WRITER_EMPTY (PKWriter) {.e = NULL, .count = 0, .capacity = 0}
 
 typedef struct PKWriter_ {
@@ -157,6 +140,7 @@ typedef enum PKAtomKind_ {
 
 #define PK_ATOMFLAG_NONE (0)
 #define PK_ATOMFLAG_MARKED (1 << 0)
+#define PK_ATOMFLAG_IMMORTAL (1 << 1)
 
 typedef struct PKAtomHeader_ {
     pk_u8 type;
@@ -365,13 +349,6 @@ struct PKPool_ {
 };
 
 #define PK_CACHE_EMPTY (PKCache) { \
-    .atom_true = NULL, \
-    .nil = NULL, \
-    .undefined = NULL, \
-    \
-    .empty_string = NULL, \
-    .out_of_memory = NULL, \
-    \
     .lambda = NULL, \
     .macro = NULL, \
     \
@@ -405,21 +382,12 @@ struct PKPool_ {
 }
 
 typedef struct PKCache_ {
-    PKAtom *atom_true;
-    PKAtom *nil;
-    PKAtom *undefined;
-
-    PKAtomString *empty_string;
-    PKAtomString *out_of_memory;
-    
     PKAtomSymbol *lambda;
     PKAtomSymbol *macro;
-    
     PKAtomSymbol *defvar;
     PKAtomSymbol *defun;
     PKAtomSymbol *defmacro;
     PKAtomSymbol *defclass;
-    
     PKAtomSymbol *progn;
     PKAtomSymbol *sym_if;
     PKAtomSymbol *sym_while;
@@ -440,7 +408,6 @@ typedef struct PKCache_ {
     PKAtomSymbol *block;
     PKAtomSymbol *apply;
     PKAtomSymbol *macro_apply;
-    
     PKAtomSymbol *quote;
     PKAtomSymbol *quasiquote;
     PKAtomSymbol *unquote;
@@ -481,6 +448,13 @@ typedef struct PocketLispMachine_ {
     PKAtomFree *free;
     PKCache cache;
 } PocketLispMachine;
+
+extern PKAtom PK_ATOM_NIL;
+extern PKAtom PK_ATOM_TRUE;
+extern PKAtom PK_ATOM_UNDEFINED;
+extern PKAtomString PK_ATOM_EMPTY_STRING;
+extern PKAtomString PK_ATOM_OUT_OF_MEMORY;
+extern PKAtomBlob PK_ATOM_EMPTY_BLOB;
 
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);
     
@@ -534,6 +508,7 @@ bool pk_atom_is_lfun(PKAtom *atom);
 bool pk_atom_is_function(PKAtom *atom);
 bool pk_atom_is_array(PKAtom *atom);
 bool pk_atom_is_object(PKAtom *atom);
+bool pk_atom_is_immortal(PKAtom *atom);
 
 bool pk_atom_is_macro(PKAtom *atom);
 
@@ -845,11 +820,6 @@ PKAtom *pk_atom_property_get(Pocket lisp, PKHashmap *props, PKAtom *key);
 bool pk_atom_property_is_property(Pocket lisp, PKHashmap *props, PKAtom *key);
 PKAtom *pk_atom_property_to_plist(Pocket lisp, PKHashmap *props);
 
-size_t pk_slotmap_hash(PKSlotmap *map, PKAtom *symbol);
-PKSlotmapSlot *pk_slotmap_get(Pocket lisp, PKSlotmap *map, PKAtom *symbol);
-void pk_slotmap_insert(Pocket lisp, PKSlotmap *map, PKAtom *symbol);
-void pk_slotmap_deinit(Pocket lisp, PKSlotmap *map);
-    
 size_t pk_hash_djb2(PKStr string);
 size_t pk_hash_pointer(void *ptr);
 
@@ -891,6 +861,8 @@ PKAtomString *pk_fs_file_read_string(Pocket lisp, PKAtomString *file_path);
 PKAtomBlob *pk_fs_file_read_bytes(Pocket lisp, PKAtomString *file_path);
 PKAtom *pk_fs_read_user_input(Pocket lisp);
 
+void pk_atom_set_immortal(PKAtom *atom);
+    
 void pk_gc_mark_cache(Pocket lisp);
 void pk_gc_mark(Pocket lisp, PKAtom *atom);
 bool pk_gc_set_enable(Pocket lisp, bool enabled);

@@ -12,10 +12,8 @@ The todo list for POCKET LISP
     - length
     - `to_string`
     - reverse
-  - `(byte? 64)`
-  - file-slurp
-  - file-splat
-  - file-append
+  - `(byte? 64) -> true`
+  - `(byte? [64]) -> true`
   
 - [ ] Immortal Atoms
   A Flag
@@ -27,6 +25,10 @@ The todo list for POCKET LISP
   - Dynamically Allocated
     - symbols (quote, lambda, ect...)
     - cached stuff
+    
+- [ ] Memory Caching
+  - Single Char Strings
+  - Numbers 0 - 100
     
 - [ ] User Conversion Functions
   - `pk_to_*` -> convert lisp type
@@ -54,7 +56,6 @@ The todo list for POCKET LISP
   - `Let_Fun` -> FLet
   
 - [ ] Symbol, Keyword, String Equality
-  - `(= 'foo "foo" :foo) -> true`
   - `(keyword= :foo :foo) -> true`
   - `(string= "foo" "foo") -> true`
   - `(symbol= 'foo 'foo) -> true`
@@ -67,7 +68,8 @@ The todo list for POCKET LISP
   
 - [ ] `string-split`
     - `(string-split "foo foo foo" " ")`
-    - `(char? "a")`
+    - `(bytes-split [20 64 32 10 64 10] 64)`
+    - `(split '(1 2 3 4 5 3 9 2 1) 3)`
     
 - [ ] exotic number parsing
   - 0b010101
@@ -141,10 +143,6 @@ The todo list for POCKET LISP
 - [ ] Lock Special Form Symbols
   - Cannot Set the Function or Variable
 
-- [ ] Memory Caching
-  - Single Char Strings
-  - Numbers 0 - 100
-  
 - [ ] Rust Build
    - review `mlua` rust package
    

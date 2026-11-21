@@ -124,6 +124,7 @@ pub fn build(b: *std.Build) void {
         "src/pocket_generic.c",
         "src/pocket_hashmap.c",
         "src/pocket_ident.c",
+        "src/pocket_immortal.c",
         "src/pocket_jmp.c",
         "src/pocket_list.c",
         "src/pocket_macro.c",
