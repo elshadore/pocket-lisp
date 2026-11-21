@@ -42,9 +42,6 @@ void pk_gc_mark(Pocket lisp, PKAtom *atom) {
     if (pk_atom_is_marked(atom)) {
         return;
     }
-    if (pk_atom_is_immortal(atom)) {
-        return;
-    }
 
     pk_atom_mark(atom);
     
@@ -133,13 +130,9 @@ void pk_gc_collect(Pocket lisp) {
     for (PKPool *pool = lisp->pool; pool; pool = pool->next) {
         for (size_t i = 0; i < PK_POOL_MAX; ++i) {
             PKAtom *atom = &pool->e[i];
-            if (atom->header.type != PK_ATOMTY_FREE) {
-                if (pk_atom_is_immortal(atom)) {
-                    continue;
-                }
-                if (pk_atom_is_marked(atom)) {
-                    continue;
-                }
+            if ((atom->header.type != PK_ATOMTY_FREE)
+                && !pk_atom_is_immortal(atom)
+                && !pk_atom_is_marked(atom)) {
                 pk_atom_free(lisp, atom);
             }
             pk_atom_unmark(atom);
