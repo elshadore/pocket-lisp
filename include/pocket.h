@@ -90,6 +90,7 @@ typedef enum PK_TYPE_ {
     PK_TYPE_OBJECT,
     PK_TYPE_FUNCTION,
     PK_TYPE_MACRO,
+    PK_TYPE_BLOB,
 } PK_TYPE;
 
 typedef struct PKFunArgs_ {
@@ -137,6 +138,7 @@ PK_API void pk_list(Pocket lisp, int head, int tail);
 PK_API void pk_push_function(Pocket lisp, void *user_closure, PKFun fun, PKFunArgs *args);
 PK_API void pk_push_macro(Pocket lisp, void *user_closure, PKFun fun, PKFunArgs *args);
 PK_API void pk_push_array(Pocket lisp);
+PK_API void pk_push_blob(Pocket lisp, PKBlob bytes);
 
 PK_API void pk_destroy(Pocket lisp, int atom);
 

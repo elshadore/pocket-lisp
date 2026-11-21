@@ -5,6 +5,11 @@ The todo list for POCKET LISP
 - [ ] Reintroduce Blobs
   - `[0 255 64 32]`
   - Blob functions (cat, el, ...)
+    - cat
+    - el
+    - length
+    - `to_string`
+    - reverse
   - `(byte? 64)`
   - file-slurp
   - file-splat
