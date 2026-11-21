@@ -99,6 +99,14 @@ size_t pk_atom_string_length(Pocket lisp, PKAtomString *string) {
     return string->str.length;
 }
 
+bool pk_atom_is_character(PKAtom *atom) {
+    if (pk_atom_is_string(atom)) {
+        return atom->string.str.length == 1;
+    } else {
+        return false;
+    }
+}
+
 bool pk_atom_is_string(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_STRING;
 }

@@ -151,9 +151,6 @@
  "    (evlist (parse-list (file-slurp file))))\n" \
  "\n" \
  "(defun table (:rest properties)\n" \
- "    (apply 'object (cons 'Table properties)))\n" \
- "\n" \
- "(defun char? (x)\n" \
- "   (and (type= x 'String) (= (length x) 1)))\n"
+ "    (apply 'object (cons 'Table properties)))\n"
 
 #endif // POCKET_STD_H

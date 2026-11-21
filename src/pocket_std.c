@@ -436,6 +436,81 @@ void pk_fun_typeof(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_symbol(lisp, pk_ident_type(pk_typeof(lisp, 1))));
 }
 
+void pk_fun_is_cons(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_cons(pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_is_number(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_number(pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_is_integer(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_int(pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_is_float(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_float(pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_is_string(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_string(pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_is_character(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_character(pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_is_symbol(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_symbol(pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_is_keyword(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_keyword(pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_is_blob(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_blob(pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_is_cfun(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_cfun(pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_is_lfun(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_lfun(pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_is_function(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_function(pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_is_array(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_array(pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_is_object(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_object(pk_stack_get(lisp, 1)));
+}
+
+void pk_fun_is_macro(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_macro(pk_stack_get(lisp, 1)));
+}
+
 void pk_fun_map(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_map(lisp, 1, 2);
@@ -640,6 +715,21 @@ void pk_std_load_cfun(Pocket lisp) {
         
         {.symbol = pk_str("gensym"), .fun = pk_fun_gensym, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("typeof"), .fun = pk_fun_typeof, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("cons?"), .fun = pk_fun_is_cons, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("number?"), .fun = pk_fun_is_number, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("integer?"), .fun = pk_fun_is_integer, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("float?"), .fun = pk_fun_is_float, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("string?"), .fun = pk_fun_is_string, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("char?"), .fun = pk_fun_is_character, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("symbol?"), .fun = pk_fun_is_symbol, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("keyword?"), .fun = pk_fun_is_keyword, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("blob?"), .fun = pk_fun_is_blob, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("c-function?"), .fun = pk_fun_is_cfun, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("lisp-function?"), .fun = pk_fun_is_lfun, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("function?"), .fun = pk_fun_is_function, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("array?"), .fun = pk_fun_is_array, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("object?"), .fun = pk_fun_is_object, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("macro?"), .fun = pk_fun_is_macro, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("destroy"), .fun = pk_fun_destroy, .args = 1, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("map"), .fun = pk_fun_map, .args = 2, .arity = PK_ARITY_NORMAL},
