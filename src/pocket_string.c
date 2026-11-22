@@ -19,7 +19,7 @@ PKAtomString *pk_atom_string(Pocket lisp, PKStr string) {
     }
 
     if (string.length == 1) {
-        unsigned char c = (unsigned char)string.c[0];
+        pk_u8 c = (pk_u8)string.c[0];
         if (c < 128) {
             return &PK_ATOM_STRING_CACHE[c];
         }
