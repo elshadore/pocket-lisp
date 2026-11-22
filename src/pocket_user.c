@@ -257,7 +257,7 @@ void pk_funcall(Pocket lisp, PK_CALL call, size_t args) {
 }
 
 void pk_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args) {
-    (void)pk_int_fastcall(lisp, user_closure, fun, args, &PK_ATOM_NIL);
+    (void)pk_int_fastcall(lisp, user_closure, fun, args, (PKAtom *)lisp->cache.fastcall);
 }
     
 PK_RES pk_catch(Pocket lisp, int symbol, void *user_closure, PKFun fun, size_t args) {

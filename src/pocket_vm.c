@@ -122,7 +122,7 @@ void pk_vm_op_exec(Pocket lisp, PKVM *vm) {
             return;
         }
         case PK_OP_BLOCK_BEGIN: {
-            pk_frame_push(lisp, &PK_ATOM_NIL, 0);
+            pk_frame_push(lisp, (PKAtom *)lisp->cache.progn, 0);
             pk_vm_inc(lisp, vm);
             return;
         }

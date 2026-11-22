@@ -2,6 +2,8 @@
 
 void pk_init_cache(Pocket lisp) {
     PKCache *c = &lisp->cache;
+    c->user = pk_atom_symbol(lisp, pk_str("user"));
+    c->fastcall = pk_atom_symbol(lisp, pk_str("fastcall"));
     c->lambda = pk_atom_symbol(lisp, pk_str("lambda"));
     c->macro = pk_atom_symbol(lisp, pk_str("macro"));
     c->defvar = pk_atom_symbol(lisp, pk_str("defvar"));

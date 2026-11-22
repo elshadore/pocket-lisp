@@ -1,17 +1,17 @@
 #include "pocket_internals.h"
 
 #ifdef PK_CFLAG_DEBUG
-void pk_debug_stackdump_stack(Pocket lisp, PKAtom *ident, size_t index, size_t start, size_t length) {
+void pk_debug_stackdump_stack(Pocket lisp, PKAtom *ident, size_t index, size_t start, size_t finish) {
     pk_writer_fmt(lisp, "[%zu] => ", index);
     pk_writer_atom(lisp, ident);
     pk_writer_newline(lisp);
 
-    size_t count = length - start;
-    for (size_t i = 0; i < count; ++i) {
-        size_t index = count - i - 1;
+    size_t length = finish - start;
+    for (size_t i = 0; i < length; ++i) {
+        size_t index = length - i - 1;
         size_t abs = start + index;
         PKAtom *atom = lisp->stack.e[abs];
-        pk_writer_fmt(lisp, "    [%zu][%d/%d] => ", start - i, -((int)i + 1), ((int)i + 1));
+        pk_writer_fmt(lisp, "    [%zu][%d/%d] => ", finish - i, -((int)i + 1), ((int)i + 1));
         pk_writer_atom(lisp, atom);
         pk_writer_newline(lisp);
     }

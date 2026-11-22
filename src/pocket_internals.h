@@ -351,6 +351,8 @@ struct PKPool_ {
 };
 
 #define PK_CACHE_EMPTY (PKCache) { \
+    .user = NULL, \
+    .fastcall = NULL, \
     .lambda = NULL, \
     .macro = NULL, \
     .defvar = NULL, \
@@ -380,6 +382,8 @@ struct PKPool_ {
 }
 
 typedef struct PKCache_ {
+    PKAtomSymbol *user;
+    PKAtomSymbol *fastcall;
     PKAtomSymbol *lambda;
     PKAtomSymbol *macro;
     PKAtomSymbol *defvar;
