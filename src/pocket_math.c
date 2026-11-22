@@ -1,6 +1,10 @@
 #include "pocket_internals.h"
 
 PKAtomNumber *pk_atom_int(Pocket lisp, int integer) {
+    if (integer >= 0 && integer <= 100) {
+        return &PK_ATOM_NUMBER_CACHE[integer];
+    }
+
     PKAtomNumber *atom = (PKAtomNumber *)pk_atom_alloc(lisp);
     atom->header.type = PK_ATOMTY_NUMBER;
     atom->num_type = PK_NUMTY_INT;

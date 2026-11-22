@@ -18,6 +18,13 @@ PKAtomString *pk_atom_string(Pocket lisp, PKStr string) {
         return &PK_ATOM_EMPTY_STRING;
     }
 
+    if (string.length == 1) {
+        unsigned char c = (unsigned char)string.c[0];
+        if (c < 128) {
+            return &PK_ATOM_STRING_CACHE[c];
+        }
+    }
+
     PKStr dupe = pk_str_dupe(lisp, string);
     
     return pk_atom_string_nomemcpy(lisp, dupe);
