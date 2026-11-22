@@ -50,6 +50,7 @@ PKBlob pk_atom_number_to_bytes(PKAtomNumber *number) {
 PKAtomBlob *pk_atom_number_to_bytes_trimmed(Pocket lisp, PKAtomNumber *number) {
     switch (number->num_type) {
         case PK_NUMTY_INT: {
+            // TODO: This function is hopelessly broken...
             pk_writer_reset(lisp);
             pk_i64 value = number->as.i;
             size_t length = 1;

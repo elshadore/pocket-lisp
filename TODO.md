@@ -15,6 +15,9 @@ The todo list for POCKET LISP
   - `(byte? 64) -> true`
   - `(byte? [64]) -> true`
   
+- [ ] Think about blob endianness
+  - control variable for endianness + system endianness
+  
 - [ ] Immortal Atoms
   A Flag
   - Statically Allocated
