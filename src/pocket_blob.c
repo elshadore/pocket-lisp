@@ -43,8 +43,7 @@ PKAtomBlob *pk_atom_blob_cat(Pocket lisp, PKAtoms atoms) {
                 break;
             }
             case PK_ATOMTY_NUMBER: {
-                PKAtomBlob *bytes = pk_atom_number_to_bytes_trimmed(lisp, (PKAtomNumber *)atoms.e[i]);
-                pk_writer_bytes(lisp, bytes->bytes);
+                pk_atom_number_to_bytes_trimmed_writer(lisp, (PKAtomNumber *)atoms.e[i]);
                 break;
             }
             default: {

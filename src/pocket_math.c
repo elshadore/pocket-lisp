@@ -47,11 +47,10 @@ PKBlob pk_atom_number_to_bytes(PKAtomNumber *number) {
     }
 }
 
-PKAtomBlob *pk_atom_number_to_bytes_trimmed(Pocket lisp, PKAtomNumber *number) {
+void pk_atom_number_to_bytes_trimmed_writer(Pocket lisp, PKAtomNumber *number) {
     switch (number->num_type) {
         case PK_NUMTY_INT: {
             // TODO: This function is hopelessly broken...
-            pk_writer_reset(lisp);
             pk_i64 value = number->as.i;
             size_t length = 1;
             while (length < sizeof(number->as.i)) {
@@ -73,15 +72,21 @@ PKAtomBlob *pk_atom_number_to_bytes_trimmed(Pocket lisp, PKAtomNumber *number) {
             for (size_t i = length; i > 0; --i) {
                 pk_writer_byte(lisp, (pk_u8)(bits >> ((i - 1) * 8)));
             }
-            PKAtomBlob *result = pk_atom_blob(lisp, pk_writer_slice(lisp));
-            pk_writer_reset(lisp);
-            return result;
+            break;
         }
         default: {
             pk_errors(lisp, pk_str("pk_atom_number_to_bytes_trimmed: floats are not supported"));
-            return &PK_ATOM_EMPTY_BLOB;
+            break;
         }
     }
+}
+
+PKAtomBlob *pk_atom_number_to_bytes_trimmed(Pocket lisp, PKAtomNumber *number) {
+    pk_writer_reset(lisp);
+    pk_atom_number_to_bytes_trimmed_writer(lisp, number);
+    PKAtomBlob *result = pk_atom_blob(lisp, pk_writer_slice(lisp));
+    pk_writer_reset(lisp);
+    return result;
 }
 
 #define PK_TEMPLATE_MATH_OP(op_) \
