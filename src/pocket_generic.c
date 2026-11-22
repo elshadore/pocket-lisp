@@ -171,6 +171,14 @@ PKAtomBlob *pk_generic_to_bytes(Pocket lisp, PKAtom *atom) {
     }
 }
 
+PKAtomNumber *pk_generic_to_int(Pocket lisp, PKAtom *atom) {
+    return pk_atom_int(lisp, pk_atom_to_int(lisp, atom, PK_NUMBER_CONV_FLOAT_CONV));
+}
+
+PKAtomNumber *pk_generic_to_float(Pocket lisp, PKAtom *atom) {
+    return pk_atom_float(lisp, pk_atom_to_float(lisp, atom, PK_NUMBER_CONV_FLOAT_CONV));
+}
+
 PKAtomSymbol *pk_generic_to_symbol(Pocket lisp, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_SYMBOL: {

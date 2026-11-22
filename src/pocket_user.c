@@ -336,14 +336,12 @@ void pk_to_blob(Pocket lisp, int blob) {
 
 void pk_to_int(Pocket lisp, int number) {
     PKAtom *anumber = pk_stack_get(lisp, number);
-    int value = pk_atom_to_int(lisp, anumber, PK_NUMBER_CONV_FLOAT_CONV);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_int(lisp, value));
+    pk_stack_push(lisp, (PKAtom *)pk_generic_to_int(lisp, anumber));
 }
 
 void pk_to_float(Pocket lisp, int number) {
     PKAtom *anumber = pk_stack_get(lisp, number);
-    float value = pk_atom_to_float(lisp, anumber, PK_NUMBER_CONV_FLOAT_CONV);
-    pk_stack_push(lisp, (PKAtom *)pk_atom_float(lisp, value));
+    pk_stack_push(lisp, (PKAtom *)pk_generic_to_float(lisp, anumber));
 }
 
 bool pk_is_circular(Pocket lisp, int stack_pointer) {

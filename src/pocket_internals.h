@@ -702,6 +702,8 @@ PKAtom *pk_generic_reverse(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_generic_to_string(Pocket lisp, PKAtom *atom);
 PKAtomBlob *pk_generic_to_bytes(Pocket lisp, PKAtom *atom);
 PKAtomBlob *pk_generic_to_bytes_raw(Pocket lisp, PKAtom *atom);
+PKAtomNumber *pk_generic_to_int(Pocket lisp, PKAtom *atom);
+PKAtomNumber *pk_generic_to_float(Pocket lisp, PKAtom *atom);
 PKAtomSymbol *pk_generic_to_symbol(Pocket lisp, PKAtom *atom);
 PKAtomKeyword *pk_generic_to_keyword(Pocket lisp, PKAtom *atom);
 PKAtom *pk_generic_property_put(Pocket lisp, PKAtom *pobj, PKAtom *key, PKAtom *value);
