@@ -215,6 +215,14 @@ bool pk_atom_is_int(PKAtom *atom) {
     return atom->number.num_type == PK_NUMTY_INT;
 }
 
+bool pk_atom_is_byte(PKAtom *atom) {
+    if (!pk_atom_is_int(atom)) {
+        return false;
+    }
+    int i = atom->number.as.i;
+    return i >= 0 && i <= UCHAR_MAX;
+}
+
 bool pk_atom_is_float(PKAtom *atom) {
     if (!pk_atom_is_number(atom)) return false;
     return atom->number.num_type == PK_NUMTY_FLOAT;

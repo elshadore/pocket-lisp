@@ -51,7 +51,6 @@ bool pk_macroexpand_is_def(Pocket lisp, PKAtom *head) {
     return (head == (PKAtom *)lisp->cache.defun) ||
            (head == (PKAtom *)lisp->cache.defmacro) ||
            (head == (PKAtom *)lisp->cache.defvar) ||
-           (head == (PKAtom *)lisp->cache.defclass) ||
            (head == (PKAtom *)lisp->cache.setq) ||
            (head == (PKAtom *)lisp->cache.fsetq);
 }
@@ -148,7 +147,6 @@ bool pk_macroexpand_special_(Pocket lisp, size_t abs, PKAtom *head) {
     }
 
     if (forms == 0 && head != (PKAtom *)lisp->cache.defvar &&
-        head != (PKAtom *)lisp->cache.defclass &&
         head != (PKAtom *)lisp->cache.setq &&
         head != (PKAtom *)lisp->cache.fsetq) {
         pk_stack_push(lisp, &PK_ATOM_NIL);

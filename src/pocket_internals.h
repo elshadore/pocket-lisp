@@ -351,11 +351,9 @@ struct PKPool_ {
 #define PK_CACHE_EMPTY (PKCache) { \
     .lambda = NULL, \
     .macro = NULL, \
-    \
     .defvar = NULL, \
     .defun = NULL, \
     .defmacro = NULL, \
-    \
     .progn = NULL, \
     .sym_if = NULL, \
     .sym_while = NULL, \
@@ -372,13 +370,11 @@ struct PKPool_ {
     .block = NULL, \
     .apply = NULL, \
     .macro_apply = NULL, \
-    \
     .quote = NULL, \
     .quasiquote = NULL, \
     .unquote = NULL, \
     .unquote_splice = NULL, \
     .string_substitute = NULL, \
-    \
 }
 
 typedef struct PKCache_ {
@@ -387,7 +383,6 @@ typedef struct PKCache_ {
     PKAtomSymbol *defvar;
     PKAtomSymbol *defun;
     PKAtomSymbol *defmacro;
-    PKAtomSymbol *defclass;
     PKAtomSymbol *progn;
     PKAtomSymbol *sym_if;
     PKAtomSymbol *sym_while;
@@ -395,7 +390,6 @@ typedef struct PKCache_ {
     PKAtomSymbol *sym_or;
     PKAtomSymbol *error;
     PKAtomSymbol *throw;
-    PKAtomSymbol *cleared;
     PKAtomSymbol *var;
     PKAtomSymbol *fvar;
     PKAtomSymbol *setq;
@@ -497,6 +491,7 @@ void pk_atom_assert_type(Pocket lisp, PKAtom *atom, PKAtomSymbol *type);
 bool pk_atom_is_circular(Pocket lisp, PKAtom *atom);
 bool pk_atom_is_cons(PKAtom *atom);
 bool pk_atom_is_int(PKAtom *atom);
+bool pk_atom_is_byte(PKAtom *atom);
 bool pk_atom_is_float(PKAtom *atom);
 bool pk_atom_is_number(PKAtom *atom);
 bool pk_atom_is_string(PKAtom *atom);

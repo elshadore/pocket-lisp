@@ -483,6 +483,11 @@ void pk_fun_is_character(void *user_closure, Pocket lisp) {
     pk_push_bool(lisp, pk_atom_is_character(pk_stack_get(lisp, 1)));
 }
 
+void pk_fun_is_byte(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_push_bool(lisp, pk_atom_is_byte(pk_stack_get(lisp, 1)));
+}
+
 void pk_fun_is_symbol(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_push_bool(lisp, pk_atom_is_symbol(pk_stack_get(lisp, 1)));
@@ -741,6 +746,7 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("float?"), .fun = pk_fun_is_float, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("string?"), .fun = pk_fun_is_string, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("char?"), .fun = pk_fun_is_character, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("byte?"), .fun = pk_fun_is_byte, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("symbol?"), .fun = pk_fun_is_symbol, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("keyword?"), .fun = pk_fun_is_keyword, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("blob?"), .fun = pk_fun_is_blob, .args = 1, .arity = PK_ARITY_NORMAL},
