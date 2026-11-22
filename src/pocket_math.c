@@ -54,16 +54,23 @@ PKAtomBlob *pk_atom_number_to_bytes_trimmed(Pocket lisp, PKAtomNumber *number) {
             pk_i64 value = number->as.i;
             size_t length = 1;
             while (length < sizeof(number->as.i)) {
-                pk_i64 bound = (pk_i64)1 << (length * 8 - 1);
-                if (value >= -bound && value < bound) {
-                    break;
+                if (value >= 0) {
+                    pk_u64 bound = (pk_u64)1 << (length * 8);
+                    if ((pk_u64)value < bound) {
+                        break;
+                    }
+                } else {
+                    pk_i64 bound = (pk_i64)1 << (length * 8 - 1);
+                    if (value >= -bound) {
+                        break;
+                    }
                 }
                 ++length;
             }
 
             pk_u32 bits = (pk_u32)number->as.i;
-            for (size_t i = 0; i < length; ++i) {
-                pk_writer_byte(lisp, (pk_u8)(bits >> (i * 8)));
+            for (size_t i = length; i > 0; --i) {
+                pk_writer_byte(lisp, (pk_u8)(bits >> ((i - 1) * 8)));
             }
             PKAtomBlob *result = pk_atom_blob(lisp, pk_writer_slice(lisp));
             pk_writer_reset(lisp);
