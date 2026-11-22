@@ -318,17 +318,52 @@ bool pk_is_circular(Pocket lisp, int stack_pointer) {
     return pk_atom_is_circular(lisp, pk_stack_get(lisp, stack_pointer));
 }
 
-int pk_to_int(Pocket lisp, int number) {
+int pk_as_int(Pocket lisp, int number) {
     return pk_atom_to_int(lisp, pk_stack_get(lisp, number), PK_NUMBER_CONV_FLOAT_CONV);
 }
 
-float pk_to_float(Pocket lisp, int number) {
+float pk_as_float(Pocket lisp, int number) {
     return pk_atom_to_float(lisp, pk_stack_get(lisp, number), PK_NUMBER_CONV_FLOAT_CONV);
 }
 
-PKBlob pk_to_blob(Pocket lisp, int blob) {
-    PKAtomBlob *ablob = pk_atom_assert_blob(lisp, pk_stack_get(lisp, blob));
-    return ablob->bytes;
+PKBlob pk_as_blob(Pocket lisp, int blob) {
+    PKAtom *atom = pk_stack_get(lisp, blob);
+    switch (atom->header.type) {
+        case PK_ATOMTY_BLOB: {
+            return ((PKAtomBlob *)atom)->bytes;
+        }
+        case PK_ATOMTY_STRING: {
+            PKStr string = ((PKAtomString *)atom)->str;
+            return (PKBlob) {
+                .e = (pk_u8 *)string.c,
+                .length = string.length,
+            };
+        }
+        default: {
+            pk_error_type2(lisp, atom, PK_TYPE_STRING, PK_TYPE_BLOB);
+            return PK_BLOB_EMPTY;
+        }
+    }
+}
+
+PKStr pk_as_string(Pocket lisp, int text) {
+    PKAtom *atom = pk_stack_get(lisp, text);
+    switch (atom->header.type) {
+        case PK_ATOMTY_STRING: {
+            return ((PKAtomString *)atom)->str;
+        }
+        case PK_ATOMTY_BLOB: {
+            PKBlob bytes = ((PKAtomBlob *)atom)->bytes;
+            return (PKStr) {
+                .c = (char *)bytes.e,
+                .length = bytes.length,
+            };
+        }
+        default: {
+            pk_error_type2(lisp, atom, PK_TYPE_STRING, PK_TYPE_BLOB);
+            return PK_STR_EMPTY;
+        }
+    }
 }
 
 void pk_error(Pocket lisp, int message) {

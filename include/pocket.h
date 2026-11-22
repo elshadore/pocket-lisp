@@ -230,10 +230,10 @@ PK_API bool pk_eq(Pocket lisp, int lhs, int rhs);
 PK_API bool pk_object_eq(Pocket lisp, int lhs, int rhs);
 PK_API bool pk_struct_eq(Pocket lisp, int lhs, int rhs);
 
-PK_API int pk_to_int(Pocket lisp, int number);
-PK_API float pk_to_float(Pocket lisp, int number);
-PK_API PKStr pk_to_string(Pocket lisp, int text);
-PK_API PKBlob pk_to_blob(Pocket lisp, int blob);
+PK_API int pk_as_int(Pocket lisp, int number);
+PK_API float pk_as_float(Pocket lisp, int number);
+PK_API PKStr pk_as_string(Pocket lisp, int text);
+PK_API PKBlob pk_as_blob(Pocket lisp, int blob);
 
 PK_API void pk_map(Pocket lisp, int seq, int fun);
 PK_API void pk_filter(Pocket lisp, int seq, int fun);

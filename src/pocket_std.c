@@ -617,12 +617,12 @@ void pk_fun_to_keyword(void *user_closure, Pocket lisp) {
 
 void pk_fun_to_int(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_stack_push(lisp, (PKAtom *)pk_atom_int(lisp, pk_to_int(lisp, 1)));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_int(lisp, pk_as_int(lisp, 1)));
 }
 
 void pk_fun_to_float(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_stack_push(lisp, (PKAtom *)pk_atom_float(lisp, pk_to_int(lisp, 1)));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_float(lisp, pk_as_int(lisp, 1)));
 }
 
 void pk_fun_object(void *user_closure, Pocket lisp) {
