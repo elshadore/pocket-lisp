@@ -1,19 +1,18 @@
 #include "pocket_internals.h"
 
 #ifdef PK_CFLAG_DEBUG
-void pk_debug_stackdump_stack(Pocket lisp, PKAtom *ident, size_t index, size_t start, PKAtoms stack) {
+void pk_debug_stackdump_stack(Pocket lisp, PKAtom *ident, size_t index, size_t start, size_t length) {
     pk_writer_fmt(lisp, "[%zu] => ", index);
     pk_writer_atom(lisp, ident);
     pk_writer_newline(lisp);
 
-    for (size_t i = 0; i < stack.length; ++i) {
-        size_t index = stack.length - i - 1;
+    size_t count = length - start;
+    for (size_t i = 0; i < count; ++i) {
+        size_t index = count - i - 1;
+        size_t abs = start + index;
+        PKAtom *atom = lisp->stack.e[abs];
         pk_writer_fmt(lisp, "    [%zu][%d/%d] => ", start - i, -((int)i + 1), ((int)i + 1));
-        if (stack.e[index] == NULL) {
-            pk_writer_string(lisp, pk_str("<null>"));
-        } else {
-            pk_writer_atom(lisp, stack.e[index]);
-        }
+        pk_writer_atom(lisp, atom);
         pk_writer_newline(lisp);
     }
 }
@@ -30,30 +29,16 @@ void pk_debug_stackdump(Pocket lisp, const char *tag) {
 
     pk_writer_newline(lisp);
 
-    pk_debug_stackdump_stack(lisp, lisp->current_frame.function, 0, lisp->stack.count, pk_stack_slice(lisp));
-
-    size_t prev = lisp->current_frame.stack_offset;
+    PKFrame *frame = &lisp->current_frame;
+    pk_debug_stackdump_stack(lisp, frame->function, 0, frame->stack_offset, lisp->stack.count);
 
     for (size_t i = 0; i < lisp->frames.count; ++i) {
         size_t index = lisp->frames.count - i - 1;
-
         PKFrame *frame = &lisp->frames.e[index];
-
-        if (frame->stack_offset > lisp->stack.count) {
-            continue;
-        }
-
-        PKAtoms stack = (PKAtoms) {
-            .e = lisp->stack.e + frame->stack_offset,
-            .length = lisp->stack.count - prev,
-        };
-
-        prev = frame->stack_offset;
-
-        pk_debug_stackdump_stack(lisp, frame->function, i + 1, lisp->stack.count, stack);
+        pk_debug_stackdump_stack(lisp, frame->function, i + 1, frame->stack_offset, frame->stack_length);
     }
     
-    pk_writer_cstr(lisp, "--DEBUG-DUMP-STACK-END--");
+    pk_writer_string(lisp, pk_str("--DEBUG-DUMP-STACK-END--"));
     
     pk_internal_print(lisp, pk_writer_str(lisp));
 
@@ -63,16 +48,16 @@ void pk_debug_stackdump(Pocket lisp, const char *tag) {
 void pk_debug_envdump(Pocket lisp, const char *tag) {
     pk_writer_reset(lisp);
     
-    pk_writer_cstr(lisp, "*~DEBUG-DUMP-ENV~*");
+    pk_writer_string(lisp, pk_str("*~DEBUG-DUMP-ENV~*"));
     if (tag != NULL) {
-        pk_writer_cstr(lisp, " (tag = ");
+        pk_writer_string(lisp, pk_str(" (tag = "));
         pk_writer_cstr(lisp, tag);
-        pk_writer_cstr(lisp, ")");
+        pk_writer_string(lisp, pk_str(")"));
     }
 
     pk_writer_newline(lisp);
     
-    pk_writer_cstr(lisp, "ENV:");
+    pk_writer_string(lisp, pk_str("ENV:"));
     pk_writer_newline(lisp);
     size_t acc = 0;
     for (PKPool *iter = lisp->pool; iter != NULL; iter = iter->next) {
@@ -81,22 +66,22 @@ void pk_debug_envdump(Pocket lisp, const char *tag) {
             if (!pk_atom_is_symbol(symbol)) {
                 continue;
             }
-            pk_writer_cstr(lisp, "    [");
+            pk_writer_string(lisp, pk_str("    ["));
             pk_writer_fmt(lisp, "%zu", acc);
-            pk_writer_cstr(lisp, "] => ");
+            pk_writer_string(lisp, pk_str("] => "));
             pk_writer_atom(lisp, symbol);
             pk_writer_newline(lisp);
-            pk_writer_cstr(lisp, "    ");
+            pk_writer_string(lisp, pk_str("    "));
             pk_writer_atom(lisp, symbol->symbol.var);
             pk_writer_newline(lisp);
-            pk_writer_cstr(lisp, "    ");
+            pk_writer_string(lisp, pk_str("    "));
             pk_writer_atom(lisp, symbol->symbol.fun);
             pk_writer_newline(lisp);
             acc += 1;
         }
     }
     
-    pk_writer_cstr(lisp, "--DEBUG-DUMP-ENV-END--");
+    pk_writer_string(lisp, pk_str("--DEBUG-DUMP-ENV-END--"));
     
     pk_internal_print(lisp, pk_writer_str(lisp));
 
@@ -106,11 +91,11 @@ void pk_debug_envdump(Pocket lisp, const char *tag) {
 void pk_debug_leakcheck(Pocket lisp, const char *tag) {
     pk_writer_reset(lisp);
     
-    pk_writer_cstr(lisp, "*~DEBUG-DUMP-LEAKED-MEMORY~*");
+    pk_writer_string(lisp, pk_str("*~DEBUG-DUMP-LEAKED-MEMORY~*"));
     if (tag != NULL) {
-        pk_writer_cstr(lisp, " (tag = ");
+        pk_writer_string(lisp, pk_str(" (tag = "));
         pk_writer_cstr(lisp, tag);
-        pk_writer_cstr(lisp, ")");
+        pk_writer_string(lisp, pk_str(")"));
     }
 
     pk_writer_newline(lisp);
@@ -163,7 +148,7 @@ void pk_debug_leakcheck(Pocket lisp, const char *tag) {
 
     pk_writer_fmt(lisp, "LEAKED: %zu\n", count);
     
-    pk_writer_cstr(lisp, "--DEBUG-DUMP-LEAKED-MEMORY-END--");
+    pk_writer_string(lisp, pk_str("--DEBUG-DUMP-LEAKED-MEMORY-END--"));
     
     pk_internal_print(lisp, pk_writer_str(lisp));
 

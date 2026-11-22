@@ -301,6 +301,11 @@ void pk_fun_hexdump(void *user_closure, Pocket lisp) {
     pk_hexdump(lisp, 1);
 }
 
+void pk_fun_stacktrace(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_debug_stackdump(lisp, NULL);
+}
+
 void pk_fun_parse(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_parse(lisp, 1, PK_MODE_EXPRESSION);
@@ -729,6 +734,7 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("error"), .fun = pk_fun_error, .args = 1, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("hexdump"), .fun = pk_fun_hexdump, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("stacktrace"), .fun = pk_fun_stacktrace, .args = 0, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("parse"), .fun = pk_fun_parse, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("parse-list"), .fun = pk_fun_parse_list, .args = 1, .arity = PK_ARITY_NORMAL},

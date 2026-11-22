@@ -10,11 +10,13 @@ void pk_frame_push(Pocket lisp, PKAtom *function, size_t arity) {
     
     size_t stack_offset = lisp->stack.count - arity;
     size_t lets_offset = lisp->lets.count;
-
+    
+    lisp->current_frame.stack_length = lisp->stack.count;
     lisp->frames.e[lisp->frames.count++] = lisp->current_frame;
 
     lisp->current_frame = (PKFrame) {
         .stack_offset = stack_offset,
+        .stack_length = 0,
         .let_offset = lets_offset,
         .mode = PK_FRAME_MODE_NORMAL,
         .function = function,
@@ -46,6 +48,7 @@ void pk_frame_unwind(Pocket lisp) {
     lisp->stack.count = stack_count;
     lisp->frames.count -= 1;
     lisp->current_frame = unwind;
+    lisp->current_frame.stack_length = 0;
 }
 
 void pk_frame_unwindn(Pocket lisp, size_t n) {

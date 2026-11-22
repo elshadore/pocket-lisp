@@ -298,6 +298,7 @@ struct PKJmp_ {
 
 #define PK_FRAME_EMPTY (PKFrame){ \
     .stack_offset = 0, \
+    .stack_length = 0, \
     .let_offset = 0, \
     .catch = NULL, \
     .jmp = NULL, \
@@ -311,6 +312,7 @@ struct PKJmp_ {
 
 typedef struct PKFrame_ {
     size_t stack_offset;
+    size_t stack_length;
     size_t let_offset;
     PKAtomSymbol *catch;
     PKJmp *jmp;
