@@ -327,8 +327,8 @@ float pk_to_float(Pocket lisp, int number) {
 }
 
 PKBlob pk_to_blob(Pocket lisp, int blob) {
-    PKAtomBlob *ablo = pk_atom_assert_blob(lisp, pk_stack_get(lisp, blob));
-    return ablo->bytes;
+    PKAtomBlob *ablob = pk_atom_assert_blob(lisp, pk_stack_get(lisp, blob));
+    return ablob->bytes;
 }
 
 void pk_error(Pocket lisp, int message) {

@@ -23,12 +23,6 @@ The todo list for POCKET LISP
 - [ ] Apply
    - `(apply '+ 1 2 3 '(4 5 6 7))`
    
-- [ ] OPCode Renames
-  - `Get_Var` -> Fetch
-  - `Get_Fun` -> FFetch
-  - `Let_Var` -> Let
-  - `Let_Fun` -> FLet
-  
 - [ ] Symbol, Keyword, String Equality
   - `(keyword= :foo :foo) -> true`
   - `(string= "foo" "foo") -> true`
@@ -61,7 +55,6 @@ The todo list for POCKET LISP
   - parsing
   
 - [ ] Remove ternary operator from all c code.
-- [ ] `cleared` remove symbol.
 
 - [ ] Testing Suite
 
