@@ -92,7 +92,11 @@ PKAtom *pk_atom_string_split(Pocket lisp, PKAtomString *string, PKAtomString *pa
     size_t i = 0;
 
     while (i + sep.length <= source.length) {
-        if (memcmp(source.c + i, sep.c, sep.length) == 0) {
+        PKStr window = {
+            .c = source.c + i,
+            .length = sep.length,
+        };
+        if (pk_str_eq(window, sep)) {
             if (i > start) {
                 pk_accum_push(&acc, (PKAtom *)pk_atom_string(lisp, (PKStr) {
                     .c = source.c + start,

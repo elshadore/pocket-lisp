@@ -796,6 +796,7 @@ pk_u8 pk_char_to_hex(char c);
 
 PKBlob pk_blob_alloc(Pocket lisp, size_t length);
 PKBlob pk_blob_dupe(Pocket lisp, PKBlob input);
+bool pk_blob_eq(PKBlob a, PKBlob b);
 void pk_blob_free(Pocket lisp, PKBlob *blob);
 pk_u8 pk_blob_to_byte(Pocket lisp, PKBlob blob);
 void pk_blob_reverse_mut(PKBlob blob);

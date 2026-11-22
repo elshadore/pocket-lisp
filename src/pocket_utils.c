@@ -25,6 +25,12 @@ PKBlob pk_blob_dupe(Pocket lisp, PKBlob input) {
     };
 }
 
+bool pk_blob_eq(PKBlob a, PKBlob b) {
+    if (a.length != b.length) return false;
+    if (a.length == 0) return true;
+    return (bool)(memcmp(a.e, b.e, a.length) == 0);
+}
+
 void pk_blob_free(Pocket lisp, PKBlob *blob) {
     pk_free(lisp, blob->e);
     *blob = PK_BLOB_EMPTY;

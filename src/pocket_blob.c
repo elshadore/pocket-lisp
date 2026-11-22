@@ -106,7 +106,11 @@ PKAtom *pk_atom_blob_split(Pocket lisp, PKAtomBlob *blob, PKAtom *pattern) {
     size_t i = 0;
 
     while (i + sep.length <= source.length) {
-        if (memcmp(source.e + i, sep.e, sep.length) == 0) {
+        PKBlob window = {
+            .e = source.e + i,
+            .length = sep.length,
+        };
+        if (pk_blob_eq(window, sep)) {
             if (i > start) {
                 pk_accum_push(&acc, (PKAtom *)pk_atom_blob(lisp, (PKBlob) {
                     .e = source.e + start,
