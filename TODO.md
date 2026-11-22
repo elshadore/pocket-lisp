@@ -2,10 +2,6 @@
 The todo list for POCKET LISP
 
 ## V1
-- [ ] Memory Caching
-  - Single Char Strings
-  - Numbers 0 - 100
-  
 - [ ] `struct-eq`
 
 - [ ] Fix Int to Bytes
@@ -14,7 +10,7 @@ The todo list for POCKET LISP
   - so we see frames clearly
   - print frame name
   
-- [ ] PKNumber Type
+- [ ] PKNum Type
   - also implement this in the parser (for blobs)
 - [ ] Public Number Conv
   - also for `as_string` and `as_blob`

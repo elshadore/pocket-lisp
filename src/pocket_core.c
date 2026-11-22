@@ -70,15 +70,15 @@ void pk_deinit(Pocket lisp) {
         return;
     }
 
+    pk_throw_clear(lisp);
     pk_writer_destroy(lisp);
-    
     pk_array_deinit(lisp, &lisp->stack);
     pk_free(lisp, lisp->frames.e);
     lisp->frames = PK_FRAMES_EMPTY;
     pk_free(lisp, lisp->lets.e);
     lisp->lets = PK_LETS_EMPTY;
     pk_hashmap_deinit(lisp, &lisp->symbolizer);
-
+    
     pk_gc_collect(lisp);
 
     #ifdef PK_CFLAG_DEBUG

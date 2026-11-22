@@ -88,20 +88,19 @@ PKCallConv pk_callconv(Pocket lisp, PKAtom *function, pk_u8 args) {
     }
 }
 
-PKAtom *pk_funcall_resolve_function(Pocket lisp, PKAtoms slice) {
-    PKAtom *function = slice.e[slice.length - 1];
-
-    if (!pk_atom_is_symbol(function)) {
-        return function;
+PKAtom *pk_funcall_resolve_function(Pocket lisp, PKAtom *symbol) {
+    if (!pk_atom_is_symbol(symbol)) {
+        return symbol;
     }
     
-    PKAtomSymbol *asym = (PKAtomSymbol *)function;
-    PKStr name = asym->name->str;
-
+    PKAtomSymbol *asym = (PKAtomSymbol *)symbol;
 
     PKAtom *fetch = pk_env_fetch(lisp, PK_ENV_FUN, asym);
     if (pk_atom_is_undefined(fetch)) {
-        pk_errorf(lisp, "pk_funcall: undefined function %.*s", (int)name.length, name.c);
+        pk_writer_reset(lisp);
+        pk_writer_string(lisp, pk_str("undefined function: "));
+        pk_writer_atom(lisp, symbol);
+        pk_error_writer(lisp);
         return &PK_ATOM_NIL;
     } else {
         return fetch;
@@ -110,13 +109,15 @@ PKAtom *pk_funcall_resolve_function(Pocket lisp, PKAtoms slice) {
 
 void pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
     if (args > UINT8_MAX) {
-        pk_errorf(lisp, "pk_fcall: %zu args exceeds the maximum of %u", args, UINT8_MAX);
+        pk_errorf(lisp, "args of: %zu, exceeds the maximum of: %u", args, UINT8_MAX);
         return;
     }
 
     PKAtoms slice = pk_stack_slice_down(lisp, args + 1);
 
-    PKAtom *function = pk_funcall_resolve_function(lisp, slice);
+    PKAtom *symbol = slice.e[slice.length - 1];
+    
+    PKAtom *function = pk_funcall_resolve_function(lisp, symbol);
 
     PKCallConv cc = pk_callconv(lisp, function, args);
 
@@ -129,7 +130,7 @@ void pk_funcall_(Pocket lisp, PK_CALL call, size_t args) {
         pk_stack_op_list(lisp, cc.variadic_count);
     }
 
-    pk_frame_push(lisp, function, cc.args);
+    pk_frame_push(lisp, symbol, cc.args);
     
     if (call == PK_CALL_FUN) {
         switch (function->header.type) {
@@ -187,7 +188,7 @@ PK_RES pk_int_funcall(Pocket lisp, PK_CALL call, size_t args) {
 
 PK_RES pk_int_fastcall(Pocket lisp, void *user_closure, PKFun fun, size_t args, PKAtom *frame) {
     if (args > UINT8_MAX) {
-        pk_errorf(lisp, "pk_fastcall: %zu args exceeds the maximum of %u", args, UINT8_MAX);
+        pk_errorf(lisp, "args of: %zu, exceeds the maximum of: %u", args, UINT8_MAX);
         return PK_YIELDED;
     }
 

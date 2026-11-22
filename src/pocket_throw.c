@@ -8,6 +8,11 @@ void pk_propagate(Pocket lisp) {
     }
 }
 
+void pk_throw_clear(Pocket lisp) {
+    lisp->throw_symbol = &PK_ATOM_NIL;
+    lisp->throw_value = &PK_ATOM_NIL;
+}
+
 void pk_error_atom(Pocket lisp, PKAtom *message) {
     pk_jmp_trigger(lisp, lisp->cache.error, message);
 }

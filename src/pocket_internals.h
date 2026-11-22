@@ -302,7 +302,7 @@ struct PKJmp_ {
     .catch = NULL, \
     .jmp = NULL, \
     .mode = PK_FRAME_MODE_PROTECT, \
-    .function = NULL, \
+    .function = &PK_ATOM_NIL, \
 }
 
 #define PK_FRAME_MODE_NORMAL (0)
@@ -443,14 +443,17 @@ typedef struct PocketLispMachine_ {
     PKCache cache;
 } PocketLispMachine;
 
+#define PK_ATOM_STRING_CACHE_LENGTH (128)
+#define PK_ATOM_NUMBER_CACHE_LENGTH (101)
+
 extern PKAtom PK_ATOM_NIL;
 extern PKAtom PK_ATOM_TRUE;
 extern PKAtom PK_ATOM_UNDEFINED;
 extern PKAtomString PK_ATOM_EMPTY_STRING;
 extern PKAtomString PK_ATOM_OUT_OF_MEMORY;
 extern PKAtomBlob PK_ATOM_EMPTY_BLOB;
-extern PKAtomString PK_ATOM_STRING_CACHE[128];
-extern PKAtomNumber PK_ATOM_NUMBER_CACHE[101];
+extern PKAtomString PK_ATOM_STRING_CACHE[PK_ATOM_STRING_CACHE_LENGTH];
+extern PKAtomNumber PK_ATOM_NUMBER_CACHE[PK_ATOM_NUMBER_CACHE_LENGTH];
 
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);
     
@@ -463,6 +466,7 @@ void pk_pool_expand(Pocket lisp);
 PKAtom *pk_atom_alloc(Pocket lisp);
 void pk_atom_free(Pocket lisp, PKAtom *atom);
 
+void pk_throw_clear(Pocket lisp);
 void pk_error_atom(Pocket lisp, PKAtom *message);
 void pk_error_type(Pocket lisp, PKAtom *found, PK_TYPE expected);
 void pk_error_type2(Pocket lisp, PKAtom *found, PK_TYPE expected1, PK_TYPE expected2);

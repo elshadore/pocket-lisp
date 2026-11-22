@@ -1,8 +1,9 @@
 #include "pocket_internals.h"
 
 #ifdef PK_CFLAG_DEBUG
-void pk_debug_stackdump_stack(Pocket lisp, size_t index, size_t start, PKAtoms stack) {
+void pk_debug_stackdump_stack(Pocket lisp, PKAtom *ident, size_t index, size_t start, PKAtoms stack) {
     pk_writer_fmt(lisp, "[%zu] => ", index);
+    pk_writer_atom(lisp, ident);
     pk_writer_newline(lisp);
 
     for (size_t i = 0; i < stack.length; ++i) {
@@ -29,7 +30,7 @@ void pk_debug_stackdump(Pocket lisp, const char *tag) {
 
     pk_writer_newline(lisp);
 
-    pk_debug_stackdump_stack(lisp, 0, lisp->stack.count, pk_stack_slice(lisp));
+    pk_debug_stackdump_stack(lisp, lisp->current_frame.function, 0, lisp->stack.count, pk_stack_slice(lisp));
 
     size_t prev = lisp->current_frame.stack_offset;
 
@@ -49,7 +50,7 @@ void pk_debug_stackdump(Pocket lisp, const char *tag) {
 
         prev = frame->stack_offset;
 
-        pk_debug_stackdump_stack(lisp, i + 1, lisp->stack.count, stack);
+        pk_debug_stackdump_stack(lisp, frame->function, i + 1, lisp->stack.count, stack);
     }
     
     pk_writer_cstr(lisp, "--DEBUG-DUMP-STACK-END--");

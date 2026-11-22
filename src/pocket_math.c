@@ -1,7 +1,7 @@
 #include "pocket_internals.h"
 
 PKAtomNumber *pk_atom_int(Pocket lisp, int integer) {
-    if (integer >= 0 && integer <= 100) {
+    if ((integer >= 0) && (integer < PK_ATOM_NUMBER_CACHE_LENGTH)) {
         return &PK_ATOM_NUMBER_CACHE[integer];
     }
 
