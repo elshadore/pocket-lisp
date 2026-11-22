@@ -187,11 +187,12 @@ bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
         return true;
     }
 
-    PKStr ltext = PK_STR_EMPTY;
-    PKStr rtext = PK_STR_EMPTY;
-    if (pk_atom_text(lhs, &ltext) && pk_atom_text(rhs, &rtext)) {
-        return pk_str_eq(ltext, rtext);
-    }
+    // TODO: think about this.
+    /* PKStr ltext = PK_STR_EMPTY; */
+    /* PKStr rtext = PK_STR_EMPTY; */
+    /* if (pk_atom_text(lhs, &ltext) && pk_atom_text(rhs, &rtext)) { */
+    /*     return pk_str_eq(ltext, rtext); */
+    /* } */
 
     switch (lhs->header.type) {
         case PK_ATOMTY_NUMBER: {

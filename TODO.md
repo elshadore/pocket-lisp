@@ -9,22 +9,12 @@ The todo list for POCKET LISP
 - [ ] Apply
    - `(apply '+ 1 2 3 '(4 5 6 7))`
    
-- [ ] Symbol, Keyword, String Equality
-  - `(keyword= :foo :foo) -> true`
-  - `(string= "foo" "foo") -> true`
-  - `(symbol= 'foo 'foo) -> true`
-  
 - [ ] `struct-eq`
 
 - [ ] fix debug stack dump
   - so we see frames clearly
   - print frame name
   
-- [ ] `string-split`
-    - `(string-split "foo foo foo" " ")`
-    - `(bytes-split [20 64 32 10 64 10] 64)`
-    - `(split '(1 2 3 4 5 3 9 2 1) 3)`
-    
 - [ ] exotic number parsing
   - 0b010101
   - 0xfeefee
