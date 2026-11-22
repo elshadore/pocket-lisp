@@ -452,8 +452,6 @@ extern PKAtomBlob PK_ATOM_EMPTY_BLOB;
 extern PKAtomString PK_ATOM_STRING_CACHE[128];
 extern PKAtomNumber PK_ATOM_NUMBER_CACHE[101];
 
-void pk_immortal_init(void);
-
 size_t pk_grow_capacity(size_t old_capacity, size_t init_capacity);
     
 void *pk_malloc(Pocket lisp, size_t size);

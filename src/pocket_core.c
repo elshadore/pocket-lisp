@@ -1,8 +1,6 @@
 #include "pocket_internals.h"
 
 void pk_init_cache(Pocket lisp) {
-    pk_immortal_init();
-
     PKCache *c = &lisp->cache;
     c->lambda = pk_atom_symbol(lisp, pk_str("lambda"));
     c->macro = pk_atom_symbol(lisp, pk_str("macro"));
