@@ -108,11 +108,11 @@ void pk_cmp_lookup(Pocket lisp, PKCompiler *c, PKAtomSymbol *symbol, PK_ENV env)
 
     switch (env) {
         case PK_ENV_VAR: {
-            pk_cmp_push_byte(lisp, c, PK_OP_GET_VAR);
+            pk_cmp_push_byte(lisp, c, PK_OP_FETCH);
             break;
         }
         case PK_ENV_FUN: {
-            pk_cmp_push_byte(lisp, c, PK_OP_GET_FUN);
+            pk_cmp_push_byte(lisp, c, PK_OP_FFETCH);
             break;
         }
     }
@@ -310,11 +310,11 @@ bool pk_compile_let_has_patterns(PKAtom *bindings) {
 void pk_compile_let_lets(Pocket lisp, PKCompiler *c, PK_ENV env) {
     switch (env) {
         case PK_ENV_VAR: {
-            pk_cmp_push_byte(lisp, c, PK_OP_LET_VAR);
+            pk_cmp_push_byte(lisp, c, PK_OP_LET);
             break;
         }
         case PK_ENV_FUN: {
-            pk_cmp_push_byte(lisp, c, PK_OP_LET_FUN);
+            pk_cmp_push_byte(lisp, c, PK_OP_FLET);
             break;
         }
     }
@@ -743,12 +743,12 @@ void pk_compile_var(Pocket lisp, PKCompiler *c, PKAtom *form, PK_ENV env) {
 
         switch (env) {
             case PK_ENV_VAR: {
-                pk_cmp_push_byte(lisp, c, PK_OP_LET_VAR);
+                pk_cmp_push_byte(lisp, c, PK_OP_LET);
                 pk_cmp_push_byte(lisp, c, 1);
                 break;
             }
             case PK_ENV_FUN: {
-                pk_cmp_push_byte(lisp, c, PK_OP_LET_FUN);
+                pk_cmp_push_byte(lisp, c, PK_OP_FLET);
                 pk_cmp_push_byte(lisp, c, 1);
                 break;
             }
@@ -1154,7 +1154,7 @@ PKAtomLFun *pk_compile_lambda_(Pocket lisp, PKCompiler *c, PKAtom *args, PKAtom 
     }
 
     if (lets > 0) {
-        pk_cmp_push_byte(lisp, c, PK_OP_LET_VAR);
+        pk_cmp_push_byte(lisp, c, PK_OP_LET);
         pk_cmp_push_byte(lisp, c, lets);
     }
 

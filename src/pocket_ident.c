@@ -60,10 +60,10 @@ PKStr pk_ident_opcode(pk_u8 op) {
         case PK_OP_JMP_WHEN: return pk_str("JMP_WHEN");
         case PK_OP_JMP: return pk_str("JMP");
         case PK_OP_JMP_BACK: return pk_str("JMP_BACK");
-        case PK_OP_LET_VAR: return pk_str("LET_VAR");
-        case PK_OP_LET_FUN: return pk_str("LET_FUN");
-        case PK_OP_GET_VAR: return pk_str("GET_VAR");
-        case PK_OP_GET_FUN: return pk_str("GET_FUN");
+        case PK_OP_LET: return pk_str("LET");
+        case PK_OP_FLET: return pk_str("FLET");
+        case PK_OP_FETCH: return pk_str("FETCH");
+        case PK_OP_FFETCH: return pk_str("FFETCH");
         case PK_OP_SET_VAR: return pk_str("SET_VAR");
         case PK_OP_SET_FUN: return pk_str("SET_FUN");
         case PK_OP_MAKE_LIST: return pk_str("MAKE_LIST");
@@ -104,16 +104,16 @@ PK_OPCODE_TY pk_opcode_ty(pk_u8 op) {
         case PK_OP_LOAD: return PK_OPCODE_TY_LOAD;
         case PK_OP_LOAD_NIL: return PK_OPCODE_TY_NORMAL;
         case PK_OP_LOAD_TRUE: return PK_OPCODE_TY_NORMAL;
-        case PK_OP_GET_VAR: return PK_OPCODE_TY_LOAD;
-        case PK_OP_GET_FUN: return PK_OPCODE_TY_LOAD;
+        case PK_OP_FETCH: return PK_OPCODE_TY_LOAD;
+        case PK_OP_FFETCH: return PK_OPCODE_TY_LOAD;
 
         case PK_OP_CALL: return PK_OPCODE_TY_LIT;
         case PK_OP_JMP_UNLESS: return PK_OPCODE_TY_LIT;
         case PK_OP_JMP_WHEN: return PK_OPCODE_TY_LIT;
         case PK_OP_JMP: return PK_OPCODE_TY_LIT;
         case PK_OP_JMP_BACK: return PK_OPCODE_TY_LIT;
-        case PK_OP_LET_VAR: return PK_OPCODE_TY_LIT;
-        case PK_OP_LET_FUN: return PK_OPCODE_TY_LIT;
+        case PK_OP_LET: return PK_OPCODE_TY_LIT;
+        case PK_OP_FLET: return PK_OPCODE_TY_LIT;
         case PK_OP_MAKE_LIST: return PK_OPCODE_TY_LIT;
         case PK_OP_MAKE_LIST_PACKED: return PK_OPCODE_TY_LIT;
         case PK_OP_MERGE_LISTS: return PK_OPCODE_TY_LIT;

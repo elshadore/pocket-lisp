@@ -171,19 +171,19 @@ void pk_vm_op_exec(Pocket lisp, PKVM *vm) {
             pk_vm_jmp_back(lisp, vm, pk_vat(vm));
             return;
         }
-        case PK_OP_LET_VAR: {
+        case PK_OP_LET: {
             pk_vm_op_let(lisp, vm, PK_ENV_VAR);
             return;
         }
-        case PK_OP_LET_FUN: {
+        case PK_OP_FLET: {
             pk_vm_op_let(lisp, vm, PK_ENV_FUN);
             return;
         }
-        case PK_OP_GET_VAR: {
+        case PK_OP_FETCH: {
             pk_vm_op_get(lisp, vm, PK_ENV_VAR);
             return;
         }
-        case PK_OP_GET_FUN: {
+        case PK_OP_FFETCH: {
             pk_vm_op_get(lisp, vm, PK_ENV_FUN);
             return;
         }
