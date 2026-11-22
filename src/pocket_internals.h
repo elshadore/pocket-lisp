@@ -586,6 +586,7 @@ PKAtomNumber *pk_atom_int(Pocket lisp, int integer);
 PKAtomNumber *pk_atom_float(Pocket lisp, float floater);
 PKAtomNumber *pk_atom_byte(Pocket lisp, pk_u8 byte);
 PKAtomNumber *pk_atom_size_t(Pocket lisp, size_t value);
+PKBlob pk_atom_number_to_bytes(PKAtomNumber *number);
 PKAtom *pk_atom_add(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 PKAtom *pk_atom_sub(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
 PKAtom *pk_atom_mul(Pocket lisp, PKAtom *lhs, PKAtom *rhs);
