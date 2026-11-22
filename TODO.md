@@ -6,20 +6,6 @@ The todo list for POCKET LISP
   - Single Char Strings
   - Numbers 0 - 100
     
-- [ ] User Conversion Functions
-  - `pk_to_*` -> convert lisp type
-    - `pk_to_string`
-    - `pk_to_symbol`
-    - `pk_to_keyword`
-    - `pk_to_blob`
-    - `pk_to_int`
-    - `pk_to_float`
-  - `pk_as_*` -> return c type
-    - `pk_as_string`
-    - `pk_as_blob`
-    - `pk_as_int`
-    - `pk_as_float`
-  
 - [ ] Apply
    - `(apply '+ 1 2 3 '(4 5 6 7))`
    
