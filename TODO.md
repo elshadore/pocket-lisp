@@ -6,9 +6,6 @@ The todo list for POCKET LISP
   - Single Char Strings
   - Numbers 0 - 100
     
-- [ ] Apply
-   - `(apply '+ 1 2 3 '(4 5 6 7))`
-   
 - [ ] `struct-eq`
 
 - [ ] fix debug stack dump
@@ -35,7 +32,7 @@ The todo list for POCKET LISP
 - [ ] Testing Suite
 
 - [ ] Environment Letting (with Objects)
-  - `(with-environment (var-object fun-object) ...)`
+  - `(let-environment (var-object fun-object) ...)`
 
 - [ ] Pretty Printing
 
