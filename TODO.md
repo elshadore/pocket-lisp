@@ -6,10 +6,6 @@ The todo list for POCKET LISP
 
 - [ ] Fix Int to Bytes
 
-- [ ] fix debug stack dump
-  - so we see frames clearly
-  - print frame name
-  
 - [ ] PKNum Type
   - also implement this in the parser (for blobs)
 - [ ] Public Number Conv
