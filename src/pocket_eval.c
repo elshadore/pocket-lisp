@@ -9,37 +9,28 @@ PK_RES pk_atom_apply_atom(Pocket lisp, PK_CALL call, PKAtom *fun, PKAtom *args) 
 }
     
 PK_RES pk_atom_apply(Pocket lisp, PK_CALL call, PKAtom *fun, PKAtoms args) {
-    size_t total = args.length > 0 ? args.length - 1 : 0;
-    if (args.length > 0) {
-        PKAtom *iter = args.e[args.length - 1];
-        while (pk_atom_is_cons(iter)) {
-            total += 1;
-            iter = iter->cons.cdr;
-        }
+    if (args.length == 0) {
+        pk_errorf(lisp, "maformed apply args, expected at least one atom in the slice");
+        return PK_YIELDED;
+    }
+    
+    size_t total = args.length - 1;
+    
+    for (size_t i = 0; i < args.length - 1; ++i) {
+        PKAtom *atom = args.e[i];
+        pk_stack_push(lisp, atom);
+    }
+    
+    PKAtom *rest = args.e[args.length - 1];
+    while (pk_atom_is_cons(rest)) {
+        total += 1;
+        rest = rest->cons.cdr;
     }
 
     if (total > UINT8_MAX) {
         pk_errorf(lisp, "pk_atom_apply: more than %u arguments", UINT8_MAX);
         return PK_YIELDED;
     }
-
-    PKAtom **values = NULL;
-    if (args.length > 0) {
-        values = pk_malloc(lisp, args.length * sizeof(PKAtom *));
-        memcpy(values, args.e, args.length * sizeof(PKAtom *));
-    }
-
-    for (size_t i = 0; i + 1 < args.length; ++i) {
-        pk_stack_push(lisp, values[i]);
-    }
-    if (args.length > 0) {
-        PKAtom *iter = values[args.length - 1];
-        while (pk_atom_is_cons(iter)) {
-            pk_stack_push(lisp, iter->cons.car);
-            iter = iter->cons.cdr;
-        }
-    }
-    pk_free(lisp, values);
 
     pk_stack_push(lisp, fun);
 

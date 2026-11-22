@@ -146,6 +146,6 @@
  "    (evlist (parse-list (file-read-string file))))\n" \
  "\n" \
  "(defun table (:rest properties)\n" \
- "    (apply 'object (cons 'Table properties)))\n"
+ "    (apply 'object 'Table properties))\n"
 
 #endif // POCKET_STD_H

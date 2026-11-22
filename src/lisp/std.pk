@@ -142,4 +142,4 @@
     (evlist (parse-list (file-read-string file))))
 
 (defun table (:rest properties)
-    (apply 'object (cons 'Table properties)))
+    (apply 'object 'Table properties))
