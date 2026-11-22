@@ -2,33 +2,6 @@
 The todo list for POCKET LISP
 
 ## V1
-- [ ] Reintroduce Blobs
-  - `[0 255 64 32]`
-  - Blob functions (cat, el, ...)
-    - cat
-      - should cat numbers
-      - number->bytes
-    - el
-    - length
-    - `to_string`
-    - reverse
-  - `(byte? 64) -> true`
-  - `(byte? [64]) -> true`
-  
-- [ ] Think about blob endianness
-  - control variable for endianness + system endianness
-  
-- [ ] Immortal Atoms
-  A Flag
-  - Statically Allocated
-    - true
-    - nil
-    - empty-string
-    - empty-blob
-  - Dynamically Allocated
-    - symbols (quote, lambda, ect...)
-    - cached stuff
-    
 - [ ] Memory Caching
   - Single Char Strings
   - Numbers 0 - 100
@@ -47,8 +20,6 @@ The todo list for POCKET LISP
     - `pk_as_int`
     - `pk_as_float`
   
-- [ ] Zig Build not Correctly Regenerating even after Generating Headers
-
 - [ ] Apply
    - `(apply '+ 1 2 3 '(4 5 6 7))`
    
@@ -151,6 +122,11 @@ The todo list for POCKET LISP
    
 - [ ] Fug Bixes
   
+- [ ] Think about blob endianness
+  - control variable for endianness + system endianness
+  
+- [ ] Zig Build not Correctly Regenerating even after Generating Headers
+
 ## V2
 - [ ] Seperation of std into multiple libraries (seperation in multiple files)
   - fs

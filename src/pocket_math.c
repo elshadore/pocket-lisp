@@ -278,11 +278,19 @@ bool pk_atom_is_int(PKAtom *atom) {
 }
 
 bool pk_atom_is_byte(PKAtom *atom) {
-    if (!pk_atom_is_int(atom)) {
-        return false;
+    switch (atom->header.type) {
+        case PK_ATOMTY_BLOB: {
+            return atom->blob.bytes.length == 1;
+        }
+        case PK_ATOMTY_NUMBER: {
+            if (!pk_atom_is_int(atom)) {
+                return false;
+            }
+            int i = atom->number.as.i;
+            return i >= 0 && i <= UCHAR_MAX;
+        }
+        default: return false;
     }
-    int i = atom->number.as.i;
-    return i >= 0 && i <= UCHAR_MAX;
 }
 
 bool pk_atom_is_float(PKAtom *atom) {
