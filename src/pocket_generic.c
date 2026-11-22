@@ -145,6 +145,25 @@ PKAtomString *pk_generic_to_string(Pocket lisp, PKAtom *atom) {
     }
 }
 
+PKAtomBlob *pk_generic_to_bytes(Pocket lisp, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_STRING: {
+            PKAtomString *string = (PKAtomString *)atom;
+            return pk_atom_blob(lisp, (PKBlob) {
+                .e = (pk_u8 *)string->str.c,
+                .length = string->str.length,
+            });
+        }
+        case PK_ATOMTY_NUMBER: {
+            return pk_atom_blob(lisp, pk_atom_number_to_bytes((PKAtomNumber *)atom));
+        }
+        default: {
+            pk_error_type2(lisp, atom, PK_TYPE_STRING, PK_TYPE_NUMBER);
+            return (PKAtomBlob *)&PK_ATOM_EMPTY_BLOB;
+        }
+    }
+}
+
 PKAtomSymbol *pk_generic_to_symbol(Pocket lisp, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_SYMBOL: {
