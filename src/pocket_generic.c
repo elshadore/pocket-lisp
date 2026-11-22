@@ -162,9 +162,10 @@ PKAtomBlob *pk_generic_to_bytes_raw(Pocket lisp, PKAtom *atom) {
 
 PKAtomBlob *pk_generic_to_bytes(Pocket lisp, PKAtom *atom) {
     if (atom->header.type == PK_ATOMTY_NUMBER) {
-        return pk_atom_blob(lisp, pk_atom_number_to_bytes_trimmed(lisp, (PKAtomNumber *)atom));
+        return pk_atom_number_to_bytes_trimmed(lisp, (PKAtomNumber *)atom);
+    } else {
+        return pk_generic_to_bytes_raw(lisp, atom);
     }
-    return pk_generic_to_bytes_raw(lisp, atom);
 }
 
 PKAtomSymbol *pk_generic_to_symbol(Pocket lisp, PKAtom *atom) {
