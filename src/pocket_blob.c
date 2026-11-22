@@ -37,8 +37,21 @@ PKAtomBlob *pk_atom_blob_cat(Pocket lisp, PKAtoms atoms) {
     pk_writer_reset(lisp);
 
     for (size_t i = 0; i < atoms.length; ++i) {
-        PKAtomBlob *blob = pk_atom_assert_blob(lisp, atoms.e[i]);
-        pk_writer_bytes(lisp, blob->bytes);
+        switch (atoms.e[i]->header.type) {
+            case PK_ATOMTY_BLOB: {
+                pk_writer_bytes(lisp, ((PKAtomBlob *)atoms.e[i])->bytes);
+                break;
+            }
+            case PK_ATOMTY_NUMBER: {
+                PKAtomBlob *bytes = pk_atom_number_to_bytes_trimmed(lisp, (PKAtomNumber *)atoms.e[i]);
+                pk_writer_bytes(lisp, bytes->bytes);
+                break;
+            }
+            default: {
+                pk_error_type2(lisp, atoms.e[i], PK_TYPE_BLOB, PK_TYPE_NUMBER);
+                break;
+            }
+        }
     }
 
     PKAtomBlob *result = pk_atom_blob(lisp, pk_writer_slice(lisp));

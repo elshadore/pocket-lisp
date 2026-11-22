@@ -96,6 +96,9 @@ PKAtom *pk_generic_cat(Pocket lisp, PKAtom *atom, PKAtoms atoms) {
         case PK_ATOMTY_BLOB: {
             return (PKAtom *)pk_atom_blob_cat(lisp, atoms);
         }
+        case PK_ATOMTY_NUMBER: {
+            return (PKAtom *)pk_atom_blob_cat(lisp, atoms);
+        }
         default: {
             pk_error_type4(lisp, atom, PK_TYPE_NIL, PK_TYPE_CONS, PK_TYPE_STRING, PK_TYPE_BLOB);
             return &PK_ATOM_NIL;
