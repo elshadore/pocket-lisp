@@ -236,6 +236,10 @@ PKAtom *pk_parse_atom_string(Pocket lisp, PKParser *r) {
     return (PKAtom *)&PK_ATOM_EMPTY_STRING;
 }
 
+bool pk_parser_is_base_digit(char c, int base) {
+    return pk_char_is_hex(c) && pk_char_to_hex(c) < base;
+}
+
 PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r) {
     bool negetive = false;
 
@@ -244,6 +248,38 @@ PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r) {
             negetive = true;
         }
         pk_parser_ince(lisp, r);
+    }
+
+    int base = 0;
+    char prefix = '\0';
+    if (pk_pat(r) == '0' && pk_parser_peek(r, &prefix)) {
+        switch (prefix) {
+            case 'x': case 'X': base = 16; break;
+            case 'b': case 'B': base = 2; break;
+            case 'o': case 'O': base = 8; break;
+            default: break;
+        }
+    }
+
+    if (base != 0) {
+        pk_parser_ince(lisp, r);
+        pk_parser_ince(lisp, r);
+
+        if (!pk_parser_is_base_digit(pk_pat(r), base)) {
+            pk_parser_error(lisp, r, pk_str("expected digit character after number prefix"));
+            return &PK_ATOM_NIL;
+        }
+
+        int acc = 0;
+        do {
+            acc = (acc * base) + pk_char_to_hex(pk_pat(r));
+        } while (pk_parser_inc(r) && pk_parser_is_base_digit(pk_pat(r), base));
+
+        if (negetive) {
+            acc = -acc;
+        }
+
+        return (PKAtom *)pk_atom_int(lisp, acc);
     }
     
     if (!pk_char_is_digit(pk_pat(r))) {

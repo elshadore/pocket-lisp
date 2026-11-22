@@ -5,7 +5,7 @@ The todo list for POCKET LISP
 - [ ] Memory Caching
   - Single Char Strings
   - Numbers 0 - 100
-    
+  
 - [ ] `struct-eq`
 
 - [ ] fix debug stack dump
@@ -17,6 +17,8 @@ The todo list for POCKET LISP
   - 0xfeefee
   - 0oaaaaaa <- idk octal
   
+- [ ] PKNumber Type
+  - also implement this in the parser (for blobs)
 - [ ] Public Number Conv
 - [ ] Vectorized Math
 - [ ] Math functions
