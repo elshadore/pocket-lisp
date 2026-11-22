@@ -23,6 +23,8 @@ PK_RES pk_atom_apply(Pocket lisp, PK_CALL call, PKAtom *fun, PKAtoms args) {
     
     PKAtom *rest = args.e[args.length - 1];
     while (pk_atom_is_cons(rest)) {
+        PKAtom *atom = rest->cons.car;
+        pk_stack_push(lisp, atom);
         total += 1;
         rest = rest->cons.cdr;
     }
