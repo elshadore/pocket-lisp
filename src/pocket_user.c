@@ -314,6 +314,38 @@ void pk_to_list(Pocket lisp, int seq) {
     pk_stack_push(lisp, pk_generic_to_list(lisp, aseq));
 }
 
+void pk_to_string(Pocket lisp, int text) {
+    PKAtom *atext = pk_stack_get(lisp, text);
+    pk_stack_push(lisp, (PKAtom *)pk_generic_to_string(lisp, atext));
+}
+
+void pk_to_symbol(Pocket lisp, int symbol) {
+    PKAtom *asymbol = pk_stack_get(lisp, symbol);
+    pk_stack_push(lisp, (PKAtom *)pk_generic_to_symbol(lisp, asymbol));
+}
+
+void pk_to_keyword(Pocket lisp, int keyword) {
+    PKAtom *akeyword = pk_stack_get(lisp, keyword);
+    pk_stack_push(lisp, (PKAtom *)pk_generic_to_keyword(lisp, akeyword));
+}
+
+void pk_to_blob(Pocket lisp, int blob) {
+    PKAtom *ablob = pk_stack_get(lisp, blob);
+    pk_stack_push(lisp, (PKAtom *)pk_generic_to_bytes(lisp, ablob));
+}
+
+void pk_to_int(Pocket lisp, int number) {
+    PKAtom *anumber = pk_stack_get(lisp, number);
+    int value = pk_atom_to_int(lisp, anumber, PK_NUMBER_CONV_FLOAT_CONV);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_int(lisp, value));
+}
+
+void pk_to_float(Pocket lisp, int number) {
+    PKAtom *anumber = pk_stack_get(lisp, number);
+    float value = pk_atom_to_float(lisp, anumber, PK_NUMBER_CONV_FLOAT_CONV);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_float(lisp, value));
+}
+
 bool pk_is_circular(Pocket lisp, int stack_pointer) {
     return pk_atom_is_circular(lisp, pk_stack_get(lisp, stack_pointer));
 }

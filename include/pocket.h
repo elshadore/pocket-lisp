@@ -152,6 +152,12 @@ PK_API void pk_clone(Pocket lisp, int stack_pointer);
 PK_API bool pk_is_circular(Pocket lisp, int stack_pointer);
 PK_API void pk_reverse(Pocket lisp, int seq);
 PK_API void pk_to_list(Pocket lisp, int seq);
+PK_API void pk_to_string(Pocket lisp, int text);
+PK_API void pk_to_symbol(Pocket lisp, int symbol);
+PK_API void pk_to_keyword(Pocket lisp, int keyword);
+PK_API void pk_to_blob(Pocket lisp, int blob);
+PK_API void pk_to_int(Pocket lisp, int number);
+PK_API void pk_to_float(Pocket lisp, int number);
 
 PK_API void pk_assoc(Pocket lisp, int alist, int key);
 
