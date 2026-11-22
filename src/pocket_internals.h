@@ -550,6 +550,7 @@ size_t pk_atom_string_length(Pocket lisp, PKAtomString *string);
 char pk_atom_str_to_char(Pocket lisp, PKStr string);
 PKAtomSymbol *pk_atom_string_to_symbol(Pocket lisp, PKAtomString *string);
 PKAtomKeyword *pk_atom_string_to_keyword(Pocket lisp, PKAtomString *string);
+PKAtomBlob *pk_atom_string_to_bytes(Pocket lisp, PKAtomString *string);
 bool pk_atom_string_cmp(PKAtomString *string, PKStr comp);
 
 PKAtomCons *pk_atom_cons(Pocket lisp, PKAtom *car, PKAtom *cdr);

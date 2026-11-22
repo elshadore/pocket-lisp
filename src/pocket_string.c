@@ -39,6 +39,13 @@ PKAtomKeyword *pk_atom_string_to_keyword(Pocket lisp, PKAtomString *string) {
     return pk_atom_keyword(lisp, string->str);
 }
 
+PKAtomBlob *pk_atom_string_to_bytes(Pocket lisp, PKAtomString *string) {
+    return pk_atom_blob(lisp, (PKBlob) {
+        .e = (pk_u8 *)string->str.c,
+        .length = string->str.length,
+    });
+}
+
 PKAtomString *pk_atom_string_alloc(Pocket lisp, size_t length) {
     if (length == 0) {
         return &PK_ATOM_EMPTY_STRING;

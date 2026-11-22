@@ -148,11 +148,7 @@ PKAtomString *pk_generic_to_string(Pocket lisp, PKAtom *atom) {
 PKAtomBlob *pk_generic_to_bytes_raw(Pocket lisp, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_STRING: {
-            PKAtomString *string = (PKAtomString *)atom;
-            return pk_atom_blob(lisp, (PKBlob) {
-                .e = (pk_u8 *)string->str.c,
-                .length = string->str.length,
-            });
+            return pk_atom_string_to_bytes(lisp, (PKAtomString *)atom);
         }
         case PK_ATOMTY_NUMBER: {
             return pk_atom_blob(lisp, pk_atom_number_to_bytes((PKAtomNumber *)atom));
