@@ -47,6 +47,30 @@ PKBlob pk_atom_number_to_bytes(PKAtomNumber *number) {
     }
 }
 
+PKBlob pk_atom_number_to_bytes_trimmed(Pocket lisp, PKAtomNumber *number) {
+    switch (number->num_type) {
+        case PK_NUMTY_INT: {
+            pk_u8 *bytes = (pk_u8 *)&number->as.i;
+            size_t length = sizeof(number->as.i);
+            pk_u8 pad = number->as.i < 0 ? 0xff : 0x00;
+            while (length > 1 && bytes[length - 1] == pad) {
+                --length;
+            }
+            return (PKBlob) {
+                .e = bytes,
+                .length = length,
+            };
+        }
+        case PK_NUMTY_FLOAT: {
+            pk_errors(lisp, pk_str("pk_atom_number_to_bytes_trimmed: floats are not supported"));
+            return PK_BLOB_EMPTY;
+        }
+        default: {
+            return PK_BLOB_EMPTY;
+        }
+    }
+}
+
 #define PK_TEMPLATE_MATH_OP(op_) \
     if (!pk_atom_is_number(lhs)) { \
         PKStr ty_ = pk_ident_atomty(lhs->header.type); \

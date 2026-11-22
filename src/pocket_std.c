@@ -594,6 +594,11 @@ void pk_fun_to_bytes(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_generic_to_bytes(lisp, pk_stack_get(lisp, 1)));
 }
 
+void pk_fun_to_bytes_raw(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, (PKAtom *)pk_generic_to_bytes_raw(lisp, pk_stack_get(lisp, 1)));
+}
+
 void pk_fun_to_symbol(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_stack_push(lisp, (PKAtom *)pk_generic_to_symbol(lisp, pk_stack_get(lisp, 1)));
@@ -774,6 +779,7 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("->list"), .fun = pk_fun_to_list, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("->string"), .fun = pk_fun_to_string, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("->bytes"), .fun = pk_fun_to_bytes, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("->bytes-raw"), .fun = pk_fun_to_bytes_raw, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("->symbol"), .fun = pk_fun_to_symbol, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("->keyword"), .fun = pk_fun_to_keyword, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("->int"), .fun = pk_fun_to_int, .args = 1, .arity = PK_ARITY_NORMAL},
