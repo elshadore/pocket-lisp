@@ -249,7 +249,7 @@ void pk_eval(Pocket lisp, int expr, PK_MODE mode) {
 void pk_apply(Pocket lisp, PK_CALL call, int fun, int args) {
     PKAtom *afun = pk_stack_get(lisp, fun);
     PKAtom *aargs = pk_stack_get(lisp, args);
-    pk_atom_apply(lisp, call, afun, aargs);
+    pk_atom_apply_atom(lisp, call, afun, aargs);
 }
 
 void pk_funcall(Pocket lisp, PK_CALL call, size_t args) {

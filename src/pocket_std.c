@@ -313,7 +313,8 @@ void pk_fun_parse_list(void *user_closure, Pocket lisp) {
 
 void pk_fun_apply(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_apply(lisp, PK_CALL_FUN, 1, 2);
+    PKAtoms slice = pk_stack_slice(lisp);
+    pk_atom_apply(lisp, PK_CALL_FUN, slice.e[0], pk_atoms_slice(slice, 1));
 }
 
 void pk_fun_macro_apply(void *user_closure, Pocket lisp) {
@@ -731,7 +732,7 @@ void pk_std_load_cfun(Pocket lisp) {
 
         {.symbol = pk_str("parse"), .fun = pk_fun_parse, .args = 1, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("parse-list"), .fun = pk_fun_parse_list, .args = 1, .arity = PK_ARITY_NORMAL},
-        {.symbol = pk_str("apply"), .fun = pk_fun_apply, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("apply"), .fun = pk_fun_apply, .args = 2, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("macro-apply"), .fun = pk_fun_macro_apply, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("funcall"), .fun = pk_fun_funcall, .args = 1, .arity = PK_ARITY_VARIADIC},
         
