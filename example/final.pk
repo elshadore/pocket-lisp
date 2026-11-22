@@ -78,3 +78,14 @@
 (cge/set-gameobject-attrs
       :name "Funny"
       :callback 'my-callback)
+
+(* (vec3 1 1 1) 10)
+-> &<Vec3::(10 10 10)>
+
+-> &<Object:Table::(foo 420 bar 69)>
+-> &<Object:Texture>
+-> &<Object:Byte-Array>
+-> &<Object:Process>
+-> &<Stream>
+
+(ba/print (byte-array [10 10 10]))

@@ -8,18 +8,16 @@ The todo list for POCKET LISP
   
 - [ ] `struct-eq`
 
+- [ ] Fix Int to Bytes
+
 - [ ] fix debug stack dump
   - so we see frames clearly
   - print frame name
   
-- [ ] exotic number parsing
-  - 0b010101
-  - 0xfeefee
-  - 0oaaaaaa <- idk octal
-  
 - [ ] PKNumber Type
   - also implement this in the parser (for blobs)
 - [ ] Public Number Conv
+  - also for `as_string` and `as_blob`
 - [ ] Vectorized Math
 - [ ] Math functions
   need more to list here look at scheme reference
@@ -120,6 +118,7 @@ The todo list for POCKET LISP
 - [ ] Full Float Parsing and Printing
   - [ ] Parsing
   - [ ] Printing
+- [ ] Vectors, Matrices, and Quaternions
   
 - [ ] potential rename to `micro lisp`
   - `.ul` `.ulc` `.uld` `(udex:install "foo")`
