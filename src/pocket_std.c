@@ -443,6 +443,11 @@ void pk_fun_cat(void *user_closure, Pocket lisp) {
     PKAtoms atoms = pk_stack_slice(lisp);
     pk_stack_push(lisp, pk_generic_cat(lisp, atoms.e[0], atoms));
 }
+
+void pk_fun_split(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, pk_generic_split(lisp, pk_stack_get(lisp, 1), pk_stack_get(lisp, 2)));
+}
     
 void pk_fun_gensym(void *user_closure, Pocket lisp) {
     (void)user_closure;
@@ -750,6 +755,7 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("make-array"), .fun = pk_fun_make_array, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 2},
         {.symbol = pk_str("append"), .fun = pk_fun_append, .args = 2, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("cat"), .fun = pk_fun_cat, .args = 2, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str("split"), .fun = pk_fun_split, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("el"), .fun = pk_fun_el, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("element?"), .fun = pk_fun_is_element, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("length"), .fun = pk_fun_length, .args = 1, .arity = PK_ARITY_NORMAL},

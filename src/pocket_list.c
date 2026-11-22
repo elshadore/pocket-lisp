@@ -387,6 +387,30 @@ bool pk_atom_list_is_element(Pocket lisp, PKAtom *list, PKAtom *key) {
     return false;
 }
 
+PKAtom *pk_atom_list_split(Pocket lisp, PKAtom *list, PKAtom *pattern) {
+    PKAccum acc = pk_accum_new(lisp);
+    PKAccum chunk = pk_accum_new(lisp);
+    PKAtom *iter = list;
+
+    while (pk_atom_is_cons(iter)) {
+        if (pk_atom_eq(lisp, iter->cons.car, pattern)) {
+            if (!pk_atom_is_nil(chunk.head)) {
+                pk_accum_push(&acc, chunk.head);
+                chunk = pk_accum_new(lisp);
+            }
+        } else {
+            pk_accum_push(&chunk, iter->cons.car);
+        }
+        iter = iter->cons.cdr;
+    }
+
+    if (!pk_atom_is_nil(chunk.head)) {
+        pk_accum_push(&acc, chunk.head);
+    }
+
+    return acc.head;
+}
+
 PKAtom *pk_atom_list_map(Pocket lisp, PKAtom *list, PKAtom *function) {
     PKAccum acc = pk_accum_new(lisp);
     PKAtom *iter = list;

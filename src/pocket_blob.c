@@ -85,6 +85,51 @@ PKAtomBlob *pk_atom_blob_reverse(Pocket lisp, PKBlob input) {
     return pk_atom_blob_nomemcpy(lisp, dupe);
 }
 
+PKAtom *pk_atom_blob_split(Pocket lisp, PKAtomBlob *blob, PKAtom *pattern) {
+    PKBlob source = blob->bytes;
+    PKBlob sep;
+    if (pk_atom_is_blob(pattern)) {
+        sep = ((PKAtomBlob *)pattern)->bytes;
+    } else if (pk_atom_is_number(pattern)) {
+        sep = pk_atom_number_to_bytes_trimmed(lisp, (PKAtomNumber *)pattern)->bytes;
+    } else {
+        pk_error_type2(lisp, pattern, PK_TYPE_NUMBER, PK_TYPE_BLOB);
+        return &PK_ATOM_NIL;
+    }
+
+    if (sep.length == 0) {
+        return (PKAtom *)pk_atom_list1(lisp, (PKAtom *)blob);
+    }
+
+    PKAccum acc = pk_accum_new(lisp);
+    size_t start = 0;
+    size_t i = 0;
+
+    while (i + sep.length <= source.length) {
+        if (memcmp(source.e + i, sep.e, sep.length) == 0) {
+            if (i > start) {
+                pk_accum_push(&acc, (PKAtom *)pk_atom_blob(lisp, (PKBlob) {
+                    .e = source.e + start,
+                    .length = i - start,
+                }));
+            }
+            i += sep.length;
+            start = i;
+        } else {
+            ++i;
+        }
+    }
+
+    if (start < source.length) {
+        pk_accum_push(&acc, (PKAtom *)pk_atom_blob(lisp, (PKBlob) {
+            .e = source.e + start,
+            .length = source.length - start,
+        }));
+    }
+
+    return acc.head;
+}
+
 bool pk_atom_is_blob(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_BLOB;
 }

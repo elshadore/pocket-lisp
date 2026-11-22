@@ -80,6 +80,42 @@ PKAtomString *pk_atom_string_reverse(Pocket lisp, PKStr input) {
     return pk_atom_string_nomemcpy(lisp, dupe);
 }
 
+PKAtom *pk_atom_string_split(Pocket lisp, PKAtomString *string, PKAtomString *pattern) {
+    PKStr source = string->str;
+    PKStr sep = pattern->str;
+    if (sep.length == 0) {
+        return (PKAtom *)pk_atom_list1(lisp, (PKAtom *)string);
+    }
+
+    PKAccum acc = pk_accum_new(lisp);
+    size_t start = 0;
+    size_t i = 0;
+
+    while (i + sep.length <= source.length) {
+        if (memcmp(source.c + i, sep.c, sep.length) == 0) {
+            if (i > start) {
+                pk_accum_push(&acc, (PKAtom *)pk_atom_string(lisp, (PKStr) {
+                    .c = source.c + start,
+                    .length = i - start,
+                }));
+            }
+            i += sep.length;
+            start = i;
+        } else {
+            ++i;
+        }
+    }
+
+    if (start < source.length) {
+        pk_accum_push(&acc, (PKAtom *)pk_atom_string(lisp, (PKStr) {
+            .c = source.c + start,
+            .length = source.length - start,
+        }));
+    }
+
+    return acc.head;
+}
+
 PKAtomString *pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index) {
     if (index >= string->str.length) {
         pk_errorf(lisp, "index: %zu, longer than the string length: %zu", index, string->str.length);

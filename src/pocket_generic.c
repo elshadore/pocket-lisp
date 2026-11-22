@@ -106,6 +106,25 @@ PKAtom *pk_generic_cat(Pocket lisp, PKAtom *atom, PKAtoms atoms) {
     }
 }
 
+PKAtom *pk_generic_split(Pocket lisp, PKAtom *atom, PKAtom *pattern) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_NIL:
+        case PK_ATOMTY_CONS: {
+            return pk_atom_list_split(lisp, atom, pattern);
+        }
+        case PK_ATOMTY_STRING: {
+            return pk_atom_string_split(lisp, pk_atom_assert_string(lisp, atom), pk_atom_assert_string(lisp, pattern));
+        }
+        case PK_ATOMTY_BLOB: {
+            return pk_atom_blob_split(lisp, (PKAtomBlob *)atom, pattern);
+        }
+        default: {
+            pk_error_type4(lisp, atom, PK_TYPE_NIL, PK_TYPE_CONS, PK_TYPE_STRING, PK_TYPE_BLOB);
+            return &PK_ATOM_NIL;
+        }
+    }
+}
+
 PKAtom *pk_generic_reverse(Pocket lisp, PKAtom *atom) {
     switch (atom->header.type) {
         case PK_ATOMTY_NIL: {
