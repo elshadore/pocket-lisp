@@ -170,6 +170,15 @@ void pk_writer_simple_object(Pocket lisp, void *obj, PKStr name) {
     pk_writer_char(lisp, '>');
 }
 
+void pk_writer_atom_object_recursive(Pocket lisp, PKAtomObject *object) {
+    PKAtomSymbol *type = object->type;
+    pk_writer_string(lisp, pk_str("&<Object:"));
+    pk_writer_symbol(lisp, type->name->str);
+    pk_writer_string(lisp, pk_str("::"));
+    pk_writer_address(lisp, (size_t)object);
+    pk_writer_char(lisp, '>');
+}
+
 void pk_writer_simple_function(Pocket lisp, void *obj, PKStr type, PKArity arity) {
     pk_writer_string(lisp, pk_str("&<"));
     pk_writer_string(lisp, type);
@@ -274,19 +283,19 @@ void pk_writer_write_atom(Pocket lisp, PKAtom *atom) {
             break;
         }
         case PK_ATOMTY_CFUN: {
-            pk_writer_simple_function(lisp, atom, pk_str("Function::c"), atom->cfun.arity);
+            pk_writer_simple_function(lisp, atom, pk_str("Function:C"), atom->cfun.arity);
             break;
         }
         case PK_ATOMTY_LFUN: {
-            pk_writer_simple_function(lisp, atom, pk_str("Function::lisp"), atom->lfun.arity);
+            pk_writer_simple_function(lisp, atom, pk_str("Function:Lisp"), atom->lfun.arity);
             break;
         }
         case PK_ATOMTY_CMACRO: {
-            pk_writer_simple_function(lisp, atom, pk_str("Macro::c"), atom->cmacro.arity);
+            pk_writer_simple_function(lisp, atom, pk_str("Macro:C"), atom->cmacro.arity);
             break;
         }
         case PK_ATOMTY_LMACRO: {
-            pk_writer_simple_function(lisp, atom, pk_str("Macro::lisp"), atom->lmacro.arity);
+            pk_writer_simple_function(lisp, atom, pk_str("Macro:Lisp"), atom->lmacro.arity);
             break;
         }
         case PK_ATOMTY_BLOB: {
@@ -364,7 +373,11 @@ void pk_writer_atom_recursive(Pocket lisp, PKAtom *atom) {
         (void)pk_hashmap_insert(lisp, &lisp->cloner, atom, atom, PK_HASHMAP_INSERT_NORMAL);
         pk_writer_write_atom(lisp, atom);
     } else {
-        pk_writer_simple_object(lisp, atom, pk_ident_atomty(atom->header.type));
+        if (pk_atom_is_object(atom)) {
+            pk_writer_atom_object_recursive(lisp, (PKAtomObject *)atom);
+        } else {
+            pk_writer_simple_object(lisp, atom, pk_ident_type(pk_atom_typeof(atom)));
+        }
     }
 }
 

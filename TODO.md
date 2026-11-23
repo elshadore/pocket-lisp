@@ -2,8 +2,6 @@
 The todo list for POCKET LISP
 
 ## V1
-- [ ] Object Printing `&<Object:Foo::(a 69 b 420)>`
-- [ ] `pocket_stream.c` exists why?
 - [ ] `struct-eq`
 
 - [ ] Fix Int to Bytes
