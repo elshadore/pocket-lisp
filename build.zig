@@ -136,7 +136,6 @@ pub fn build(b: *std.Build) void {
         "src/pocket_parser.c",
         "src/pocket_stack.c",
         "src/pocket_std.c",
-        "src/pocket_stream.c",
         "src/pocket_destroy.c",
         "src/pocket_string.c",
         "src/pocket_strsub.c",

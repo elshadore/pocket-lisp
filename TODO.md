@@ -2,9 +2,17 @@
 The todo list for POCKET LISP
 
 ## V1
+- [ ] Object Printing `&<Object:Foo::(a 69 b 420)>`
+- [ ] `pocket_stream.c` exists why?
 - [ ] `struct-eq`
 
 - [ ] Fix Int to Bytes
+
+- [ ] Think about Object Cloning
+  - we can't really clone c objects
+  - or can we...
+  - if we make sure we can gc the c object
+  - cloning simply creates a new set of properties
 
 - [ ] PKNum Type
   - also implement this in the parser (for blobs)
@@ -85,12 +93,17 @@ The todo list for POCKET LISP
   
 - [ ] Zig Build not Correctly Regenerating even after Generating Headers
 
-## V2
-- [ ] Seperation of std into multiple libraries (seperation in multiple files)
-  - fs
-  - system (shell)
-  - math
+- [ ] `unwind-protect`
   
+    
+## V2
+- [ ] Unicode Strings and Characters (utf8)
+  - [ ] fn, λ, lambda
+- [ ] Inputting and Outputting Bytecode
+  - Compiling bytecode to a `.pkc` format.
+- [ ] Immutable Vector Update
+  - Move from cons cells to immutable vectors.
+- [ ] Interpretter Objects
 - [ ] STD Filesystem API
   - Files
     - read / write
@@ -102,9 +115,10 @@ The todo list for POCKET LISP
   - Async Command -> Process
   - Sync Command
     - `(shell "echo hello")`
-    
-- [ ] Unicode Strings and Characters (utf8)
-  - [ ] fn, λ, lambda
+- [ ] Seperation of std into multiple libraries (seperation in multiple files)
+  - fs
+  - system (shell)
+  - math
   
 - [ ] Big Numbers
 - [ ] Full Float Parsing and Printing
@@ -112,13 +126,7 @@ The todo list for POCKET LISP
   - [ ] Printing
 - [ ] Vectors, Matrices, and Quaternions
   
-- [ ] potential rename to `micro lisp`
-  - `.ul` `.ulc` `.uld` `(udex:install "foo")`
-- [ ] Custom cfmt
-  - for printing atoms as well as c data
 - [ ] Read Common Lisp Standard
-- [ ] Pretty Printing
-- [ ] `unwind-protect`
 - [ ] `ecase`
 - [ ] Error Stack Trace
  - debug-trace variable
@@ -133,20 +141,11 @@ The todo list for POCKET LISP
 - [ ] STD HTML
 - [ ] STD ncurses
 - [ ] If we call a Lisp function from withing the VM we should not use the C stack to create a new VM, but reuse the old one.
-- [ ] Environment Objects
-- [ ] Immutable Vector Update
-  - Move from cons cells to immutable vectors.
 - [ ] Remove Libc
-- [ ] NIL, UNDEFINED, TRUE, should be static objects.
-- [ ] Interpretter Objects
 - [ ] Lexical Capture
   - [ ] Upvalues
   - [ ] Compiling Non Special Variables as Stack Variables
   - [ ] Need Eval to Work
-- [ ] Modules / Namespaces / Packages
-  - `foo:bar-baz`
-- [ ] Inputting and Outputting Bytecode
-  - Compiling bytecode to a `.pkc` format.
 - [ ] Async
   - [ ] Green Threads
   - [ ] Async Dynamic Scope
