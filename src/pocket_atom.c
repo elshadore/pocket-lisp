@@ -162,7 +162,13 @@ bool pk_atom_is_circular_recursive(Pocket lisp, PKAtom *atom) {
             break;
         }
         case PK_ATOMTY_OBJECT: {
-            pk_errors(lisp, pk_str("pk_atom_is_circular(): TODO: implement object is circular logic"));
+            PKHashmap *props = &atom->object.props;
+            for (size_t i = 0; !result && (i < props->capacity); ++i) {
+                PKHashmapSlot *slot = &props->e[i];
+                if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) {
+                    result = pk_atom_is_circular_recursive(lisp, slot->value);
+                }
+            }
             break;
         }
         default: break;
@@ -264,7 +270,7 @@ bool pk_atom_object_eq_atoms(Pocket lisp, PKAtoms atoms) {
     return true;
 }
 
-static bool pk_atom_struct_eq_recursive(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
+bool pk_atom_struct_eq_recursive(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
     if (lhs == rhs) {
         return true;
     }
