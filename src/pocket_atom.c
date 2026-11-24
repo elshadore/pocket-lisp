@@ -102,8 +102,23 @@ PKAtom *pk_atom_clone_recursive(Pocket lisp, PKAtom *atom) {
             return (PKAtom *)result;
         }
         case PK_ATOMTY_OBJECT: {
-            pk_errors(lisp, pk_str("pk_atom_clone(), TODO: thing about object cloning"));
-            return &PK_ATOM_NIL;
+            PKAtomObject *original = (PKAtomObject *)atom;
+            PKAtomObject *result = NULL;
+            if (original->reference == PK_TRUE) {
+                result = pk_atom_object_reference(lisp, original->as.reference);
+            } else if (original->user_data != NULL) {
+                result = pk_atom_object_reference(lisp, original);
+            } else {
+                result = pk_atom_object(lisp, original->as.type, NULL, NULL);
+            }
+            PKHashmap *props = &original->props;
+            for (size_t i = 0; i < props->capacity; ++i) {
+                PKHashmapSlot *slot = &props->e[i];
+                if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) {
+                    (void)pk_atom_object_put(lisp, result, slot->key, slot->value);
+                }
+            }
+            return (PKAtom *)result;
         }
         default: {
             pk_errors(lisp, pk_str("pk_atom_clone(), cannot clone this type, TODO: better error message for this"));

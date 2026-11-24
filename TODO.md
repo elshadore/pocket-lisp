@@ -6,16 +6,22 @@ The todo list for POCKET LISP
 
 - [ ] Keyword Symbolizer
 
-- [ ] `struct-eq`
-
-- [ ] Lock Special Form Symbols
-  - Cannot Set the Function or Variable
-
 - [ ] Think about Object Cloning
   - we can't really clone c objects
   - or can we...
   - if we make sure we can gc the c object
   - cloning simply creates a new set of properties
+
+- [ ] `struct-eq`
+
+- [ ] Lock Special Form Symbols
+  - Cannot Set the Function or Variable
+  
+- [ ] Create CMake Build
+- [ ] C Build
+  - `pocket_all.c`
+
+- [ ] Zig Build not Correctly Regenerating even after Generating Headers
 
 - [ ] PKNum Type
   - also implement this in the parser (for blobs)
@@ -30,8 +36,6 @@ The todo list for POCKET LISP
   - printing
   - parsing
   
-- [ ] Remove ternary operator from all c code.
-
 - [ ] Testing Suite
 
 - [ ] Environment Letting (with Objects)
@@ -44,14 +48,8 @@ The todo list for POCKET LISP
     - decimal
     - octal
     - hexadecimal
-  - byte number printing style
-    - decimal
-    - octal
-    - hexadecimal
   - gc enabled
   - pretty printing
-  - defun / defvar overrides
-  - classic defvar behaviour
   
 - [ ] User Review of Compiler
   - in particular, destructuring bind.
@@ -59,14 +57,12 @@ The todo list for POCKET LISP
 - [ ] User Review of wether we are allocating too much on the stack in the bytecode VM
    - i.e we are not popping temp values
   
+- [ ] `unwind-protect`
+    
 - [ ] keyword arguments
   `(def foo (a b :key c d e)
       (print $"{a}, {b}, {c}, {d}, {e}"))`
   
-- [ ] Create CMake Build
-- [ ] C Build
-  - `pocket_all.c`
-
 - [ ] Emacs Mode Syntax Highlighting
   - basic syntax highlighter
 
@@ -79,21 +75,18 @@ The todo list for POCKET LISP
 - [ ] Documentation Properties
 - [ ] README
 
+- [ ] Remove ternary operator from all c code.
+
 - [ ] Full Code Review
+  - Fug Bixes
 
 - [ ] Rust Build
    - review `mlua` rust package
    
-- [ ] Fug Bixes
-  
+## V2
 - [ ] Think about blob endianness
   - control variable for endianness + system endianness
   
-- [ ] Zig Build not Correctly Regenerating even after Generating Headers
-
-- [ ] `unwind-protect`
-    
-## V2
 - [ ] Unicode Strings and Characters (utf8)
   - [ ] fn, λ, lambda
 - [ ] Inputting and Outputting Bytecode

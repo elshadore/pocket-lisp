@@ -4,9 +4,23 @@ PKAtomObject *pk_atom_object(Pocket lisp, PKAtomSymbol *type, void *user_data, P
     PKAtomObject *result = (PKAtomObject *)pk_atom_alloc(lisp);
     
     result->header.type = PK_ATOMTY_OBJECT;
-    result->type = type;
+    result->reference = PK_FALSE;
+    result->as.type = type;
     result->user_data = user_data;
     result->gc = gc;
+    result->props = PK_HASHMAP_EMPTY;
+    
+    return result;
+}
+
+PKAtomObject *pk_atom_object_reference(Pocket lisp, PKAtomObject *original) {
+    PKAtomObject *result = (PKAtomObject *)pk_atom_alloc(lisp);
+    
+    result->header.type = PK_ATOMTY_OBJECT;
+    result->reference = PK_TRUE;
+    result->as.reference = original;
+    result->user_data = NULL;
+    result->gc = NULL;
     result->props = PK_HASHMAP_EMPTY;
     
     return result;

@@ -4,6 +4,9 @@
 #include "../include/pocket.h"
 #include <setjmp.h>
 
+#define PK_FALSE (0)
+#define PK_TRUE (1)
+
 typedef union PKAtomData_ PKAtom;
 
 typedef enum PK_NUMBER_CONV_ {
@@ -269,13 +272,18 @@ typedef struct PKAtomArray_ {
     PKArray atoms;
 } PKAtomArray;
 
-typedef struct PKAtomObject_ {
+typedef struct PKAtomObject_ PKAtomObject;
+struct PKAtomObject_ {
     PKAtomHeader header;
-    PKAtomSymbol *type;
+    pk_u8 reference;
+    union {
+        PKAtomSymbol *type;
+        PKAtomObject *reference;
+    } as;
     void *user_data;
     PKGCFun gc;
     PKHashmap props;
-} PKAtomObject;
+};
 
 typedef struct PKAtomBlob_ {
     PKAtomHeader header;
@@ -689,6 +697,7 @@ bool pk_atom_is_type(PKAtom *atom, PK_TYPE type);
 
 PKAtomObject *pk_atom_object(Pocket lisp, PKAtomSymbol *type, void *user_data, PKGCFun gc);
 PKAtomObject *pk_atom_object_cons(Pocket lisp, PKAtomSymbol *type, void *user_data, PKGCFun gc, PKAtoms init);
+PKAtomObject *pk_atom_object_reference(Pocket lisp, PKAtomObject *original);
 void *pk_atom_object_data(Pocket lisp, PKAtomObject *object, PKAtom *typecheck);
 PKAtom *pk_atom_object_put(Pocket lisp, PKAtomObject *object, PKAtom *key, PKAtom *value);
 PKAtom *pk_atom_object_remove(Pocket lisp, PKAtomObject *object, PKAtom *key);
