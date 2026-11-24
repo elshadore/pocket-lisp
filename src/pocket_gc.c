@@ -84,7 +84,7 @@ void pk_gc_mark(Pocket lisp, PKAtom *atom) {
         }
         case PK_ATOMTY_OBJECT: {
             PKAtomObject *object = (PKAtomObject *)atom;
-            pk_gc_mark(lisp, (PKAtom *)object->type);
+            pk_gc_mark(lisp, (PKAtom *)object->as.type);
             pk_gc_mark_hashmap(lisp, &object->props);
             break;
         }

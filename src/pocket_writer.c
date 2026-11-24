@@ -171,7 +171,7 @@ void pk_writer_simple_object(Pocket lisp, void *obj, PKStr name) {
 }
 
 void pk_writer_atom_object_recursive(Pocket lisp, PKAtomObject *object) {
-    PKAtomSymbol *type = object->type;
+    PKAtomSymbol *type = object->as.type;
     pk_writer_string(lisp, pk_str("&<Object:"));
     pk_writer_symbol(lisp, type->name->str);
     pk_writer_string(lisp, pk_str("::"));
@@ -325,7 +325,7 @@ void pk_writer_write_atom(Pocket lisp, PKAtom *atom) {
         }
         case PK_ATOMTY_OBJECT: {
             PKAtomObject *object = (PKAtomObject *)atom;
-            PKAtomSymbol *type = object->type;
+            PKAtomSymbol *type = object->as.type;
             PKHashmap *map = &object->props;
             pk_writer_string(lisp, pk_str("&<Object:"));
             pk_writer_symbol(lisp, type->name->str);

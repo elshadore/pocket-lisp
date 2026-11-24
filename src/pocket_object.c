@@ -45,7 +45,7 @@ PKAtomObject *pk_atom_object_cons(Pocket lisp, PKAtomSymbol *type, void *user_da
 void *pk_atom_object_data(Pocket lisp, PKAtomObject *object, PKAtom *typecheck) {
     if (!pk_atom_is_nil(typecheck)) {
         PKAtomSymbol *type = pk_atom_assert_symbol(lisp, typecheck);
-        if (type != object->type) {
+        if (type != object->as.type) {
             pk_errors(lisp, pk_str("object typecheck failed"));
         }
     }

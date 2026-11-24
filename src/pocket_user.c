@@ -469,7 +469,7 @@ void *pk_object_data(Pocket lisp, int object, int type) {
 
 void pk_object_type(Pocket lisp, int object) {
     PKAtomObject *aobject = pk_atom_assert_object(lisp, pk_stack_get(lisp, object));
-    pk_stack_push(lisp, (PKAtom *)aobject->type);
+    pk_stack_push(lisp, (PKAtom *)aobject->as.type);
 }
 
 void pk_put(Pocket lisp, int object, int key, int value) {

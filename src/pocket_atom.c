@@ -111,11 +111,12 @@ PKAtom *pk_atom_clone_recursive(Pocket lisp, PKAtom *atom) {
             } else {
                 result = pk_atom_object(lisp, original->as.type, NULL, NULL);
             }
+            pk_hashmap_insert(lisp, &lisp->cloner, atom, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
             PKHashmap *props = &original->props;
             for (size_t i = 0; i < props->capacity; ++i) {
                 PKHashmapSlot *slot = &props->e[i];
                 if (slot->state == PK_HASHMAP_SLOT_OCCUPIED) {
-                    (void)pk_atom_object_put(lisp, result, slot->key, slot->value);
+                    (void)pk_atom_object_put(lisp, result, slot->key, pk_atom_clone_recursive(lisp, slot->value));
                 }
             }
             return (PKAtom *)result;
