@@ -2,11 +2,6 @@
 The todo list for POCKET LISP
 
 ## V1
-- [ ] `struct-eq`
-
-- [ ] Lock Special Form Symbols
-  - Cannot Set the Function or Variable
-  
 - [ ] Create CMake Build
 - [ ] C Build
   - `pocket_all.c`
@@ -69,6 +64,9 @@ The todo list for POCKET LISP
 
 - [ ] Full Code Review
   - Fug Bixes
+  
+- [ ] Lock Special Form Symbols
+  - Cannot Set the Function or Variable
 
 - [ ] Rust Build
    - review `mlua` rust package
