@@ -264,12 +264,110 @@ bool pk_atom_object_eq_atoms(Pocket lisp, PKAtoms atoms) {
     return true;
 }
 
+static bool pk_atom_struct_eq_recursive(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
+    if (lhs == rhs) {
+        return true;
+    }
+
+    if (lhs->header.type != rhs->header.type) {
+        return false;
+    }
+
+    switch (lhs->header.type) {
+        case PK_ATOMTY_NIL:
+        case PK_ATOMTY_TRUE:
+        case PK_ATOMTY_UNDEFINED: {
+            return true;
+        }
+        case PK_ATOMTY_STRING: {
+            return pk_str_eq(lhs->string.str, rhs->string.str);
+        }
+        case PK_ATOMTY_SYMBOL: {
+            return pk_str_eq(lhs->symbol.name->str, rhs->symbol.name->str);
+        }
+        case PK_ATOMTY_KEYWORD: {
+            return pk_str_eq(lhs->keyword.name->str, rhs->keyword.name->str);
+        }
+        case PK_ATOMTY_BLOB: {
+            return pk_blob_eq(lhs->blob.bytes, rhs->blob.bytes);
+        }
+        case PK_ATOMTY_CONS: {
+            PKAtom *seen = pk_hashmap_get(lisp, &lisp->cloner, lhs);
+            if (!pk_atom_is_undefined(seen)) {
+                return seen == rhs;
+            }
+            pk_hashmap_insert(lisp, &lisp->cloner, lhs, rhs, PK_HASHMAP_INSERT_NORMAL);
+            bool result = pk_atom_struct_eq_recursive(lisp, lhs->cons.car, rhs->cons.car)
+                && pk_atom_struct_eq_recursive(lisp, lhs->cons.cdr, rhs->cons.cdr);
+            pk_hashmap_remove(lisp, &lisp->cloner, lhs);
+            return result;
+        }
+        case PK_ATOMTY_ARRAY: {
+            PKArray *larray = &lhs->array.atoms;
+            PKArray *rarray = &rhs->array.atoms;
+            if (larray->count != rarray->count) {
+                return false;
+            }
+            PKAtom *seen = pk_hashmap_get(lisp, &lisp->cloner, lhs);
+            if (!pk_atom_is_undefined(seen)) {
+                return seen == rhs;
+            }
+            pk_hashmap_insert(lisp, &lisp->cloner, lhs, rhs, PK_HASHMAP_INSERT_NORMAL);
+            bool result = true;
+            for (size_t i = 0; result && (i < larray->count); ++i) {
+                result = pk_atom_struct_eq_recursive(lisp, larray->e[i], rarray->e[i]);
+            }
+            pk_hashmap_remove(lisp, &lisp->cloner, lhs);
+            return result;
+        }
+        case PK_ATOMTY_OBJECT: {
+            PKAtomObject *lobject = (PKAtomObject *)lhs;
+            PKAtomObject *robject = (PKAtomObject *)rhs;
+            if (pk_atom_object_deref(lobject)->as.type != pk_atom_object_deref(robject)->as.type) {
+                return false;
+            }
+            PKHashmap *lprops = &lobject->props;
+            PKHashmap *rprops = &robject->props;
+            if (lprops->count != rprops->count) {
+                return false;
+            }
+            PKAtom *seen = pk_hashmap_get(lisp, &lisp->cloner, lhs);
+            if (!pk_atom_is_undefined(seen)) {
+                return seen == rhs;
+            }
+            pk_hashmap_insert(lisp, &lisp->cloner, lhs, rhs, PK_HASHMAP_INSERT_NORMAL);
+            bool result = true;
+            for (size_t i = 0; result && (i < lprops->capacity); ++i) {
+                PKHashmapSlot *lslot = &lprops->e[i];
+                if (lslot->state != PK_HASHMAP_SLOT_OCCUPIED) {
+                    continue;
+                }
+                bool found = false;
+                for (size_t j = 0; !found && (j < rprops->capacity); ++j) {
+                    PKHashmapSlot *rslot = &rprops->e[j];
+                    if (rslot->state != PK_HASHMAP_SLOT_OCCUPIED) {
+                        continue;
+                    }
+                    if (pk_atom_struct_eq_recursive(lisp, lslot->key, rslot->key)) {
+                        found = pk_atom_struct_eq_recursive(lisp, lslot->value, rslot->value);
+                    }
+                }
+                result = found;
+            }
+            pk_hashmap_remove(lisp, &lisp->cloner, lhs);
+            return result;
+        }
+        default: {
+            return pk_atom_eq(lisp, lhs, rhs);
+        }
+    }
+}
+
 bool pk_atom_struct_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
-    (void)lisp;
-    (void)lhs;
-    (void)rhs;
-    pk_errors(lisp, pk_str("TODO: implement pk_atom_struct_eq()"));
-    return false;
+    pk_hashmap_deinit(lisp, &lisp->cloner);
+    bool result = pk_atom_struct_eq_recursive(lisp, lhs, rhs);
+    pk_hashmap_deinit(lisp, &lisp->cloner);
+    return result;
 }
 
 bool pk_atom_struct_eq_atoms(Pocket lisp, PKAtoms atoms) {
