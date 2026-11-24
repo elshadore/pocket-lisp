@@ -273,24 +273,11 @@ static bool pk_atom_struct_eq_recursive(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
         return false;
     }
 
+    if (pk_atom_kind(lhs) == PK_ATOMKIND_VALUE) {
+        return pk_atom_eq(lisp, lhs, rhs);
+    }
+
     switch (lhs->header.type) {
-        case PK_ATOMTY_NIL:
-        case PK_ATOMTY_TRUE:
-        case PK_ATOMTY_UNDEFINED: {
-            return true;
-        }
-        case PK_ATOMTY_STRING: {
-            return pk_str_eq(lhs->string.str, rhs->string.str);
-        }
-        case PK_ATOMTY_SYMBOL: {
-            return pk_str_eq(lhs->symbol.name->str, rhs->symbol.name->str);
-        }
-        case PK_ATOMTY_KEYWORD: {
-            return pk_str_eq(lhs->keyword.name->str, rhs->keyword.name->str);
-        }
-        case PK_ATOMTY_BLOB: {
-            return pk_blob_eq(lhs->blob.bytes, rhs->blob.bytes);
-        }
         case PK_ATOMTY_CONS: {
             PKAtom *seen = pk_hashmap_get(lisp, &lisp->cloner, lhs);
             if (!pk_atom_is_undefined(seen)) {
@@ -358,7 +345,7 @@ static bool pk_atom_struct_eq_recursive(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
             return result;
         }
         default: {
-            return pk_atom_eq(lisp, lhs, rhs);
+            return false;
         }
     }
 }
