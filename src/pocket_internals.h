@@ -156,6 +156,14 @@ struct PKAtomFree_ {
 #define PK_NUMTY_INT (0)
 #define PK_NUMTY_FLOAT (1)
 
+typedef struct PKNum_ {
+    pk_u8 num_type;
+    union {
+        int i;
+        float f;
+    } as;
+} PKNum;
+
 typedef struct PKAtomNumber_ {
     PKAtomHeader header;
     pk_u8 num_type;

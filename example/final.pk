@@ -89,3 +89,23 @@
 -> &<Stream>
 
 (ba/print (byte-array [10 10 10]))
+
+(defun funny-function (ctx)
+    (setq-button-context (cons 0 ctx))
+    (kill-ui-element (get-ui-parent)))
+
+(attach-ui-element box
+    :children 
+    (attach-button
+        :cached-state '(1 2 3 4 5)
+        :on-click 'funny-function
+        :children
+        (attach-button
+            :on-click 'foo
+        )
+    )
+    (attach-button
+        :cached-state '(1 2 3 4 5)
+        :on-click 'funny-function
+    )
+)

@@ -2,9 +2,14 @@
 The todo list for POCKET LISP
 
 ## V1
+- [ ] Fix Int to Bytes
+
+- [ ] Keyword Symbolizer
+
 - [ ] `struct-eq`
 
-- [ ] Fix Int to Bytes
+- [ ] Lock Special Form Symbols
+  - Cannot Set the Function or Variable
 
 - [ ] Think about Object Cloning
   - we can't really clone c objects
@@ -48,8 +53,6 @@ The todo list for POCKET LISP
   - defun / defvar overrides
   - classic defvar behaviour
   
-- [ ] Keyword Symbolizer
-
 - [ ] User Review of Compiler
   - in particular, destructuring bind.
 - [ ] User Review of Macro
@@ -78,9 +81,6 @@ The todo list for POCKET LISP
 
 - [ ] Full Code Review
 
-- [ ] Lock Special Form Symbols
-  - Cannot Set the Function or Variable
-
 - [ ] Rust Build
    - review `mlua` rust package
    
@@ -92,7 +92,6 @@ The todo list for POCKET LISP
 - [ ] Zig Build not Correctly Regenerating even after Generating Headers
 
 - [ ] `unwind-protect`
-  
     
 ## V2
 - [ ] Unicode Strings and Characters (utf8)
