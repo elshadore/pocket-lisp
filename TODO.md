@@ -2,8 +2,6 @@
 The todo list for POCKET LISP
 
 ## V1
-- [ ] Fix Int to Bytes
-
 - [ ] `struct-eq`
 
 - [ ] Lock Special Form Symbols
