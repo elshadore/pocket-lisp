@@ -26,6 +26,14 @@ PKAtomObject *pk_atom_object_reference(Pocket lisp, PKAtomObject *original) {
     return result;
 }
 
+PKAtomObject *pk_atom_object_deref(PKAtomObject *object) {
+    if (object->reference == PK_TRUE) {
+        return object->as.reference;
+    } else {
+        return object;
+    }
+}
+
 PKAtomObject *pk_atom_object_cons(Pocket lisp, PKAtomSymbol *type, void *user_data, PKGCFun gc, PKAtoms init) {
     if ((init.length % 2) != 0) {
         pk_errors(lisp, pk_str("object construction must be a list of key value pairs"));
@@ -43,16 +51,17 @@ PKAtomObject *pk_atom_object_cons(Pocket lisp, PKAtomSymbol *type, void *user_da
 }
 
 void *pk_atom_object_data(Pocket lisp, PKAtomObject *object, PKAtom *typecheck) {
+    PKAtomObject *deref = pk_atom_object_deref(object);
     if (!pk_atom_is_nil(typecheck)) {
         PKAtomSymbol *type = pk_atom_assert_symbol(lisp, typecheck);
-        if (type != object->as.type) {
+        if (type != deref->as.type) {
             pk_errors(lisp, pk_str("object typecheck failed"));
         }
     }
-    if (object->user_data == NULL) {
+    if (deref->user_data == NULL) {
         pk_errors(lisp, pk_str("object has no userdata"));
     }
-    return object->user_data;
+    return deref->user_data;
 }
 
 PKAtom *pk_atom_object_put(Pocket lisp, PKAtomObject *object, PKAtom *key, PKAtom *value) {
