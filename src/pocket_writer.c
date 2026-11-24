@@ -249,7 +249,7 @@ void pk_writer_write_atom(Pocket lisp, PKAtom *atom) {
         }
         case PK_ATOMTY_KEYWORD: {
             pk_writer_char(lisp, ':');
-            pk_writer_symbol(lisp, atom->keyword.id);
+            pk_writer_symbol(lisp, atom->keyword.name->str);
             break;
         }
         case PK_ATOMTY_CONS: {

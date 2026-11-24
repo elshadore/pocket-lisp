@@ -80,6 +80,7 @@ void pk_deinit(Pocket lisp) {
     pk_free(lisp, lisp->lets.e);
     lisp->lets = PK_LETS_EMPTY;
     pk_hashmap_deinit(lisp, &lisp->symbolizer);
+    pk_hashmap_deinit(lisp, &lisp->keywordizer);
     
     pk_gc_collect(lisp);
 

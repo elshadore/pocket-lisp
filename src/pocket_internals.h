@@ -191,7 +191,7 @@ typedef struct PKAtomSymbol_ {
 
 typedef struct PKAtomKeyword_ {
     PKAtomHeader header;
-    PKStr id;
+    PKAtomString *name;
 } PKAtomKeyword;
 
 typedef struct PKAtomCons_ {
@@ -436,6 +436,7 @@ typedef struct PKCache_ {
     .lets = PK_LETS_EMPTY, \
     .frames = PK_FRAMES_EMPTY, \
     .symbolizer = PK_HASHMAP_EMPTY, \
+    .keywordizer = PK_HASHMAP_EMPTY, \
     .cloner = PK_HASHMAP_EMPTY, \
     .writer = PK_WRITER_EMPTY, \
     .gensym_counter = 0, \
@@ -456,6 +457,7 @@ typedef struct PocketLispMachine_ {
     PKAtom *throw_symbol;
     PKAtom *throw_value;
     PKHashmap symbolizer;
+    PKHashmap keywordizer;
     PKHashmap cloner;
     PKWriter writer;
     size_t gensym_counter;

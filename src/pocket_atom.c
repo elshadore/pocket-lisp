@@ -190,7 +190,7 @@ bool pk_atom_text(PKAtom *atom, PKStr *text) {
             return true;
         }
         case PK_ATOMTY_KEYWORD: {
-            *text = atom->keyword.id;
+            *text = atom->keyword.name->str;
             return true;
         }
         default: return false;
@@ -303,7 +303,7 @@ size_t pk_atom_hash(PKAtom *atom) {
             return pk_hash_djb2(atom->string.str);
         }
         case PK_ATOMTY_KEYWORD: {
-            return pk_hash_djb2(atom->keyword.id);
+            return pk_hash_djb2(atom->keyword.name->str);
         }
         case PK_ATOMTY_NUMBER: {
             if (atom->number.num_type == PK_NUMTY_FLOAT) {

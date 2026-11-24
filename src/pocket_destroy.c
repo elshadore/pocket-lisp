@@ -6,10 +6,6 @@ void pk_atom_deinit(Pocket lisp, PKAtom *atom) {
             pk_free(lisp, atom->string.str.c);
             break;
         }
-        case PK_ATOMTY_KEYWORD: {
-            pk_free(lisp, atom->keyword.id.c);
-            break;
-        }
         case PK_ATOMTY_LFUN: {
             pk_free(lisp, atom->lfun.bc.e);
             pk_free(lisp, atom->lfun.atoms.e);

@@ -129,6 +129,7 @@ void pk_gc_collect(Pocket lisp) {
     }
 
     pk_gc_mark_hashmap(lisp, &lisp->symbolizer);
+    pk_gc_mark_hashmap(lisp, &lisp->keywordizer);
 
     // Sweep
     for (PKPool *pool = lisp->pool; pool; pool = pool->next) {

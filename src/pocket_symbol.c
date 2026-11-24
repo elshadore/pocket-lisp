@@ -73,20 +73,31 @@ PKAtomSymbol *pk_atom_symbolc(Pocket lisp, char *csymbol) {
 }
 
 PKAtomString *pk_atom_keyword_to_string(Pocket lisp, PKAtomKeyword *keyword) {
-    return pk_atom_string(lisp, keyword->id);
+    (void)lisp;
+    return keyword->name;
 }
 
 PKAtomSymbol *pk_atom_keyword_to_symbol(Pocket lisp, PKAtomKeyword *keyword) {
-    return pk_atom_symbol(lisp, keyword->id);
+    return pk_atom_symbol(lisp, keyword->name->str);
 }
 
 PKAtomKeyword *pk_atom_keyword(Pocket lisp, PKStr keyword) {
+    PKAtom *interned = pk_hashmap_get_str(lisp, &lisp->keywordizer, keyword);
+    if (!pk_atom_is_undefined(interned)) {
+        return (PKAtomKeyword *)interned;
+    }
+
     PKAtomKeyword *result = (PKAtomKeyword *)pk_atom_alloc(lisp);
 
-    PKStr dupe = pk_str_dupe(lisp, keyword);
+    PKAtomString *name = pk_atom_string(lisp, keyword);
 
     result->header.type = PK_ATOMTY_KEYWORD;
-    result->id = dupe;
+    result->name = name;
+
+    pk_hashmap_insert(lisp, &lisp->keywordizer, (PKAtom *)name, (PKAtom *)result, PK_HASHMAP_INSERT_NORMAL);
+
+    pk_atom_set_immortal((PKAtom *)result);
+    pk_atom_set_immortal((PKAtom *)name);
 
     return result;
 }
@@ -124,7 +135,7 @@ bool pk_atom_symbol_cmp(PKAtomSymbol *symbol, PKStr comp) {
 }
 
 bool pk_atom_keyword_cmp(PKAtomKeyword *keyword, PKStr comp) {
-    return pk_str_eq(keyword->id, comp);
+    return pk_str_eq(keyword->name->str, comp);
 }
 
 PKAtomSymbol *pk_atom_assert_symbol(Pocket lisp, PKAtom *atom) {

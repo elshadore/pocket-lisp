@@ -115,7 +115,7 @@ void pk_debug_leakcheck(Pocket lisp, const char *tag) {
                     break;
                 }
                 case PK_ATOMTY_KEYWORD: {
-                    pk_writer_string(lisp, atom->keyword.id);
+                    pk_writer_string(lisp, atom->keyword.name->str);
                     break;
                 }
                 case PK_ATOMTY_SYMBOL: {

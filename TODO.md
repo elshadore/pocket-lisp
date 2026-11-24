@@ -6,12 +6,6 @@ The todo list for POCKET LISP
 
 - [ ] Keyword Symbolizer
 
-- [ ] Think about Object Cloning
-  - we can't really clone c objects
-  - or can we...
-  - if we make sure we can gc the c object
-  - cloning simply creates a new set of properties
-
 - [ ] `struct-eq`
 
 - [ ] Lock Special Form Symbols
