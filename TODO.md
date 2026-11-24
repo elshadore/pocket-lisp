@@ -3,8 +3,6 @@ The todo list for POCKET LISP
 
 ## V1
 - [ ] Create CMake Build
-- [ ] C Build
-  - `pocket_all.c`
 
 - [ ] Zig Build not Correctly Regenerating even after Generating Headers
 
