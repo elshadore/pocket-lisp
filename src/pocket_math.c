@@ -54,25 +54,13 @@ PKBlob pk_atom_number_to_bytes(PKAtomNumber *number) {
 void pk_atom_number_to_bytes_trimmed_writer(Pocket lisp, PKAtomNumber *number) {
     switch (number->num_type) {
         case PK_NUMTY_INT: {
-            // TODO: This function is hopelessly broken...
-            pk_i64 value = number->as.i;
-            size_t length = 1;
-            while (length < sizeof(number->as.i)) {
-                if (value >= 0) {
-                    pk_u64 bound = (pk_u64)1 << (length * 8);
-                    if ((pk_u64)value < bound) {
-                        break;
-                    }
-                } else {
-                    pk_i64 bound = (pk_i64)1 << (length * 8 - 1);
-                    if (value >= -bound) {
-                        break;
-                    }
-                }
-                ++length;
+            pk_u32 bits = (pk_u32)number->as.i;
+            size_t length = sizeof(bits);
+
+            while ((length > 1) && (((bits >> ((length - 1) * 8)) & 0xff) == 0)) {
+                --length;
             }
 
-            pk_u32 bits = (pk_u32)number->as.i;
             for (size_t i = length; i > 0; --i) {
                 pk_writer_byte(lisp, (pk_u8)(bits >> ((i - 1) * 8)));
             }
