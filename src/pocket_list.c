@@ -146,6 +146,39 @@ PKAtom *pk_atom_list_rev_packed(Pocket lisp, PKAtoms atoms) {
     return acc.head;
 }
 
+void pk_atom_list_flatten_logic(Pocket lisp, PKAccum *acc, PKAtom *atom) {
+    switch (atom->header.type) {
+        case PK_ATOMTY_NIL: {
+            return;
+        }
+        case PK_ATOMTY_CONS: {
+            PKAtom *iter = atom;
+            while (pk_atom_is_cons(iter)) {
+                pk_accum_push(acc, iter->cons.car);
+                iter = iter->cons.cdr;
+            }
+            break;
+        }
+        default: {
+            PKStr ty = pk_ident_atomty(atom->header.type);
+            pk_errorf(lisp, "pk_atom_list_flatten: expected a list, got %.*s", (int)ty.length, ty.c);
+            break;
+        }
+    }
+}
+
+PKAtom *pk_atom_list_flatten_atom(Pocket lisp, PKAtom *list) {
+    PKAccum acc = pk_accum_new(lisp);
+    
+    PKAtom *iter = list;
+    while (pk_atom_is_cons(iter)) {
+        pk_atom_list_flatten_logic(lisp, &acc, iter->cons.car);
+        iter = iter->cons.cdr;
+    }
+    
+    return acc.head;
+}
+    
 PKAtom *pk_atom_list_flatten(Pocket lisp, PKAtoms lists) {
     if (lists.length == 0) {
         return &PK_ATOM_NIL;
@@ -153,25 +186,7 @@ PKAtom *pk_atom_list_flatten(Pocket lisp, PKAtoms lists) {
     
     PKAccum acc = pk_accum_new(lisp);
     for (size_t i = 0; i < lists.length; ++i) {
-        PKAtom *atom = lists.e[i];
-        switch (atom->header.type) {
-            case PK_ATOMTY_NIL: {
-                continue;
-            }
-            case PK_ATOMTY_CONS: {
-                PKAtom *iter = atom;
-                while (pk_atom_is_cons(iter)) {
-                    pk_accum_push(&acc, iter->cons.car);
-                    iter = iter->cons.cdr;
-                }
-                break;
-            }
-            default: {
-                PKStr ty = pk_ident_atomty(atom->header.type);
-                pk_errorf(lisp, "pk_atom_list_flatten: expected a list, got %.*s", (int)ty.length, ty.c);
-                break;
-            }
-        }
+        pk_atom_list_flatten_logic(lisp, &acc, lists.e[i]);
     }
     return acc.head;
 }

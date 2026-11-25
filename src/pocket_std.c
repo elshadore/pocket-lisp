@@ -691,7 +691,7 @@ void pk_fun_blob_filter(void *user_closure, Pocket lisp) {
 
 void pk_fun_flatten(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    pk_stack_push(lisp, pk_atom_list_flatten(lisp, pk_stack_slice(lisp)));
+    pk_stack_push(lisp, pk_atom_list_flatten_atom(lisp, pk_stack_get(lisp, 1)));
 }
 
 void pk_fun_append(void *user_closure, Pocket lisp) {

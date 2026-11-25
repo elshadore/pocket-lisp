@@ -627,6 +627,7 @@ PKAtom *pk_atom_assoc(Pocket lisp, PKAtom *alist, PKAtom *key);
 PKAtom *pk_atom_alist_to_plist(Pocket lisp, PKAtom *alist);
 PKAtom *pk_atom_plist_to_alist(Pocket lisp, PKAtom *plist);
 PKAtom *pk_atom_list_flatten(Pocket lisp, PKAtoms atoms);
+PKAtom *pk_atom_list_flatten_atom(Pocket lisp, PKAtom *list);
 PKAtom *pk_atom_list_cat(Pocket lisp, PKAtoms atoms);
 void pk_atom_list_to_array(Pocket lisp, PKAtom *list, PKArray *array);
 

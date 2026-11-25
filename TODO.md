@@ -11,28 +11,6 @@ The todo list for POCKET LISP
   - parsing
   
 - [ ] Other Functions
-  - ->number for string
-  - make-list 
-    - (make-list 10 'foo)
-  - make-string
-  - make-blob
-  - slice
-    (slice "foo bar baz" 4 6)
-  - string-numeric?
-  - string-alphabetic?
-  - string-whitespace?
-  - string-alphanumeric?
-  - string-graphic?
-  - string-upcase?
-  - string-downcase?
-  - string-upcase
-  - string-downcase
-  - string-map
-  - string-filter
-  - blob-map
-  - blob-filter
-  - flatten
-  
   - slice
   
 - [ ] Environment Letting (with Objects)
