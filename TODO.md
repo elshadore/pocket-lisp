@@ -22,7 +22,7 @@ The todo list for POCKET LISP
   - acos
   - atan
   - sqrt
-  - infinate?
+  - infinite?
   - nan?
   - zero?
   - positive?
@@ -47,8 +47,7 @@ The todo list for POCKET LISP
   - parsing
   
 - [ ] Other Functions
-  - list?
-    or cons nil
+  - ->number for string
   
 - [ ] Environment Letting (with Objects)
   - `(let-environment (var-object fun-object) ...)`
