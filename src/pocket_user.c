@@ -357,11 +357,21 @@ bool pk_is_circular(Pocket lisp, int stack_pointer) {
 }
 
 int pk_as_int(Pocket lisp, int number) {
-    return pk_atom_number_to_int(lisp, pk_atom_assert_number(lisp, pk_stack_get(lisp, number)), PK_NUMBER_CONV_FLOAT_CONV);
+    PKAtom *atom = pk_stack_get(lisp, number);
+    if (pk_atom_is_int(atom)) {
+        return pk_atom_number_to_int(lisp, (PKAtomNumber *)atom, PK_NUMBER_CONV_FLOAT_CONV);
+    } else {
+        return 0;
+    }
 }
 
 float pk_as_float(Pocket lisp, int number) {
-    return pk_atom_number_to_float(lisp, pk_atom_assert_number(lisp, pk_stack_get(lisp, number)), PK_NUMBER_CONV_FLOAT_CONV);
+    PKAtom *atom = pk_stack_get(lisp, number);
+    if (pk_atom_is_float(atom)) {
+        return pk_atom_number_to_float(lisp, (PKAtomNumber *)atom, PK_NUMBER_CONV_FLOAT_CONV);
+    } else {
+        return 0.0f;
+    }
 }
 
 PKBlob pk_as_blob(Pocket lisp, int blob) {
@@ -378,7 +388,6 @@ PKBlob pk_as_blob(Pocket lisp, int blob) {
             };
         }
         default: {
-            pk_error_type2(lisp, atom, PK_TYPE_STRING, PK_TYPE_BLOB);
             return PK_BLOB_EMPTY;
         }
     }
@@ -398,7 +407,6 @@ PKStr pk_as_string(Pocket lisp, int text) {
             };
         }
         default: {
-            pk_error_type2(lisp, atom, PK_TYPE_STRING, PK_TYPE_BLOB);
             return PK_STR_EMPTY;
         }
     }
