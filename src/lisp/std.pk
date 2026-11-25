@@ -143,3 +143,6 @@
 
 (defun table (:rest properties)
     (apply 'object 'Table properties))
+
+(defun list? (x)
+    (or (nil? x) (cons? x)))

@@ -15,9 +15,40 @@ The todo list for POCKET LISP
   need more to list here look at scheme reference
   - sin
   - cos
+  - tan
+  - exp
+  - log
+  - asin
+  - acos
+  - atan
+  - sqrt
+  - infinate?
+  - nan?
+  - zero?
+  - positive?
+  - negetive?
+  - odd?
+  - even?
+  - max
+  - min
+  - floor/
+  - floor-quotient
+  - floor-remainder
+  - truncate/
+  - truncate-quotient
+  - truncate-remainder
+  - floor
+  - ciel
+  - truncate
+  - round
+  - lerp
 - [ ] floats
   - printing
   - parsing
+  
+- [ ] Other Functions
+  - list?
+    or cons nil
   
 - [ ] Environment Letting (with Objects)
   - `(let-environment (var-object fun-object) ...)`

@@ -146,6 +146,9 @@
  "    (evlist (parse-list (file-read-string file))))\n" \
  "\n" \
  "(defun table (:rest properties)\n" \
- "    (apply 'object 'Table properties))\n"
+ "    (apply 'object 'Table properties))\n" \
+ "\n" \
+ "(defun list? (x)\n" \
+ "    (or (nil? x) (cons? x)))\n"
 
 #endif // POCKET_STD_H
