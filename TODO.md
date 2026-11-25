@@ -6,9 +6,6 @@ The todo list for POCKET LISP
 
 - [ ] Zig Build not Correctly Regenerating even after Generating Headers
 
-- [ ] Public Number Conv
-  - also for `as_string` and `as_blob`
-  
 - [ ] floats
   - printing
   - parsing
@@ -35,6 +32,8 @@ The todo list for POCKET LISP
   - blob-map
   - blob-filter
   - flatten
+  
+  - slice
   
 - [ ] Environment Letting (with Objects)
   - `(let-environment (var-object fun-object) ...)`
