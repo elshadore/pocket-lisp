@@ -798,6 +798,7 @@ PKAtom *pk_parse_atom_barred(Pocket lisp, PKParser *r, PK_SYMTY type);
 PKAtom *pk_parse_atom_keyword(Pocket lisp, PKParser *r);
 PKAtom *pk_parse_atom_string(Pocket lisp, PKParser *r);
 PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r);
+PKNum pk_parse_num(Pocket lisp, PKParser *r);
 PKAtom *pk_parse_atom_symbol(Pocket lisp, PKParser *r);
 PKAtom *pk_parse_atom_cons(Pocket lisp, PKParser *r);
 PKAtom *pk_parse_atom_blob(Pocket lisp, PKParser *r);

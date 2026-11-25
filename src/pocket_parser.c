@@ -240,7 +240,7 @@ bool pk_parser_is_base_digit(char c, int base) {
     return pk_char_is_hex(c) && pk_char_to_hex(c) < base;
 }
 
-PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r) {
+PKNum pk_parse_num(Pocket lisp, PKParser *r) {
     bool negetive = false;
 
     if (pk_pat(r) == '+' || pk_pat(r) == '-') {
@@ -267,7 +267,7 @@ PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r) {
 
         if (!pk_parser_is_base_digit(pk_pat(r), base)) {
             pk_parser_error(lisp, r, pk_str("expected digit character after number prefix"));
-            return &PK_ATOM_NIL;
+            return pk_num_int(0);
         }
 
         int acc = 0;
@@ -279,12 +279,12 @@ PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r) {
             acc = -acc;
         }
 
-        return (PKAtom *)pk_atom_int(lisp, acc);
+        return pk_num_int(acc);
     }
     
     if (!pk_char_is_digit(pk_pat(r))) {
         pk_parser_error(lisp, r, pk_str("expected digit character at start of number"));
-        return &PK_ATOM_NIL;
+        return pk_num_int(0);
     }
     
     int acc = pk_char_to_digit(pk_pat(r));
@@ -299,7 +299,7 @@ PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r) {
         char peek = '\0';
         if (!pk_parser_peek(r, &peek) || !pk_char_is_digit(peek)) {
             pk_parser_error(lisp, r, pk_str("expected digit character after decimal point in number"));
-            return &PK_ATOM_NIL;
+            return pk_num_int(0);
         }
 
         pk_parser_ince(lisp, r);
@@ -318,14 +318,18 @@ PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r) {
             dbl = -dbl;
         }
 
-        return (PKAtom *)pk_atom_float(lisp, (float)dbl);
+        return pk_num_float((float)dbl);
     }
 
     if (negetive) {
         acc = -acc;
     }
 
-    return (PKAtom *)pk_atom_int(lisp, acc);
+    return pk_num_int(acc);
+}
+
+PKAtom *pk_parse_atom_number(Pocket lisp, PKParser *r) {
+    return (PKAtom *)pk_atom_num(lisp, pk_parse_num(lisp, r));
 }
 
 PKAtom *pk_parse_atom_barred(Pocket lisp, PKParser *r, PK_SYMTY type) {
@@ -489,14 +493,14 @@ PKAtom *pk_parse_atom_blob(Pocket lisp, PKParser *r) {
         } else if (!pk_parser_is_number_prefix(r)) {
             pk_parser_error(lisp, r, pk_str("expected a number in blob"));
         } else {
-            PKAtomNumber *number = pk_atom_assert_number(lisp, pk_parse_atom_number(lisp, r));
-            if (number->num.num_type != PK_NUMTY_INT) {
+            PKNum number = pk_parse_num(lisp, r);
+            if (number.num_type != PK_NUMTY_INT) {
                 pk_parser_error(lisp, r, pk_str("blob elements must be integers"));
             }
-            if (number->num.as.i < 0 || number->num.as.i > UINT8_MAX) {
+            if (number.as.i < 0 || number.as.i > UINT8_MAX) {
                 pk_parser_error(lisp, r, pk_str("blob element is outside the byte range 0..255"));
             }
-            pk_writer_byte(lisp, (pk_u8)number->num.as.i);
+            pk_writer_byte(lisp, (pk_u8)number.as.i);
             first = false;
             whitespace = pk_parser_trim_whitespace(r);
         }
