@@ -96,6 +96,14 @@ PKBlob pk_blob_from(Pocket lisp, PKAtom *atom) {
     }
 }
 
+PKBlob pk_blob_from_empty_if_nil(Pocket lisp, PKAtom *atom) {
+    if (pk_atom_is_nil(atom)) {
+        return PK_BLOB_EMPTY;
+    } else {
+        return pk_blob_from(lisp, atom);
+    }
+}
+
 PKAtom *pk_atom_blob_split(Pocket lisp, PKAtomBlob *blob, PKAtom *pattern) {
     PKBlob source = blob->bytes;
     PKBlob sep = pk_blob_from(lisp, pattern);
@@ -158,7 +166,7 @@ PKAtomBlob *pk_atom_blob_make(Pocket lisp, size_t count, PKAtom *fill) {
         return &PK_ATOM_EMPTY_BLOB;
     }
 
-    PKBlob bytes = pk_blob_from(lisp, fill);
+    PKBlob bytes = pk_blob_from_empty_if_nil(lisp, fill);
 
     pk_writer_reset(lisp);
 
