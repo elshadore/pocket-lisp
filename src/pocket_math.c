@@ -40,47 +40,37 @@ PKAtomNumber *pk_atom_number_mod(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *r
 }
 
 #define PK_TEMPLATE_MATH_LOGIC_OP(op_) \
-    PKAtomNumber *nlhs = pk_atom_assert_number(lisp, lhs); \
-    PKAtomNumber *nrhs = pk_atom_assert_number(lisp, rhs); \
-    switch (nlhs->num.num_type) { \
-        case PK_NUMTY_INT: { \
-            switch (nrhs->num.num_type) { \
-                case PK_NUMTY_INT: return  nlhs->num.as.i op_ nrhs->num.as.i; \
-                case PK_NUMTY_FLOAT: return  (float)nlhs->num.as.i op_ nrhs->num.as.f; \
-                default: { \
-                    pk_errorf(lisp, "logic op " #op_ ": rhs has unknown number type %u", nrhs->num.num_type); \
-                    return false; \
-                } \
-            } \
+    (void)lisp; \
+    if (lhs->num.num_type == PK_NUMTY_INT) { \
+        if (rhs->num.num_type == PK_NUMTY_INT) { \
+            return lhs->num.as.i op_ rhs->num.as.i; \
+        } else { \
+            return (float)lhs->num.as.i op_ rhs->num.as.f; \
         } \
-        case PK_NUMTY_FLOAT: { \
-            switch (nrhs->num.num_type) { \
-                case PK_NUMTY_INT: return  nlhs->num.as.f op_ (float)nrhs->num.as.i; \
-                case PK_NUMTY_FLOAT: return  nlhs->num.as.f op_ nrhs->num.as.f; \
-                default: { \
-                    pk_errorf(lisp, "logic op " #op_ ": rhs has unknown number type %u", nrhs->num.num_type); \
-                    return false; \
-                } \
-            } \
-        } \
-        default: { \
-            pk_errorf(lisp, "logic op " #op_ ": lhs has unknown number type %u", nlhs->num.num_type); \
-            return false; \
+    } else { \
+        if (rhs->num.num_type == PK_NUMTY_INT) { \
+            return lhs->num.as.f op_ (float)rhs->num.as.i; \
+        } else { \
+            return lhs->num.as.f op_ rhs->num.as.f; \
         } \
     }
 
-bool pk_atom_lt(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
+bool pk_atom_number_eq(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
+    PK_TEMPLATE_MATH_LOGIC_OP(==)
+}
+
+bool pk_atom_number_lt(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
     PK_TEMPLATE_MATH_LOGIC_OP(<)
 }
 
-bool pk_atom_lte(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
+bool pk_atom_number_lte(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
     PK_TEMPLATE_MATH_LOGIC_OP(<=)
 }
 
-bool pk_atom_gt(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
+bool pk_atom_number_gt(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
     PK_TEMPLATE_MATH_LOGIC_OP(>)
 }
 
-bool pk_atom_gte(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
+bool pk_atom_number_gte(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
     PK_TEMPLATE_MATH_LOGIC_OP(>=)
 }

@@ -134,6 +134,10 @@ bool pk_atom_symbol_cmp(PKAtomSymbol *symbol, PKStr comp) {
     return pk_str_eq(symbol->name->str, comp);
 }
 
+bool pk_atom_keyword_eq(Pocket lisp, PKAtomKeyword *lhs, PKAtomKeyword *rhs) {
+    return pk_atom_string_eq(lisp, lhs->name, rhs->name);
+}
+
 bool pk_atom_keyword_cmp(PKAtomKeyword *keyword, PKStr comp) {
     return pk_str_eq(keyword->name->str, comp);
 }

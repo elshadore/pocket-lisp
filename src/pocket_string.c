@@ -156,6 +156,11 @@ bool pk_atom_is_string(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_STRING;
 }
 
+bool pk_atom_string_eq(Pocket lisp, PKAtomString *lhs, PKAtomString *rhs) {
+    (void)lisp;
+    return pk_str_eq(lhs->str, rhs->str);
+}
+
 PKAtomString *pk_atom_assert_string(Pocket lisp, PKAtom *atom) {
     if (!pk_atom_is_string(atom)) {
         pk_error_type(lisp, atom, PK_TYPE_STRING);

@@ -209,28 +209,11 @@ bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
         return true;
     }
 
-    // TODO: think about this.
-    /* PKStr ltext = PK_STR_EMPTY; */
-    /* PKStr rtext = PK_STR_EMPTY; */
-    /* if (pk_atom_text(lhs, &ltext) && pk_atom_text(rhs, &rtext)) { */
-    /*     return pk_str_eq(ltext, rtext); */
-    /* } */
-
     switch (lhs->header.type) {
-        case PK_ATOMTY_NUMBER: {
-            if (lhs->number.num.num_type != rhs->number.num.num_type) {
-                return false;
-            }
-            switch (lhs->number.num.num_type) {
-                case PK_NUMTY_INT: {
-                    return lhs->number.num.as.i == rhs->number.num.as.i;
-                }
-                case PK_NUMTY_FLOAT: {
-                    return lhs->number.num.as.f == rhs->number.num.as.f;
-                }
-                default: return false;
-            }
-        }
+        case PK_ATOMTY_STRING: return pk_atom_string_eq(lisp, (PKAtomString *)lhs, (PKAtomString *)rhs);
+        case PK_ATOMTY_KEYWORD: return pk_atom_keyword_eq(lisp, (PKAtomKeyword *)lhs, (PKAtomKeyword *)rhs);
+        case PK_ATOMTY_BLOB: return pk_atom_blob_eq(lisp, (PKAtomBlob *)lhs, (PKAtomBlob *)rhs);
+        case PK_ATOMTY_NUMBER: return pk_atom_number_eq(lisp, (PKAtomNumber *)lhs, (PKAtomNumber *)rhs);
         default: return false;
     }
 }

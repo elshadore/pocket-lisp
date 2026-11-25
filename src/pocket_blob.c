@@ -134,6 +134,11 @@ PKAtom *pk_atom_blob_split(Pocket lisp, PKAtomBlob *blob, PKAtom *pattern) {
     return acc.head;
 }
 
+bool pk_atom_blob_eq(Pocket lisp, PKAtomBlob *lhs, PKAtomBlob *rhs) {
+    (void)lisp;
+    return pk_blob_eq(lhs->bytes, rhs->bytes);
+}
+
 bool pk_atom_is_blob(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_BLOB;
 }
