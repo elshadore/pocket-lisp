@@ -152,7 +152,7 @@ size_t pk_hash_pointer(void *ptr) {
 }
 
 bool pk_float_is_whole(float floater, int *integer) {
-    if (((double)floater < (double)INT_MIN) || ((double)floater > (double)INT_MAX)) {
+    if (!(((double)floater >= (double)INT_MIN) && ((double)floater <= (double)INT_MAX))) {
         return false;
     }
 

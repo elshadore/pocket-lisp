@@ -119,6 +119,174 @@ void pk_fun_gte(void *user_closure, Pocket lisp) {
     pk_push_bool(lisp, true);
 }
 
+void pk_fun_sin(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_sin(lisp, number));
+}
+
+void pk_fun_cos(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_cos(lisp, number));
+}
+
+void pk_fun_tan(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_tan(lisp, number));
+}
+
+void pk_fun_exp(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_exp(lisp, number));
+}
+
+void pk_fun_log(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_log(lisp, number));
+}
+
+void pk_fun_asin(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_asin(lisp, number));
+}
+
+void pk_fun_acos(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_acos(lisp, number));
+}
+
+void pk_fun_atan(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_atan(lisp, number));
+}
+
+void pk_fun_sqrt(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_sqrt(lisp, number));
+}
+
+void pk_fun_floor(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_floor(lisp, number));
+}
+
+void pk_fun_ceil(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_ceil(lisp, number));
+}
+
+void pk_fun_truncate(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_truncate(lisp, number));
+}
+
+void pk_fun_round(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_round(lisp, number));
+}
+
+void pk_fun_is_infinite(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_push_bool(lisp, pk_atom_number_is_infinite(lisp, number));
+}
+
+void pk_fun_is_nan(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_push_bool(lisp, pk_atom_number_is_nan(lisp, number));
+}
+
+void pk_fun_is_zero(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_push_bool(lisp, pk_atom_number_is_zero(lisp, number));
+}
+
+void pk_fun_is_positive(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_push_bool(lisp, pk_atom_number_is_positive(lisp, number));
+}
+
+void pk_fun_is_negative(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_push_bool(lisp, pk_atom_number_is_negative(lisp, number));
+}
+
+void pk_fun_is_odd(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_push_bool(lisp, pk_atom_number_is_odd(lisp, number));
+}
+
+void pk_fun_is_even(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *number = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    pk_push_bool(lisp, pk_atom_number_is_even(lisp, number));
+}
+
+void pk_fun_floor_div(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *lhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    PKAtomNumber *rhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, 2));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_floor_div(lisp, lhs, rhs));
+}
+
+void pk_fun_floor_remainder(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *lhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    PKAtomNumber *rhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, 2));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_floor_remainder(lisp, lhs, rhs));
+}
+
+void pk_fun_truncate_div(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *lhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    PKAtomNumber *rhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, 2));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_truncate_div(lisp, lhs, rhs));
+}
+
+void pk_fun_truncate_remainder(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *lhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    PKAtomNumber *rhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, 2));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_truncate_remainder(lisp, lhs, rhs));
+}
+
+void pk_fun_max(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtoms slice = pk_stack_slice(lisp);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_max_vec(lisp, slice));
+}
+
+void pk_fun_min(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtoms slice = pk_stack_slice(lisp);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_min_vec(lisp, slice));
+}
+
+void pk_fun_lerp(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomNumber *from = pk_atom_assert_number(lisp, pk_stack_get(lisp, 1));
+    PKAtomNumber *to = pk_atom_assert_number(lisp, pk_stack_get(lisp, 2));
+    PKAtomNumber *time = pk_atom_assert_number(lisp, pk_stack_get(lisp, 3));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_lerp(lisp, from, to, time));
+}
+
 void pk_fun_cons(void *user_closure, Pocket lisp) {
     (void)user_closure;
     pk_push_cons(lisp, 1, 2);
@@ -652,6 +820,42 @@ void pk_std_load_cfun(Pocket lisp) {
         {.symbol = pk_str("/"), .fun = pk_fun_div, .args = 2, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("%"), .fun = pk_fun_mod, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("mod"), .fun = pk_fun_mod, .args = 2, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("sin"), .fun = pk_fun_sin, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("cos"), .fun = pk_fun_cos, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("tan"), .fun = pk_fun_tan, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("exp"), .fun = pk_fun_exp, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("log"), .fun = pk_fun_log, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("asin"), .fun = pk_fun_asin, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("acos"), .fun = pk_fun_acos, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("atan"), .fun = pk_fun_atan, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("sqrt"), .fun = pk_fun_sqrt, .args = 1, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("infinite?"), .fun = pk_fun_is_infinite, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("nan?"), .fun = pk_fun_is_nan, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("zero?"), .fun = pk_fun_is_zero, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("positive?"), .fun = pk_fun_is_positive, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("negative?"), .fun = pk_fun_is_negative, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("negetive?"), .fun = pk_fun_is_negative, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("odd?"), .fun = pk_fun_is_odd, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("even?"), .fun = pk_fun_is_even, .args = 1, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("max"), .fun = pk_fun_max, .args = 2, .arity = PK_ARITY_VARIADIC},
+        {.symbol = pk_str("min"), .fun = pk_fun_min, .args = 2, .arity = PK_ARITY_VARIADIC},
+
+        {.symbol = pk_str("floor/"), .fun = pk_fun_floor_div, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("floor-quotient"), .fun = pk_fun_floor_div, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("floor-remainder"), .fun = pk_fun_floor_remainder, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("truncate/"), .fun = pk_fun_truncate_div, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("truncate-quotient"), .fun = pk_fun_truncate_div, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("truncate-remainder"), .fun = pk_fun_truncate_remainder, .args = 2, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("floor"), .fun = pk_fun_floor, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("ceil"), .fun = pk_fun_ceil, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("ciel"), .fun = pk_fun_ceil, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("truncate"), .fun = pk_fun_truncate, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("round"), .fun = pk_fun_round, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("lerp"), .fun = pk_fun_lerp, .args = 3, .arity = PK_ARITY_NORMAL},
 
         {.symbol = pk_str("<"), .fun = pk_fun_lt, .args = 2, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("<="), .fun = pk_fun_lte, .args = 2, .arity = PK_ARITY_VARIADIC},

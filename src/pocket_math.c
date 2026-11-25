@@ -1,4 +1,5 @@
 #include "pocket_internals.h"
+#include <math.h>
 
 PKNum pk_num_int(int integer) {
     return (PKNum) {
@@ -224,4 +225,166 @@ bool pk_atom_number_gt_vec(Pocket lisp, PKAtoms vec) {
 
 bool pk_atom_number_gte_vec(Pocket lisp, PKAtoms vec) {
     PK_TEMPLATE_MATH_LOGIC_VEC_OP(gte)
+}
+
+PKAtomNumber *pk_atom_number_sin(Pocket lisp, PKAtomNumber *number) {
+    float result = sinf(pk_num_to_float(number->num));
+    return pk_atom_num(lisp, pk_num_float(result));
+}
+
+PKAtomNumber *pk_atom_number_cos(Pocket lisp, PKAtomNumber *number) {
+    float result = cosf(pk_num_to_float(number->num));
+    return pk_atom_num(lisp, pk_num_float(result));
+}
+
+PKAtomNumber *pk_atom_number_tan(Pocket lisp, PKAtomNumber *number) {
+    float result = tanf(pk_num_to_float(number->num));
+    return pk_atom_num(lisp, pk_num_float(result));
+}
+
+PKAtomNumber *pk_atom_number_exp(Pocket lisp, PKAtomNumber *number) {
+    float result = expf(pk_num_to_float(number->num));
+    return pk_atom_num(lisp, pk_num_float(result));
+}
+
+PKAtomNumber *pk_atom_number_log(Pocket lisp, PKAtomNumber *number) {
+    float result = logf(pk_num_to_float(number->num));
+    return pk_atom_num(lisp, pk_num_float(result));
+}
+
+PKAtomNumber *pk_atom_number_asin(Pocket lisp, PKAtomNumber *number) {
+    float result = asinf(pk_num_to_float(number->num));
+    return pk_atom_num(lisp, pk_num_float(result));
+}
+
+PKAtomNumber *pk_atom_number_acos(Pocket lisp, PKAtomNumber *number) {
+    float result = acosf(pk_num_to_float(number->num));
+    return pk_atom_num(lisp, pk_num_float(result));
+}
+
+PKAtomNumber *pk_atom_number_atan(Pocket lisp, PKAtomNumber *number) {
+    float result = atanf(pk_num_to_float(number->num));
+    return pk_atom_num(lisp, pk_num_float(result));
+}
+
+PKAtomNumber *pk_atom_number_sqrt(Pocket lisp, PKAtomNumber *number) {
+    float result = sqrtf(pk_num_to_float(number->num));
+    return pk_atom_num(lisp, pk_num_float(result));
+}
+
+PKAtomNumber *pk_atom_number_floor(Pocket lisp, PKAtomNumber *number) {
+    float result = floorf(pk_num_to_float(number->num));
+    return pk_atom_num(lisp, pk_num_float(result));
+}
+
+PKAtomNumber *pk_atom_number_ceil(Pocket lisp, PKAtomNumber *number) {
+    float result = ceilf(pk_num_to_float(number->num));
+    return pk_atom_num(lisp, pk_num_float(result));
+}
+
+PKAtomNumber *pk_atom_number_truncate(Pocket lisp, PKAtomNumber *number) {
+    float result = truncf(pk_num_to_float(number->num));
+    return pk_atom_num(lisp, pk_num_float(result));
+}
+
+PKAtomNumber *pk_atom_number_round(Pocket lisp, PKAtomNumber *number) {
+    float result = roundf(pk_num_to_float(number->num));
+    return pk_atom_num(lisp, pk_num_float(result));
+}
+
+bool pk_atom_number_is_infinite(Pocket lisp, PKAtomNumber *number) {
+    (void)lisp;
+    return isinf(pk_num_to_float(number->num)) != 0;
+}
+
+bool pk_atom_number_is_nan(Pocket lisp, PKAtomNumber *number) {
+    (void)lisp;
+    return isnan(pk_num_to_float(number->num)) != 0;
+}
+
+bool pk_atom_number_is_zero(Pocket lisp, PKAtomNumber *number) {
+    (void)lisp;
+    return pk_num_to_float(number->num) == 0.0f;
+}
+
+bool pk_atom_number_is_positive(Pocket lisp, PKAtomNumber *number) {
+    (void)lisp;
+    return pk_num_to_float(number->num) > 0.0f;
+}
+
+bool pk_atom_number_is_negative(Pocket lisp, PKAtomNumber *number) {
+    (void)lisp;
+    return pk_num_to_float(number->num) < 0.0f;
+}
+
+bool pk_atom_number_is_odd(Pocket lisp, PKAtomNumber *number) {
+    int integer = pk_atom_number_to_int(lisp, number, PK_NUMBER_CONV_STRICT);
+    return (integer % 2) != 0;
+}
+
+bool pk_atom_number_is_even(Pocket lisp, PKAtomNumber *number) {
+    int integer = pk_atom_number_to_int(lisp, number, PK_NUMBER_CONV_STRICT);
+    return (integer % 2) == 0;
+}
+
+PKAtomNumber *pk_atom_number_max_vec(Pocket lisp, PKAtoms vec) {
+    PKAtomNumber *result = pk_atom_assert_number(lisp, vec.e[0]);
+    for (size_t i = 1; i < vec.length; ++i) {
+        PKAtomNumber *next = pk_atom_assert_number(lisp, vec.e[i]);
+        if (pk_atom_number_gt(lisp, next, result)) {
+            result = next;
+        }
+    }
+    return result;
+}
+
+PKAtomNumber *pk_atom_number_min_vec(Pocket lisp, PKAtoms vec) {
+    PKAtomNumber *result = pk_atom_assert_number(lisp, vec.e[0]);
+    for (size_t i = 1; i < vec.length; ++i) {
+        PKAtomNumber *next = pk_atom_assert_number(lisp, vec.e[i]);
+        if (pk_atom_number_lt(lisp, next, result)) {
+            result = next;
+        }
+    }
+    return result;
+}
+
+PKAtomNumber *pk_atom_number_floor_div(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
+    int a = pk_num_to_int(lhs->num);
+    int b = pk_num_to_int(rhs->num);
+    int q = a / b;
+    int r = a % b;
+    if ((r != 0) && ((r < 0) != (b < 0))) {
+        q -= 1;
+    }
+    return pk_atom_int(lisp, q);
+}
+
+PKAtomNumber *pk_atom_number_floor_remainder(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
+    int a = pk_num_to_int(lhs->num);
+    int b = pk_num_to_int(rhs->num);
+    int r = a % b;
+    if ((r != 0) && ((r < 0) != (b < 0))) {
+        r += b;
+    }
+    return pk_atom_int(lisp, r);
+}
+
+PKAtomNumber *pk_atom_number_truncate_div(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
+    int a = pk_num_to_int(lhs->num);
+    int b = pk_num_to_int(rhs->num);
+    return pk_atom_int(lisp, a / b);
+}
+
+PKAtomNumber *pk_atom_number_truncate_remainder(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
+    int a = pk_num_to_int(lhs->num);
+    int b = pk_num_to_int(rhs->num);
+    return pk_atom_int(lisp, a % b);
+}
+
+PKAtomNumber *pk_atom_number_lerp(Pocket lisp, PKAtomNumber *from, PKAtomNumber *to, PKAtomNumber *delta) {
+    float a = pk_num_to_float(from->num);
+    float b = pk_num_to_float(to->num);
+    float t = pk_num_to_float(delta->num);
+    return pk_atom_num(lisp, pk_num_float(a + ((b - a) * t)));
 }
