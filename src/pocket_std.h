@@ -149,6 +149,15 @@
  "    (apply 'object 'Table properties))\n" \
  "\n" \
  "(defun list? (x)\n" \
- "    (or (nil? x) (cons? x)))\n"
+ "    (or (nil? x) (cons? x)))\n" \
+ "\n" \
+ "(defun sequence? (x)\n" \
+ "    (or (nil? x) (cons? x) (string? x) (blob? x)))\n" \
+ "\n" \
+ "(defun cat-a-list (x)\n" \
+ "    (when x\n" \
+ "        (if (cdr x)\n" \
+ "            (apply 'cat x)\n" \
+ "            (car x))))\n"
 
 #endif // POCKET_STD_H

@@ -81,8 +81,8 @@ PKAtomNumber *pk_atom_number_div(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *r
 }
 
 PKAtomNumber *pk_atom_number_mod(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
-    int a = pk_atom_number_to_int(lisp, lhs, PK_NUMBER_CONV_FLOAT_CONV);
-    int b = pk_atom_number_to_int(lisp, rhs, PK_NUMBER_CONV_FLOAT_CONV);
+    int a = pk_num_to_int(lhs->num);
+    int b = pk_num_to_int(rhs->num);
     int result = a % b;
     return pk_atom_int(lisp, result);
 }
@@ -102,6 +102,22 @@ PKAtomNumber *pk_atom_number_mod(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *r
             return lhs->num.as.f op_ rhs->num.as.f; \
         } \
     }
+
+PKAtomNumber *pk_atom_number_add_vec(Pocket lisp, PKAtoms vec) {
+    if (vec.length == 0) {
+        return &PK_ATOM_NUMBER_CACHE[0];
+    } else if (vec.length == 1) {
+        return pk_atom_assert_number(lisp, vec.e[0]);
+    } else {
+        PKAtomNumber *lhs = pk_atom_assert_number(lisp, vec.e[0]);
+        PKAtomNumber *rhs = pk_atom_assert_number(lisp, vec.e[1]);
+        PKNum acc = pk_num_add(lisp, lhs->num, rhs->num);
+        for (size_t i = 2; i < vec.length; ++i) {
+            acc = pk_num_add(lisp, acc, pk_atom_assert_number(lisp, vec.e[i])->num);
+        }
+        return pk_atom_num(lisp, acc);
+    }
+}
 
 bool pk_atom_number_eq(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
     PK_TEMPLATE_MATH_LOGIC_OP(==)
