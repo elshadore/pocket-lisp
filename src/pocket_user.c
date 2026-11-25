@@ -286,19 +286,27 @@ bool pk_object_eq(Pocket lisp, int lhs, int rhs) {
 }
 
 bool pk_lt(Pocket lisp, int lhs, int rhs) {
-    return pk_atom_lt(lisp, pk_stack_get(lisp, lhs), pk_stack_get(lisp, rhs));
+    PKAtomNumber *alhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, lhs));
+    PKAtomNumber *arhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, rhs));
+    return pk_atom_number_lt(lisp, alhs, arhs);
 }
 
 bool pk_lte(Pocket lisp, int lhs, int rhs) {
-    return pk_atom_lte(lisp, pk_stack_get(lisp, lhs), pk_stack_get(lisp, rhs));
+    PKAtomNumber *alhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, lhs));
+    PKAtomNumber *arhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, rhs));
+    return pk_atom_number_lte(lisp, alhs, arhs);
 }
 
 bool pk_gt(Pocket lisp, int lhs, int rhs) {
-    return pk_atom_gt(lisp, pk_stack_get(lisp, lhs), pk_stack_get(lisp, rhs));
+    PKAtomNumber *alhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, lhs));
+    PKAtomNumber *arhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, rhs));
+    return pk_atom_number_gt(lisp, alhs, arhs);
 }
 
 bool pk_gte(Pocket lisp, int lhs, int rhs) {
-    return pk_atom_gte(lisp, pk_stack_get(lisp, lhs), pk_stack_get(lisp, rhs));
+    PKAtomNumber *alhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, lhs));
+    PKAtomNumber *arhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, rhs));
+    return pk_atom_number_gte(lisp, alhs, arhs);
 }
 
 void pk_reverse(Pocket lisp, int seq) {
