@@ -169,11 +169,7 @@ typedef struct PKNum_ {
 
 typedef struct PKAtomNumber_ {
     PKAtomHeader header;
-    pk_u8 num_type;
-    union {
-        int i;
-        float f;
-    } as;
+    PKNum num;
 } PKAtomNumber;
 
 typedef struct PKAtomString_ {

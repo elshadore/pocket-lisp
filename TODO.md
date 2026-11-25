@@ -48,6 +48,27 @@ The todo list for POCKET LISP
   
 - [ ] Other Functions
   - ->number for string
+  - make-list 
+    - (make-list 10 'foo)
+  - make-string
+  - make-blob
+  - slice
+    (slice "foo bar baz" 4 6)
+  - numeric?
+  - alphabetic?
+  - whitespace?
+  - alphanumeric?
+  - graphic?
+  - upcase?
+  - downcase?
+  - upcase
+  - downcase
+  - string-map
+  - string-filter
+  - blob-map
+  - blob-filter
+  - flatten
+  - cat-a-list
   
 - [ ] Environment Letting (with Objects)
   - `(let-environment (var-object fun-object) ...)`
