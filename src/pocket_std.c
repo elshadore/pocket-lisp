@@ -557,52 +557,28 @@ void pk_fun_array(void *user_closure, Pocket lisp) {
 
 void pk_fun_make_array(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    size_t count = 0;
-    {
-        PKAtom *acount = pk_stack_get(lisp, 1);
-        if (!pk_atom_is_nil(acount)) {
-            count = pk_atom_number_to_size_t(lisp, pk_atom_assert_number(lisp, acount));
-        }
-    }
+    size_t count = pk_atom_number_to_size_t_or(lisp, pk_stack_get(lisp, 1), 0);
     PKAtom *fill = pk_stack_get(lisp, 2);
     pk_stack_push(lisp, (PKAtom *)pk_atom_array_make(lisp, count, fill));
 }
 
 void pk_fun_make_list(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    size_t count = 0;
-    {
-        PKAtom *acount = pk_stack_get(lisp, 1);
-        if (!pk_atom_is_nil(acount)) {
-            count = pk_atom_number_to_size_t(lisp, pk_atom_assert_number(lisp, acount));
-        }
-    }
+    size_t count = pk_atom_number_to_size_t_or(lisp, pk_stack_get(lisp, 1), 0);
     PKAtom *fill = pk_stack_get(lisp, 2);
     pk_stack_push(lisp, pk_atom_list_make(lisp, count, fill));
 }
 
 void pk_fun_make_string(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    size_t count = 0;
-    {
-        PKAtom *acount = pk_stack_get(lisp, 1);
-        if (!pk_atom_is_nil(acount)) {
-            count = pk_atom_number_to_size_t(lisp, pk_atom_assert_number(lisp, acount));
-        }
-    }
-    PKAtom *fill = pk_stack_get(lisp, 2);
+    size_t count = pk_atom_number_to_size_t_or(lisp, pk_stack_get(lisp, 1), 0);
+    PKAtomString *fill = pk_atom_assert_string_nil_is_empty(lisp, pk_stack_get(lisp, 2));
     pk_stack_push(lisp, (PKAtom *)pk_atom_string_make(lisp, count, fill));
 }
 
 void pk_fun_make_blob(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    size_t count = 0;
-    {
-        PKAtom *acount = pk_stack_get(lisp, 1);
-        if (!pk_atom_is_nil(acount)) {
-            count = pk_atom_number_to_size_t(lisp, pk_atom_assert_number(lisp, acount));
-        }
-    }
+    size_t count = pk_atom_number_to_size_t_or(lisp, pk_stack_get(lisp, 1), 0);
     PKAtom *fill = pk_stack_get(lisp, 2);
     pk_stack_push(lisp, (PKAtom *)pk_atom_blob_make(lisp, count, fill));
 }

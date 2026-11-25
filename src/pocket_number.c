@@ -38,7 +38,7 @@ PKAtomNumber *pk_atom_size_t(Pocket lisp, size_t value) {
     }
     return pk_atom_int(lisp, (int)value);
 }
-    
+
 PKAtomNumber *pk_atom_byte(Pocket lisp, pk_u8 byte) {
     return pk_atom_int(lisp, (int)byte);
 }
@@ -122,6 +122,14 @@ size_t pk_atom_number_to_size_t(Pocket lisp, PKAtomNumber *number) {
             return 0;
         }
         default: return 0;
+    }
+}
+
+size_t pk_atom_number_to_size_t_or(Pocket lisp, PKAtom *atom, size_t or) {
+    if (pk_atom_is_nil(atom)) {
+        return or;
+    } else {
+        return pk_atom_number_to_size_t(lisp, pk_atom_assert_number(lisp, atom));
     }
 }
 

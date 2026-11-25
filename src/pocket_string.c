@@ -168,6 +168,14 @@ PKAtomString *pk_atom_assert_string(Pocket lisp, PKAtom *atom) {
     return (PKAtomString *)atom;
 }
 
+PKAtomString *pk_atom_assert_string_nil_is_empty(Pocket lisp, PKAtom *atom) {
+    if (pk_atom_is_nil(atom)) {
+        return &PK_ATOM_EMPTY_STRING;
+    } else {
+        return pk_atom_assert_string(lisp, atom);
+    }
+}
+
 bool pk_atom_string_cmp(PKAtomString *string, PKStr comp) {
     return pk_str_eq(string->str, comp);
 }
@@ -190,16 +198,11 @@ bool pk_char_is_graphic(char c) {
     return (byte >= 0x21) && (byte <= 0x7e);
 }
 
-PKAtomString *pk_atom_string_make(Pocket lisp, size_t count, PKAtom *fill) {
-    if (count == 0 || pk_atom_is_nil(fill)) {
-        return &PK_ATOM_EMPTY_STRING;
-    }
-
-    PKAtomString *string = pk_generic_to_string(lisp, fill);
+PKAtomString *pk_atom_string_make(Pocket lisp, size_t count, PKAtomString *fill) {
     pk_writer_reset(lisp);
 
     for (size_t i = 0; i < count; ++i) {
-        pk_writer_string(lisp, string->str);
+        pk_writer_string(lisp, fill->str);
     }
 
     PKAtomString *result = pk_atom_string(lisp, pk_writer_str(lisp));

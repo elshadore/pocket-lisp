@@ -538,6 +538,7 @@ PKAtom *pk_atom_assert_nil(Pocket lisp, PKAtom *atom);
 PKAtomCons *pk_atom_assert_cons(Pocket lisp, PKAtom *atom);
 PKAtomNumber *pk_atom_assert_number(Pocket lisp, PKAtom *atom);
 PKAtomString *pk_atom_assert_string(Pocket lisp, PKAtom *atom);
+PKAtomString *pk_atom_assert_string_nil_is_empty(Pocket lisp, PKAtom *atom);
 PKAtomSymbol *pk_atom_assert_symbol(Pocket lisp, PKAtom *atom);
 PKAtomKeyword *pk_atom_assert_keyword(Pocket lisp, PKAtom *atom);
 PKAtomLFun *pk_atom_assert_lfun(Pocket lisp, PKAtom *atom);
@@ -562,7 +563,7 @@ PKAtomString *pk_atom_string_reverse(Pocket lisp, PKStr input);
 PKAtomString *pk_atom_string_el(Pocket lisp, PKAtomString *string, size_t index);
 PKAtom *pk_atom_string_split(Pocket lisp, PKAtomString *string, PKAtomString *pattern);
 bool pk_atom_string_eq(Pocket lisp, PKAtomString *lhs, PKAtomString *rhs);
-PKAtomString *pk_atom_string_make(Pocket lisp, size_t count, PKAtom *fill);
+PKAtomString *pk_atom_string_make(Pocket lisp, size_t count, PKAtomString *fill);
 bool pk_atom_string_is_numeric(PKAtomString *string);
 bool pk_atom_string_is_alphabetic(PKAtomString *string);
 bool pk_atom_string_is_whitespace(PKAtomString *string);
@@ -689,6 +690,7 @@ PKAtomNumber *pk_atom_number_lerp(Pocket lisp, PKAtomNumber *from, PKAtomNumber 
 
 int pk_atom_number_to_int(Pocket lisp, PKAtomNumber *number, PK_NUMBER_CONV conv);
 size_t pk_atom_number_to_size_t(Pocket lisp, PKAtomNumber *number);
+size_t pk_atom_number_to_size_t_or(Pocket lisp, PKAtom *atom, size_t or);
 float pk_atom_number_to_float(Pocket lisp, PKAtomNumber *number, PK_NUMBER_CONV conv);
 int pk_atom_as_int(PKAtom *atom);
 float pk_atom_as_float(PKAtom *atom);
