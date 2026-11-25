@@ -56,21 +56,20 @@ The todo list for POCKET LISP
   - make-blob
   - slice
     (slice "foo bar baz" 4 6)
-  - numeric?
-  - alphabetic?
-  - whitespace?
-  - alphanumeric?
-  - graphic?
-  - upcase?
-  - downcase?
-  - upcase
-  - downcase
+  - string-numeric?
+  - string-alphabetic?
+  - string-whitespace?
+  - string-alphanumeric?
+  - string-graphic?
+  - string-upcase?
+  - string-downcase?
+  - string-upcase
+  - string-downcase
   - string-map
   - string-filter
   - blob-map
   - blob-filter
   - flatten
-  - cat-a-list
   
 - [ ] Environment Letting (with Objects)
   - `(let-environment (var-object fun-object) ...)`

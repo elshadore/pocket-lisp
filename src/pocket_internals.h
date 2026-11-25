@@ -616,6 +616,7 @@ void pk_atom_list_to_array(Pocket lisp, PKAtom *list, PKArray *array);
 
 PKAtomNumber *pk_atom_int(Pocket lisp, int integer);
 PKAtomNumber *pk_atom_float(Pocket lisp, float floater);
+PKAtomNumber *pk_atom_num(Pocket lisp, PKNum num);
 PKAtomNumber *pk_atom_byte(Pocket lisp, pk_u8 byte);
 PKAtomNumber *pk_atom_size_t(Pocket lisp, size_t value);
 PKBlob pk_atom_number_to_bytes(PKAtomNumber *number);
@@ -637,6 +638,15 @@ size_t pk_atom_number_to_size_t(Pocket lisp, PKAtomNumber *number);
 float pk_atom_number_to_float(Pocket lisp, PKAtomNumber *number, PK_NUMBER_CONV conv);
 int pk_atom_as_int(PKAtom *atom);
 float pk_atom_as_float(PKAtom *atom);
+
+PKNum pk_num_int(int integer);
+PKNum pk_num_float(float floater);
+int pk_num_to_int(PKNum num);
+float pk_num_to_float(PKNum num);
+PKNum pk_num_add(Pocket lisp, PKNum lhs, PKNum rhs);
+PKNum pk_num_sub(Pocket lisp, PKNum lhs, PKNum rhs);
+PKNum pk_num_mul(Pocket lisp, PKNum lhs, PKNum rhs);
+PKNum pk_num_div(Pocket lisp, PKNum lhs, PKNum rhs);
 
 PKAtomSymbol *pk_atom_gensym(Pocket lisp);
 PKAtomSymbol *pk_atom_symbol(Pocket lisp, PKStr symbol);

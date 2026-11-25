@@ -12,13 +12,6 @@ PKAtomNumber *pk_atom_int(Pocket lisp, int integer) {
     return atom;
 }
 
-PKAtomNumber *pk_atom_size_t(Pocket lisp, size_t value) {
-    if (value > INT_MAX) {
-        pk_errorf(lisp, "cannot create an integer of size: %zu", value);
-    }
-    return pk_atom_int(lisp, (int)value);
-}
-    
 PKAtomNumber *pk_atom_float(Pocket lisp, float floater) {
     PKAtomNumber *atom = (PKAtomNumber *)pk_atom_alloc(lisp);
     atom->header.type = PK_ATOMTY_NUMBER;
@@ -27,6 +20,21 @@ PKAtomNumber *pk_atom_float(Pocket lisp, float floater) {
     return atom;
 }
 
+PKAtomNumber *pk_atom_num(Pocket lisp, PKNum num) {
+    if (num.num_type == PK_NUMTY_INT) {
+        return pk_atom_int(lisp, num.as.i);
+    } else {
+        return pk_atom_float(lisp, num.as.f);
+    }
+}
+
+PKAtomNumber *pk_atom_size_t(Pocket lisp, size_t value) {
+    if (value > INT_MAX) {
+        pk_errorf(lisp, "cannot create an integer of size: %zu", value);
+    }
+    return pk_atom_int(lisp, (int)value);
+}
+    
 PKAtomNumber *pk_atom_byte(Pocket lisp, pk_u8 byte) {
     return pk_atom_int(lisp, (int)byte);
 }
