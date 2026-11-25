@@ -429,7 +429,7 @@ void pk_fun_make_array(void *user_closure, Pocket lisp) {
     {
         PKAtom *acount = pk_stack_get(lisp, 1);
         if (!pk_atom_is_nil(acount)) {
-            count = pk_atom_to_size_t(lisp, acount);
+            count = pk_atom_number_to_size_t(lisp, pk_atom_assert_number(lisp, acount));
         }
     }
     PKAtom *fill = pk_stack_get(lisp, 2);
@@ -582,7 +582,7 @@ void pk_fun_plist_to_alist(void *user_closure, Pocket lisp) {
 
 void pk_fun_el(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    size_t index = pk_atom_to_size_t(lisp, pk_stack_get(lisp, 2));
+    size_t index = pk_atom_number_to_size_t(lisp, pk_atom_assert_number(lisp, pk_stack_get(lisp, 2)));
     pk_el(lisp, 1, index);
 }
 

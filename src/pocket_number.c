@@ -81,6 +81,74 @@ PKAtomBlob *pk_atom_number_to_bytes_trimmed(Pocket lisp, PKAtomNumber *number) {
     return result;
 }
 
+int pk_atom_number_to_int(Pocket lisp, PKAtomNumber *number, PK_NUMBER_CONV conv) {
+    switch (number->num.num_type) {
+        case PK_NUMTY_INT: return number->num.as.i;
+        case PK_NUMTY_FLOAT: {
+            if (conv == PK_NUMBER_CONV_STRICT) {
+                pk_errors(lisp, pk_str("pk_atom_to_int: float given, strict conversion does not allow float to int"));
+                return 0;
+            }
+            return (int)number->num.as.f;
+        }
+        default: return 0;
+    }
+}
+
+size_t pk_atom_number_to_size_t(Pocket lisp, PKAtomNumber *number) {
+    switch (number->num.num_type) {
+        case PK_NUMTY_INT: {
+            if (number->num.as.i < 0) {
+                pk_errorf(lisp, "integer: %d, is negative, expected a size_t", number->num.as.i);
+                return 0;
+            } else {
+                return (size_t)number->num.as.i;
+            }
+        }
+        case PK_NUMTY_FLOAT: {
+            pk_errors(lisp, pk_str("cannot convert number from a float"));
+            return 0;
+        }
+        default: return 0;
+    }
+}
+
+float pk_atom_number_to_float(Pocket lisp, PKAtomNumber *number, PK_NUMBER_CONV conv) {
+    switch (number->num.num_type) {
+        case PK_NUMTY_INT: {
+            if (conv == PK_NUMBER_CONV_STRICT) {
+                pk_errors(lisp, pk_str("pk_atom_to_float: int given, strict conversion does not allow int to float"));
+                return 0.0f;
+            }
+            return (float)number->num.as.i;
+        }
+        case PK_NUMTY_FLOAT: return number->num.as.f;
+        default: return 0.0f;
+    }
+}
+
+int pk_atom_as_int(PKAtom *atom) {
+    if (!pk_atom_is_number(atom)) {
+        return 0;
+    }
+    switch (atom->number.num.num_type) {
+        case PK_NUMTY_INT: return atom->number.num.as.i;
+        case PK_NUMTY_FLOAT: return (int)atom->number.num.as.f;
+        default: return 0;
+    }
+}
+
+float pk_atom_as_float(PKAtom *atom) {
+    if (!pk_atom_is_number(atom)) {
+        return 0.0f;
+    }
+    switch (atom->number.num.num_type) {
+        case PK_NUMTY_INT: return (float)atom->number.num.as.i;
+        case PK_NUMTY_FLOAT: return atom->number.num.as.f;
+        default: return 0.0f;
+    }
+}
+
 bool pk_atom_is_number(PKAtom *atom) {
     return atom->header.type == PK_ATOMTY_NUMBER;
 }

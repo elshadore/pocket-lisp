@@ -150,33 +150,33 @@ void pk_set_cdr(Pocket lisp, int cons, int newcdr) {
 }
 
 void pk_add(Pocket lisp, int lhs, int rhs) {
-    PKAtom *alhs = pk_stack_get(lisp, lhs);
-    PKAtom *arhs = pk_stack_get(lisp, rhs);
-    pk_stack_push(lisp, pk_atom_add(lisp, alhs, arhs));
+    PKAtomNumber *alhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, lhs));
+    PKAtomNumber *arhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, rhs));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_add(lisp, alhs, arhs));
 }
 
 void pk_sub(Pocket lisp, int lhs, int rhs) {
-    PKAtom *alhs = pk_stack_get(lisp, lhs);
-    PKAtom *arhs = pk_stack_get(lisp, rhs);
-    pk_stack_push(lisp, pk_atom_sub(lisp, alhs, arhs));
+    PKAtomNumber *alhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, lhs));
+    PKAtomNumber *arhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, rhs));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_sub(lisp, alhs, arhs));
 }
 
 void pk_mul(Pocket lisp, int lhs, int rhs) {
-    PKAtom *alhs = pk_stack_get(lisp, lhs);
-    PKAtom *arhs = pk_stack_get(lisp, rhs);
-    pk_stack_push(lisp, pk_atom_mul(lisp, alhs, arhs));
+    PKAtomNumber *alhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, lhs));
+    PKAtomNumber *arhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, rhs));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_mul(lisp, alhs, arhs));
 }
 
 void pk_div(Pocket lisp, int lhs, int rhs) {
-    PKAtom *alhs = pk_stack_get(lisp, lhs);
-    PKAtom *arhs = pk_stack_get(lisp, rhs);
-    pk_stack_push(lisp, pk_atom_div(lisp, alhs, arhs));
+    PKAtomNumber *alhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, lhs));
+    PKAtomNumber *arhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, rhs));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_div(lisp, alhs, arhs));
 }
 
 void pk_mod(Pocket lisp, int lhs, int rhs) {
-    PKAtom *alhs = pk_stack_get(lisp, lhs);
-    PKAtom *arhs = pk_stack_get(lisp, rhs);
-    pk_stack_push(lisp, pk_atom_mod(lisp, alhs, arhs));
+    PKAtomNumber *alhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, lhs));
+    PKAtomNumber *arhs = pk_atom_assert_number(lisp, pk_stack_get(lisp, rhs));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_mod(lisp, alhs, arhs));
 }
 
 void pk_let(Pocket lisp, PK_ENV env, int symbol, int value) {
@@ -349,11 +349,11 @@ bool pk_is_circular(Pocket lisp, int stack_pointer) {
 }
 
 int pk_as_int(Pocket lisp, int number) {
-    return pk_atom_to_int(lisp, pk_stack_get(lisp, number), PK_NUMBER_CONV_FLOAT_CONV);
+    return pk_atom_number_to_int(lisp, pk_atom_assert_number(lisp, pk_stack_get(lisp, number)), PK_NUMBER_CONV_FLOAT_CONV);
 }
 
 float pk_as_float(Pocket lisp, int number) {
-    return pk_atom_to_float(lisp, pk_stack_get(lisp, number), PK_NUMBER_CONV_FLOAT_CONV);
+    return pk_atom_number_to_float(lisp, pk_atom_assert_number(lisp, pk_stack_get(lisp, number)), PK_NUMBER_CONV_FLOAT_CONV);
 }
 
 PKBlob pk_as_blob(Pocket lisp, int blob) {
