@@ -4,8 +4,6 @@ The todo list for POCKET LISP
 ## V1
 - [ ] Create CMake Build
 
-- [ ] Zig Build not Correctly Regenerating even after Generating Headers
-
 - [ ] floats
   - printing
   - parsing
@@ -18,14 +16,6 @@ The todo list for POCKET LISP
 
 - [ ] Pretty Printing
 
-- [ ] Variables
-  - number printing style
-    - decimal
-    - octal
-    - hexadecimal
-  - gc enabled
-  - pretty printing
-  
 - [ ] User Review of Compiler
   - in particular, destructuring bind.
 - [ ] User Review of Macro
@@ -38,25 +28,42 @@ The todo list for POCKET LISP
   `(def foo (a b :key c d e)
       (print $"{a}, {b}, {c}, {d}, {e}"))`
   
-- [ ] Emacs Mode Syntax Highlighting
-  - basic syntax highlighter
-
 - [ ] Small, Big, Symbol, Pools
   
 - [ ] Upgrade to Arbitary Precision Bytecode
   - Not limited to 8bit args
   
+- [ ] Remove ternary operator from all c code.
+
+- [ ] Lock Special Form Symbols
+  - Cannot Set the Function
+
+- [ ] Variables
+  - number printing style
+    - decimal
+    - octal
+    - hexadecimal
+  - gc enabled
+  - pretty printing
+  
+- [ ] Memory Used
+  - `(memory-used) -> 10000`
+  - keep track of dynamically allocated memory count
+  - also keep track of current pool usage
+  
+- [ ] Byte Math
+  - `(byte+ 255 1) -> 0`
+  Basically just wrapping
+  
 - [ ] Document C Functions
 - [ ] Documentation Properties
 - [ ] README
 
-- [ ] Remove ternary operator from all c code.
-
 - [ ] Full Code Review
   - Fug Bixes
   
-- [ ] Lock Special Form Symbols
-  - Cannot Set the Function or Variable
+- [ ] Emacs Mode Syntax Highlighting
+  - basic syntax highlighter
 
 - [ ] Rust Build
    - review `mlua` rust package
