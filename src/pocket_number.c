@@ -13,10 +13,14 @@ PKAtomNumber *pk_atom_int(Pocket lisp, int integer) {
 }
 
 PKAtomNumber *pk_atom_float(Pocket lisp, float floater) {
+    PKNum num = pk_num_float(floater);
+    if (num.num_type == PK_NUMTY_INT) {
+        return pk_atom_int(lisp, num.as.i);
+    }
+
     PKAtomNumber *atom = (PKAtomNumber *)pk_atom_alloc(lisp);
     atom->header.type = PK_ATOMTY_NUMBER;
-    atom->num.num_type = PK_NUMTY_FLOAT;
-    atom->num.as.f = floater;
+    atom->num = num;
     return atom;
 }
 

@@ -8,6 +8,11 @@ PKNum pk_num_int(int integer) {
 }
 
 PKNum pk_num_float(float floater) {
+    int integer = 0;
+    if (pk_float_is_whole(floater, &integer)) {
+        return pk_num_int(integer);
+    }
+
     return (PKNum) {
         .num_type = PK_NUMTY_FLOAT,
         .as.f = floater,

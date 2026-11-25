@@ -150,3 +150,17 @@ size_t pk_hash_pointer(void *ptr) {
     size_t p = (size_t)ptr;
     return (size_t)(p >> 3);
 }
+
+bool pk_float_is_whole(float floater, int *integer) {
+    if (((double)floater < (double)INT_MIN) || ((double)floater > (double)INT_MAX)) {
+        return false;
+    }
+
+    int result = (int)floater;
+    if ((float)result != floater) {
+        return false;
+    }
+
+    *integer = result;
+    return true;
+}

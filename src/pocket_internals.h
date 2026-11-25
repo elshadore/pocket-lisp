@@ -876,6 +876,7 @@ PKAtom *pk_atom_property_to_plist(Pocket lisp, PKHashmap *props);
 
 size_t pk_hash_djb2(PKStr string);
 size_t pk_hash_pointer(void *ptr);
+bool pk_float_is_whole(float floater, int *integer);
 
 void pk_compile_value(Pocket lisp, PKCompiler *c, PKAtom *value);
 void pk_cmp_push_byte(Pocket lisp, PKCompiler *c, pk_u8 byte);
