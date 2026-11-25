@@ -191,3 +191,37 @@ bool pk_atom_number_gt(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
 bool pk_atom_number_gte(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
     PK_TEMPLATE_MATH_LOGIC_OP(>=)
 }
+
+#define PK_TEMPLATE_MATH_LOGIC_VEC_OP(op_) \
+    if (vec.length < 2) { \
+        return true; \
+    } \
+    PKAtomNumber *lhs = pk_atom_assert_number(lisp, vec.e[0]); \
+    for (size_t i = 1; i < vec.length; ++i) { \
+        PKAtomNumber *rhs = pk_atom_assert_number(lisp, vec.e[i]); \
+        if (!pk_atom_number_##op_(lisp, lhs, rhs)) { \
+            return false; \
+        } \
+        lhs = rhs; \
+    } \
+    return true;
+
+bool pk_atom_number_eq_vec(Pocket lisp, PKAtoms vec) {
+    PK_TEMPLATE_MATH_LOGIC_VEC_OP(eq)
+}
+
+bool pk_atom_number_lt_vec(Pocket lisp, PKAtoms vec) {
+    PK_TEMPLATE_MATH_LOGIC_VEC_OP(lt)
+}
+
+bool pk_atom_number_lte_vec(Pocket lisp, PKAtoms vec) {
+    PK_TEMPLATE_MATH_LOGIC_VEC_OP(lte)
+}
+
+bool pk_atom_number_gt_vec(Pocket lisp, PKAtoms vec) {
+    PK_TEMPLATE_MATH_LOGIC_VEC_OP(gt)
+}
+
+bool pk_atom_number_gte_vec(Pocket lisp, PKAtoms vec) {
+    PK_TEMPLATE_MATH_LOGIC_VEC_OP(gte)
+}

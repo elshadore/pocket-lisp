@@ -6,10 +6,9 @@ The todo list for POCKET LISP
 
 - [ ] Zig Build not Correctly Regenerating even after Generating Headers
 
-- [ ] PKNum Type
-  - also implement this in the parser (for blobs)
 - [ ] Public Number Conv
   - also for `as_string` and `as_blob`
+  
 - [ ] Vectorized Math
 - [ ] Math functions
   need more to list here look at scheme reference

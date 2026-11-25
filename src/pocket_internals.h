@@ -636,6 +636,11 @@ bool pk_atom_number_lt(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
 bool pk_atom_number_lte(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
 bool pk_atom_number_gt(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
 bool pk_atom_number_gte(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
+bool pk_atom_number_eq_vec(Pocket lisp, PKAtoms vec);
+bool pk_atom_number_lt_vec(Pocket lisp, PKAtoms vec);
+bool pk_atom_number_lte_vec(Pocket lisp, PKAtoms vec);
+bool pk_atom_number_gt_vec(Pocket lisp, PKAtoms vec);
+bool pk_atom_number_gte_vec(Pocket lisp, PKAtoms vec);
 
 int pk_atom_number_to_int(Pocket lisp, PKAtomNumber *number, PK_NUMBER_CONV conv);
 size_t pk_atom_number_to_size_t(Pocket lisp, PKAtomNumber *number);
