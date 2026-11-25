@@ -281,49 +281,38 @@ PKAtomString *pk_atom_string_downcase(Pocket lisp, PKAtomString *string) {
 }
 
 PKAtomString *pk_atom_string_map(Pocket lisp, PKAtomString *string, PKAtom *function) {
-    size_t count = string->str.length;
-    PKAtom **mapped = pk_realloc(lisp, NULL, count * sizeof(PKAtom *));
+    pk_frame_push(lisp, &PK_ATOM_NIL, 0);
 
-    for (size_t i = 0; i < count; ++i) {
+    for (size_t i = 0; i < string->str.length; ++i) {
         PKAtomString *character = pk_atom_string_char(lisp, string->str.c[i]);
         pk_stack_push(lisp, (PKAtom *)character);
         pk_stack_push(lisp, function);
         pk_funcall(lisp, PK_CALL_FUN, 1);
         PKAtom *result = pk_stack_head_pop(lisp);
-        PKAtomString *mapped_string = pk_generic_to_string(lisp, result);
-        mapped[i] = (PKAtom *)pk_atom_string(lisp, mapped_string->str);
+        PKAtomString *mapped = pk_generic_to_string(lisp, result);
+        pk_stack_push(lisp, (PKAtom *)pk_atom_string(lisp, mapped->str));
     }
 
-    PKAtoms atoms = {
-        .e = mapped,
-        .length = count,
-    };
-    PKAtomString *result = pk_atom_string_cat(lisp, atoms);
-    pk_free(lisp, mapped);
+    PKAtomString *result = pk_atom_string_cat(lisp, pk_stack_slice(lisp));
+    pk_frame_unwind(lisp);
     return result;
 }
 
 PKAtomString *pk_atom_string_filter(Pocket lisp, PKAtomString *string, PKAtom *function) {
-    size_t count = 0;
-    PKAtom **kept = pk_realloc(lisp, NULL, string->str.length * sizeof(PKAtom *));
+    pk_frame_push(lisp, &PK_ATOM_NIL, 0);
 
     for (size_t i = 0; i < string->str.length; ++i) {
-        char c = string->str.c[i];
-        PKAtomString *character = pk_atom_string_char(lisp, c);
+        PKAtomString *character = pk_atom_string_char(lisp, string->str.c[i]);
         pk_stack_push(lisp, (PKAtom *)character);
         pk_stack_push(lisp, function);
         pk_funcall(lisp, PK_CALL_FUN, 1);
         PKAtom *result = pk_stack_head_pop(lisp);
         if (pk_atom_is_true(result)) {
-            kept[count++] = (PKAtom *)character;
+            pk_stack_push(lisp, (PKAtom *)character);
         }
     }
 
-    PKAtoms atoms = {
-        .e = kept,
-        .length = count,
-    };
-    PKAtomString *result = pk_atom_string_cat(lisp, atoms);
-    pk_free(lisp, kept);
+    PKAtomString *result = pk_atom_string_cat(lisp, pk_stack_slice(lisp));
+    pk_frame_unwind(lisp);
     return result;
 }
