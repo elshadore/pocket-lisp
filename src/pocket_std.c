@@ -26,62 +26,26 @@ void pk_fun_nil(void *user_closure, Pocket lisp) {
 
 void pk_fun_add(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    int top = pk_top(lisp);
-    if (top == 0) {
-        pk_push_int(lisp, 0);
-        return;
-    }
-    pk_dupe(lisp, 1);
-    for (int i = 2; i <= top; ++i) {
-        pk_add(lisp, -1, i);
-        pk_swap(lisp, -1, -2);
-        pk_pop(lisp);
-    }
+    PKAtoms slice = pk_stack_slice(lisp);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_add_vec(lisp, slice));
 }
 
 void pk_fun_sub(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    int top = pk_top(lisp);
-    if (top == 0) {
-        pk_push_int(lisp, 0);
-        return;
-    }
-    pk_dupe(lisp, 1);
-    for (int i = 2; i <= top; ++i) {
-        pk_sub(lisp, -1, i);
-        pk_swap(lisp, -1, -2);
-        pk_pop(lisp);
-    }
+    PKAtoms slice = pk_stack_slice(lisp);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_sub_vec(lisp, slice));
 }
 
 void pk_fun_mul(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    int top = pk_top(lisp);
-    if (top == 0) {
-        pk_push_int(lisp, 0);
-        return;
-    }
-    pk_dupe(lisp, 1);
-    for (int i = 2; i <= top; ++i) {
-        pk_mul(lisp, -1, i);
-        pk_swap(lisp, -1, -2);
-        pk_pop(lisp);
-    }
+    PKAtoms slice = pk_stack_slice(lisp);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_mul_vec(lisp, slice));
 }
 
 void pk_fun_div(void *user_closure, Pocket lisp) {
     (void)user_closure;
-    int top = pk_top(lisp);
-    if (top == 0) {
-        pk_push_int(lisp, 0);
-        return;
-    }
-    pk_dupe(lisp, 1);
-    for (int i = 2; i <= top; ++i) {
-        pk_div(lisp, -1, i);
-        pk_swap(lisp, -1, -2);
-        pk_pop(lisp);
-    }
+    PKAtoms slice = pk_stack_slice(lisp);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_number_div_vec(lisp, slice));
 }
 
 void pk_fun_mod(void *user_closure, Pocket lisp) {

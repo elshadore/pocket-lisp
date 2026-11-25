@@ -119,6 +119,54 @@ PKAtomNumber *pk_atom_number_add_vec(Pocket lisp, PKAtoms vec) {
     }
 }
 
+PKAtomNumber *pk_atom_number_sub_vec(Pocket lisp, PKAtoms vec) {
+    if (vec.length == 0) {
+        return &PK_ATOM_NUMBER_CACHE[0];
+    } else if (vec.length == 1) {
+        return pk_atom_assert_number(lisp, vec.e[0]);
+    } else {
+        PKAtomNumber *lhs = pk_atom_assert_number(lisp, vec.e[0]);
+        PKAtomNumber *rhs = pk_atom_assert_number(lisp, vec.e[1]);
+        PKNum acc = pk_num_sub(lisp, lhs->num, rhs->num);
+        for (size_t i = 2; i < vec.length; ++i) {
+            acc = pk_num_sub(lisp, acc, pk_atom_assert_number(lisp, vec.e[i])->num);
+        }
+        return pk_atom_num(lisp, acc);
+    }
+}
+
+PKAtomNumber *pk_atom_number_mul_vec(Pocket lisp, PKAtoms vec) {
+    if (vec.length == 0) {
+        return &PK_ATOM_NUMBER_CACHE[0];
+    } else if (vec.length == 1) {
+        return pk_atom_assert_number(lisp, vec.e[0]);
+    } else {
+        PKAtomNumber *lhs = pk_atom_assert_number(lisp, vec.e[0]);
+        PKAtomNumber *rhs = pk_atom_assert_number(lisp, vec.e[1]);
+        PKNum acc = pk_num_mul(lisp, lhs->num, rhs->num);
+        for (size_t i = 2; i < vec.length; ++i) {
+            acc = pk_num_mul(lisp, acc, pk_atom_assert_number(lisp, vec.e[i])->num);
+        }
+        return pk_atom_num(lisp, acc);
+    }
+}
+
+PKAtomNumber *pk_atom_number_div_vec(Pocket lisp, PKAtoms vec) {
+    if (vec.length == 0) {
+        return &PK_ATOM_NUMBER_CACHE[0];
+    } else if (vec.length == 1) {
+        return pk_atom_assert_number(lisp, vec.e[0]);
+    } else {
+        PKAtomNumber *lhs = pk_atom_assert_number(lisp, vec.e[0]);
+        PKAtomNumber *rhs = pk_atom_assert_number(lisp, vec.e[1]);
+        PKNum acc = pk_num_div(lisp, lhs->num, rhs->num);
+        for (size_t i = 2; i < vec.length; ++i) {
+            acc = pk_num_div(lisp, acc, pk_atom_assert_number(lisp, vec.e[i])->num);
+        }
+        return pk_atom_num(lisp, acc);
+    }
+}
+
 bool pk_atom_number_eq(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs) {
     PK_TEMPLATE_MATH_LOGIC_OP(==)
 }

@@ -626,6 +626,10 @@ PKAtomNumber *pk_atom_number_add(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *r
 PKAtomNumber *pk_atom_number_sub(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
 PKAtomNumber *pk_atom_number_mul(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
 PKAtomNumber *pk_atom_number_div(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
+PKAtomNumber *pk_atom_number_add_vec(Pocket lisp, PKAtoms vec);
+PKAtomNumber *pk_atom_number_sub_vec(Pocket lisp, PKAtoms vec);
+PKAtomNumber *pk_atom_number_mul_vec(Pocket lisp, PKAtoms vec);
+PKAtomNumber *pk_atom_number_div_vec(Pocket lisp, PKAtoms vec);
 PKAtomNumber *pk_atom_number_mod(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
 bool pk_atom_number_eq(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
 bool pk_atom_number_lt(Pocket lisp, PKAtomNumber *lhs, PKAtomNumber *rhs);
