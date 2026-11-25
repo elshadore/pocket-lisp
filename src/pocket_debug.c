@@ -126,10 +126,10 @@ void pk_debug_leakcheck(Pocket lisp, const char *tag) {
                     break;
                 }
                 case PK_ATOMTY_NUMBER: {
-                    if (atom->number.num_type == PK_NUMTY_INT) {
-                        pk_writer_fmt(lisp, "%d", atom->number.as.i);
+                    if (atom->number.num.num_type == PK_NUMTY_INT) {
+                        pk_writer_fmt(lisp, "%d", atom->number.num.as.i);
                     } else {
-                        pk_writer_fmt(lisp, "%f", atom->number.as.f);
+                        pk_writer_fmt(lisp, "%f", atom->number.num.as.f);
                     }
                     break;
                 }

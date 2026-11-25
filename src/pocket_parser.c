@@ -490,13 +490,13 @@ PKAtom *pk_parse_atom_blob(Pocket lisp, PKParser *r) {
             pk_parser_error(lisp, r, pk_str("expected a number in blob"));
         } else {
             PKAtomNumber *number = pk_atom_assert_number(lisp, pk_parse_atom_number(lisp, r));
-            if (number->num_type != PK_NUMTY_INT) {
+            if (number->num.num_type != PK_NUMTY_INT) {
                 pk_parser_error(lisp, r, pk_str("blob elements must be integers"));
             }
-            if (number->as.i < 0 || number->as.i > UINT8_MAX) {
+            if (number->num.as.i < 0 || number->num.as.i > UINT8_MAX) {
                 pk_parser_error(lisp, r, pk_str("blob element is outside the byte range 0..255"));
             }
-            pk_writer_byte(lisp, (pk_u8)number->as.i);
+            pk_writer_byte(lisp, (pk_u8)number->num.as.i);
             first = false;
             whitespace = pk_parser_trim_whitespace(r);
         }

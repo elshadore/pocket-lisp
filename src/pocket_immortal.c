@@ -9,8 +9,8 @@
 #define PK_IMMORTAL_NUMBER(i_) [i_] = { \
     .header.type = PK_ATOMTY_NUMBER, \
     .header.flags = PK_ATOMFLAG_IMMORTAL, \
-    .num_type = PK_NUMTY_INT, \
-    .as.i = (i_), \
+    .num.num_type = PK_NUMTY_INT, \
+    .num.as.i = (i_), \
 }
 
 PKAtom PK_ATOM_NIL = (PKAtom) {

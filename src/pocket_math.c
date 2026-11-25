@@ -7,8 +7,8 @@ PKAtomNumber *pk_atom_int(Pocket lisp, int integer) {
 
     PKAtomNumber *atom = (PKAtomNumber *)pk_atom_alloc(lisp);
     atom->header.type = PK_ATOMTY_NUMBER;
-    atom->num_type = PK_NUMTY_INT;
-    atom->as.i = integer;
+    atom->num.num_type = PK_NUMTY_INT;
+    atom->num.as.i = integer;
     return atom;
 }
 
@@ -22,8 +22,8 @@ PKAtomNumber *pk_atom_size_t(Pocket lisp, size_t value) {
 PKAtomNumber *pk_atom_float(Pocket lisp, float floater) {
     PKAtomNumber *atom = (PKAtomNumber *)pk_atom_alloc(lisp);
     atom->header.type = PK_ATOMTY_NUMBER;
-    atom->num_type = PK_NUMTY_FLOAT;
-    atom->as.f = floater;
+    atom->num.num_type = PK_NUMTY_FLOAT;
+    atom->num.as.f = floater;
     return atom;
 }
 
@@ -32,17 +32,17 @@ PKAtomNumber *pk_atom_byte(Pocket lisp, pk_u8 byte) {
 }
 
 PKBlob pk_atom_number_to_bytes(PKAtomNumber *number) {
-    switch (number->num_type) {
+    switch (number->num.num_type) {
         case PK_NUMTY_INT: {
             return (PKBlob) {
-                .e = (pk_u8 *)&number->as.i,
-                .length = sizeof(number->as.i),
+                .e = (pk_u8 *)&number->num.as.i,
+                .length = sizeof(number->num.as.i),
             };
         }
         case PK_NUMTY_FLOAT: {
             return (PKBlob) {
-                .e = (pk_u8 *)&number->as.f,
-                .length = sizeof(number->as.f),
+                .e = (pk_u8 *)&number->num.as.f,
+                .length = sizeof(number->num.as.f),
             };
         }
         default: {
@@ -52,9 +52,9 @@ PKBlob pk_atom_number_to_bytes(PKAtomNumber *number) {
 }
 
 void pk_atom_number_to_bytes_trimmed_writer(Pocket lisp, PKAtomNumber *number) {
-    switch (number->num_type) {
+    switch (number->num.num_type) {
         case PK_NUMTY_INT: {
-            pk_u32 bits = (pk_u32)number->as.i;
+            pk_u32 bits = (pk_u32)number->num.as.i;
             size_t length = sizeof(bits);
 
             while ((length > 1) && (((bits >> ((length - 1) * 8)) & 0xff) == 0)) {
@@ -92,29 +92,29 @@ PKAtomBlob *pk_atom_number_to_bytes_trimmed(Pocket lisp, PKAtomNumber *number) {
         pk_errorf(lisp, "math op " #op_ ": rhs expected a number, got %.*s", (int)ty_.length, ty_.c); \
         return &PK_ATOM_NIL; \
     } \
-    switch (lhs->number.num_type) { \
+    switch (lhs->number.num.num_type) { \
         case PK_NUMTY_INT: { \
-            switch (rhs->number.num_type) { \
-                case PK_NUMTY_INT: return (PKAtom *)pk_atom_int(lisp, lhs->number.as.i op_ rhs->number.as.i); \
-                case PK_NUMTY_FLOAT: return (PKAtom *)pk_atom_float(lisp, (float)lhs->number.as.i op_ rhs->number.as.f); \
+            switch (rhs->number.num.num_type) { \
+                case PK_NUMTY_INT: return (PKAtom *)pk_atom_int(lisp, lhs->number.num.as.i op_ rhs->number.num.as.i); \
+                case PK_NUMTY_FLOAT: return (PKAtom *)pk_atom_float(lisp, (float)lhs->number.num.as.i op_ rhs->number.num.as.f); \
                 default: { \
-                    pk_errorf(lisp, "math op " #op_ ": rhs has unknown number type %u", rhs->number.num_type); \
+                    pk_errorf(lisp, "math op " #op_ ": rhs has unknown number type %u", rhs->number.num.num_type); \
                     return &PK_ATOM_NIL; \
                 } \
             } \
         } \
         case PK_NUMTY_FLOAT: { \
-            switch (rhs->number.num_type) { \
-                case PK_NUMTY_INT: return (PKAtom *)pk_atom_float(lisp, lhs->number.as.f op_ (float)rhs->number.as.i); \
-                case PK_NUMTY_FLOAT: return (PKAtom *)pk_atom_float(lisp, lhs->number.as.f op_ rhs->number.as.f); \
+            switch (rhs->number.num.num_type) { \
+                case PK_NUMTY_INT: return (PKAtom *)pk_atom_float(lisp, lhs->number.num.as.f op_ (float)rhs->number.num.as.i); \
+                case PK_NUMTY_FLOAT: return (PKAtom *)pk_atom_float(lisp, lhs->number.num.as.f op_ rhs->number.num.as.f); \
                 default: { \
-                    pk_errorf(lisp, "math op " #op_ ": rhs has unknown number type %u", rhs->number.num_type); \
+                    pk_errorf(lisp, "math op " #op_ ": rhs has unknown number type %u", rhs->number.num.num_type); \
                     return &PK_ATOM_NIL; \
                 } \
             } \
         } \
         default: { \
-            pk_errorf(lisp, "math op " #op_ ": lhs has unknown number type %u", lhs->number.num_type); \
+            pk_errorf(lisp, "math op " #op_ ": lhs has unknown number type %u", lhs->number.num.num_type); \
             return &PK_ATOM_NIL; \
         } \
     }
@@ -145,14 +145,14 @@ PKAtom *pk_atom_mod(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
 
 int pk_atom_to_int(Pocket lisp, PKAtom *atom, PK_NUMBER_CONV conv) {
     PKAtomNumber *number = pk_atom_assert_number(lisp, atom);
-    switch (number->num_type) {
-        case PK_NUMTY_INT: return atom->number.as.i;
+    switch (number->num.num_type) {
+        case PK_NUMTY_INT: return atom->number.num.as.i;
         case PK_NUMTY_FLOAT: {
             if (conv == PK_NUMBER_CONV_STRICT) {
                 pk_errors(lisp, pk_str("pk_atom_to_int: float given, strict conversion does not allow float to int"));
                 return 0;
             }
-            return (int)atom->number.as.f;
+            return (int)atom->number.num.as.f;
         }
         default: return 0;
     }
@@ -160,13 +160,13 @@ int pk_atom_to_int(Pocket lisp, PKAtom *atom, PK_NUMBER_CONV conv) {
 
 size_t pk_atom_to_size_t(Pocket lisp, PKAtom *atom) {
     PKAtomNumber *number = pk_atom_assert_number(lisp, atom);
-    switch (number->num_type) {
+    switch (number->num.num_type) {
         case PK_NUMTY_INT: {
-            if (number->as.i < 0) {
-                pk_errorf(lisp, "integer: %d, is negative, expected a size_t", number->as.i);
+            if (number->num.as.i < 0) {
+                pk_errorf(lisp, "integer: %d, is negative, expected a size_t", number->num.as.i);
                 return 0;
             } else {
-                return (size_t)number->as.i;
+                return (size_t)number->num.as.i;
             }
         }
         case PK_NUMTY_FLOAT: {
@@ -179,15 +179,15 @@ size_t pk_atom_to_size_t(Pocket lisp, PKAtom *atom) {
 
 float pk_atom_to_float(Pocket lisp, PKAtom *atom, PK_NUMBER_CONV conv) {
     PKAtomNumber *number = pk_atom_assert_number(lisp, atom);
-    switch (number->num_type) {
+    switch (number->num.num_type) {
         case PK_NUMTY_INT: {
             if (conv == PK_NUMBER_CONV_STRICT) {
                 pk_errors(lisp, pk_str("pk_atom_to_float: int given, strict conversion does not allow int to float"));
                 return 0.0f;
             }
-            return (float)atom->number.as.i;
+            return (float)atom->number.num.as.i;
         }
-        case PK_NUMTY_FLOAT: return atom->number.as.f;
+        case PK_NUMTY_FLOAT: return atom->number.num.as.f;
         default: return 0.0f;
     }
 }
@@ -196,9 +196,9 @@ int pk_atom_as_int(PKAtom *atom) {
     if (!pk_atom_is_number(atom)) {
         return 0;
     }
-    switch (atom->number.num_type) {
-        case PK_NUMTY_INT: return atom->number.as.i;
-        case PK_NUMTY_FLOAT: return (int)atom->number.as.f;
+    switch (atom->number.num.num_type) {
+        case PK_NUMTY_INT: return atom->number.num.as.i;
+        case PK_NUMTY_FLOAT: return (int)atom->number.num.as.f;
         default: return 0;
     }
 }
@@ -207,9 +207,9 @@ float pk_atom_as_float(PKAtom *atom) {
     if (!pk_atom_is_number(atom)) {
         return 0.0f;
     }
-    switch (atom->number.num_type) {
-        case PK_NUMTY_INT: return (float)atom->number.as.i;
-        case PK_NUMTY_FLOAT: return atom->number.as.f;
+    switch (atom->number.num.num_type) {
+        case PK_NUMTY_INT: return (float)atom->number.num.as.i;
+        case PK_NUMTY_FLOAT: return atom->number.num.as.f;
         default: return 0.0f;
     }
 }
@@ -217,29 +217,29 @@ float pk_atom_as_float(PKAtom *atom) {
 #define PK_TEMPLATE_MATH_LOGIC_OP(op_) \
     PKAtomNumber *nlhs = pk_atom_assert_number(lisp, lhs); \
     PKAtomNumber *nrhs = pk_atom_assert_number(lisp, rhs); \
-    switch (nlhs->num_type) { \
+    switch (nlhs->num.num_type) { \
         case PK_NUMTY_INT: { \
-            switch (nrhs->num_type) { \
-                case PK_NUMTY_INT: return  nlhs->as.i op_ nrhs->as.i; \
-                case PK_NUMTY_FLOAT: return  (float)nlhs->as.i op_ nrhs->as.f; \
+            switch (nrhs->num.num_type) { \
+                case PK_NUMTY_INT: return  nlhs->num.as.i op_ nrhs->num.as.i; \
+                case PK_NUMTY_FLOAT: return  (float)nlhs->num.as.i op_ nrhs->num.as.f; \
                 default: { \
-                    pk_errorf(lisp, "logic op " #op_ ": rhs has unknown number type %u", nrhs->num_type); \
+                    pk_errorf(lisp, "logic op " #op_ ": rhs has unknown number type %u", nrhs->num.num_type); \
                     return false; \
                 } \
             } \
         } \
         case PK_NUMTY_FLOAT: { \
-            switch (nrhs->num_type) { \
-                case PK_NUMTY_INT: return  nlhs->as.f op_ (float)nrhs->as.i; \
-                case PK_NUMTY_FLOAT: return  nlhs->as.f op_ nrhs->as.f; \
+            switch (nrhs->num.num_type) { \
+                case PK_NUMTY_INT: return  nlhs->num.as.f op_ (float)nrhs->num.as.i; \
+                case PK_NUMTY_FLOAT: return  nlhs->num.as.f op_ nrhs->num.as.f; \
                 default: { \
-                    pk_errorf(lisp, "logic op " #op_ ": rhs has unknown number type %u", nrhs->num_type); \
+                    pk_errorf(lisp, "logic op " #op_ ": rhs has unknown number type %u", nrhs->num.num_type); \
                     return false; \
                 } \
             } \
         } \
         default: { \
-            pk_errorf(lisp, "logic op " #op_ ": lhs has unknown number type %u", nlhs->num_type); \
+            pk_errorf(lisp, "logic op " #op_ ": lhs has unknown number type %u", nlhs->num.num_type); \
             return false; \
         } \
     }
@@ -266,7 +266,7 @@ bool pk_atom_is_number(PKAtom *atom) {
 
 bool pk_atom_is_int(PKAtom *atom) {
     if (!pk_atom_is_number(atom)) return false;
-    return atom->number.num_type == PK_NUMTY_INT;
+    return atom->number.num.num_type == PK_NUMTY_INT;
 }
 
 bool pk_atom_is_byte(PKAtom *atom) {
@@ -278,7 +278,7 @@ bool pk_atom_is_byte(PKAtom *atom) {
             if (!pk_atom_is_int(atom)) {
                 return false;
             }
-            int i = atom->number.as.i;
+            int i = atom->number.num.as.i;
             return i >= 0 && i <= UCHAR_MAX;
         }
         default: return false;
@@ -287,7 +287,7 @@ bool pk_atom_is_byte(PKAtom *atom) {
 
 bool pk_atom_is_float(PKAtom *atom) {
     if (!pk_atom_is_number(atom)) return false;
-    return atom->number.num_type == PK_NUMTY_FLOAT;
+    return atom->number.num.num_type == PK_NUMTY_FLOAT;
 }
 
 PKAtomNumber *pk_atom_assert_number(Pocket lisp, PKAtom *atom) {

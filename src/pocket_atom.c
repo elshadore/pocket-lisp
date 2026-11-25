@@ -218,15 +218,15 @@ bool pk_atom_eq(Pocket lisp, PKAtom *lhs, PKAtom *rhs) {
 
     switch (lhs->header.type) {
         case PK_ATOMTY_NUMBER: {
-            if (lhs->number.num_type != rhs->number.num_type) {
+            if (lhs->number.num.num_type != rhs->number.num.num_type) {
                 return false;
             }
-            switch (lhs->number.num_type) {
+            switch (lhs->number.num.num_type) {
                 case PK_NUMTY_INT: {
-                    return lhs->number.as.i == rhs->number.as.i;
+                    return lhs->number.num.as.i == rhs->number.num.as.i;
                 }
                 case PK_NUMTY_FLOAT: {
-                    return lhs->number.as.f == rhs->number.as.f;
+                    return lhs->number.num.as.f == rhs->number.num.as.f;
                 }
                 default: return false;
             }
@@ -397,10 +397,10 @@ size_t pk_atom_hash(PKAtom *atom) {
             return pk_hash_djb2(atom->keyword.name->str);
         }
         case PK_ATOMTY_NUMBER: {
-            if (atom->number.num_type == PK_NUMTY_FLOAT) {
+            if (atom->number.num.num_type == PK_NUMTY_FLOAT) {
                 pk_u32 bits = 0;
-                memcpy(&bits, &atom->number.as.f, sizeof(pk_u32));
-                if (atom->number.as.f == 0.0f) {
+                memcpy(&bits, &atom->number.num.as.f, sizeof(pk_u32));
+                if (atom->number.num.as.f == 0.0f) {
                     bits = 0;
                 }
                 PKStr mem = (PKStr) {
@@ -410,7 +410,7 @@ size_t pk_atom_hash(PKAtom *atom) {
                 return pk_hash_djb2(mem);
             } else {
                 PKStr mem = (PKStr) {
-                    .c = (char *)&atom->number.as.i,
+                    .c = (char *)&atom->number.num.as.i,
                     .length = sizeof(int)
                 };
                 return pk_hash_djb2(mem);
