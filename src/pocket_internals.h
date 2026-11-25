@@ -170,7 +170,7 @@ typedef struct PKNum_ {
 typedef struct PKAtomNumber_ {
     PKAtomHeader header;
     PKNum num;
-} PKAtomNumber;
+} __attribute__((aligned(sizeof(void *)))) PKAtomNumber;
 
 typedef struct PKAtomString_ {
     PKAtomHeader header;

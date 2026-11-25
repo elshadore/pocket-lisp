@@ -28,6 +28,7 @@
 #include "../src/pocket_macro.c"
 #include "../src/pocket_math.c"
 #include "../src/pocket_mem.c"
+#include "../src/pocket_number.c"
 #include "../src/pocket_object.c"
 #include "../src/pocket_parser.c"
 #include "../src/pocket_print.c"

@@ -10,6 +10,8 @@ The todo list for POCKET LISP
   - also implement this in the parser (for blobs)
 - [ ] Public Number Conv
   - also for `as_string` and `as_blob`
+- [ ] Floats Cast Down to Ints if exact
+  - 2.0 -> 2
 - [ ] Vectorized Math
 - [ ] Math functions
   need more to list here look at scheme reference

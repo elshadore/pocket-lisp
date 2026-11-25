@@ -130,6 +130,7 @@ pub fn build(b: *std.Build) void {
         "src/pocket_macro.c",
         "src/pocket_math.c",
         "src/pocket_mem.c",
+        "src/pocket_number.c",
         "src/pocket_object.c",
         "src/pocket_print.c",
         "src/pocket_properties.c",
