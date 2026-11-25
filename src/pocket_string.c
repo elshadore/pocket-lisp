@@ -171,3 +171,156 @@ PKAtomString *pk_atom_assert_string(Pocket lisp, PKAtom *atom) {
 bool pk_atom_string_cmp(PKAtomString *string, PKStr comp) {
     return pk_str_eq(string->str, comp);
 }
+
+bool pk_atom_string_all_chars(PKAtomString *string, bool (*predicate)(char)) {
+    for (size_t i = 0; i < string->str.length; ++i) {
+        if (!predicate(string->str.c[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool pk_char_is_alphanumeric(char c) {
+    return pk_char_is_alphabet(c) || pk_char_is_digit(c);
+}
+
+bool pk_char_is_graphic(char c) {
+    pk_u8 byte = (pk_u8)c;
+    return (byte >= 0x21) && (byte <= 0x7e);
+}
+
+PKAtomString *pk_atom_string_make(Pocket lisp, size_t count, PKAtom *fill) {
+    if (count == 0 || pk_atom_is_nil(fill)) {
+        return &PK_ATOM_EMPTY_STRING;
+    }
+
+    PKAtomString *string = pk_generic_to_string(lisp, fill);
+    pk_writer_reset(lisp);
+
+    for (size_t i = 0; i < count; ++i) {
+        pk_writer_string(lisp, string->str);
+    }
+
+    PKAtomString *result = pk_atom_string(lisp, pk_writer_str(lisp));
+    pk_writer_reset(lisp);
+    return result;
+}
+
+bool pk_atom_string_is_numeric(PKAtomString *string) {
+    return pk_atom_string_all_chars(string, pk_char_is_digit);
+}
+
+bool pk_atom_string_is_alphabetic(PKAtomString *string) {
+    return pk_atom_string_all_chars(string, pk_char_is_alphabet);
+}
+
+bool pk_atom_string_is_whitespace(PKAtomString *string) {
+    return pk_atom_string_all_chars(string, pk_char_is_whitespace);
+}
+
+bool pk_atom_string_is_alphanumeric(PKAtomString *string) {
+    return pk_atom_string_all_chars(string, pk_char_is_alphanumeric);
+}
+
+bool pk_atom_string_is_graphic(PKAtomString *string) {
+    return pk_atom_string_all_chars(string, pk_char_is_graphic);
+}
+
+bool pk_atom_string_is_upcase(PKAtomString *string) {
+    for (size_t i = 0; i < string->str.length; ++i) {
+        char c = string->str.c[i];
+        if (c >= 'a' && c <= 'z') {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool pk_atom_string_is_downcase(PKAtomString *string) {
+    for (size_t i = 0; i < string->str.length; ++i) {
+        char c = string->str.c[i];
+        if (c >= 'A' && c <= 'Z') {
+            return false;
+        }
+    }
+    return true;
+}
+
+PKAtomString *pk_atom_string_upcase(Pocket lisp, PKAtomString *string) {
+    PKAtomString *result = pk_atom_string_alloc(lisp, string->str.length);
+
+    for (size_t i = 0; i < string->str.length; ++i) {
+        char c = string->str.c[i];
+        if (c >= 'a' && c <= 'z') {
+            result->str.c[i] = (char)(c - ('a' - 'A'));
+        } else {
+            result->str.c[i] = c;
+        }
+    }
+
+    return result;
+}
+
+PKAtomString *pk_atom_string_downcase(Pocket lisp, PKAtomString *string) {
+    PKAtomString *result = pk_atom_string_alloc(lisp, string->str.length);
+
+    for (size_t i = 0; i < string->str.length; ++i) {
+        char c = string->str.c[i];
+        if (c >= 'A' && c <= 'Z') {
+            result->str.c[i] = (char)(c + ('a' - 'A'));
+        } else {
+            result->str.c[i] = c;
+        }
+    }
+
+    return result;
+}
+
+PKAtomString *pk_atom_string_map(Pocket lisp, PKAtomString *string, PKAtom *function) {
+    size_t count = string->str.length;
+    PKAtom **mapped = pk_realloc(lisp, NULL, count * sizeof(PKAtom *));
+
+    for (size_t i = 0; i < count; ++i) {
+        PKAtomString *character = pk_atom_string_char(lisp, string->str.c[i]);
+        pk_stack_push(lisp, (PKAtom *)character);
+        pk_stack_push(lisp, function);
+        pk_funcall(lisp, PK_CALL_FUN, 1);
+        PKAtom *result = pk_stack_head_pop(lisp);
+        PKAtomString *mapped_string = pk_generic_to_string(lisp, result);
+        mapped[i] = (PKAtom *)pk_atom_string(lisp, mapped_string->str);
+    }
+
+    PKAtoms atoms = {
+        .e = mapped,
+        .length = count,
+    };
+    PKAtomString *result = pk_atom_string_cat(lisp, atoms);
+    pk_free(lisp, mapped);
+    return result;
+}
+
+PKAtomString *pk_atom_string_filter(Pocket lisp, PKAtomString *string, PKAtom *function) {
+    size_t count = 0;
+    PKAtom **kept = pk_realloc(lisp, NULL, string->str.length * sizeof(PKAtom *));
+
+    for (size_t i = 0; i < string->str.length; ++i) {
+        char c = string->str.c[i];
+        PKAtomString *character = pk_atom_string_char(lisp, c);
+        pk_stack_push(lisp, (PKAtom *)character);
+        pk_stack_push(lisp, function);
+        pk_funcall(lisp, PK_CALL_FUN, 1);
+        PKAtom *result = pk_stack_head_pop(lisp);
+        if (pk_atom_is_true(result)) {
+            kept[count++] = (PKAtom *)character;
+        }
+    }
+
+    PKAtoms atoms = {
+        .e = kept,
+        .length = count,
+    };
+    PKAtomString *result = pk_atom_string_cat(lisp, atoms);
+    pk_free(lisp, kept);
+    return result;
+}

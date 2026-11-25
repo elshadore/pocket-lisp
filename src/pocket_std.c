@@ -568,6 +568,132 @@ void pk_fun_make_array(void *user_closure, Pocket lisp) {
     pk_stack_push(lisp, (PKAtom *)pk_atom_array_make(lisp, count, fill));
 }
 
+void pk_fun_make_list(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    size_t count = 0;
+    {
+        PKAtom *acount = pk_stack_get(lisp, 1);
+        if (!pk_atom_is_nil(acount)) {
+            count = pk_atom_number_to_size_t(lisp, pk_atom_assert_number(lisp, acount));
+        }
+    }
+    PKAtom *fill = pk_stack_get(lisp, 2);
+    pk_stack_push(lisp, pk_atom_list_make(lisp, count, fill));
+}
+
+void pk_fun_make_string(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    size_t count = 0;
+    {
+        PKAtom *acount = pk_stack_get(lisp, 1);
+        if (!pk_atom_is_nil(acount)) {
+            count = pk_atom_number_to_size_t(lisp, pk_atom_assert_number(lisp, acount));
+        }
+    }
+    PKAtom *fill = pk_stack_get(lisp, 2);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string_make(lisp, count, fill));
+}
+
+void pk_fun_make_blob(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    size_t count = 0;
+    {
+        PKAtom *acount = pk_stack_get(lisp, 1);
+        if (!pk_atom_is_nil(acount)) {
+            count = pk_atom_number_to_size_t(lisp, pk_atom_assert_number(lisp, acount));
+        }
+    }
+    PKAtom *fill = pk_stack_get(lisp, 2);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_blob_make(lisp, count, fill));
+}
+
+void pk_fun_string_is_numeric(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    pk_push_bool(lisp, pk_atom_string_is_numeric(string));
+}
+
+void pk_fun_string_is_alphabetic(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    pk_push_bool(lisp, pk_atom_string_is_alphabetic(string));
+}
+
+void pk_fun_string_is_whitespace(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    pk_push_bool(lisp, pk_atom_string_is_whitespace(string));
+}
+
+void pk_fun_string_is_alphanumeric(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    pk_push_bool(lisp, pk_atom_string_is_alphanumeric(string));
+}
+
+void pk_fun_string_is_graphic(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    pk_push_bool(lisp, pk_atom_string_is_graphic(string));
+}
+
+void pk_fun_string_is_upcase(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    pk_push_bool(lisp, pk_atom_string_is_upcase(string));
+}
+
+void pk_fun_string_is_downcase(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    pk_push_bool(lisp, pk_atom_string_is_downcase(string));
+}
+
+void pk_fun_string_upcase(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string_upcase(lisp, string));
+}
+
+void pk_fun_string_downcase(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string_downcase(lisp, string));
+}
+
+void pk_fun_string_map(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    PKAtom *function = pk_stack_get(lisp, 2);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string_map(lisp, string, function));
+}
+
+void pk_fun_string_filter(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomString *string = pk_atom_assert_string(lisp, pk_stack_get(lisp, 1));
+    PKAtom *function = pk_stack_get(lisp, 2);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_string_filter(lisp, string, function));
+}
+
+void pk_fun_blob_map(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomBlob *blob = pk_atom_assert_blob(lisp, pk_stack_get(lisp, 1));
+    PKAtom *function = pk_stack_get(lisp, 2);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_blob_map(lisp, blob, function));
+}
+
+void pk_fun_blob_filter(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    PKAtomBlob *blob = pk_atom_assert_blob(lisp, pk_stack_get(lisp, 1));
+    PKAtom *function = pk_stack_get(lisp, 2);
+    pk_stack_push(lisp, (PKAtom *)pk_atom_blob_filter(lisp, blob, function));
+}
+
+void pk_fun_flatten(void *user_closure, Pocket lisp) {
+    (void)user_closure;
+    pk_stack_push(lisp, pk_atom_list_flatten(lisp, pk_stack_slice(lisp)));
+}
+
 void pk_fun_append(void *user_closure, Pocket lisp) {
     (void)user_closure;
     int top = pk_top(lisp);
@@ -928,12 +1054,30 @@ void pk_std_load_cfun(Pocket lisp) {
 
         {.symbol = pk_str("array"), .fun = pk_fun_array, .args = 0, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("make-array"), .fun = pk_fun_make_array, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 2},
+        {.symbol = pk_str("make-list"), .fun = pk_fun_make_list, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 2},
+        {.symbol = pk_str("make-string"), .fun = pk_fun_make_string, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 2},
+        {.symbol = pk_str("make-blob"), .fun = pk_fun_make_blob, .args = 2, .arity = PK_ARITY_OPTIONAL, .options = 2},
         {.symbol = pk_str("append"), .fun = pk_fun_append, .args = 2, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("cat"), .fun = pk_fun_cat, .args = 2, .arity = PK_ARITY_VARIADIC},
         {.symbol = pk_str("split"), .fun = pk_fun_split, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("el"), .fun = pk_fun_el, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("element?"), .fun = pk_fun_is_element, .args = 2, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("length"), .fun = pk_fun_length, .args = 1, .arity = PK_ARITY_NORMAL},
+
+        {.symbol = pk_str("string-numeric?"), .fun = pk_fun_string_is_numeric, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("string-alphabetic?"), .fun = pk_fun_string_is_alphabetic, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("string-whitespace?"), .fun = pk_fun_string_is_whitespace, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("string-alphanumeric?"), .fun = pk_fun_string_is_alphanumeric, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("string-graphic?"), .fun = pk_fun_string_is_graphic, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("string-upcase?"), .fun = pk_fun_string_is_upcase, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("string-downcase?"), .fun = pk_fun_string_is_downcase, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("string-upcase"), .fun = pk_fun_string_upcase, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("string-downcase"), .fun = pk_fun_string_downcase, .args = 1, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("string-map"), .fun = pk_fun_string_map, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("string-filter"), .fun = pk_fun_string_filter, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("blob-map"), .fun = pk_fun_blob_map, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("blob-filter"), .fun = pk_fun_blob_filter, .args = 2, .arity = PK_ARITY_NORMAL},
+        {.symbol = pk_str("flatten"), .fun = pk_fun_flatten, .args = 1, .arity = PK_ARITY_NORMAL},
         
         {.symbol = pk_str("gensym"), .fun = pk_fun_gensym, .args = 0, .arity = PK_ARITY_NORMAL},
         {.symbol = pk_str("typeof"), .fun = pk_fun_typeof, .args = 1, .arity = PK_ARITY_NORMAL},

@@ -149,3 +149,85 @@ PKAtomBlob *pk_atom_assert_blob(Pocket lisp, PKAtom *atom) {
     }
     return (PKAtomBlob *)atom;
 }
+
+PKAtomBlob *pk_atom_blob_make(Pocket lisp, size_t count, PKAtom *fill) {
+    if (count == 0) {
+        return &PK_ATOM_EMPTY_BLOB;
+    }
+
+    pk_u8 zero = 0;
+    PKBlob bytes = (PKBlob) {
+        .e = &zero,
+        .length = 1,
+    };
+
+    if (pk_atom_is_number(fill)) {
+        bytes = pk_atom_number_to_bytes_trimmed(lisp, (PKAtomNumber *)fill)->bytes;
+    } else if (pk_atom_is_blob(fill)) {
+        bytes = ((PKAtomBlob *)fill)->bytes;
+    } else if (pk_atom_is_string(fill)) {
+        PKAtomString *string = (PKAtomString *)fill;
+        bytes = (PKBlob) {
+            .e = (pk_u8 *)string->str.c,
+            .length = string->str.length,
+        };
+    } else if (!pk_atom_is_nil(fill)) {
+        pk_error_type4(lisp, fill, PK_TYPE_NIL, PK_TYPE_NUMBER, PK_TYPE_BLOB, PK_TYPE_STRING);
+    }
+
+    pk_writer_reset(lisp);
+
+    for (size_t i = 0; i < count; ++i) {
+        pk_writer_bytes(lisp, bytes);
+    }
+
+    PKAtomBlob *result = pk_atom_blob(lisp, pk_writer_slice(lisp));
+    pk_writer_reset(lisp);
+    return result;
+}
+
+PKAtomBlob *pk_atom_blob_map(Pocket lisp, PKAtomBlob *blob, PKAtom *function) {
+    size_t count = blob->bytes.length;
+    PKAtom **mapped = pk_realloc(lisp, NULL, count * sizeof(PKAtom *));
+
+    for (size_t i = 0; i < count; ++i) {
+        PKAtom *element = (PKAtom *)pk_atom_byte(lisp, blob->bytes.e[i]);
+        pk_stack_push(lisp, element);
+        pk_stack_push(lisp, function);
+        pk_funcall(lisp, PK_CALL_FUN, 1);
+        mapped[i] = pk_stack_head_pop(lisp);
+    }
+
+    PKAtoms atoms = {
+        .e = mapped,
+        .length = count,
+    };
+    PKAtomBlob *result = pk_atom_blob_cat(lisp, atoms);
+    pk_free(lisp, mapped);
+    return result;
+}
+
+PKAtomBlob *pk_atom_blob_filter(Pocket lisp, PKAtomBlob *blob, PKAtom *function) {
+    size_t count = 0;
+    PKAtom **kept = pk_realloc(lisp, NULL, blob->bytes.length * sizeof(PKAtom *));
+
+    for (size_t i = 0; i < blob->bytes.length; ++i) {
+        pk_u8 byte = blob->bytes.e[i];
+        PKAtom *element = (PKAtom *)pk_atom_byte(lisp, byte);
+        pk_stack_push(lisp, element);
+        pk_stack_push(lisp, function);
+        pk_funcall(lisp, PK_CALL_FUN, 1);
+        PKAtom *result = pk_stack_head_pop(lisp);
+        if (pk_atom_is_true(result)) {
+            kept[count++] = element;
+        }
+    }
+
+    PKAtoms atoms = {
+        .e = kept,
+        .length = count,
+    };
+    PKAtomBlob *result = pk_atom_blob_cat(lisp, atoms);
+    pk_free(lisp, kept);
+    return result;
+}

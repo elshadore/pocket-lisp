@@ -88,6 +88,19 @@ PKAtom *pk_atom_list(Pocket lisp, PKAtoms atoms) {
     return acc.head;
 }
 
+PKAtom *pk_atom_list_make(Pocket lisp, size_t count, PKAtom *fill) {
+    if (count == 0) {
+        return &PK_ATOM_NIL;
+    }
+
+    PKAccum acc = pk_accum_new(lisp);
+    for (size_t i = 0; i < count; ++i) {
+        pk_accum_push(&acc, fill);
+    }
+
+    return acc.head;
+}
+
 PKAtom *pk_atom_list_rev(Pocket lisp, PKAtoms atoms) {
     if (atoms.length == 0) {
         return &PK_ATOM_NIL;
