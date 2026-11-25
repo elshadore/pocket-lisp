@@ -7,8 +7,10 @@ Pocket Lisp in an embeddable Lisp Virtual Machine designed for scripting and aut
 # Build Options
 
 - `build.zig`
-  Run `zig build run` in the commandline to build to test REPL.
+
+  Run `zig build run` in the command line to build to test REPL.
   *Note to developers*. When developing Pocket Lisp build with zig as this regenerates the lisp sources.
   
 - `all/pocket_all.c`
+
   Simply `#include all/pocket_all.c` into a c source file and compile with your favourite c compiler.

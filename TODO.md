@@ -19,8 +19,6 @@ The todo list for POCKET LISP
   - printing
   - parsing
   
-- [ ] Testing Suite
-
 - [ ] Environment Letting (with Objects)
   - `(let-environment (var-object fun-object) ...)`
 
@@ -70,6 +68,8 @@ The todo list for POCKET LISP
    - review `mlua` rust package
    
 ## V2
+- [ ] Testing Suite
+
 - [ ] Think about blob endianness
   - control variable for endianness + system endianness
   
