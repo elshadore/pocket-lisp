@@ -531,6 +531,9 @@ bool pk_atom_is_function(PKAtom *atom);
 bool pk_atom_is_array(PKAtom *atom);
 bool pk_atom_is_object(PKAtom *atom);
 bool pk_atom_is_immortal(PKAtom *atom);
+bool pk_atom_is_cmacro(PKAtom *atom);
+bool pk_atom_is_macro(PKAtom *atom);
+bool pk_atom_is_lmacro(PKAtom *atom);
 
 bool pk_atom_is_macro(PKAtom *atom);
 
@@ -542,6 +545,7 @@ PKAtomString *pk_atom_assert_string_nil_is_empty(Pocket lisp, PKAtom *atom);
 PKAtomSymbol *pk_atom_assert_symbol(Pocket lisp, PKAtom *atom);
 PKAtomKeyword *pk_atom_assert_keyword(Pocket lisp, PKAtom *atom);
 PKAtomLFun *pk_atom_assert_lfun(Pocket lisp, PKAtom *atom);
+PKAtomLFun *pk_atom_assert_lfun_or_lmacro(Pocket lisp, PKAtom *atom);
 PKAtomCFun *pk_atom_assert_cfun(Pocket lisp, PKAtom *atom);
 PKAtomArray *pk_atom_assert_array(Pocket lisp, PKAtom *atom);
 PKAtomObject *pk_atom_assert_object(Pocket lisp, PKAtom *atom);
@@ -892,6 +896,9 @@ bool pk_char_is_symbol(char c);
 char pk_char_from_hex(pk_u8 byte);
 bool pk_char_is_hex(char c);
 pk_u8 pk_char_to_hex(char c);
+
+pk_u8 pk_byte_cast(Pocket lisp, size_t word);
+pk_u8 pk_byte_inc(Pocket lisp, pk_u8 byte);
 
 PKBlob pk_blob_alloc(Pocket lisp, size_t length);
 PKBlob pk_blob_dupe(Pocket lisp, PKBlob input);

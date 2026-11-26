@@ -208,6 +208,14 @@ bool pk_macroexpand_(Pocket lisp, int atom) {
     }
 }
 
+bool pk_atom_is_cmacro(PKAtom *atom) {
+    return atom->header.type == PK_ATOMTY_CMACRO;
+}
+
+bool pk_atom_is_lmacro(PKAtom *atom) {
+    return atom->header.type == PK_ATOMTY_LMACRO;
+}
+
 bool pk_atom_is_macro(PKAtom *atom) {
-    return (atom->header.type == PK_ATOMTY_CMACRO) || (atom->header.type == PK_ATOMTY_LMACRO);
+    return pk_atom_is_cmacro(atom) || pk_atom_is_lmacro(atom);
 }

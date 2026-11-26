@@ -146,6 +146,7 @@ PKAtomString *pk_lfun_hexdump(Pocket lisp, PKAtomLFun *lfun) {
 }
 
 PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom) {
+    // TODO: function lookup utility;
     PKAtom *a = atom;
     if (pk_atom_is_symbol(a)) {
         a = pk_env_fetch(lisp, PK_ENV_FUN, (PKAtomSymbol *)a);
@@ -155,8 +156,7 @@ PKAtomString *pk_atom_hexdump(Pocket lisp, PKAtom *atom) {
             return &PK_ATOM_EMPTY_STRING;
         }
     }
-    PKAtomLFun *lfun = pk_atom_assert_lfun(lisp, a);
-    return pk_lfun_hexdump(lisp, lfun);
+    return pk_lfun_hexdump(lisp, pk_atom_assert_lfun_or_lmacro(lisp, a));
 }
 
 bool pk_atom_is_cfun(PKAtom *atom) {
@@ -176,6 +176,18 @@ PKAtomLFun *pk_atom_assert_lfun(Pocket lisp, PKAtom *atom) {
         PKStr ty = pk_ident_atomty(atom->header.type);
         pk_errorf(lisp, "pk_atom_assert_lfun: expected a lfun, got %.*s", (int)ty.length, ty.c);
     }
+    return (PKAtomLFun *)atom;
+}
+
+PKAtomLFun *pk_atom_assert_lfun_or_lmacro(Pocket lisp, PKAtom *atom) {
+    if (pk_atom_is_lfun(atom)) {
+        return (PKAtomLFun *)atom;
+    }
+    if (pk_atom_is_lmacro(atom)) {
+        return (PKAtomLFun *)atom;
+    }
+    PKStr ty = pk_ident_atomty(atom->header.type);
+    pk_errorf(lisp, "pk_atom_assert_lfun_or_lmacro: expected a lfun or lmacro, got %.*s", (int)ty.length, ty.c);
     return (PKAtomLFun *)atom;
 }
 

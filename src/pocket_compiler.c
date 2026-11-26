@@ -23,6 +23,20 @@ typedef struct PKAtomCompileData_ {
     PKAtom *result;
 } PKAtomCompileData;
 
+typedef struct PKCompileLambdaData_ {
+    PKCompiler c;
+    PKAtom *args;
+    PKAtom *body;
+} PKCompileLambdaData;
+
+typedef struct PKCompileJmpData_ {
+    PKBytes patches;
+    PKCompiler *c;
+    PKAtom *args;
+    pk_u8 op;
+    pk_u8 empty_op;
+} PKCompileJmpData;
+
 PKCompiler pk_cmp_new(PK_CALL type) {
     return (PKCompiler) {
         .atoms = PK_ARRAY_EMPTY,
@@ -688,14 +702,6 @@ void pk_compile_jmp_(Pocket lisp, PKCompiler *c, PKAtom *args, pk_u8 op, pk_u8 e
     }
 }
 
-typedef struct PKCompileJmpData_ {
-    PKBytes patches;
-    PKCompiler *c;
-    PKAtom *args;
-    pk_u8 op;
-    pk_u8 empty_op;
-} PKCompileJmpData;
-
 void pk_compile_jmp_body(void *user_closure, Pocket lisp) {
     PKCompileJmpData *data = (PKCompileJmpData *)user_closure;
     pk_compile_jmp_(lisp, data->c, data->args, data->op, data->empty_op, &data->patches);
@@ -756,19 +762,15 @@ void pk_compile_var(Pocket lisp, PKCompiler *c, PKAtom *form, PK_ENV env) {
     }
 }
 
-void pk_compile_special(Pocket lisp, PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args, bool *is_special) {
+bool pk_compile_special(Pocket lisp, PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args) {
     if (symbol == lisp->cache.lambda) {
         PKAtomCons *a = pk_atom_assert_cons(lisp, args);
         PKAtomLFun *lfun = pk_compile_lambda(lisp, PK_CALL_FUN, a->car, a->cdr);
         pk_cmp_load(lisp, c, (PKAtom *)lfun);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.macro) {
         PKAtomCons *a = pk_atom_assert_cons(lisp, args);
         PKAtomLFun *lfun = pk_compile_lambda(lisp, PK_CALL_MACRO, a->car, a->cdr);
         pk_cmp_load(lisp, c, (PKAtom *)lfun);
-
-        *is_special = true;
     } else if ((symbol == lisp->cache.defun) || (symbol == lisp->cache.defmacro)) {
         PKAtomCons *a = pk_atom_assert_cons(lisp, args);
         (void)pk_atom_assert_symbol(lisp, a->car);
@@ -785,8 +787,6 @@ void pk_compile_special(Pocket lisp, PKCompiler *c, PKAtomSymbol *symbol, PKAtom
         pk_cmp_load(lisp, c, (PKAtom *)lfun);
         pk_cmp_push_byte(lisp, c, PK_OP_SET_FUN);
         pk_cmp_load(lisp, c, a->car);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.defvar) {
         PKAtomCons *a = pk_atom_assert_cons(lisp, args);
         (void)pk_atom_assert_symbol(lisp, a->car);
@@ -804,14 +804,10 @@ void pk_compile_special(Pocket lisp, PKCompiler *c, PKAtomSymbol *symbol, PKAtom
 
         pk_cmp_push_byte(lisp, c, PK_OP_SET_VAR);
         pk_cmp_load(lisp, c, a->car);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.quote) {
         PKAtomCons *a = pk_atom_assert_cons(lisp, args);
         (void)pk_atom_assert_nil(lisp, a->cdr);
         pk_cmp_load(lisp, c, a->car);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.sym_while) {
         PKAtomCons *a = pk_atom_assert_cons(lisp, args);
 
@@ -835,8 +831,6 @@ void pk_compile_special(Pocket lisp, PKCompiler *c, PKAtomSymbol *symbol, PKAtom
         pk_cmp_patch_byte(lisp, c, patch, pk_cmp_addr(c) + 1 - patch);
 
         pk_cmp_push_byte(lisp, c, PK_OP_BLOCK_END);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.sym_if) {
         PKAtomCons *a = pk_atom_assert_cons(lisp, args);
         PKAtom *value = a->car;
@@ -866,74 +860,45 @@ void pk_compile_special(Pocket lisp, PKCompiler *c, PKAtomSymbol *symbol, PKAtom
 
         pk_cmp_patch_byte(lisp, c, patch_1, jump_to_f);
         pk_cmp_patch_byte(lisp, c, patch_2, jump_from_t);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.quasiquote) {
         PKAtomCons *a = pk_atom_assert_cons(lisp, args);
         (void)pk_atom_assert_nil(lisp, a->cdr);
         pk_compile_quasiquote(lisp, c, a->car);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.unquote) {
         pk_errors(lisp, pk_str("unquote outside quasiquote"));
     } else if (symbol == lisp->cache.let) {
         pk_compile_let(lisp, c, args, PK_ENV_VAR);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.flet) {
         pk_compile_let(lisp, c, args, PK_ENV_FUN);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.let_star) {
         pk_compile_let_star(lisp, c, args, PK_ENV_VAR);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.flet_star) {
         pk_compile_let_star(lisp, c, args, PK_ENV_FUN);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.progn) {
         pk_compile_progn(lisp, c, args);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.string_substitute) {
         PKAtomCons *a = pk_atom_assert_cons(lisp, args);
         PKAtomString *string = pk_atom_assert_string(lisp, a->car);
         (void)pk_atom_assert_nil(lisp, a->cdr);
         pk_compile_strsub(lisp, c, string->str);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.var) {
         pk_compile_var(lisp, c, args, PK_ENV_VAR);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.protect) {
         pk_compile_protect(lisp, c, args);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.fvar) {
         pk_compile_var(lisp, c, args, PK_ENV_FUN);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.sym_and) {
         pk_compile_jmp(lisp, c, args, PK_OP_JMP_UNLESS, PK_OP_LOAD_TRUE);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.sym_or) {
         pk_compile_jmp(lisp, c, args, PK_OP_JMP_WHEN, PK_OP_LOAD_NIL);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.setq) {
         pk_compile_set(lisp, c, args, PK_ENV_VAR);
-
-        *is_special = true;
     } else if (symbol == lisp->cache.fsetq) {
         pk_compile_set(lisp, c, args, PK_ENV_FUN);
-
-        *is_special = true;
     } else {
-        *is_special = false;
+        return false;
     }
+    return true;
 }
 
 void pk_compile_evlist(Pocket lisp, PKCompiler *c, PKAtom *args) {
@@ -950,21 +915,21 @@ void pk_compile_expression(Pocket lisp, PKCompiler *c, PKAtom *expr) {
     PKAtomSymbol *symbol = pk_atom_assert_symbol(lisp, a->car);
     PKAtom *body = a->cdr;
 
-    {
-        bool is_special = false;
-        pk_compile_special(lisp, c, symbol, body, &is_special);
-
-        if (is_special) {
-            return;
-        }
+    if (pk_compile_special(lisp, c, symbol, body)) {
+        return;
     }
 
     size_t acc = 0;
-    PKAtom *iter = body;
-    while (pk_atom_is_cons(iter)) {
-        pk_compile_value(lisp, c, iter->cons.car);
-        acc += 1;
-        iter = iter->cons.cdr;
+    {
+        PKAtom *iter = body;
+        while (pk_atom_is_cons(iter)) {
+            pk_compile_value(lisp, c, iter->cons.car);
+            acc += 1;
+            iter = iter->cons.cdr;
+        }
+        if (!pk_atom_is_nil(iter)) {
+            pk_errors(lisp, pk_str("malformed list"));
+        }
     }
 
     if (acc >= UINT8_MAX) {
@@ -1024,6 +989,67 @@ PKAtomLFun *pk_compile_compile(Pocket lisp, PKCompiler *c, pk_u8 args, pk_u8 ari
     c->transferred = true;
 
     return result;
+}
+
+typedef struct PKDSB_ {
+    pk_u8 args;
+    pk_u8 mode;
+    pk_u8 option;
+} PKDSB;
+
+PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
+    pk_u8 arity = PK_INT_ARITY_NORMAL;
+    
+    size_t nargs = 0;
+    size_t option = 0;
+    
+    PKAtom *iter = args;
+    while (pk_atom_is_cons(iter)) {
+        PKAtom *atom = iter->cons.car;
+        if (pk_atom_is_symbol(atom)) {
+            pk_cmp_load(lisp, c, atom);
+            nargs += 1;
+        } else if (pk_atom_is_keyword(atom)) {
+            if (arity != PK_INT_ARITY_NORMAL) {
+                pk_errors(lisp, pk_str("can only have one keyword mode"));
+            }
+            PKAtomKeyword *keyword = (PKAtomKeyword *)atom;
+            if (pk_atom_keyword_cmp(keyword, pk_str("opt")) || pk_atom_keyword_cmp(keyword, pk_str("optional"))) {
+                arity = PK_INT_ARITY_OPTIONAL;
+                iter = iter->cons.cdr;
+                while (pk_atom_is_cons(iter)) {
+                    PKAtomSymbol *symbol = pk_atom_assert_symbol(lisp, iter->cons.car);
+                    pk_cmp_load(lisp, c, (PKAtom *)symbol);
+                    nargs += 1;
+                    option += 1;
+                    iter = iter->cons.cdr;
+                }
+                goto DONE;
+            } else if (pk_atom_keyword_cmp(keyword, pk_str("rest"))) {
+                arity = PK_INT_ARITY_VARIADIC;
+                PKAtomCons *rest = pk_atom_assert_cons(lisp, iter->cons.cdr);
+                nargs += 1;
+                iter = rest->cdr;
+                goto DONE;
+            } else {
+                PKStr key = keyword->name->str;
+                pk_errorf(lisp, "unknown lambda keyword directive: %.*s", (int)key.length, key.c);
+            }
+        } else {
+            pk_error_type2(lisp, atom, PK_TYPE_SYMBOL, PK_TYPE_KEYWORD);
+        }
+        iter = iter->cons.cdr;
+    }
+    DONE:
+    
+    pk_cmp_push_byte(lisp, c, PK_OP_LET);
+    pk_cmp_push_any(lisp, c, nargs);
+    
+    return (PKDSB) {
+        .args = nargs,
+        .mode = arity,
+        .option = pk_byte_cast(lisp, option),
+    };
 }
 
 PKAtomLFun *pk_compile_lambda_(Pocket lisp, PKCompiler *c, PKAtom *args, PKAtom *body) {
@@ -1163,12 +1189,6 @@ PKAtomLFun *pk_compile_lambda_(Pocket lisp, PKCompiler *c, PKAtom *args, PKAtom 
 
     return pk_compile_compile(lisp, c, nargs, arity, nargs - option_start);
 }
-
-typedef struct PKCompileLambdaData_ {
-    PKCompiler c;
-    PKAtom *args;
-    PKAtom *body;
-} PKCompileLambdaData;
 
 void pk_compile_lambda_body(void *user_closure, Pocket lisp) {
     PKCompileLambdaData *data = (PKCompileLambdaData *)user_closure;

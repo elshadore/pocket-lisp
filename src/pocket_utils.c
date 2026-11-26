@@ -1,5 +1,23 @@
 #include "pocket_internals.h"
 
+pk_u8 pk_byte_cast(Pocket lisp, size_t word) {
+    if (word == UCHAR_MAX) {
+        pk_errors(lisp, pk_str("word bigger than byte max: 255"));
+        return 0;
+    } else {
+        return (pk_u8)word;
+    }
+}
+
+pk_u8 pk_byte_inc(Pocket lisp, pk_u8 byte) {
+    if (byte == UCHAR_MAX) {
+        pk_errors(lisp, pk_str("too many arguments, max: 255"));
+        return 0;
+    } else {
+        return byte + 1;
+    }
+}
+
 PKBlob pk_blob_alloc(Pocket lisp, size_t length) {
     if (length == 0) {
         return PK_BLOB_EMPTY;
