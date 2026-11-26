@@ -2,41 +2,31 @@
 The todo list for POCKET LISP
 
 ## V1
-- [ ] Create CMake Build
-
-- [ ] floats
-  - printing
-  - parsing
-  
-- [ ] Other Functions
-  - slice
-  
-- [ ] Environment Letting (with Objects)
-  - `(let-environment (var-object fun-object) ...)`
-
-- [ ] Pretty Printing
-
 - [ ] User Review of Compiler
   - in particular, destructuring bind.
 - [ ] User Review of Macro
 - [ ] User Review of wether we are allocating too much on the stack in the bytecode VM
    - i.e we are not popping temp values
   
+- [ ] Environment Letting (with Objects)
+  - `(let-environment (var-object fun-object) ...)`
+
+- [ ] Upgrade to Arbitary Precision Bytecode
+  - Not limited to 8bit args
+  
 - [ ] `unwind-protect`
     
 - [ ] keyword arguments
   `(def foo (a b :key c d e)
       (print $"{a}, {b}, {c}, {d}, {e}"))`
-  
-- [ ] Small, Big, Symbol, Pools
-  
-- [ ] Upgrade to Arbitary Precision Bytecode
-  - Not limited to 8bit args
-  
-- [ ] Remove ternary operator from all c code.
 
 - [ ] Lock Special Form Symbols
   - Cannot Set the Function
+  - Object on Function &<Object:Special-Form-Marker::(:doc "This is quote o algo.")>
+
+- [ ] Create CMake Build
+
+- [ ] Pretty Printing
 
 - [ ] Variables
   - number printing style
@@ -46,14 +36,63 @@ The todo list for POCKET LISP
   - gc enabled
   - pretty printing
   
-- [ ] Memory Used
-  - `(memory-used) -> 10000`
-  - keep track of dynamically allocated memory count
-  - also keep track of current pool usage
+- [ ] mathmatical constants
+  - pi
+  - tau
+  - epsilon
+  
+- [ ] cxr Functions
+
+- [ ] Logic Operations
+  - nand
+  - nor
+  - xnor
+  - xor
+  - imply
+  - nimply
+  - converse
+  - converse-nimply
+
+- [ ] Generic Slice Functions
+  list, array, string, blob
+  - slice
+  - first
+  - second
+  - third
+  - rest
+  
+- [ ] array-map, array-filter
+  - seq-map, seq-filter, seq-reduce
+  
+- [ ] floats
+  - printing
+  - parsing
+  
+- [ ] More Math Functions
+  - `(clamp x min max)`
+  - `(wrap x min max)`
   
 - [ ] Byte Math
   - `(byte+ 255 1) -> 0`
   Basically just wrapping
+  
+- [ ] Form of Split that Keeps Blanks
+  - `(split "foo  foo   foo " " ") -> "foo" "" "foo" "" "" "foo" ""`
+  - `(split "foo  foo   foo " " " true) -> "foo" "foo" "foo"`
+  
+- [ ] String Slices
+  - atom type
+- [ ] Blob Slices
+  - atom type
+
+- [ ] Small, Big, Symbol, Pools
+  
+- [ ] Remove ternary operator from all c code.
+
+- [ ] Memory Used
+  - `(memory-used) -> 10000`
+  - keep track of dynamically allocated memory count
+  - also keep track of current pool usage
   
 - [ ] Document C Functions
 - [ ] Documentation Properties
@@ -103,6 +142,9 @@ The todo list for POCKET LISP
   - [ ] Printing
 - [ ] Vectors, Matrices, and Quaternions
   
+- [ ] Namespaces / Modules / Packages
+- [ ] Self-like Object System
+
 - [ ] Read Common Lisp Standard
 - [ ] `ecase`
 - [ ] Error Stack Trace

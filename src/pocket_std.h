@@ -5,6 +5,9 @@
  "(defun document (object :opt doc)\n" \
  "     (put object 'doc doc)\n" \
  "     doc)\n" \
+ "     \n" \
+ "(defun document-variable (symbol :opt doc)\n" \
+ "     (document symbol doc))\n" \
  "\n" \
  "(defun document-function (symbol :opt doc)\n" \
  "     (document (ffetch symbol) doc))\n" \
@@ -158,6 +161,28 @@
  "    (when x\n" \
  "        (if (cdr x)\n" \
  "            (apply 'cat x)\n" \
- "            (car x))))\n"
+ "            (car x))))\n" \
+ "\n" \
+ "(defun line-count (string)\n" \
+ "    (length (split string \"\\n\")))\n" \
+ "\n" \
+ "(defun nand (a b)\n" \
+ "    (not (and a b)))\n" \
+ "\n" \
+ "(defun nor (a b)\n" \
+ "    (not (or a b)))\n" \
+ "\n" \
+ "(defvar *file-read-mode* 'string)\n" \
+ "\n" \
+ "(document-variable '*file-read-mode*\n" \
+ "     \"Special variable controlling the read mode for `file-read', values expected to be symbol of `string', or `bytes'\")\n" \
+ "\n" \
+ "(defun file-read (file :opt mode)\n" \
+ "     (var mode (or mode *file-read-mode*))\n" \
+ "     (if (= mode 'string)\n" \
+ "        (file-read-string file)\n" \
+ "        (if (= mode 'bytes)\n" \
+ "            (file-read-bytes file)\n" \
+ "            (error $\"invalid file read mode: {mode}, expected: string, or bytes\"))))\n"
 
 #endif // POCKET_STD_H

@@ -1,6 +1,9 @@
 (defun document (object :opt doc)
      (put object 'doc doc)
      doc)
+     
+(defun document-variable (symbol :opt doc)
+     (document symbol doc))
 
 (defun document-function (symbol :opt doc)
      (document (ffetch symbol) doc))
@@ -155,3 +158,25 @@
         (if (cdr x)
             (apply 'cat x)
             (car x))))
+
+(defun line-count (string)
+    (length (split string "\n")))
+
+(defun nand (a b)
+    (not (and a b)))
+
+(defun nor (a b)
+    (not (or a b)))
+
+(defvar *file-read-mode* 'string)
+
+(document-variable '*file-read-mode*
+     "Special variable controlling the read mode for `file-read', values expected to be symbol of `string', or `bytes'")
+
+(defun file-read (file :opt mode)
+     (var mode (or mode *file-read-mode*))
+     (if (= mode 'string)
+        (file-read-string file)
+        (if (= mode 'bytes)
+            (file-read-bytes file)
+            (error $"invalid file read mode: {mode}, expected: string, or bytes"))))
