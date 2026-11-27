@@ -109,3 +109,30 @@
         :on-click 'funny-function
     )
 )
+
+## Example of Namespaces
+
+(in-namespace :foo)
+
+(defun bar (x)
+    :doc "This function exists."
+    (* x x))
+
+(in-namespace :user)
+
+(foo:bar 4)
+
+(namespace-import :foo :as :f)
+
+(f:bar 4)
+
+(namespace-import :foo)
+
+(bar 4)
+
+##
+
+(cge:spawn-gameobject
+    :pos '(2 2 2)
+    :state (object 'Hello :data 69)
+    :on-update 'updoot)

@@ -37,6 +37,12 @@ typedef struct PKCompileJmpData_ {
     pk_u8 empty_op;
 } PKCompileJmpData;
 
+typedef struct PKDSB_ {
+    pk_u8 args;
+    pk_u8 arity;
+    pk_u8 option;
+} PKDSB;
+
 PKCompiler pk_cmp_new(PK_CALL type) {
     return (PKCompiler) {
         .atoms = PK_ARRAY_EMPTY,
@@ -991,11 +997,9 @@ PKAtomLFun *pk_compile_compile(Pocket lisp, PKCompiler *c, pk_u8 args, pk_u8 ari
     return result;
 }
 
-typedef struct PKDSB_ {
-    pk_u8 args;
-    pk_u8 mode;
-    pk_u8 option;
-} PKDSB;
+/* PKDSB pk_compile_destructure_list(Pocket lisp, PKAtom *list) { */
+    
+/* } */
 
 PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
     pk_u8 arity = PK_INT_ARITY_NORMAL;
@@ -1006,37 +1010,47 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
     PKAtom *iter = args;
     while (pk_atom_is_cons(iter)) {
         PKAtom *atom = iter->cons.car;
-        if (pk_atom_is_symbol(atom)) {
-            pk_cmp_load(lisp, c, atom);
-            nargs += 1;
-        } else if (pk_atom_is_keyword(atom)) {
-            if (arity != PK_INT_ARITY_NORMAL) {
-                pk_errors(lisp, pk_str("can only have one keyword mode"));
-            }
-            PKAtomKeyword *keyword = (PKAtomKeyword *)atom;
-            if (pk_atom_keyword_cmp(keyword, pk_str("opt")) || pk_atom_keyword_cmp(keyword, pk_str("optional"))) {
-                arity = PK_INT_ARITY_OPTIONAL;
-                iter = iter->cons.cdr;
-                while (pk_atom_is_cons(iter)) {
-                    PKAtomSymbol *symbol = pk_atom_assert_symbol(lisp, iter->cons.car);
-                    pk_cmp_load(lisp, c, (PKAtom *)symbol);
-                    nargs += 1;
-                    option += 1;
-                    iter = iter->cons.cdr;
-                }
-                goto DONE;
-            } else if (pk_atom_keyword_cmp(keyword, pk_str("rest"))) {
-                arity = PK_INT_ARITY_VARIADIC;
-                PKAtomCons *rest = pk_atom_assert_cons(lisp, iter->cons.cdr);
+        switch (atom->header.type) {
+            case PK_ATOMTY_SYMBOL: {
+                pk_cmp_load(lisp, c, atom);
                 nargs += 1;
-                iter = rest->cdr;
-                goto DONE;
-            } else {
-                PKStr key = keyword->name->str;
-                pk_errorf(lisp, "unknown lambda keyword directive: %.*s", (int)key.length, key.c);
+                break;
             }
-        } else {
-            pk_error_type2(lisp, atom, PK_TYPE_SYMBOL, PK_TYPE_KEYWORD);
+            case PK_ATOMTY_KEYWORD: {
+                if (arity != PK_INT_ARITY_NORMAL) {
+                    pk_errors(lisp, pk_str("can only have one keyword mode"));
+                }
+                PKAtomKeyword *keyword = (PKAtomKeyword *)atom;
+                if (pk_atom_keyword_cmp(keyword, pk_str("opt")) || pk_atom_keyword_cmp(keyword, pk_str("optional"))) {
+                    arity = PK_INT_ARITY_OPTIONAL;
+                    iter = iter->cons.cdr;
+                    while (pk_atom_is_cons(iter)) {
+                        PKAtomSymbol *symbol = pk_atom_assert_symbol(lisp, iter->cons.car);
+                        pk_cmp_load(lisp, c, (PKAtom *)symbol);
+                        nargs += 1;
+                        option += 1;
+                        iter = iter->cons.cdr;
+                    }
+                    goto DONE;
+                } else if (pk_atom_keyword_cmp(keyword, pk_str("rest"))) {
+                    arity = PK_INT_ARITY_VARIADIC;
+                    PKAtomCons *rest = pk_atom_assert_cons(lisp, iter->cons.cdr);
+                    nargs += 1;
+                    iter = rest->cdr;
+                    goto DONE;
+                } else {
+                    PKStr key = keyword->name->str;
+                    pk_errorf(lisp, "unknown lambda keyword directive: %.*s", (int)key.length, key.c);
+                }
+                break;
+            }
+            case PK_ATOMTY_CONS: {
+                break;
+            }
+            default: {
+                pk_error_type3(lisp, atom, PK_TYPE_SYMBOL, PK_TYPE_KEYWORD, PK_TYPE_CONS);
+                break;
+            }
         }
         iter = iter->cons.cdr;
     }
@@ -1047,147 +1061,17 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
     
     return (PKDSB) {
         .args = nargs,
-        .mode = arity,
-        .option = pk_byte_cast(lisp, option),
+        .arity = arity,
+        .option = pk_byte_cast(lisp, nargs - option),
     };
 }
 
 PKAtomLFun *pk_compile_lambda_(Pocket lisp, PKCompiler *c, PKAtom *args, PKAtom *body) {
-    pk_u8 nargs = 0;
-    pk_u8 arity = PK_INT_ARITY_NORMAL;
-    pk_u8 option_start = 0;
-    bool optional = false;
-    bool variadic = false;
-    bool patterns = false;
-
-    {
-        PKAtom *iter = args;
-        while (pk_atom_is_cons(iter)) {
-            PKAtom *atom = iter->cons.car;
-            PKAtom *tail = iter->cons.cdr;
-
-            if (pk_atom_is_keyword(atom)) {
-                PKAtomKeyword *keyword = (PKAtomKeyword *)atom;
-                if (variadic) {
-                    pk_errors(lisp, pk_str("bad keyword arg"));
-                }
-                if (pk_atom_keyword_cmp(keyword, pk_str("rest"))) {
-                    arity = PK_INT_ARITY_VARIADIC;
-                    variadic = true;
-                } else if (pk_atom_keyword_cmp(keyword, pk_str("opt")) ||
-                           pk_atom_keyword_cmp(keyword, pk_str("optional"))) {
-                    if (!optional) {
-                        option_start = nargs;
-                        optional = true;
-                    }
-                    arity = PK_INT_ARITY_OPTIONAL;
-
-                    if ((!pk_atom_is_cons(tail)) || (!pk_atom_is_symbol(tail->cons.car))) {
-                        pk_errors(lisp, pk_str("bad destructure"));
-                    }
-                }
-            } else {
-                if (pk_atom_is_cons(atom)) {
-                    if (optional || variadic) {
-                        pk_errors(lisp, pk_str("bad destructure"));
-                    }
-                    patterns = true;
-                } else {
-                    pk_atom_assert_symbol(lisp, atom);
-                }
-
-                if (variadic) {
-                    (void)pk_atom_assert_nil(lisp, iter->cons.cdr);
-                } else {
-                    if (nargs == (UINT8_MAX - 1)) {
-                        pk_errors(lisp, pk_str("too many args"));
-                    }
-                    nargs += 1;
-                }
-            }
-
-            iter = iter->cons.cdr;
-        }
-    }
-
-    if (!optional) {
-        option_start = nargs;
-    }
-
-    pk_u8 lets = variadic ? (pk_u8)(nargs + 1) : nargs;
-
-    if (patterns) {
-        size_t pushed = 0;
-        pk_u8 slots = lets;
-        size_t index = 0;
-
-        PKAtom *iter = args;
-        while (pk_atom_is_cons(iter)) {
-            PKAtom *atom = iter->cons.car;
-
-            if (pk_atom_is_keyword(atom)) {
-                iter = iter->cons.cdr;
-                continue;
-            }
-
-            size_t bias = (slots - 1) - index;
-
-            if (pk_atom_is_symbol(atom)) {
-                pk_cmp_push_byte(lisp, c, PK_OP_DIG);
-                pk_cmp_push_any(lisp, c, pushed + bias);
-                pushed += 1;
-            } else {
-                pk_compile_pattern_values(lisp, c, atom, bias, false, &pushed);
-            }
-
-            index += 1;
-            iter = iter->cons.cdr;
-        }
-
-        {
-            size_t leaves = 0;
-
-            iter = args;
-            while (pk_atom_is_cons(iter)) {
-                PKAtom *atom = iter->cons.car;
-
-                if (pk_atom_is_keyword(atom)) {
-                    iter = iter->cons.cdr;
-                    continue;
-                }
-
-                if (pk_atom_is_symbol(atom)) {
-                    pk_cmp_load(lisp, c, atom);
-                    leaves += 1;
-                } else {
-                    pk_compile_pattern_symbols(lisp, c, atom, false, &leaves);
-                }
-
-                iter = iter->cons.cdr;
-            }
-
-            lets = (pk_u8)leaves;
-        }
-    } else {
-        PKAtom *iter = args;
-        while (pk_atom_is_cons(iter)) {
-            PKAtom *atom = iter->cons.car;
-            if ((!pk_atom_is_keyword(atom)) && pk_atom_is_symbol(atom)) {
-                pk_cmp_load(lisp, c, atom);
-            }
-            iter = iter->cons.cdr;
-        }
-    }
-
-    if (lets > 0) {
-        pk_cmp_push_byte(lisp, c, PK_OP_LET);
-        pk_cmp_push_byte(lisp, c, lets);
-    }
-
+    PKDSB dsb = pk_compile_destructure(lisp, c, args);
     pk_compile_evlist(lisp, c, body);
     pk_cmp_push_byte(lisp, c, PK_OP_RET);
 
-    return pk_compile_compile(lisp, c, nargs, arity, nargs - option_start);
+    return pk_compile_compile(lisp, c, dsb.args, dsb.arity, dsb.option);
 }
 
 void pk_compile_lambda_body(void *user_closure, Pocket lisp) {
