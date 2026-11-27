@@ -89,6 +89,13 @@ typedef struct PKCompiler_ {
     bool transferred;
 } PKCompiler;
 
+typedef struct PKDSB_ {
+    pk_u8 args;
+    pk_u8 lets;
+    pk_u8 arity;
+    pk_u8 option;
+} PKDSB;
+
 typedef struct PKVM_ {
     PKAtom *lfun;
     size_t curr;
@@ -939,6 +946,7 @@ size_t pk_hash_pointer(void *ptr);
 bool pk_float_is_whole(float floater, int *integer);
 
 void pk_compile_value(Pocket lisp, PKCompiler *c, PKAtom *value);
+PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args);
 void pk_cmp_push_byte(Pocket lisp, PKCompiler *c, pk_u8 byte);
 void pk_cmp_push_any(Pocket lisp, PKCompiler *c, size_t value);
 void pk_cmp_push_atom(Pocket lisp, PKCompiler *c, PKAtom *atom);

@@ -13,6 +13,7 @@
 #endif // PK_CFLAG_DEBUG
 
 #include "../src/pocket_destroy.c"
+#include "../src/pocket_dsb.c"
 #include "../src/pocket_env.c"
 #include "../src/pocket_eval.c"
 #include "../src/pocket_frame.c"
