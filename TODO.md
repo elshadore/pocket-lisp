@@ -101,6 +101,8 @@ The todo list for POCKET LISP
 - [ ] Full Code Review
   - Fug Bixes
   
+- [ ] Build fails without debug flag
+
 - [ ] Emacs Mode Syntax Highlighting
   - basic syntax highlighter
 

@@ -1,8 +1,8 @@
 #include "pocket_internals.h"
 
-/* PKDSB pk_compile_destructure_list(Pocket lisp, PKAtom *list) { */
+PKDSB pk_compile_destructure_list(Pocket lisp, PKAtom *list) {
     
-/* } */
+}
 
 PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
     pk_u8 arity = PK_INT_ARITY_NORMAL;
