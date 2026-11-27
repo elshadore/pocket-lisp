@@ -39,6 +39,7 @@ typedef struct PKCompileJmpData_ {
 
 typedef struct PKDSB_ {
     pk_u8 args;
+    pk_u8 lets;
     pk_u8 arity;
     pk_u8 option;
 } PKDSB;
@@ -1005,6 +1006,7 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
     pk_u8 arity = PK_INT_ARITY_NORMAL;
     
     size_t nargs = 0;
+    size_t lets = 0;
     size_t option = 0;
     
     PKAtom *iter = args;
@@ -1014,6 +1016,7 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
             case PK_ATOMTY_SYMBOL: {
                 pk_cmp_load(lisp, c, atom);
                 nargs += 1;
+                lets += 1;
                 break;
             }
             case PK_ATOMTY_KEYWORD: {
@@ -1028,6 +1031,7 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
                         PKAtomSymbol *symbol = pk_atom_assert_symbol(lisp, iter->cons.car);
                         pk_cmp_load(lisp, c, (PKAtom *)symbol);
                         nargs += 1;
+                        lets += 1;
                         option += 1;
                         iter = iter->cons.cdr;
                     }
@@ -1035,7 +1039,9 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
                 } else if (pk_atom_keyword_cmp(keyword, pk_str("rest"))) {
                     arity = PK_INT_ARITY_VARIADIC;
                     PKAtomCons *rest = pk_atom_assert_cons(lisp, iter->cons.cdr);
-                    nargs += 1;
+                    PKAtomSymbol *symbol = pk_atom_assert_symbol(lisp, rest->car);
+                    pk_cmp_load(lisp, c, (PKAtom *)symbol);
+                    lets += 1;
                     iter = rest->cdr;
                     goto DONE;
                 } else {
@@ -1057,12 +1063,13 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
     DONE:
     
     pk_cmp_push_byte(lisp, c, PK_OP_LET);
-    pk_cmp_push_any(lisp, c, nargs);
-    
+    pk_cmp_push_any(lisp, c, lets);
+
     return (PKDSB) {
-        .args = nargs,
+        .args = pk_byte_cast(lisp, nargs),
+        .lets = pk_byte_cast(lisp, lets),
         .arity = arity,
-        .option = pk_byte_cast(lisp, nargs - option),
+        .option = pk_byte_cast(lisp, option),
     };
 }
 
