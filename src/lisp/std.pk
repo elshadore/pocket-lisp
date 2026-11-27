@@ -110,13 +110,13 @@
           (setq ,rhs ,temp))))
 
 ## Basic for loop syntax for iterating over a list.
-## (defmacro dolist ((el seq) :rest body)
-##      (let ((temp (gensym)))
-##          `(let ((,temp ,seq) (,el nil))
-##             (while ,temp
-##                (setq ,el (car ,temp))
-##                ,@body
-##                (setq ,temp (cdr ,temp))))))
+(defmacro dolist ((el seq) :rest body)
+     (let ((temp (gensym)))
+         `(let ((,temp ,seq) (,el nil))
+            (while ,temp
+               (setq ,el (car ,temp))
+               ,@body
+               (setq ,temp (cdr ,temp))))))
                    
 ## We expect a proper list as input. Not nil or a packed list.
 (defun last-cons (list)

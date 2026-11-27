@@ -53,6 +53,8 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
                 break;
             }
             case PK_ATOMTY_CONS: {
+                nargs += 1;
+                lets += pk_compile_destructure_list(lisp, atom).lets;
                 break;
             }
             default: {
