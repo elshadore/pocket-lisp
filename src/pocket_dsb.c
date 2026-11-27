@@ -1,6 +1,6 @@
 #include "pocket_internals.h"
 
-PKDSB pk_compile_destructure_list(Pocket lisp, PKAtom *list) {
+PKDSB pk_compile_destructure_list(Pocket lisp, PKCompiler *c, PKAtom *list) {
     
 }
 

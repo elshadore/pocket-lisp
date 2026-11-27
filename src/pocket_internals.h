@@ -947,6 +947,7 @@ bool pk_float_is_whole(float floater, int *integer);
 
 void pk_compile_value(Pocket lisp, PKCompiler *c, PKAtom *value);
 PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args);
+size_t pk_compile_destructure_list(Pocket lisp, PKCompiler *c, PKAtom *list, size_t bias, size_t *pushed);
 void pk_cmp_push_byte(Pocket lisp, PKCompiler *c, pk_u8 byte);
 void pk_cmp_push_any(Pocket lisp, PKCompiler *c, size_t value);
 void pk_cmp_push_atom(Pocket lisp, PKCompiler *c, PKAtom *atom);
