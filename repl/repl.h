@@ -7,6 +7,11 @@
  "(defun repl-quit ()\n" \
  "  (setq repl-running nil))\n" \
  "\n" \
+ "(defun test ()\n" \
+ "    (let ((*vm-debugger* true))\n" \
+ "         (dolist (el '(1 2 3 4 5))\n" \
+ "              (print el))))\n" \
+ "\n" \
  "(defun parse-eval-print (string)\n" \
  "  (print (catch 'error\n" \
  "      (var forms (parse-list string))\n" \

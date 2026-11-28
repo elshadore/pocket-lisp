@@ -3,6 +3,11 @@
 (defun repl-quit ()
   (setq repl-running nil))
 
+(defun test ()
+    (let ((*vm-debugger* true))
+         (dolist (el '(1 2 3 4 5))
+              (print el))))
+
 (defun parse-eval-print (string)
   (print (catch 'error
       (var forms (parse-list string))

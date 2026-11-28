@@ -955,6 +955,8 @@ void pk_cmp_load(Pocket lisp, PKCompiler *c, PKAtom *atom);
 
 void pk_compile_strsub(Pocket lisp, PKCompiler *c, PKStr string);
 
+void pk_compile_pattern_values(Pocket lisp, PKCompiler *c, PKAtom *pattern, size_t bias, bool optional, size_t *pushed);
+
 PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args);
 
 PKStr pk_ident_atomty(pk_u8 type);
