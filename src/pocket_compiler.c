@@ -730,38 +730,6 @@ void pk_compile_progn(Pocket lisp, PKCompiler *c, PKAtom *atom) {
     pk_cmp_push_byte(lisp, c, PK_OP_BLOCK_END);
 }
 
-void pk_compile_var(Pocket lisp, PKCompiler *c, PKAtom *form, PK_ENV env) {
-    PKAtomCons *a = pk_atom_assert_cons(lisp, form);
-    PKAtomCons *b = pk_atom_assert_cons(lisp, a->cdr);
-    (void)pk_atom_assert_nil(lisp, b->cdr);
-
-    pk_compile_value(lisp, c, b->car);
-
-    if (pk_atom_is_cons(a->car)) {
-        pk_compile_bind(lisp, c, a->car, env);
-    } else {
-        pk_atom_assert_symbol(lisp, a->car);
-
-        pk_cmp_push_byte(lisp, c, PK_OP_DIG);
-        pk_cmp_push_any(lisp, c, 0);
-
-        pk_cmp_load(lisp, c, a->car);
-
-        switch (env) {
-            case PK_ENV_VAR: {
-                pk_cmp_push_byte(lisp, c, PK_OP_LET);
-                pk_cmp_push_byte(lisp, c, 1);
-                break;
-            }
-            case PK_ENV_FUN: {
-                pk_cmp_push_byte(lisp, c, PK_OP_FLET);
-                pk_cmp_push_byte(lisp, c, 1);
-                break;
-            }
-        }
-    }
-}
-
 bool pk_compile_special(Pocket lisp, PKCompiler *c, PKAtomSymbol *symbol, PKAtom *args) {
     if (symbol == lisp->cache.lambda) {
         PKAtomCons *a = pk_atom_assert_cons(lisp, args);

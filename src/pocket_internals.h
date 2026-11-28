@@ -955,6 +955,7 @@ void pk_cmp_load(Pocket lisp, PKCompiler *c, PKAtom *atom);
 void pk_compile_strsub(Pocket lisp, PKCompiler *c, PKStr string);
 
 PKDSB pk_compile_lambda_args(Pocket lisp, PKCompiler *c, PKAtom *args);
+void pk_compile_var(Pocket lisp, PKCompiler *c, PKAtom *form, PK_ENV env);
 
 PKStr pk_ident_atomty(pk_u8 type);
 PKStr pk_ident_type(PK_TYPE type);
