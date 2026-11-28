@@ -62,19 +62,47 @@ size_t pk_compile_destructure_list(Pocket lisp, PKCompiler *c, PKAtom *list) {
     return pk_compile_destructure_list_symbol_loading(lisp, c, list);
 }
 
+size_t pk_lambda_list_symbol_count(Pocket lisp, PKAtom *args) {
+    (void)lisp;
+    size_t slots = 0;
+    PKAtom *iter = args;
+    while (pk_atom_is_cons(iter)) {
+        PKAtom *atom = iter->cons.car;
+        if (pk_atom_is_keyword(atom)) {
+            PKAtomKeyword *keyword = (PKAtomKeyword *)atom;
+            if (pk_atom_keyword_cmp(keyword, pk_str("opt")) || pk_atom_keyword_cmp(keyword, pk_str("optional"))) {
+                iter = iter->cons.cdr;
+                while (pk_atom_is_cons(iter)) {
+                    slots += 1;
+                    iter = iter->cons.cdr;
+                }
+                return slots;
+            } else if (pk_atom_keyword_cmp(keyword, pk_str("rest"))) {
+                slots += 1;
+                return slots;
+            }
+            return slots;
+        }
+        slots += 1;
+        iter = iter->cons.cdr;
+    }
+    return slots;
+}
+
 PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
     pk_u8 arity = PK_INT_ARITY_NORMAL;
     
     size_t nargs = 0;
     size_t option = 0;
     size_t index = 0;
+    size_t total = pk_lambda_list_symbol_count(lisp, args);
     
     PKAtom *iter = args;
     while (pk_atom_is_cons(iter)) {
         PKAtom *atom = iter->cons.car;
         switch (atom->header.type) {
             case PK_ATOMTY_SYMBOL: {
-                pk_cmp_let_stack(lisp, c, atom, index);
+                pk_cmp_let_stack(lisp, c, atom, total - 1 - index);
                 nargs += 1;
                 break;
             }
@@ -88,9 +116,10 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
                     iter = iter->cons.cdr;
                     while (pk_atom_is_cons(iter)) {
                         PKAtomSymbol *symbol = pk_atom_assert_symbol(lisp, iter->cons.car);
-                        pk_cmp_let_stack(lisp, c, (PKAtom *)symbol, index);
+                        pk_cmp_let_stack(lisp, c, (PKAtom *)symbol, total - 1 - index);
                         nargs += 1;
                         option += 1;
+                        index += 1;
                         iter = iter->cons.cdr;
                     }
                     goto DONE;
@@ -98,7 +127,7 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
                     arity = PK_INT_ARITY_VARIADIC;
                     PKAtomCons *rest = pk_atom_assert_cons(lisp, iter->cons.cdr);
                     PKAtomSymbol *symbol = pk_atom_assert_symbol(lisp, rest->car);
-                    pk_cmp_let_stack(lisp, c, (PKAtom *)symbol, index);
+                    pk_cmp_let_stack(lisp, c, (PKAtom *)symbol, total - 1 - index);
                     iter = rest->cdr;
                     goto DONE;
                 } else {
@@ -108,6 +137,11 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
                 break;
             }
             case PK_ATOMTY_CONS: {
+                pk_cmp_push_byte(lisp, c, PK_OP_DIG);
+                pk_cmp_push_any(lisp, c, total - 1 - index);
+                size_t lets = pk_compile_destructure_list(lisp, c, atom);
+                pk_cmp_push_byte(lisp, c, PK_OP_LET);
+                pk_cmp_push_any(lisp, c, lets);
                 nargs += 1;
                 break;
             }
