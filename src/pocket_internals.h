@@ -91,7 +91,6 @@ typedef struct PKCompiler_ {
 
 typedef struct PKDSB_ {
     pk_u8 args;
-    pk_u8 lets;
     pk_u8 arity;
     pk_u8 option;
 } PKDSB;
@@ -955,9 +954,7 @@ void pk_cmp_load(Pocket lisp, PKCompiler *c, PKAtom *atom);
 
 void pk_compile_strsub(Pocket lisp, PKCompiler *c, PKStr string);
 
-void pk_compile_pattern_values(Pocket lisp, PKCompiler *c, PKAtom *pattern, size_t bias, bool optional, size_t *pushed);
-
-PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args);
+PKDSB pk_compile_lambda_args(Pocket lisp, PKCompiler *c, PKAtom *args);
 
 PKStr pk_ident_atomty(pk_u8 type);
 PKStr pk_ident_type(PK_TYPE type);

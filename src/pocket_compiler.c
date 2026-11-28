@@ -992,7 +992,7 @@ PKAtomLFun *pk_compile_compile(Pocket lisp, PKCompiler *c, pk_u8 args, pk_u8 ari
 }
 
 PKAtomLFun *pk_compile_lambda_(Pocket lisp, PKCompiler *c, PKAtom *args, PKAtom *body) {
-    PKDSB dsb = pk_compile_destructure(lisp, c, args);
+    PKDSB dsb = pk_compile_lambda_args(lisp, c, args);
     pk_compile_evlist(lisp, c, body);
     pk_cmp_push_byte(lisp, c, PK_OP_RET);
 

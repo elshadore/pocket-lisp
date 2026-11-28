@@ -89,7 +89,7 @@ size_t pk_lambda_list_symbol_count(Pocket lisp, PKAtom *args) {
     return slots;
 }
 
-PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
+PKDSB pk_compile_lambda_args(Pocket lisp, PKCompiler *c, PKAtom *args) {
     pk_u8 arity = PK_INT_ARITY_NORMAL;
     
     size_t nargs = 0;
