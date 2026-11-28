@@ -1,7 +1,53 @@
 #include "pocket_internals.h"
 
-PKDSB pk_compile_destructure_list(Pocket lisp, PKCompiler *c, PKAtom *list) {
-    
+void pk_compile_destructure_list_destructure(Pocket lisp, PKCompiler *c, PKAtom *list) {
+    PKAtom *iter = list;
+    while (pk_atom_is_cons(iter)) {
+        PKAtom *atom = iter->cons.car;
+        pk_cmp_push_byte(lisp, c, PK_OP_LIST_POP);
+        switch (atom->header.type) {
+            case PK_ATOMTY_SYMBOL: {
+                break;
+            }
+            case PK_ATOMTY_CONS: {
+                pk_compile_destructure_list_destructure(lisp, c, atom);
+                break;
+            }
+            default: {
+                pk_error_type2(lisp, atom, PK_TYPE_SYMBOL, PK_TYPE_CONS);
+                break;
+            }
+        }
+        iter = iter->cons.cdr;
+    }
+    pk_cmp_push_byte(lisp, c, PK_OP_POP);
+}
+
+size_t pk_compile_destructure_list_symbol_loading(Pocket lisp, PKCompiler *c, PKAtom *list) {
+    size_t acc = 0;
+    PKAtom *iter = list;
+    while (pk_atom_is_cons(iter)) {
+        PKAtom *atom = iter->cons.car;
+        switch (atom->header.type) {
+            case PK_ATOMTY_SYMBOL: {
+                pk_cmp_load(lisp, c, atom);
+                acc += 1;
+                break;
+            }
+            case PK_ATOMTY_CONS: {
+                pk_compile_destructure_list_symbol_loading(lisp, c, atom);
+                break;
+            }
+            default: break;
+        }
+        iter = iter->cons.cdr;
+    }
+    return acc;
+}
+
+size_t pk_compile_destructure_list(Pocket lisp, PKCompiler *c, PKAtom *list) {
+    pk_compile_destructure_list_destructure(lisp, c, list);
+    return pk_compile_destructure_list_symbol_loading(lisp, c, list);
 }
 
 PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
@@ -54,7 +100,7 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
             }
             case PK_ATOMTY_CONS: {
                 nargs += 1;
-                lets += pk_compile_destructure_list(lisp, atom).lets;
+                lets += pk_compile_destructure_list(lisp, c, atom);
                 break;
             }
             default: {

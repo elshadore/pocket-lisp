@@ -272,6 +272,32 @@ void pk_vm_op_exec(Pocket lisp, PKVM *vm) {
             pk_vm_inc(lisp, vm);
             return;
         }
+        case PK_OP_SWAP: {
+            PKAtoms slice = pk_stack_slice(lisp);
+            if (slice.length < 2) {
+                pk_errors(lisp, pk_str("cannot swap elements of stack with a length less than two"));
+                return;
+            }
+            PKAtom *temp = slice.e[0];
+            slice.e[0] = slice.e[1];
+            slice.e[1] = temp;
+            pk_vm_inc(lisp, vm);
+            return;
+        }
+        case PK_OP_LIST_POP: {
+            PKAtoms slice = pk_stack_slice(lisp);
+            if (slice.length == 0) {
+                pk_errors(lisp, pk_str("stack empty"));
+                return;
+            }
+            size_t index = slice.length - 1;
+            PKAtomCons *atom = pk_atom_assert_cons(lisp, slice.e[index]);
+            slice.e[index] = atom->car;
+            pk_stack_push(lisp, atom->cdr);
+            
+            pk_vm_inc(lisp, vm);
+            return;
+        }
         default: {
             pk_errorf(lisp, "illegal op: %u", vm->op);
             return;

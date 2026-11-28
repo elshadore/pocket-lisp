@@ -78,6 +78,10 @@ PKStr pk_ident_opcode(pk_u8 op) {
         case PK_OP_PROTECT_BEGIN: return pk_str("PROTECT_BEGIN");
         case PK_OP_PROTECT_END: return pk_str("PROTECT_END");
         case PK_OP_BLOCK_POP: return pk_str("BLOCK_POP");
+        case PK_OP_POP: return pk_str("POP");
+        case PK_OP_POPN: return pk_str("POPN");
+        case PK_OP_SWAP: return pk_str("SWAP");
+        case PK_OP_LIST_POP: return pk_str("LIST_POP");
         default: return pk_str("UNKNOWN");
     }
 }

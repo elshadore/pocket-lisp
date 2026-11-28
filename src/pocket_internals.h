@@ -255,6 +255,8 @@ typedef struct PKAtomCFun_ {
 #define PK_OP_BLOCK_POP (31)
 #define PK_OP_POP (32)
 #define PK_OP_POPN (33)
+#define PK_OP_SWAP (34)
+#define PK_OP_LIST_POP (35)
 
 typedef enum PK_OPCODE_TY_ {
     PK_OPCODE_TY_NORMAL = 0,
@@ -946,13 +948,14 @@ size_t pk_hash_pointer(void *ptr);
 bool pk_float_is_whole(float floater, int *integer);
 
 void pk_compile_value(Pocket lisp, PKCompiler *c, PKAtom *value);
-PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args);
-size_t pk_compile_destructure_list(Pocket lisp, PKCompiler *c, PKAtom *list, size_t bias, size_t *pushed);
 void pk_cmp_push_byte(Pocket lisp, PKCompiler *c, pk_u8 byte);
 void pk_cmp_push_any(Pocket lisp, PKCompiler *c, size_t value);
 void pk_cmp_push_atom(Pocket lisp, PKCompiler *c, PKAtom *atom);
 void pk_cmp_load(Pocket lisp, PKCompiler *c, PKAtom *atom);
+
 void pk_compile_strsub(Pocket lisp, PKCompiler *c, PKStr string);
+
+PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args);
 
 PKStr pk_ident_atomty(pk_u8 type);
 PKStr pk_ident_type(PK_TYPE type);
