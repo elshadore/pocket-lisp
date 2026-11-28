@@ -1,5 +1,17 @@
 #include "pocket_internals.h"
 
+void pk_cmp_let(Pocket lisp, PKCompiler *c, PKAtom *symbol) {
+    pk_cmp_load(lisp, c, symbol);
+    pk_cmp_push_byte(lisp, c, PK_OP_LET);
+    pk_cmp_push_byte(lisp, c, 1);
+}
+
+void pk_cmp_let_stack(Pocket lisp, PKCompiler *c, PKAtom *symbol, size_t stack_offset) {
+    pk_cmp_push_byte(lisp, c, PK_OP_DIG);
+    pk_cmp_push_any(lisp, c, stack_offset);
+    pk_cmp_let(lisp, c, symbol);
+}
+
 void pk_compile_destructure_list_destructure(Pocket lisp, PKCompiler *c, PKAtom *list) {
     PKAtom *iter = list;
     while (pk_atom_is_cons(iter)) {
@@ -54,17 +66,16 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
     pk_u8 arity = PK_INT_ARITY_NORMAL;
     
     size_t nargs = 0;
-    size_t lets = 0;
     size_t option = 0;
+    size_t index = 0;
     
     PKAtom *iter = args;
     while (pk_atom_is_cons(iter)) {
         PKAtom *atom = iter->cons.car;
         switch (atom->header.type) {
             case PK_ATOMTY_SYMBOL: {
-                pk_cmp_load(lisp, c, atom);
+                pk_cmp_let_stack(lisp, c, atom, index);
                 nargs += 1;
-                lets += 1;
                 break;
             }
             case PK_ATOMTY_KEYWORD: {
@@ -77,9 +88,8 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
                     iter = iter->cons.cdr;
                     while (pk_atom_is_cons(iter)) {
                         PKAtomSymbol *symbol = pk_atom_assert_symbol(lisp, iter->cons.car);
-                        pk_cmp_load(lisp, c, (PKAtom *)symbol);
+                        pk_cmp_let_stack(lisp, c, (PKAtom *)symbol, index);
                         nargs += 1;
-                        lets += 1;
                         option += 1;
                         iter = iter->cons.cdr;
                     }
@@ -88,8 +98,7 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
                     arity = PK_INT_ARITY_VARIADIC;
                     PKAtomCons *rest = pk_atom_assert_cons(lisp, iter->cons.cdr);
                     PKAtomSymbol *symbol = pk_atom_assert_symbol(lisp, rest->car);
-                    pk_cmp_load(lisp, c, (PKAtom *)symbol);
-                    lets += 1;
+                    pk_cmp_let_stack(lisp, c, (PKAtom *)symbol, index);
                     iter = rest->cdr;
                     goto DONE;
                 } else {
@@ -100,7 +109,6 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
             }
             case PK_ATOMTY_CONS: {
                 nargs += 1;
-                lets += pk_compile_destructure_list(lisp, c, atom);
                 break;
             }
             default: {
@@ -108,16 +116,13 @@ PKDSB pk_compile_destructure(Pocket lisp, PKCompiler *c, PKAtom *args) {
                 break;
             }
         }
+        index += 1;
         iter = iter->cons.cdr;
     }
     DONE:
     
-    pk_cmp_push_byte(lisp, c, PK_OP_LET);
-    pk_cmp_push_any(lisp, c, lets);
-
     return (PKDSB) {
         .args = pk_byte_cast(lisp, nargs),
-        .lets = pk_byte_cast(lisp, lets),
         .arity = arity,
         .option = pk_byte_cast(lisp, option),
     };
